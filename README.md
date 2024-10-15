@@ -5,7 +5,7 @@ Inside project folders dump all files
 # raw_data
 Put only raw data here. SABLE, COLUMBUS, ECHOMRI.
 
-# data
+# Body weight (BD) and food intake (FI) data
 Put raw data with any degree of intervention.
 
 # scripts
