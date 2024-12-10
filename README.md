@@ -3,7 +3,7 @@ Follow a per project logic, that is, make a folder for each project inside raw_d
 Inside project folders dump all files
 
 # raw_data
-Put only raw data here. SABLE, COLUMBUS, ECHOMRI.
+https://drive.google.com/drive/folders/10ahk6AeM2mAjFRqVd4K7bZms9yVVpcuW?usp=sharing
 
 # Body weight (BD) and food intake (FI) data
 Put raw data with any degree of intervention.
