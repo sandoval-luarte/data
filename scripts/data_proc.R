@@ -4,6 +4,8 @@ pacman::p_load(
 
 fname <- rstudioapi::selectDirectory()
 
+# bodyweight and food intake ----
+
 filter_files <- tibble(
   filepath = list.files(fname, full.names = TRUE)
 ) %>% 
@@ -69,3 +71,35 @@ BW <- open_files %>%
 
 write_csv(x = FI, "../data/FI.csv")
 write_csv(x = BW, "../data/BW.csv")
+
+# echo MRI ----
+
+fname2 <- rstudioapi::selectDirectory()
+
+filter_files2 <- tibble(
+    filepath = list.files(fname2, full.names = TRUE)
+) %>% 
+    filter(
+        grepl("*.xlsx", filepath)
+    )
+filter_files2
+
+open_files2 <- filter_files2 %>% 
+    mutate(r = row_number()) %>% 
+    group_by(r) %>% 
+    group_split() %>% 
+    map(., function(X){
+        readxl::read_xlsx(X$filepath) %>% 
+            select(Label, Fat, Lean, Weight, TimeDateDura) %>% 
+            rename(ID = Label) %>% 
+            separate_wider_delim(TimeDateDura, delim = ";", names = c("Date", "A", "B")) %>% 
+            select(-A, -B) %>% 
+            separate_wider_delim(Date, delim = " ", names = c("hms", "month", "day", "year")) %>% 
+            mutate(day = gsub(",", "", day),
+                   Date = paste(year, month, day, sep = "-"),
+                   Date = lubridate::ymd(Date)) %>% 
+            select(-hms, -month, -day, -year)
+    })
+
+open_files2
+    
