@@ -39,6 +39,7 @@ FI <- FI_RAW %>%
 # food intake plot ----
 
 FI %>% 
+    filter(COHORT > 1) %>% 
     ggplot(aes(
         REL_DATE, cumulative_intake_kcal, group = ID, color = DIET_FORMULA
     )) +
@@ -102,6 +103,7 @@ fi_bw_corr %>%
 # echomri ----
 
 adiposity_index_gain <- echomri_data %>% 
+    filter(COHORT > 1) %>% #For now we want to evaluate what happen with these cohorts
     ungroup() %>% 
     group_by(ID, SEX, STRAIN, DIET_CODE) %>% 
     arrange(Date, .by_group = TRUE) %>% 
@@ -115,7 +117,8 @@ adiposity_index_gain
 
 # plot adiposity index ----
 
-echomri_data <- ECHOMRI_RAW
+echomri_data <- ECHOMRI_RAW%>% 
+    filter(COHORT > 1) 
 
 echomri_data %>% 
     ggplot(aes(
@@ -129,7 +132,7 @@ echomri_data %>%
         geom = "pointrange",
         aes(group = interaction(STRAIN, SEX))
     ) +
-    facet_wrap(~DIET_CODE, scales = "free_x")+
+    facet_wrap(~DIET_CODE)+
     format.plot
 
 adiposity_index_gain %>% 
