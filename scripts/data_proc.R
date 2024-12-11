@@ -40,7 +40,7 @@ food_desc <- read_csv(paste(fname, "/food_description.csv", sep = ""))
 # load metadata
 
 metadata <- read_csv(paste(fname, "/META.csv", sep = "")) %>% 
-    select(ID, SEX, COHORT, STRAIN, AIM)
+    select(ID, SEX, COHORT, STRAIN, AIM, DIET_CODE)
 
 # output food-intake file
 
@@ -97,9 +97,70 @@ open_files2 <- filter_files2 %>%
             separate_wider_delim(Date, delim = " ", names = c("hms", "month", "day", "year")) %>% 
             mutate(day = gsub(",", "", day),
                    Date = paste(year, month, day, sep = "-"),
-                   Date = lubridate::ymd(Date)) %>% 
+                   Date = lubridate::ymd(Date),
+                   ID =  as.numeric(ID)) %>% 
             select(-hms, -month, -day, -year)
-    })
+    }) %>% 
+    bind_rows() %>% 
+    left_join(., metadata, by = "ID")
 
 open_files2
-    
+
+# compare adiposity index = fat / lean ----
+
+echomri_data <- open_files2 %>% 
+    mutate(adiposity_index = Fat / Lean) %>% 
+    group_by(ID) %>% 
+    mutate(
+        n_measurement = as.numeric(as.factor(Date))
+    )
+echomri_data
+
+adiposity_index_gain <- echomri_data %>% 
+    ungroup() %>% 
+    group_by(ID, SEX, STRAIN, DIET_CODE) %>% 
+    arrange(Date, .by_group = TRUE) %>% 
+    summarise(
+        adi_gain = tail(adiposity_index, 1) - head(adiposity_index, 1),
+        time_elapsed = as.numeric(tail(Date, 1) - head(Date, 1)),
+        corrected_gain = (adi_gain / time_elapsed) * 100
+    ) %>% 
+    filter(time_elapsed != 0)
+adiposity_index_gain
+
+# plot adiposity index ----
+
+echomri_data %>% 
+    ggplot(aes(
+        n_measurement, adiposity_index,
+        color = interaction(STRAIN, SEX)
+    )) +
+    geom_point(alpha = 0.25) +
+    geom_line(aes(group = ID), alpha = 0.25) +
+    stat_summary(
+        fun.data = "mean_se",
+        geom = "pointrange",
+        aes(group = interaction(STRAIN, SEX))
+    ) +
+    facet_wrap(~DIET_CODE, scales = "free_x")
+
+adiposity_index_gain %>% 
+    ggplot(aes(
+        interaction(STRAIN, SEX), corrected_gain
+    )) +
+    geom_boxplot(outlier.shape = NA) +
+    geom_point() +
+    facet_wrap(~DIET_CODE)
+
+adiposity_index_gain %>% 
+    group_by(SEX, STRAIN, DIET_CODE) %>% 
+    summarise(count = n())
+
+
+adiposity_index_gain %>% 
+    group_by(SEX, STRAIN, DIET_CODE) %>% 
+    summarise(
+        m = mean(corrected_gain),
+        se = sd(corrected_gain)/sqrt(n())
+    )
+
