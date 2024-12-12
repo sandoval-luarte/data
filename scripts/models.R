@@ -156,5 +156,46 @@ adiposity_index_gain %>%
         se = sd(corrected_gain)/sqrt(n())
     )
 
+# bodyweight over time (derivative) ----
+
+bw_derivative <- BW_RAW %>% 
+    group_by(ID) %>% 
+    mutate(
+        DELTA_TIME = replace_na(as.numeric(DATE - lag(DATE)), 0),
+        DELTA_BW = replace_na(as.numeric(BW - lag(BW)), 0),
+        BW_TIME_DERIVATIVE = (DELTA_BW / DELTA_TIME),
+        REL_DATE = cumsum(replace_na(as.numeric(DATE - lag(DATE)), 0)),
+        REL_DATE_BIN = as.factor(cut(REL_DATE, breaks = 3, labels = FALSE)),
+        tmp = log(BW_TIME_DERIVATIVE)
+    )
+bw_derivative
+
+baseline_derivative <- bw_derivative %>% filter(REL_DATE < 50) %>% pull(DELTA_BW)
+
+baseline_mean <- mean(baseline_derivative)
+baseline_sd <- sd(baseline_derivative)
+baseline_mean+(2*baseline_sd)
+baseline_mean-(2*baseline_sd)
+
+bw_derivative %>% 
+    filter(COHORT %in% c(3, 4, 5)) %>% 
+    ggplot(aes(x = REL_DATE, y = BW)) +
+    geom_line(aes(group = ID)) +
+    geom_smooth(method = "lm", aes(group = ID), se = FALSE) +
+    facet_wrap(~ID, scales = "free")
+
+bw_derivative %>% 
+    filter(COHORT %in% c(3, 4, 5)) %>% 
+    ggplot(aes(REL_DATE, BW_TIME_DERIVATIVE)) +
+    geom_point(aes(group = ID)) +
+    geom_line(aes(group = ID)) +
+    geom_hline(yintercept = 0) +
+    facet_wrap(~ID, scales = "free_x")
+
+
+bw_derivative %>% 
+    filter(REL_DATE < 50) %>% 
+    ggplot(aes(BW_TIME_DERIVATIVE)) +
+    geom_histogram()
 
 
