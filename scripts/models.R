@@ -170,6 +170,34 @@ bw_derivative <- BW_RAW %>%
     )
 bw_derivative
 
+bw_deriv_nzo <- bw_derivative %>% 
+    filter(COHORT %in% c(2, 3, 4, 5)) %>% 
+    drop_na(BW_TIME_DERIVATIVE)
+bw_deriv_nzo
+
+last_n_days_nzo_deriv <- bw_deriv_nzo %>% 
+    ungroup() %>% 
+    group_by(ID) %>% 
+    arrange(DATE, .by_group = TRUE) %>% 
+    mutate(time_from_last_measurement = abs(as.numeric(DATE - tail(DATE, 1)))) %>% 
+    filter(time_from_last_measurement <= 30)
+last_n_days_nzo_deriv
+
+last_n_slopes <- last_n_days_nzo_deriv %>% 
+    ungroup() %>% 
+    group_by(ID) %>% 
+    group_split() %>% 
+    map(., function(X){
+        mdl <- lm(data = X, BW ~ REL_DATE)
+        out <- broom::tidy(mdl) %>% 
+            mutate(ID = X$ID[1])
+    }) %>% 
+    bind_rows() %>% 
+    filter(term == "REL_DATE") %>% 
+    select(-term)
+last_n_slopes
+    
+
 baseline_derivative <- bw_derivative %>% filter(REL_DATE < 50) %>% pull(DELTA_BW)
 
 baseline_mean <- mean(baseline_derivative)
@@ -184,6 +212,18 @@ bw_derivative %>%
     geom_smooth(method = "lm", aes(group = ID), se = FALSE) +
     facet_wrap(~ID, scales = "free")
 
+last_n_days_nzo_deriv %>% 
+    filter(COHORT == 2) %>% 
+    left_join(., last_n_slopes, by = "ID") %>%
+    mutate(gain_last_n = if_else(estimate > 0, "Gained", "Lost")) %>% 
+    ggplot(aes(x = REL_DATE, y = BW)) +
+    geom_line(aes(group = ID)) +
+    geom_point(aes(group = ID, color = gain_last_n), size = 2) +
+    geom_smooth(method = "lm", aes(group = ID, color = gain_last_n), se = FALSE) +
+    facet_wrap(~ID, scales = "free") +
+    scale_color_manual(values = c("Gained" = "darkgreen", "Lost" = "red"))
+
+
 bw_derivative %>% 
     filter(COHORT %in% c(3, 4, 5)) %>% 
     ggplot(aes(REL_DATE, BW_TIME_DERIVATIVE)) +
@@ -191,6 +231,16 @@ bw_derivative %>%
     geom_line(aes(group = ID)) +
     geom_hline(yintercept = 0) +
     facet_wrap(~ID, scales = "free_x")
+
+bw_deriv_nzo %>% 
+    left_join(., last_n_slopes, by = "ID") %>%
+    mutate(gain_last_n = if_else(estimate > 0, "Gained", "Lost")) %>% 
+    ggplot(aes(REL_DATE, BW_TIME_DERIVATIVE)) +
+    geom_point(aes(group = ID, color = gain_last_n)) +
+    geom_line(aes(group = ID)) +
+    geom_hline(yintercept = 0) +
+    facet_wrap(~ID, scales = "free_x") +
+    scale_color_manual(values = c("green", "red"))
 
 
 bw_derivative %>% 
