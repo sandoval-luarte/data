@@ -214,7 +214,7 @@ bw_derivative %>%
     facet_wrap(~ID, scales = "free")
 
 last_n_days_nzo_deriv %>% 
-    filter(COHORT == 2) %>% 
+    filter(COHORT %in% c(2,3, 4, 5)) %>% 
     left_join(., last_n_slopes, by = "ID") %>%
     mutate(gain_last_n = if_else(estimate > 0, "Gained", "Lost")) %>% 
     ggplot(aes(x = REL_DATE, y = BW)) +
