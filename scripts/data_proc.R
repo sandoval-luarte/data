@@ -1,5 +1,6 @@
 pacman::p_load(
-  tidyverse
+  tidyverse,
+  googledrive
 )
 
 fname <- rstudioapi::selectDirectory()
@@ -118,3 +119,51 @@ echomri_data <- open_files2 %>%
 echomri_data
 
 write_csv(x = echomri_data, "../data/echomri.csv")
+
+# read sable data ----
+
+sable_csv_files <- list.files(
+    path = "~/Downloads/sable/sable_csv",
+    full.names = TRUE)
+sable_csv_files
+
+metadata <- read_csv("../data/META.csv")
+
+x <- read_csv(sable_csv_files[[1]])
+
+# read
+
+
+
+
+
+# we also need the META file
+META <- read_csv("data/META.csv") %>% 
+    pivot_longer(cols = starts_with("SABLE_DAY_"),
+                 names_to = "sable_idx",
+                 values_to = "metadata_code")
+# then we create a column with the sable code m/d/y-cage
+sable_data_tmp <- sable_data %>% 
+    mutate(
+        date = lubridate::as_date(lubridate::mdy_hms(DateTime))
+    ) %>% 
+    group_by(date) %>% 
+    group_split()
+library(furrr)
+plan(multisession, workers = 8)
+match_id <- sable_data_tmp %>% 
+    future_map(., function(X){
+        file_name <- paste0("data/sable/",X$date[1], ".rds")
+        d <- X %>%
+            pivot_longer(cols = matches("*_[0-9]+")) %>% 
+            mutate(
+                cage_number = str_extract(str_extract(name, "_[0-9]+"), "[0-9]+"),
+                metadata_code = paste(format(date, "%m/%d/%Y"),
+                                      cage_number, sep = "-")
+            )
+        tmp <- left_join(d, META, by = "metadata_code")
+        saveRDS(tmp, file = file_name, compress = TRUE)
+        d <- NULL
+        tmp <- NULL
+    })
+    
