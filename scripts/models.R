@@ -18,6 +18,7 @@ format.plot <- theme_pubr() +
           axis.title.x.bottom =element_text(family = "Helvetica", size = 16))
 
 # import data ----
+## remember to set the path to script location
 META <- read_csv("../data/META.csv")
 BW_RAW <- read_csv("../data/BW.csv")
 FI_RAW <- read_csv("../data/FI.csv")
@@ -251,7 +252,7 @@ bw_derivative %>%
 
 # sable analysis ----
 
-sable_data <- readRDS("../data/sable/sable_data.rds")
+sable_data <- readRDS("../data/sable/sable_hr_data.rds")
 
 sable_data %>% 
     filter(ID == 3729, date == "2024-12-03") %>% 

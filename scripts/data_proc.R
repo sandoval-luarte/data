@@ -1,6 +1,8 @@
 pacman::p_load(
   tidyverse,
-  googledrive
+  googledrive,
+  furrr,
+  zoo
 )
 
 fname <- rstudioapi::selectDirectory()
@@ -149,7 +151,8 @@ folder_contents$id %>%
 ## get all the csv file names
 sable_csv_files <- list.files(
     path = csv_dir,
-    full.names = TRUE)
+    full.names = TRUE,
+    pattern = "*.csv")
 sable_csv_files
 
 ## read the metadata file and set it for merge with sables csv files
@@ -160,11 +163,12 @@ metadata <- read_csv("../data/META.csv") %>%
 
 ## merge metadata with sable data in an hourly fashion
 
+plan(multisession, workers = availableCores())
 sable_hr_data <- sable_csv_files %>% 
-    map_dfr(
+    future_map_dfr(
         ., function(X){
             proc_data <- X %>% 
-                read_csv(.) %>% 
+                read_csv(., show_col_types = FALSE) %>% 
                 select(c(DateTime, matches(c("kcal_hr_",
                                            "VO2_",
                                            "VCO2_",
@@ -182,6 +186,7 @@ sable_hr_data <- sable_csv_files %>%
                                      "RQ_",
                                      "AllMeters_",
                                      "PedMeters_",
+                                     "PedSpeed_",
                                      "AllMeters_",
                                      "FoodA_",
                                      "Water_",
@@ -201,10 +206,39 @@ sable_hr_data <- sable_csv_files %>%
                 group_by(date, hr, ID, cage_number, DIET, DIET_CODE, KCAL_PER_GR,
                          SEX, COHORT, STRAIN, AIM, sable_idx, metadata_code,
                          parameter) %>% 
-                summarise(
-                    value = mean(value)
-                )
+                group_split() %>% 
+                map_dfr(., function(X){
+                  patterns <- c("FoodA_", "AllMeters_", "PedMeters_", "Water_")
+                  regex_pattern <- paste(patterns, collapse = "|")
+                  if (any(grepl(regex_pattern, X$parameter[1]))){
+                    out <- X %>% 
+                      group_by(date, hr, ID, cage_number, DIET, DIET_CODE, KCAL_PER_GR,
+                               SEX, COHORT, STRAIN, AIM, sable_idx, metadata_code,
+                               parameter) %>% 
+                      summarise(
+                        value = max(value), .groups = "drop_last"
+                      )}
+                    else{
+                      out <- X %>% 
+                        group_by(date, hr, ID, cage_number, DIET, DIET_CODE, KCAL_PER_GR,
+                                 SEX, COHORT, STRAIN, AIM, sable_idx, metadata_code,
+                                 parameter) %>% 
+                        summarise(
+                          value = mean(value), .groups = "drop_last"
+                        )
+                    }
+                    return(out)
+                })
         }, .progress = TRUE
     )
 
 saveRDS(sable_hr_data, file = "../data/sable/sable_hr_data.rds", compress = TRUE)
+
+
+test <- x %>% 
+  mutate(rolling_sd = zoo::rollapply(FoodA_1, 5, fill = 0, FUN = sd))
+
+test %>% 
+  mutate(DateTime = lubridate::mdy_hms(DateTime)) %>% 
+  ggplot(aes(DateTime, rolling_sd)) +
+  geom_line()
