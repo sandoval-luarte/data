@@ -251,86 +251,13 @@ bw_derivative %>%
 
 # sable analysis ----
 
-sable_files <- list.files("../data/sable",
-                          full.names = TRUE)
-sable_files
+sable_data <- readRDS("../data/sable/sable_data.rds")
 
-filters <- c(
-    "2024-11-17.rds",
-    "2024-11-24.rds",
-    "2024-12-01.rds",
-    "2024-12-08.rds"
-)
-
-sable_filtered <- sable_files[basename(sable_files) %in% filters]
-
-plan(multisession, workers = 4)
-sable_kcal_hr <- sable_filtered %>% 
-    future_map_dfr(
-        ., function(X){
-            read_rds(X) %>% 
-                filter(grepl("kcal_hr", name)) %>% 
-                mutate(DateTime = lubridate::mdy_hms(DateTime),
-                       hr = lubridate::hour(DateTime)) %>% 
-                group_by(hr, date, ID, COHORT, STRAIN, SEX, DIET_CODE, cage_number) %>% 
-                summarise(
-                    mean_hr_kcal = mean(value)
-                )
-        }
-    )
-
-
-light_rect <- data.frame(xmin=7, xmax=19, ymin=-Inf, ymax=Inf)
-
-sable_kcal_hr %>% 
-    filter(cage_number != 3, mean_hr_kcal > 0.1) %>% 
+sable_data %>% 
+    filter(ID == 3729, date == "2024-12-03") %>% 
     ggplot(aes(
-        hr, mean_hr_kcal
+        hr, value
     )) +
-    geom_rect(data= light_rect, aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax),
-              fill="gold",
-              alpha=0.5,
-              inherit.aes = FALSE) +
-    geom_line(aes(group = ID), alpha = 0.25) +
-    stat_summary(
-        fun.data = "mean_se",
-        geom = "pointrange",
-        aes(group = hr)
-    ) +
-    stat_summary(
-        fun.data = "mean_se",
-        geom = "line",
-        aes(group = 1)
-    ) +
-    facet_wrap(~date) +
+    geom_line() +
+    facet_wrap(~parameter, scales = "free") +
     theme_pubr()
-
-sable_kcal_hr %>% 
-    mutate(lights = if_else(hr %in% c(6:20), "lights_on", "lights_off")) %>% 
-    filter(cage_number != 3, mean_hr_kcal > 0.1) %>% 
-    ggplot(aes(
-        lights, mean_hr_kcal*24,
-    )) +
-    geom_boxplot(outlier.shape = NA) +
-    stat_summary(
-        fun.data = "mean_se",
-        geom = "pointrange",
-        aes(group = ID)
-    ) +
-    stat_summary(
-        fun.data = "mean_se",
-        geom = "line",
-        aes(group = ID)
-    ) +
-    facet_wrap(~date) +
-    theme_pubr()
-
-mdl_lights <- lmerTest::lmer(
-    data = sable_kcal_hr %>%
-    filter(date != "2024-11-18", cage_number != 3) %>% 
-    mutate(lights = if_else(hr %in% c(6:20), "lights_on", "lights_off")),
-    log(mean_hr_kcal*24) ~ lights + (1 | ID),
-    control=lme4::lmerControl(optimizer="bobyqa",
-                        optCtrl=list(maxfun=2e5))
-)
-summary(mdl_lights)
