@@ -122,25 +122,45 @@ write_csv(x = echomri_data, "../data/echomri.csv")
 
 # read sable data ----
 
+## first we need to download the files from google drive
+
+## step 1 auth yourself with your UMN acc
+
+drive_auth()
+
+## step 2 search for the correct folder, in this case "csv_files"
+## this folder contains all the raw sable data in csv files
+
+folder_id <- as_id(drive_find("csv_files"))
+folder_contents <- drive_ls(folder_id)
+
+## step 3 download the folder contents, remember to set the path to soruce file location
+
+## select the place where you want to download the csv files
+csv_dir <- rstudioapi::selectDirectory()
+
+## this loops the folder contents and download the csv files one by one
+folder_contents$id %>% 
+  imap(., possibly(function(X, idx){
+    path <- paste(csv_dir, "/", folder_contents$name[idx], sep = "")
+    drive_download(X, path = path, overwrite = FALSE)
+  }))
+
+## get all the csv file names
 sable_csv_files <- list.files(
-    path = "~/Downloads/sable/sable_csv",
+    path = csv_dir,
     full.names = TRUE)
 sable_csv_files
 
+## read the metadata file and set it for merge with sables csv files
 metadata <- read_csv("../data/META.csv") %>% 
     pivot_longer(cols = starts_with("SABLE_DAY_"),
                  names_to = "sable_idx",
                  values_to = "metadata_code")
 
-x <- read_csv(sable_csv_files[[1]])
+## merge metadata with sable data in an hourly fashion
 
-# read csv and downsample to hourly data
-
-csv_dir <- rstudioapi::selectDirectory()
-
-# kcal_hr_
-
-kcal_hr_data <- sable_csv_files %>% 
+sable_hr_data <- sable_csv_files %>% 
     map_dfr(
         ., function(X){
             proc_data <- X %>% 
@@ -150,7 +170,10 @@ kcal_hr_data <- sable_csv_files %>%
                                            "VCO2_",
                                            "RQ_",
                                            "AllMeters_",
+                                           "PedMeters_",
+                                           "PedSpeed_",
                                            "FoodA_",
+                                           "Water_",
                                            "BodyMass")))) %>% 
                 pivot_longer(
                     cols = matches(c("kcal_hr_",
@@ -158,7 +181,10 @@ kcal_hr_data <- sable_csv_files %>%
                                      "VCO2_",
                                      "RQ_",
                                      "AllMeters_",
+                                     "PedMeters_",
+                                     "AllMeters_",
                                      "FoodA_",
+                                     "Water_",
                                      "BodyMass")),
                     names_to = "parameter",
                     values_to = "value"
@@ -181,4 +207,4 @@ kcal_hr_data <- sable_csv_files %>%
         }, .progress = TRUE
     )
 
-saveRDS(kcal_hr_data, file = "../data/sable/sable_data.rds", compress = TRUE)
+saveRDS(sable_hr_data, file = "../data/sable/sable_hr_data.rds", compress = TRUE)
