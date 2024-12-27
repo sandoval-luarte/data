@@ -1,3 +1,5 @@
+# libs ----
+
 pacman::p_load(
   tidyverse,
   googledrive,
@@ -161,6 +163,53 @@ metadata <- read_csv("../data/META.csv") %>%
                  names_to = "sable_idx",
                  values_to = "metadata_code")
 
+x <- read_csv(sable_csv_files[[1]])
+
+y <- x %>% 
+    select(c(DateTime, matches(c("kcal_hr_",
+                               "VO2_",
+                               "VCO2_",
+                               "RQ_",
+                               "AllMeters_",
+                               "PedMeters_",
+                               "PedSpeed_",
+                               "FoodA_",
+                               "Water_",
+                               "BodyMass")))) %>% 
+    pivot_longer(
+        cols = matches(c("kcal_hr_",
+                         "VO2_",
+                         "VCO2_",
+                         "RQ_",
+                         "AllMeters_",
+                         "PedMeters_",
+                         "PedSpeed_",
+                         "AllMeters_",
+                         "FoodA_",
+                         "Water_",
+                         "BodyMass")),
+        names_to = "parameter",
+        values_to = "value"
+    ) %>% 
+    filter(grepl("FoodA_", parameter)) %>% 
+    ungroup() %>% 
+    group_by(parameter) %>% 
+    mutate(
+        rolling_sd = zoo::rollapply(value,
+                                    FUN = sd,
+                                    width = 5,
+                                    fill = 0),
+        sd_threshold = rolling_sd > 0.05,
+        sd_bouts = data.table::rleid(sd_threshold)
+    ) %>% 
+    ungroup() %>% 
+    group_by(sd_bouts) %>% 
+    mutate(
+        bout_len = n() * sd_threshold,
+        bout_corr = if_else(lag(bout_len) >= 45 & bout_len <= 60,
+                            lag())
+    )
+
 ## merge metadata with sable data in an hourly fashion
 
 plan(multisession, workers = availableCores())
@@ -235,10 +284,71 @@ sable_hr_data <- sable_csv_files %>%
 saveRDS(sable_hr_data, file = "../data/sable/sable_hr_data.rds", compress = TRUE)
 
 
-test <- x %>% 
-  mutate(rolling_sd = zoo::rollapply(FoodA_1, 5, fill = 0, FUN = sd))
+test <- x %>%
+    select(c(DateTime, matches(c("kcal_hr_",
+                                           "VO2_",
+                                           "VCO2_",
+                                           "RQ_",
+                                           "AllMeters_",
+                                           "PedMeters_",
+                                           "PedSpeed_",
+                                           "FoodA_",
+                                           "Water_",
+                                           "BodyMass")))) %>% 
+    pivot_longer(
+        cols = matches(c("kcal_hr_",
+                         "VO2_",
+                         "VCO2_",
+                         "RQ_",
+                         "AllMeters_",
+                         "PedMeters_",
+                         "PedSpeed_",
+                         "AllMeters_",
+                         "FoodA_",
+                         "Water_",
+                         "BodyMass")),
+        names_to = "parameter",
+        values_to = "value"
+    ) %>% 
+    mutate(
+        DateTime = lubridate::mdy_hms(DateTime),
+        cage_number = str_extract(str_extract(parameter, "_[0-9]+"), "[0-9]+"),
+        date = lubridate::as_date(DateTime),
+        hr = lubridate::hour(DateTime),
+        metadata_code = paste(format(date, "%m/%d/%Y"),
+                              cage_number, sep = "-")
+    ) %>% 
+    filter(grepl("FoodA_", parameter)) %>% 
+    group_by(cage_number, date, parameter) %>% 
+    group_split()
 
-test %>% 
-  mutate(DateTime = lubridate::mdy_hms(DateTime)) %>% 
-  ggplot(aes(DateTime, rolling_sd)) +
-  geom_line()
+bt <- test[[1]] %>% 
+    mutate(
+      rolling_sd = as.numeric((zoo::rollapply(value, 5, fill = 0, FUN = sd)) > 0.05),
+      bouts = as.numeric(data.table::rleid(rolling_sd))
+      )
+
+bt_filter <- bt %>% 
+    filter(rolling_sd == 0) %>% 
+    group_by(bouts) %>% 
+    group_split() %>% {
+        a <- head(., -1)
+        b <- tail(., - 1)
+        map2_dfr(a, b, possibly(function(X, Y){
+            bouts <- Y$bouts[1]
+            test_t <- t.test(X$value, Y$value, alternative = c("greater"))
+            t_test_pval <- test_t$p.value
+            diff <- mean(Y$value) - mean(X$value)
+            return(
+                tibble(
+                    bouts = bouts,
+                    t_test_pval = t_test_pval,
+                    diff = diff
+                )
+            )
+        }))
+    }
+
+tt <- left_join(bt, bt_filter, by = "bouts")
+
+    
