@@ -3,5 +3,5 @@
 .RData
 .Ruserdata
 # ignore all the sable csv files and rds files eventually
-*.csv
+*m.csv
 *.rds
