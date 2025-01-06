@@ -158,18 +158,68 @@ sable_csv_files <- list.files(
 sable_csv_files
 
 ## read the metadata file and set it for merge with sables csv files
-metadata <- read_csv("../data/META.csv") %>% 
+metadata <- read_csv("data/META.csv") %>% 
     pivot_longer(cols = starts_with("SABLE_DAY_"),
                  names_to = "sable_idx",
                  values_to = "metadata_code")
 
-## esto es solo para trabajar en la funcion para detectar bouts
-x <- read_csv(sable_csv_files[[1]])
-
-
 ## merge metadata with sable data in an hourly fashion
+detect_bouts <- function(X){
+    X %>% 
+    mutate(
+      rolling_sd_raw = zoo::rollapply(value, 10, fill = 0, FUN = sd, align = "right"),
+      rolling_sd = as.numeric((zoo::rollapply(value, 10, fill = 0, FUN = sd, align = "right")) > 0.02),
+      bouts = as.numeric(data.table::rleid(rolling_sd))
+      ) %>% 
+  group_by(bouts) %>% 
+  mutate(bout_duration = n())
+}
 
-plan(multisession, workers = availableCores())
+compute_t_tests <- function(X){
+    bout_length <- length(unique(X$bouts))
+    if(bout_length > 1){
+    X %>% 
+    filter(rolling_sd == 0) %>% 
+    group_by(bouts) %>% 
+    group_split() %>% {
+        a <- head(., -1)
+        b <- tail(., -1)
+        map2_dfr(a, b, possibly(function(X, Y){
+            bouts <- Y$bouts[1]
+            test_t <- t.test(X$value, Y$value, alternative = c("two.sided"))
+            t_test_pval <- test_t$p.value
+            diff <- mean(X$value) - mean(Y$value)
+            return(
+                tibble(
+                    bouts = bouts,
+                    t_test_pval = t_test_pval,
+                    diff = diff
+                )
+            )
+        }))
+    }}
+    else{
+        return(
+            tibble(
+                bouts = NA_real_,
+                t_test_pval = NA_real_,
+                diff = NA_real_
+            ))
+    }
+}
+
+
+corrected_intake <- function(bouts, t_tests){
+  left_join(bouts, t_tests, by = "bouts") %>%
+  ungroup() %>% 
+  group_by(bouts) %>%
+  mutate(
+    value = if_else(rolling_sd == 0, mean(value), NA_real_), # para el resumen en 1h, considerar solo los momentos donde sd = 0, tomar promedio
+    corrected_diff = if_else(diff < 0 | t_test_pval > 0.05, 0, diff)
+  )
+}
+
+plan(multisession, workers = availableCores()-4)
 sable_hr_data <- sable_csv_files %>% 
     future_map_dfr(
         ., function(X){
@@ -207,7 +257,17 @@ sable_hr_data <- sable_csv_files %>%
                     hr = lubridate::hour(DateTime),
                     metadata_code = paste(format(date, "%m/%d/%Y"),
                                           cage_number, sep = "-")
-                ) %>% 
+                )
+            food_intake <- proc_data %>% 
+                filter(grepl("FoodA_", parameter)) %>% 
+                group_by(cage_number, date, parameter) %>% 
+                group_split() %>% 
+                map_dfr(., function(X){
+                    return(corrected_intake(detect_bouts(X), compute_t_tests(detect_bouts(X))))
+                })
+            non_food_intake <- proc_data %>% 
+                filter(!grepl("FoodA_", parameter))
+            complete_data <- bind_rows(food_intake, non_food_intake) %>% 
                 left_join(., metadata, by = "metadata_code") %>% # aqui poner el codigo para el food y water intake, tomar bout length (mean), # of bouts
                 group_by(date, hr, ID, cage_number, DIET, DIET_CODE, KCAL_PER_GR,
                          SEX, COHORT, STRAIN, AIM, sable_idx, metadata_code,
@@ -230,105 +290,18 @@ sable_hr_data <- sable_csv_files %>%
                                  SEX, COHORT, STRAIN, AIM, sable_idx, metadata_code,
                                  parameter) %>% 
                         summarise(
-                          value = mean(value), .groups = "drop_last"
+                          value = mean(value, na.rm = TRUE), .groups = "drop_last"
                         )
                     }
                     return(out)
                 })
         }, .progress = TRUE
     )
-
-saveRDS(sable_hr_data, file = "../data/sable/sable_hr_data.rds", compress = TRUE)
-
-## esto es solo para probar en un solo csv
-test <- x %>%
-    select(c(DateTime, matches(c("kcal_hr_",
-                                           "VO2_",
-                                           "VCO2_",
-                                           "RQ_",
-                                           "AllMeters_",
-                                           "PedMeters_",
-                                           "PedSpeed_",
-                                           "FoodA_",
-                                           "Water_",
-                                           "BodyMass")))) %>% 
-    pivot_longer(
-        cols = matches(c("kcal_hr_",
-                         "VO2_",
-                         "VCO2_",
-                         "RQ_",
-                         "AllMeters_",
-                         "PedMeters_",
-                         "PedSpeed_",
-                         "AllMeters_",
-                         "FoodA_",
-                         "Water_",
-                         "BodyMass")),
-        names_to = "parameter",
-        values_to = "value"
-    ) %>% 
-    mutate(
-        DateTime = lubridate::mdy_hms(DateTime),
-        cage_number = str_extract(str_extract(parameter, "_[0-9]+"), "[0-9]+"),
-        date = lubridate::as_date(DateTime),
-        hr = lubridate::hour(DateTime),
-        metadata_code = paste(format(date, "%m/%d/%Y"),
-                              cage_number, sep = "-")
-    ) %>% 
-    filter(grepl("FoodA_", parameter)) %>% 
-    group_by(cage_number, date, parameter) %>% 
-    group_split()
-
-## bt es 1 csv al cual le hice el procesamiento de el rolling sd y la deteccion de bouts
-bt <- test[[1]] %>% 
-    mutate(
-      rolling_sd_raw = zoo::rollapply(value, 10, fill = 0, FUN = sd, align = "right"),
-      rolling_sd = as.numeric((zoo::rollapply(value, 10, fill = 0, FUN = sd, align = "right")) > 0.02),
-      bouts = as.numeric(data.table::rleid(rolling_sd))
-      ) %>% 
-  group_by(bouts) %>% 
-  mutate(bout_duration = n())
-
-## esto es para computar las diferencias entre los periodos quietos
-## saco el t test y todas las manos
-bt_filter <- bt %>% 
-    filter(rolling_sd == 0) %>% 
-    group_by(bouts) %>% 
-    group_split() %>% {
-        a <- head(., -1)
-        b <- tail(., -1)
-        map2_dfr(a, b, possibly(function(X, Y){
-            bouts <- Y$bouts[1]
-            test_t <- t.test(X$value, Y$value, alternative = c("two.sided"))
-            t_test_pval <- test_t$p.value
-            diff <- mean(X$value) - mean(Y$value)
-            return(
-                tibble(
-                    bouts = bouts,
-                    t_test_pval = t_test_pval,
-                    diff = diff
-                )
-            )
-        }))
-    }
+saveRDS(sable_hr_data, file = "data/sable/sable_hr_data.rds", compress = TRUE)
 
 
-## aca devuelvo el analisis entre periodos quietos a la data original
-## mediante un left join
-## aqui aplico las correcciones para las ingestas
-output <- bt %>% 
-  left_join(., bt_filter, by = "bouts") %>%
-  ungroup() %>% 
-  group_by(bouts) %>% 
-  mutate(
-    corrected_value = if_else(rolling_sd == 0, mean(value), value), # para el resumen en 1h, considerar solo los momentos donde sd = 0, tomar promedio
-    corrected_diff = if_else(diff < 0 | t_test_pval > 0.05, 0, diff)
-  )
-
-
-output %>% 
-  filter(rolling_sd == 0) %>% 
-  ggplot(aes(DateTime, corrected_value)) +
-  geom_line() +
-  geom_smooth(span = 0.8)
+sable_hr_data %>% 
+    filter(grepl("FoodA_", parameter), ID == 1003) %>% 
+    ggplot(aes(hr, value)) +
+    geom_point()
 
