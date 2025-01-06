@@ -158,7 +158,8 @@ sable_csv_files <- list.files(
 sable_csv_files
 
 ## read the metadata file and set it for merge with sables csv files
-metadata <- read_csv("data/META.csv") %>% 
+# set directory to source file location
+metadata <- read_csv("../data/META.csv") %>% 
     pivot_longer(cols = starts_with("SABLE_DAY_"),
                  names_to = "sable_idx",
                  values_to = "metadata_code")
@@ -219,7 +220,7 @@ corrected_intake <- function(bouts, t_tests){
   )
 }
 
-plan(multisession, workers = availableCores()-4)
+plan(multisession, workers = availableCores())
 sable_hr_data <- sable_csv_files %>% 
     future_map_dfr(
         ., function(X){
@@ -297,11 +298,21 @@ sable_hr_data <- sable_csv_files %>%
                 })
         }, .progress = TRUE
     )
-saveRDS(sable_hr_data, file = "data/sable/sable_hr_data.rds", compress = TRUE)
+saveRDS(sable_hr_data, file = "../data/sable/sable_hr_data.rds", compress = TRUE)
 
 
 sable_hr_data %>% 
-    filter(grepl("FoodA_", parameter), ID == 1003) %>% 
+    filter(grepl("AllMeters_", parameter), date=="2024-11-12") %>% 
     ggplot(aes(hr, value)) +
-    geom_point()
+    geom_point() +
+    geom_line() +
+  facet_wrap(~ID)
+
+sable_hr_data %>% 
+  filter(grepl("FoodA_", parameter), ID == 1006) %>%
+  group_by(date) %>% 
+  summarise(
+    max_day = max(value),
+    min_day = min(value)
+  )
 
