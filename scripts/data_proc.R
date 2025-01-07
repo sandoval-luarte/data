@@ -221,7 +221,7 @@ corrected_intake <- function(bouts, t_tests){
 }
 
 plan(multisession, workers = availableCores())
-sable_hr_data <- sable_csv_files[1:3] %>% 
+sable_hr_data <- sable_csv_files %>% 
     future_map_dfr(
         ., function(X){
             proc_data <- X %>% 
@@ -256,7 +256,7 @@ sable_hr_data <- sable_csv_files[1:3] %>%
                     cage_number = str_extract(str_extract(parameter, "_[0-9]+"), "[0-9]+"),
                     date = lubridate::as_date(DateTime),
                     hr = lubridate::hour(DateTime),
-                    metadata_code = paste(format(date, "%m/%d/%Y"),
+                    metadata_code = paste(gsub('(?<=\\/)0|^0', '', format(date, "%m/%d/%Y"), perl=TRUE),
                                           cage_number, sep = "-")
                 )
             food_intake <- proc_data %>% 
@@ -395,9 +395,28 @@ before_after_analysis <- data_injection_grid %>%
                 injection_time[[X$injection_time_idx]]$INJECTION_TIME[1],
                 12, # change this
                 corrected_data
-            )
+            ) %>% mutate(drug = injection_time[[X$injection_time_idx]]$DRUG[1])
             # return the corrected data values
             return(time_window_data)
         }
     })
 saveRDS(before_after_analysis, file = "../data/sable/before_after_analysis.rds", compress = TRUE)
+
+before_after_analysis %>% 
+  filter(ID == 1006) %>% 
+  mutate(parameter = str_remove(parameter, "_[0-9]+")) %>% 
+  ggplot(aes(datetime, corrected_value, color = event_flag)) +
+  geom_point() +
+  geom_line() +
+  facet_wrap(parameter~ID*drug, scales = "free")
+
+before_after_analysis %>% 
+  group_by(parameter, event_flag, drug, ID) %>%
+  summarise(
+    delta = abs(max(corrected_value)-min(corrected_value))
+  ) %>% 
+  filter(grepl("BodyMass_", parameter)) %>% 
+  ggplot(aes(interaction(drug, event_flag), delta, color = as.factor(ID))) +
+  geom_point() +
+  geom_line(aes(group = ID)) +
+  facet_wrap(~drug, scale = "free_x")
