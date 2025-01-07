@@ -300,18 +300,12 @@ sable_hr_data <- sable_csv_files[1:3] %>%
     )
 saveRDS(sable_hr_data, file = "../data/sable/sable_hr_data.rds", compress = TRUE)
 
-allmetersdata <- sable_hr_data %>% 
-    filter(grepl("AllMeters_", parameter), ID == 3707)
-allmetersdata
 
-food <- sable_hr_data %>% 
-    filter(grepl("FoodA_", parameter), ID == 3707) %>% 
-    mutate(
-        value = if_else(date >= "2024-11-13", value+50, value)
-    )
-food
+# before/after injection ----
 
-# ascending data
+## helper functions ----
+
+# this function works for cumulative data such as allmeters
 create_corrected_updata <- function(X){
     corrected_values <- X %>% 
         ungroup() %>% 
@@ -322,7 +316,7 @@ create_corrected_updata <- function(X){
             )
     return(corrected_values)
 }
-# descending data
+# this functions works for data that always goes down, such as food intake
 create_corrected_downdata <- function(X){
     corrected_values <- X %>% 
         ungroup() %>% 
@@ -333,9 +327,9 @@ create_corrected_downdata <- function(X){
             )
     return(corrected_values)
 }
-# create a time window
+# selects the data before and after an injection time
 time_window <- function(injection_time, window_size_hr, data){
-    create_datetime <- injection_time
+    create_datetime <- lubridate::ymd_hms(injection_time)
     time_before_injection <- create_datetime - lubridate::hours(window_size_hr)
     time_after_injection <- create_datetime + lubridate::hours(window_size_hr)
     data_with_dttm <- data %>% 
@@ -349,70 +343,61 @@ time_window <- function(injection_time, window_size_hr, data){
     return(data_with_dttm)
 }
 
+## before/after analysis ----
+
+# get injections metadata
 injection_time <- read_csv("../data/META_INJECTIONS.csv") %>% 
-    bind_rows(tibble(ID = c(3707, 3707),
-                     DRUG = c("veh", "drug"),
-                     INJECTION_TIME = c("11/12/2024 15:30","11/13/2024 15:30"),
-                     TEMPERATURE_F = c(65.4, 65.4))) %>% 
+    # set injection time into dttm
     mutate(
         INJECTION_TIME = lubridate::mdy_hm(INJECTION_TIME)
     ) %>% 
-    filter(ID == "3707")
-injection_time
+    group_by(row_number()) %>% 
+    group_split()
 
-test_data <- injection_time %>% 
-    mutate(r = row_number()) %>% 
-    group_by(r) %>% 
-    group_split(r) %>% 
-    map(., function(X){
-        filtered_data <- food %>% filter(ID == X$ID[1]) %>% 
-            create_corrected_downdata()
-        window_data <- time_window(X$INJECTION_TIME[1], 12, filtered_data)
-        delta_data <- window_data %>% 
-            group_by(event_flag) %>% 
-            summarise(
-                delta_food_intake = abs(max(corrected_value) - min(corrected_value))
+# get food intake, body weight and locomotion
+# sable hr data is the hourly data needed for this analysis
+before_after_data <- sable_hr_data %>% 
+    filter(grepl("FoodA_*|BodyMass_*|AllMeters_*", parameter)) %>% 
+    group_by(str_remove(parameter, "_[0-9]+")) %>% 
+    group_split()
+before_after_data
+
+# this grid maps each dataset (food, bw and meter) to each one of the injections
+data_injection_grid <- expand_grid(
+    before_after_idx = 1:length(before_after_data),
+    injection_time_idx = 1:length(injection_time)
+)
+
+# feed the grid into the map
+before_after_analysis <- data_injection_grid %>% 
+    group_by(row_number()) %>% 
+    group_split() %>% 
+    map_dfr(., function(X){
+        # filters the data by the id in the injection metadata
+        filtered_data <- before_after_data[[X$before_after_idx]] %>% 
+            filter(ID == injection_time[[X$injection_time_idx]]$ID[1])
+        # if there's no match just return the filtered data
+        if (nrow(filtered_data) * ncol(filtered_data) == 0){
+            return(filtered_data)
+        }
+        else{
+            # find out which kind of data this is
+            data_type <- str_remove(before_after_data[[X$before_after_idx]]$parameter[1], "_[0-9]+")
+            # do different correction according to data type
+            corrected_data <- switch(data_type,
+                FoodA = filtered_data %>% create_corrected_downdata(),
+                AllMeters = filtered_data %>% create_corrected_updata(),
+                BodyMass = filtered_data %>% mutate(corrected_value = value),
+                print("ERROR")
             )
+            # select here the number of hours for the time window
+            time_window_data <- time_window(
+                injection_time[[X$injection_time_idx]]$INJECTION_TIME[1],
+                12, # change this
+                corrected_data
+            )
+            # return the corrected data values
+            return(time_window_data)
+        }
     })
-test_data
-
-test_data[[2]] %>% 
-    ggplot(aes(hr, corrected_value, color = event_flag)) +
-    geom_point() +
-    geom_line() +
-    facet_wrap(~date)
-
-
-time_window("2024-11-13", 15, 24, food) %>% view
-
-time_window("2024-11-13", 15, 12, create_corrected_downdata(food)) %>% 
-    group_by(event_flag) %>% 
-    summarise(
-        delta_intake = abs(max(value) - min(value))
-    )
-
-create_corrected_cumulativedata(allmetersdata) %>% 
-    {max(.$corrected_value) - min(.$corrected_value)}
-
-time_window("2024-11-13", 15, 12, create_corrected_downdata(food)) %>%
-    ggplot(aes(hr, corrected_value, color = event_flag)) +
-    geom_point() +
-    geom_line() +
-    facet_wrap(~date)
-
-
-func_test %>% 
-    ggplot(aes(hr, corrected_value)) +
-    geom_point() + 
-    geom_line() +
-    facet_wrap(~date)
-
-
-sable_hr_data %>% 
-  filter(grepl("FoodA_", parameter), ID == 1006) %>%
-  group_by(date) %>% 
-  summarise(
-    max_day = max(value),
-    min_day = min(value)
-  )
-
+saveRDS(before_after_analysis, file = "../data/sable/before_after_analysis.rds", compress = TRUE)
