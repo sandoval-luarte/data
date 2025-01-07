@@ -221,7 +221,7 @@ corrected_intake <- function(bouts, t_tests){
 }
 
 plan(multisession, workers = availableCores())
-sable_hr_data <- sable_csv_files %>% 
+sable_hr_data <- sable_csv_files[1:3] %>% 
     future_map_dfr(
         ., function(X){
             proc_data <- X %>% 
@@ -300,13 +300,113 @@ sable_hr_data <- sable_csv_files %>%
     )
 saveRDS(sable_hr_data, file = "../data/sable/sable_hr_data.rds", compress = TRUE)
 
+allmetersdata <- sable_hr_data %>% 
+    filter(grepl("AllMeters_", parameter), ID == 3707)
+allmetersdata
 
-sable_hr_data %>% 
-    filter(grepl("AllMeters_", parameter), date=="2024-11-12") %>% 
-    ggplot(aes(hr, value)) +
+food <- sable_hr_data %>% 
+    filter(grepl("FoodA_", parameter), ID == 3707) %>% 
+    mutate(
+        value = if_else(date >= "2024-11-13", value+50, value)
+    )
+food
+
+# ascending data
+create_corrected_updata <- function(X){
+    corrected_values <- X %>% 
+        ungroup() %>% 
+        mutate(
+            lag_series = replace_na(value - dplyr::lag(value, n=1), 0),
+            flag_event = cumsum(replace_na(if_else(lag_series < 0, 1, 0), 0)),
+            corrected_value = value + cumsum(if_else(lag_series < 0, abs(lag_series), 0))
+            )
+    return(corrected_values)
+}
+# descending data
+create_corrected_downdata <- function(X){
+    corrected_values <- X %>% 
+        ungroup() %>% 
+        mutate(
+            lag_series = replace_na(value - dplyr::lag(value, n=1), 0),
+            flag_event = cumsum(replace_na(if_else(lag_series > 0, 1, 0), 0)),
+            corrected_value = value - cumsum(if_else(lag_series > 0, abs(lag_series), 0))
+            )
+    return(corrected_values)
+}
+# create a time window
+time_window <- function(injection_time, window_size_hr, data){
+    create_datetime <- injection_time
+    time_before_injection <- create_datetime - lubridate::hours(window_size_hr)
+    time_after_injection <- create_datetime + lubridate::hours(window_size_hr)
+    data_with_dttm <- data %>% 
+        mutate(datetime = lubridate::ymd_hms(paste(date, " ", hr, ":00:00", sep = "")),
+               event_flag = case_when(
+                   datetime >= time_before_injection & datetime <=create_datetime ~ "before",
+                   datetime >= create_datetime & datetime <= time_after_injection ~ "after",
+                   TRUE ~ NA
+               )) %>% 
+        drop_na(event_flag)
+    return(data_with_dttm)
+}
+
+injection_time <- read_csv("../data/META_INJECTIONS.csv") %>% 
+    bind_rows(tibble(ID = c(3707, 3707),
+                     DRUG = c("veh", "drug"),
+                     INJECTION_TIME = c("11/12/2024 15:30","11/13/2024 15:30"),
+                     TEMPERATURE_F = c(65.4, 65.4))) %>% 
+    mutate(
+        INJECTION_TIME = lubridate::mdy_hm(INJECTION_TIME)
+    ) %>% 
+    filter(ID == "3707")
+injection_time
+
+test_data <- injection_time %>% 
+    mutate(r = row_number()) %>% 
+    group_by(r) %>% 
+    group_split(r) %>% 
+    map(., function(X){
+        filtered_data <- food %>% filter(ID == X$ID[1]) %>% 
+            create_corrected_downdata()
+        window_data <- time_window(X$INJECTION_TIME[1], 12, filtered_data)
+        delta_data <- window_data %>% 
+            group_by(event_flag) %>% 
+            summarise(
+                delta_food_intake = abs(max(corrected_value) - min(corrected_value))
+            )
+    })
+test_data
+
+test_data[[2]] %>% 
+    ggplot(aes(hr, corrected_value, color = event_flag)) +
     geom_point() +
     geom_line() +
-  facet_wrap(~ID)
+    facet_wrap(~date)
+
+
+time_window("2024-11-13", 15, 24, food) %>% view
+
+time_window("2024-11-13", 15, 12, create_corrected_downdata(food)) %>% 
+    group_by(event_flag) %>% 
+    summarise(
+        delta_intake = abs(max(value) - min(value))
+    )
+
+create_corrected_cumulativedata(allmetersdata) %>% 
+    {max(.$corrected_value) - min(.$corrected_value)}
+
+time_window("2024-11-13", 15, 12, create_corrected_downdata(food)) %>%
+    ggplot(aes(hr, corrected_value, color = event_flag)) +
+    geom_point() +
+    geom_line() +
+    facet_wrap(~date)
+
+
+func_test %>% 
+    ggplot(aes(hr, corrected_value)) +
+    geom_point() + 
+    geom_line() +
+    facet_wrap(~date)
+
 
 sable_hr_data %>% 
   filter(grepl("FoodA_", parameter), ID == 1006) %>%
