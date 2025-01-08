@@ -300,7 +300,6 @@ sable_hr_data <- sable_csv_files %>%
     )
 saveRDS(sable_hr_data, file = "../data/sable/sable_hr_data.rds", compress = TRUE)
 
-
 # before/after injection ----
 
 ## helper functions ----
@@ -415,7 +414,7 @@ before_after_analysis %>%
   summarise(
     delta = abs(max(corrected_value)-min(corrected_value))
   ) %>% 
-  filter(grepl("BodyMass_", parameter)) %>% 
+  filter(grepl("AllMeters_", parameter)) %>% 
   ggplot(aes(interaction(drug, event_flag), delta, color = as.factor(ID))) +
   geom_point() +
   geom_line(aes(group = ID)) +
