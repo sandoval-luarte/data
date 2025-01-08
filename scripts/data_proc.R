@@ -220,6 +220,7 @@ corrected_intake <- function(bouts, t_tests){
   )
 }
 
+
 plan(multisession, workers = availableCores())
 sable_hr_data <- sable_csv_files %>% 
     future_map_dfr(
@@ -299,7 +300,7 @@ sable_hr_data <- sable_csv_files %>%
         }, .progress = TRUE
     )
 saveRDS(sable_hr_data, file = "../data/sable/sable_hr_data.rds", compress = TRUE)
-
+sable_hr_data <- readRDS("../data/sable/sable_hr_data.rds")
 # before/after injection ----
 
 ## helper functions ----
@@ -400,6 +401,7 @@ before_after_analysis <- data_injection_grid %>%
         }
     })
 saveRDS(before_after_analysis, file = "../data/sable/before_after_analysis.rds", compress = TRUE)
+before_after_analysis <- readRDS("../data/sable/before_after_analysis.rds")
 
 before_after_analysis %>% 
   filter(ID == 1006) %>% 
@@ -414,7 +416,7 @@ before_after_analysis %>%
   summarise(
     delta = abs(max(corrected_value)-min(corrected_value))
   ) %>% 
-  filter(grepl("AllMeters_", parameter)) %>% 
+  filter(grepl("FoodA_", parameter)) %>% 
   ggplot(aes(interaction(drug, event_flag), delta, color = as.factor(ID))) +
   geom_point() +
   geom_line(aes(group = ID)) +
