@@ -262,3 +262,119 @@ sable_data %>%
     geom_line() +
     facet_wrap(~parameter, scales = "free") +
     theme_pubr()
+
+## before after injection ----
+
+before_after_analysis <- readRDS("../data/sable/before_after_analysis.rds")
+
+mdl_data_before_after <- before_after_analysis %>% 
+    select(ID, hr, datetime, parameter, corrected_value, event_flag, drug) %>% 
+    mutate(parameter = str_remove(parameter, "_[0-9]+")) %>% 
+    filter(parameter == "AllMeters") %>% 
+    group_by(ID, parameter, drug, event_flag) %>% 
+    mutate(
+        time = as.numeric(as.factor(datetime)),
+        meters = corrected_value  - head(corrected_value, 1)
+    )
+mdl_data_before_after
+
+mdl_data_before_after %>% 
+    group_by(ID, drug) %>% 
+    filter(event_flag == "before") %>% 
+    mutate(delta_move = meters) %>% 
+    filter(time == 12) %>% 
+    ggplot(aes(
+        ID, delta_move, color = as.factor(ID)
+    )) +
+    stat_summary(fun.data = "mean_se", geom = "pointrange") +
+    geom_point()
+
+mdl_data_before_after %>% 
+    filter(event_flag == "after") %>% 
+    ggplot(aes(
+        time, meters
+    )) +
+    geom_point() +
+    geom_line(aes(group = ID)) +
+    geom_boxplot(
+        data = mdl_data_before_after %>% 
+            group_by(ID) %>% 
+            filter(time == 12, event_flag == "after"),
+        outlier.shape = NA,
+        aes(color = drug)
+    ) +
+    facet_wrap(~drug, scales = "free_x") +
+    scale_x_continuous(breaks = seq(0, 12, 1)) +
+    ggpubr::theme_classic2() +
+    ylab("Meters after injection") +
+    theme(legend.position = "none")
+
+analysis_per_hour <- mdl_data_before_after %>% 
+    filter(time > 1, event_flag == "after") %>% 
+    group_by(time) %>% 
+    group_split() %>% 
+    map(., function(X){
+        mdl <- lmer(
+            data = X,
+            meters ~ drug + (1|ID),
+            control = lmerControl(optimizer = "bobyqa"))
+        emm <- emmeans::emmeans(
+            mdl,
+            pairwise ~ drug,
+            type = "response"
+        )
+        pairwise_analysis <- broom::tidy(emm$contrasts, conf.int = TRUE) %>% 
+            mutate(
+                time = X$time[1]
+            )
+        marginals <- broom::tidy(emm$emmeans, conf.int = TRUE) %>% 
+            mutate(
+                time = X$time[1]
+            )
+        return(pairwise_analysis)
+    })
+
+
+mdl1 <- lmer(
+    data = mdl_data_before_after %>% 
+        filter(event_flag == "after"),
+    meters ~ drug + (1|ID),
+    control = lmerControl(optimizer = "bobyqa")
+)
+summary(mdl1)
+
+mdl1_emm <- emmeans::emmeans(
+    mdl1, 
+    pairwise ~ drug,
+    type = "response"
+)
+pairs(mdl1_emm, adjust = "none")
+
+mdl1_emm$emmeans %>% 
+    broom::tidy(conf.int = TRUE) %>% 
+    ggplot(aes(
+        drug, estimate, ymin = conf.low, ymax = conf.high
+    )) +
+    geom_pointrange() +
+    ggpubr::theme_classic2()
+
+bind_rows(analysis_per_hour) %>% 
+    ggplot(aes(
+        time, estimate, color = contrast,
+        ymin = estimate - std.error, ymax = estimate + std.error
+    )) +
+    geom_hline(yintercept = 0) +
+    geom_pointrange() +
+    geom_line() +
+    facet_wrap(~contrast) +
+    scale_x_continuous(breaks = seq(2, 12, 1))
+
+bind_rows(analysis_per_hour) %>% 
+    ggplot(aes(
+        time, estimate, color = drug,
+        ymin = estimate - std.error, ymax = estimate + std.error
+    )) +
+    geom_pointrange() +
+    geom_line() +
+    scale_x_continuous(breaks = seq(2, 12, 1))
+
