@@ -7,7 +7,7 @@ pacman::p_load(
   zoo
 )
 
-fname <- rstudioapi::selectDirectory()
+fname <- rstudioapi::selectDirectory() #route folder, the repository itself
 
 # bodyweight and food intake ----
 
@@ -59,7 +59,7 @@ FI <- open_files %>%
   ) %>% 
   drop_na(delta_measurement) %>% 
   mutate(
-    corrected_intake_gr = INTAKE_GR / as.numeric(delta_measurement)
+    corrected_intake_gr = INTAKE_GR / as.numeric(delta_measurement) #DAILY INTAKE
   ) %>% 
     left_join(., food_desc, by = "DIET_FORMULA") %>% 
     mutate(
