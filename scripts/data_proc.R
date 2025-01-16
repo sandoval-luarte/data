@@ -7,20 +7,22 @@ pacman::p_load(
   zoo
 )
 
-fname <- rstudioapi::selectDirectory()
+# change the directory to source file location
+setwd(this.path::here())
+
 
 # bodyweight and food intake ----
 
 
-filter_files <- tibble(
-  filepath = list.files(fname, full.names = TRUE)
+cohort_csv_files <- tibble(
+  filepath = list.files("../data", full.names = TRUE)
 ) %>% 
   filter(
     grepl("COHORT_[0-9]+.csv", filepath)
   )
-filter_files
+cohort_csv_files
 
-open_files <- filter_files %>% 
+cohort_open_files <- cohort_csv_files %>% 
   mutate(r = row_number()) %>% 
   group_by(r) %>% 
   group_split() %>% 
@@ -41,16 +43,16 @@ open_files <- filter_files %>%
 
 # load food description
 
-food_desc <- read_csv(paste(fname, "/food_description.csv", sep = ""))
+food_desc <- read_csv("../data/food_description.csv")
 
 # load metadata
 
-metadata <- read_csv(paste(fname, "/META.csv", sep = "")) %>% 
+metadata <- read_csv("../data/META.csv") %>% 
     select(ID, SEX, COHORT, STRAIN, AIM, DIET_CODE)
 
 # output food-intake file
 
-FI <- open_files %>% 
+FI <- cohort_open_files %>% 
   select(ID, DIET_FORMULA, INTAKE_GR, DATE) %>% 
   group_by(ID) %>% 
   arrange(DATE, .by_group = TRUE) %>% 
@@ -59,7 +61,7 @@ FI <- open_files %>%
   ) %>% 
   drop_na(delta_measurement) %>% 
   mutate(
-    corrected_intake_gr = INTAKE_GR / as.numeric(delta_measurement)
+    corrected_intake_gr = INTAKE_GR / as.numeric(delta_measurement) #DAILY INTAKE
   ) %>% 
     left_join(., food_desc, by = "DIET_FORMULA") %>% 
     mutate(
@@ -68,7 +70,7 @@ FI <- open_files %>%
     left_join(., metadata, by = "ID")
 
 # output bodyweight file
-BW <- open_files %>% 
+BW <- cohort_open_files %>% 
   group_by(ID) %>% 
   arrange(DATE, .by_group = TRUE) %>% 
   select(ID, BW, DATE) %>% 
@@ -80,17 +82,15 @@ write_csv(x = BW, "../data/BW.csv")
 
 # echo MRI ----
 
-fname2 <- rstudioapi::selectDirectory()
-
-filter_files2 <- tibble(
-    filepath = list.files(fname2, full.names = TRUE)
+echomri_csv_files <- tibble(
+    filepath = list.files("../data/echoMRI", full.names = TRUE)
 ) %>% 
     filter(
         grepl("*.xlsx", filepath)
     )
-filter_files2
+echomri_csv_files
 
-open_files2 <- filter_files2 %>% 
+echomri_open_files <- echomri_csv_files %>% 
     mutate(r = row_number()) %>% 
     group_by(r) %>% 
     group_split() %>% 
@@ -110,11 +110,11 @@ open_files2 <- filter_files2 %>%
     bind_rows() %>% 
     left_join(., metadata, by = "ID")
 
-open_files2
+echomri_open_files
 
 # compare adiposity index = fat / lean ----
 
-echomri_data <- open_files2 %>% 
+echomri_data <- echomri_open_files %>% 
     mutate(adiposity_index = Fat / Lean) %>% 
     group_by(ID) %>% 
     mutate(
@@ -140,8 +140,13 @@ folder_contents <- drive_ls(folder_id)
 
 ## step 3 download the folder contents, remember to set the path to soruce file location
 
-## select the place where you want to download the csv files
-csv_dir <- rstudioapi::selectDirectory()
+## create a directory to store files
+
+if (dir.exists("../data/sable")){
+  print("Directory already exists")
+} else {
+  dir.create("../data/sable")
+}
 
 ## this loops the folder contents and download the csv files one by one
 folder_contents$id %>% 
@@ -152,19 +157,19 @@ folder_contents$id %>%
 
 ## get all the csv file names
 sable_csv_files <- list.files(
-    path = csv_dir,
+    path = "../data/sable",
     full.names = TRUE,
     pattern = "*.csv")
 sable_csv_files
 
 ## read the metadata file and set it for merge with sables csv files
 # set directory to source file location
-metadata <- read_csv("../data/META.csv") %>% 
+metadata_sable <- read_csv("../data/META.csv") %>% 
     pivot_longer(cols = starts_with("SABLE_DAY_"),
                  names_to = "sable_idx",
-                 values_to = "metadata_code")
+                 values_to = "metadata_sable_code")
 
-## merge metadata with sable data in an hourly fashion
+## merge metadata_sable with sable data in an hourly fashion
 detect_bouts <- function(X){
     X %>% 
     mutate(
@@ -257,7 +262,7 @@ sable_hr_data <- sable_csv_files %>%
                     cage_number = str_extract(str_extract(parameter, "_[0-9]+"), "[0-9]+"),
                     date = lubridate::as_date(DateTime),
                     hr = lubridate::hour(DateTime),
-                    metadata_code = paste(gsub('(?<=\\/)0|^0', '', format(date, "%m/%d/%Y"), perl=TRUE),
+                    metadata_sable_code = paste(gsub('(?<=\\/)0|^0', '', format(date, "%m/%d/%Y"), perl=TRUE),
                                           cage_number, sep = "-")
                 )
             food_intake <- proc_data %>% 
@@ -270,9 +275,9 @@ sable_hr_data <- sable_csv_files %>%
             non_food_intake <- proc_data %>% 
                 filter(!grepl("FoodA_", parameter))
             complete_data <- bind_rows(food_intake, non_food_intake) %>% 
-                left_join(., metadata, by = "metadata_code") %>% # aqui poner el codigo para el food y water intake, tomar bout length (mean), # of bouts
+                left_join(., metadata_sable, by = "metadata_sable_code") %>% # aqui poner el codigo para el food y water intake, tomar bout length (mean), # of bouts
                 group_by(date, hr, ID, cage_number, DIET, DIET_CODE, KCAL_PER_GR,
-                         SEX, COHORT, STRAIN, AIM, sable_idx, metadata_code,
+                         SEX, COHORT, STRAIN, AIM, sable_idx, metadata_sable_code,
                          parameter) %>% 
                 group_split() %>% 
                 map_dfr(., function(X){
@@ -281,7 +286,7 @@ sable_hr_data <- sable_csv_files %>%
                   if (any(grepl(regex_pattern, X$parameter[1]))){
                     out <- X %>% 
                       group_by(date, hr, ID, cage_number, DIET, DIET_CODE, KCAL_PER_GR,
-                               SEX, COHORT, STRAIN, AIM, sable_idx, metadata_code,
+                               SEX, COHORT, STRAIN, AIM, sable_idx, metadata_sable_code,
                                parameter) %>% 
                       summarise(
                         value = max(value), .groups = "drop_last"
@@ -289,7 +294,7 @@ sable_hr_data <- sable_csv_files %>%
                     else{
                       out <- X %>% 
                         group_by(date, hr, ID, cage_number, DIET, DIET_CODE, KCAL_PER_GR,
-                                 SEX, COHORT, STRAIN, AIM, sable_idx, metadata_code,
+                                 SEX, COHORT, STRAIN, AIM, sable_idx, metadata_sable_code,
                                  parameter) %>% 
                         summarise(
                           value = mean(value, na.rm = TRUE), .groups = "drop_last"
@@ -326,7 +331,7 @@ create_corrected_downdata <- function(X){
             corrected_value = value - cumsum(if_else(lag_series > 0, abs(lag_series), 0))
             )
     return(corrected_values)
-}
+} 
 # selects the data before and after an injection time
 time_window <- function(injection_time, window_size_hr, data){
     create_datetime <- lubridate::ymd_hms(injection_time)
@@ -345,7 +350,7 @@ time_window <- function(injection_time, window_size_hr, data){
 
 ## before/after analysis ----
 
-# get injections metadata
+# get injections metadata_sable
 injection_time <- read_csv("../data/META_INJECTIONS.csv") %>% 
     # set injection time into dttm
     mutate(
@@ -373,7 +378,7 @@ before_after_analysis <- data_injection_grid %>%
     group_by(row_number()) %>% 
     group_split() %>% 
     map_dfr(., function(X){
-        # filters the data by the id in the injection metadata
+        # filters the data by the id in the injection metadata_sable
         filtered_data <- before_after_data[[X$before_after_idx]] %>% 
             filter(ID == injection_time[[X$injection_time_idx]]$ID[1])
         # if there's no match just return the filtered data
@@ -405,7 +410,7 @@ saveRDS(before_after_analysis, file = "../data/sable/before_after_analysis.rds",
 before_after_analysis <- readRDS("../data/sable/before_after_analysis.rds")
 
 before_after_analysis %>% 
-  filter(ID == 1006) %>% 
+  filter(ID == 1007) %>% 
   mutate(parameter = str_remove(parameter, "_[0-9]+")) %>% 
   ggplot(aes(datetime, corrected_value, color = event_flag)) +
   geom_point() +
