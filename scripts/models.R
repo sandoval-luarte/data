@@ -252,6 +252,7 @@ bw_derivative %>%
 
 # sable analysis ----
 
+setwd(this.path::here())
 sable_data <- readRDS("../data/sable/sable_hr_data.rds")
 
 
@@ -259,16 +260,27 @@ sable_data <- readRDS("../data/sable/sable_hr_data.rds")
 
 before_after_analysis <- readRDS("../data/sable/before_after_analysis.rds")
 
-## RQ analysis ----
-mdl_RQ_data_ <- before_after_analysis %>% 
-    select(ID, hr, datetime, parameter, corrected_value, event_flag, drug, COHORT) %>% 
-    mutate(parameter = str_remove(parameter, "_[0-9]+")) %>% 
-    filter(parameter == "RQ", COHORT == 6, ID != 1003) %>% 
-    group_by(ID, parameter, drug, event_flag) %>% 
-    mutate(
-        time = as.numeric(as.factor(datetime)),
-        RQ = corrected_value
-    ) 
+rti_oxa43 <- before_after_analysis %>% 
+  select(ID, hr, datetime, parameter, corrected_value, event_flag, drug) %>% 
+  mutate(parameter2 = str_remove(parameter, "_[0-9]+")) %>% 
+  filter(parameter == "RQ", ID != 1003) %>% 
+  group_by(ID, parameter, drug, event_flag) %>% 
+  mutate(
+    time = as.numeric(as.factor(datetime)),
+    RQ = corrected_value,
+    time_cont = if_else(event_flag == "after", time + 12, time)
+  )
+  
+
+### RQ analysis ----
+
+
+#### RQ plots ----
+
+rti_oxa43 %>% 
+  filter(ID == 1004, drug == "RTI_43_Y", parameter == "RQ_6") %>% 
+  ggplot(aes(event_flag, corrected_value)) +
+  geom_point()
 
 # compute the slope in the before and after injection use
 # this to feed the model

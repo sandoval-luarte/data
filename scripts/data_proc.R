@@ -151,8 +151,9 @@ if (dir.exists("../data/sable")){
 ## this loops the folder contents and download the csv files one by one
 folder_contents$id %>% 
   imap(., possibly(function(X, idx){
-    path <- paste(csv_dir, "/", folder_contents$name[idx], sep = "")
-    drive_download(X, path = path, overwrite = FALSE)
+    print(X)
+    path <- paste("../data/sable", "/", folder_contents$name[idx], sep = "")
+    drive_download(X, path = path, overwrite = TRUE)
   }))
 
 ## get all the csv file names
@@ -305,7 +306,8 @@ sable_hr_data <- sable_csv_files %>%
         }, .progress = TRUE
     )
 saveRDS(sable_hr_data, file = "../data/sable/sable_hr_data.rds", compress = TRUE)
-sable_hr_data <- readRDS("../data/sable/sable_hr_data.rds")
+#sable_hr_data <- readRDS("../data/sable/sable_hr_data.rds")
+
 # before/after injection ----
 
 ## helper functions ----
@@ -410,7 +412,7 @@ saveRDS(before_after_analysis, file = "../data/sable/before_after_analysis.rds",
 before_after_analysis <- readRDS("../data/sable/before_after_analysis.rds")
 
 before_after_analysis %>% 
-  filter(ID == 1007) %>% 
+  filter(ID == 1004) %>% 
   mutate(parameter = str_remove(parameter, "_[0-9]+")) %>% 
   ggplot(aes(datetime, corrected_value, color = event_flag)) +
   geom_point() +
