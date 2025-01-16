@@ -357,7 +357,7 @@ injection_time <- read_csv("../data/META_INJECTIONS.csv") %>%
 # get food intake, body weight and locomotion
 # sable hr data is the hourly data needed for this analysis
 before_after_data <- sable_hr_data %>% 
-    filter(grepl("FoodA_*|BodyMass_*|AllMeters_*", parameter)) %>% 
+    filter(grepl("FoodA_*|BodyMass_*|AllMeters_*|RQ_", parameter)) %>% 
     group_by(str_remove(parameter, "_[0-9]+")) %>% 
     group_split()
 before_after_data
@@ -388,6 +388,7 @@ before_after_analysis <- data_injection_grid %>%
                 FoodA = filtered_data %>% create_corrected_downdata(),
                 AllMeters = filtered_data %>% create_corrected_updata(),
                 BodyMass = filtered_data %>% mutate(corrected_value = value),
+                RQ = filtered_data %>% mutate(corrected_value = value),
                 print("ERROR")
             )
             # select here the number of hours for the time window
@@ -399,7 +400,7 @@ before_after_analysis <- data_injection_grid %>%
             # return the corrected data values
             return(time_window_data)
         }
-    })
+    }, .progress = TRUE)
 saveRDS(before_after_analysis, file = "../data/sable/before_after_analysis.rds", compress = TRUE)
 before_after_analysis <- readRDS("../data/sable/before_after_analysis.rds")
 

@@ -254,18 +254,60 @@ bw_derivative %>%
 
 sable_data <- readRDS("../data/sable/sable_hr_data.rds")
 
-sable_data %>% 
-    filter(ID == 3729, date == "2024-12-03") %>% 
-    ggplot(aes(
-        hr, value
-    )) +
-    geom_line() +
-    facet_wrap(~parameter, scales = "free") +
-    theme_pubr()
 
 ## before after injection ----
 
 before_after_analysis <- readRDS("../data/sable/before_after_analysis.rds")
+
+## RQ analysis ----
+mdl_RQ_data_ <- before_after_analysis %>% 
+    select(ID, hr, datetime, parameter, corrected_value, event_flag, drug, COHORT) %>% 
+    mutate(parameter = str_remove(parameter, "_[0-9]+")) %>% 
+    filter(parameter == "RQ", COHORT == 6, ID != 1003) %>% 
+    group_by(ID, parameter, drug, event_flag) %>% 
+    mutate(
+        time = as.numeric(as.factor(datetime)),
+        RQ = corrected_value
+    ) 
+
+# compute the slope in the before and after injection use
+# this to feed the model
+
+
+
+## plot ----
+mdl_RQ_data %>% 
+    filter(ID != 1003) %>% 
+    ggplot(aes(
+        time, RQ - RQ_baseline, color = event_flag, group = interaction(as.factor(ID), event_flag)
+    )) +
+    geom_point() +
+    geom_line() +
+    facet_wrap(~drug)
+
+## mdl RQ ----
+mdl_RQ <- lmer(
+    data = mdl_RQ_data,
+    RQ ~ drug * time + RQ_baseline + (1|ID),
+    control = lmerControl(optimizer = "bobyqa")
+)
+summary(mdl_RQ)
+
+RQ_emm <- emmeans::emmeans(
+    mdl_RQ,
+    pairwise ~ drug + RQ_baseline | time,
+    type = "response"
+)
+RQ_emm
+
+RQ_trend <- emmeans::emtrends(
+    mdl_RQ,
+    ~drug : RQ_baseline,
+    var = "time",
+    infer = TRUE
+)
+RQ_trend 
+    
 
 mdl_data_before_after <- before_after_analysis %>% 
     select(ID, hr, datetime, parameter, corrected_value, event_flag, drug) %>% 
