@@ -124,7 +124,22 @@ echomri_data
 
 write_csv(x = echomri_data, "../data/echomri.csv")
 
-# read sable data ----
+# echomri_data_2 <- echomri_data %>% 
+#   filter(COHORT ==7) %>% 
+#   select(ID, adiposity_index,SEX) %>% 
+#   mutate(DIET = if_else(ID %in% c(2322,2321,2319,2330,2328,2320,2316,2313,2312,2317,2314,2307), "HFD", "LFD")) %>% 
+#   ggplot(aes(DIET, adiposity_index), color = SEX) +
+#   geom_point() +
+#   geom_line() +
+#   facet_wrap(~SEX)
+# 
+# #check if the adiposity index between HFD and LFD are different using t-test
+# t_test_result <- lm(adiposity_index ~ DIET, data = echomri_data_2)
+# # View the result
+# print(t_test_result)
+# # Summary
+# summary(t_test_result)
+# # read sable data ----
 
 ## first we need to download the files from google drive
 
@@ -364,7 +379,7 @@ injection_time <- read_csv("../data/META_INJECTIONS.csv") %>%
 # get food intake, body weight and locomotion
 # sable hr data is the hourly data needed for this analysis
 before_after_data <- sable_hr_data %>% 
-    filter(grepl("FoodA_*|BodyMass_*|AllMeters_*|RQ_", parameter)) %>% 
+    filter(grepl("FoodA_*|BodyMass_*|AllMeters_*|RQ_*|Water_*", parameter)) %>% 
     group_by(str_remove(parameter, "_[0-9]+")) %>% 
     group_split()
 before_after_data
@@ -396,6 +411,7 @@ before_after_analysis <- data_injection_grid %>%
                 AllMeters = filtered_data %>% create_corrected_updata(),
                 BodyMass = filtered_data %>% mutate(corrected_value = value),
                 RQ = filtered_data %>% mutate(corrected_value = value),
+                Water = filtered_data %>% create_corrected_downdata(),
                 print("ERROR")
             )
             # select here the number of hours for the time window
@@ -412,7 +428,7 @@ saveRDS(before_after_analysis, file = "../data/sable/before_after_analysis.rds",
 before_after_analysis <- readRDS("../data/sable/before_after_analysis.rds")
 
 before_after_analysis %>% 
-  filter(ID == 1004) %>% 
+  filter(ID == 2006) %>% 
   mutate(parameter = str_remove(parameter, "_[0-9]+")) %>% 
   ggplot(aes(datetime, corrected_value, color = event_flag)) +
   geom_point() +
@@ -424,7 +440,7 @@ before_after_analysis %>%
   summarise(
     delta = abs(max(corrected_value)-min(corrected_value))
   ) %>% 
-  filter(grepl("FoodA_", parameter)) %>% 
+  filter(grepl("RQ_", parameter)) %>% 
   ggplot(aes(interaction(drug, event_flag), delta, color = as.factor(ID))) +
   geom_point() +
   geom_line(aes(group = ID)) +
