@@ -445,3 +445,4 @@ before_after_analysis %>%
   geom_point() +
   geom_line(aes(group = ID)) +
   facet_wrap(~drug, scale = "free_x")
+
