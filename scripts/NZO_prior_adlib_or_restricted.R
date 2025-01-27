@@ -65,11 +65,15 @@ FI_data <- read_csv("../data/FI.csv") %>%
     filter(COHORT > 2 & COHORT < 6) %>%
     filter(DATE > "2025-01-1") 
 
+FI_data_ <- read_csv("../data/FI.csv") %>% 
+    filter(COHORT %in% c(3, 4, 5))
+FI_data
+
 fi_plot <- FI_data %>% 
     filter(ID %in% c(3710, 3725,3708,3729,3724,3723,3728,3714,3727,3721,3722,3720)) %>% 
     ggplot(aes(x = DATE, y = corrected_intake_kcal, group =as.factor(ID))) +
     geom_point(size = 3, alpha = 0.8) +
-    geom_line(aes(color =ID)) +  # Add color for better distinction
+    geom_line(aes(color = ID)) +  # Add color for better distinction
     stat_summary(
         fun.data = mean_se,
         geom = "pointrange",
@@ -86,4 +90,37 @@ fi_plot <- FI_data %>%
         y = "Corrected Intake (kcal)"
     ) +
     theme_minimal() 
-    
+
+fi_plot_gr <- FI_data_ %>% 
+    drop_na() %>% 
+    filter(ID %in% c(3710, 3725,3708,3729,3724,3723,3728,3714,3727,3721,3722,3720)) %>% 
+    ggplot(aes(x = DATE, y = corrected_intake_gr, group =as.factor(ID))) +
+    geom_point(size = 3, alpha = 0.8) +
+    geom_line(aes(color = as.factor(ID))) +  # Add color for better distinction
+    geom_text(aes(label = ID), size = 3, vjust = -1, hjust = 1) + 
+    labs(
+        title = "Corrected Intake Over Days",
+        x = "Date",
+        y = "Corrected Intake (gr.)"
+    ) +
+    theme_minimal() 
+fi_plot_gr    
+
+bw <- read_csv("../data/BW.csv") %>% 
+    filter(COHORT %in% c(3, 4, 5))
+bw
+
+echo_full <- echomri_data %>% 
+    filter(COHORT %in% c(3, 4, 5))
+
+echo_full %>% 
+    ggplot(aes(Date, Lean/Weight, color = as.factor(ID))) +
+    geom_point() +
+    geom_line()
+
+bw %>% 
+    ggplot(aes(
+        DATE, BW, group = ID, color = as.factor(ID)
+    )) +
+    geom_point() +
+    geom_line()
