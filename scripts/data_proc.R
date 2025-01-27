@@ -417,7 +417,7 @@ before_after_analysis <- data_injection_grid %>%
             # select here the number of hours for the time window
             time_window_data <- time_window(
                 injection_time[[X$injection_time_idx]]$INJECTION_TIME[1],
-                12, # change this
+                6, # change this
                 corrected_data
             ) %>% mutate(drug = injection_time[[X$injection_time_idx]]$DRUG[1])
             # return the corrected data values
@@ -436,12 +436,47 @@ before_after_analysis %>%
   facet_wrap(parameter~ID*drug, scales = "free")
 
 before_after_analysis %>% 
-  group_by(parameter, event_flag, drug, ID) %>%
+  group_by(parameter, event_flag, drug, ID, SEX) %>%
   summarise(
-    delta = abs(max(corrected_value)-min(corrected_value))
+    delta = (max(corrected_value)-min(corrected_value))
   ) %>% 
-  filter(grepl("RQ_", parameter)) %>% 
+  filter(grepl("AllMeters_", parameter)) %>% 
   ggplot(aes(interaction(drug, event_flag), delta, color = as.factor(ID))) +
   geom_point() +
   geom_line(aes(group = ID)) +
-  facet_wrap(~drug, scale = "free_x")
+  facet_wrap(~drug*SEX, scale = "free")
+
+mdl_data <- before_after_analysis %>% 
+    group_by(parameter, event_flag, drug, ID, SEX) %>%
+    summarise(
+        delta = (max(corrected_value)-min(corrected_value))
+    ) %>% 
+    ungroup() %>% 
+    filter(grepl("kcal_", parameter), SEX == "M") %>% 
+    group_by(ID, parameter, drug) %>% 
+    mutate(
+        true_delta = delta[event_flag=="after"] - delta[event_flag=="before"]
+    )
+
+mdl_data %>%
+    filter(event_flag == "after") %>% 
+    ggplot(aes(
+        drug, true_delta
+    )) +
+    geom_point()
+
+mdl <- lm(
+    data = mdl_data %>% filter(event_flag == "after", drug != "RTI_43_Y"),
+    (true_delta) ~ drug
+)
+summary(mdl)
+
+emmeans::emmeans(
+    mdl,
+    pairwise ~ drug,
+    type = "response"
+)
+
+
+
+
