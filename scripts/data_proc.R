@@ -259,7 +259,8 @@ sable_hr_data <- sable_csv_files %>%
                                            "PedSpeed_",
                                            "FoodA_",
                                            "Water_",
-                                           "BodyMass")))) %>% 
+                                           "BodyMass"
+                                           )))) %>% 
                 pivot_longer(
                     cols = matches(c("kcal_hr_",
                                      "VO2_",
@@ -271,7 +272,8 @@ sable_hr_data <- sable_csv_files %>%
                                      "AllMeters_",
                                      "FoodA_",
                                      "Water_",
-                                     "BodyMass")),
+                                     "BodyMass"
+                                     )),
                     names_to = "parameter",
                     values_to = "value"
                 ) %>% 
@@ -311,7 +313,7 @@ sable_hr_data <- sable_csv_files %>%
                       )}
                     else{
                       out <- X %>% 
-                        group_by(date, hr, ID, cage_number, DIET, DIET_CODE, KCAL_PER_GR,
+                        group_by(date, hr, min_t, ID, cage_number, DIET, DIET_CODE, KCAL_PER_GR,
                                  SEX, COHORT, STRAIN, AIM, sable_idx, metadata_sable_code,
                                  parameter) %>% 
                         summarise(
@@ -323,7 +325,7 @@ sable_hr_data <- sable_csv_files %>%
         }, .progress = TRUE
     )
 saveRDS(sable_hr_data, file = "../data/sable/sable_hr_data.rds", compress = TRUE)
-#sable_hr_data <- readRDS("../data/sable/sable_hr_data.rds")
+sable_hr_data <- readRDS("../data/sable/sable_hr_data.rds")
 
 # before/after injection ----
 
@@ -362,7 +364,8 @@ time_window <- function(injection_time, window_size_hr, data){
                    datetime >= time_before_injection & datetime <=create_datetime ~ "before",
                    datetime >= create_datetime & datetime <= time_after_injection ~ "after",
                    TRUE ~ NA
-               )) %>% 
+               ),
+               time_from_injection = datetime - create_datetime) %>% 
       drop_na()
     return(data_with_dttm)
 }
@@ -415,13 +418,13 @@ before_after_analysis <- data_injection_grid %>%
                 BodyMass = filtered_data %>% mutate(corrected_value = value),
                 RQ = filtered_data %>% mutate(corrected_value = value),
                 Water = filtered_data %>% create_corrected_downdata(),
-                kcal_hr = filtered_data %>% mutate(corrected_value = value),
+                kcal_hr = filtered_data %>% mutate(corrected_value = cumsum(abs(value))),
                 print("ERROR")
             )
             # select here the number of hours for the time window
             time_window_data <- time_window(
                 injection_time[[X$injection_time_idx]]$INJECTION_TIME[1],
-                3, # change this
+                6, # change this
                 corrected_data
             ) %>% mutate(drug = injection_time[[X$injection_time_idx]]$DRUG[1])
             # return the corrected data values
@@ -430,47 +433,6 @@ before_after_analysis <- data_injection_grid %>%
     }, .progress = TRUE)
 saveRDS(before_after_analysis, file = "../data/sable/before_after_analysis.rds", compress = TRUE)
 #before_after_analysis <- readRDS("../data/sable/before_after_analysis.rds")
-
-
-before_after_analysis %>% 
-  group_by(parameter, event_flag, drug, ID, SEX) %>%
-  summarise(
-    delta = (max(corrected_value)-min(corrected_value))
-  ) %>% 
-  filter(grepl("AllMeters_", parameter)) %>% 
-  ggplot(aes(interaction(drug, event_flag), delta, color = as.factor(ID))) +
-  geom_point() +
-  geom_line(aes(group = ID)) +
-  facet_wrap(~drug*SEX, scale = "free")
-
-mdl_data_all <- before_after_analysis %>% 
-    mutate(parameter = str_remove(parameter, "_[0-9]+")) %>%
-    select(ID, hr, drug, parameter, event_flag, corrected_value, SEX) %>% 
-    pivot_wider(names_from = "parameter", values_from = "corrected_value") %>% 
-    group_by(event_flag, drug, ID, SEX) %>%
-    summarise(
-        meters = (max(AllMeters)-min(AllMeters)),
-        bw = mean(BodyMass),
-        intake = min(FoodA) - max(FoodA),
-        rq = mean(RQ),
-        tee = sum(kcal_hr)
-    ) 
-
-mdl <- rlmer(
-    data = mdl_data_all %>%
-      mutate(num_bf = if_else(event_flag == "before", 0, 1)),
-    meters ~ drug * num_bf * SEX + (1|ID)
-)
-summary(mdl)
-
-emmeans::emtrends(
-    mdl,
-    pairwise ~ drug | SEX,
-    type = "response",
-    var = "num_bf",
-    adjust = "mvt"
-)
-
 
 
 
