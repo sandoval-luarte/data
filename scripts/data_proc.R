@@ -362,7 +362,7 @@ time_window <- function(injection_time, window_size_hr, data){
                    datetime >= time_before_injection & datetime <=create_datetime ~ "before",
                    datetime >= create_datetime & datetime <= time_after_injection ~ "after",
                    TRUE ~ NA
-               )) %>% 
+               ), t = create_datetime) %>% 
       drop_na()
     return(data_with_dttm)
 }
@@ -421,7 +421,7 @@ before_after_analysis <- data_injection_grid %>%
             # select here the number of hours for the time window
             time_window_data <- time_window(
                 injection_time[[X$injection_time_idx]]$INJECTION_TIME[1],
-                3, # change this
+                24, # change this
                 corrected_data
             ) %>% mutate(drug = injection_time[[X$injection_time_idx]]$DRUG[1])
             # return the corrected data values
@@ -445,23 +445,34 @@ before_after_analysis %>%
 
 mdl_data_all <- before_after_analysis %>% 
     mutate(parameter = str_remove(parameter, "_[0-9]+")) %>%
-    select(ID, hr, drug, parameter, event_flag, corrected_value, SEX) %>% 
-    pivot_wider(names_from = "parameter", values_from = "corrected_value") %>% 
-    group_by(event_flag, drug, ID, SEX) %>%
-    summarise(
-        meters = (max(AllMeters)-min(AllMeters)),
-        bw = mean(BodyMass),
-        intake = min(FoodA) - max(FoodA),
-        rq = mean(RQ),
-        tee = sum(kcal_hr)
-    ) 
+    ungroup() %>% 
+    group_by(ID, drug) %>% 
+    mutate(time_from_injection = as.numeric(datetime - t)) %>% 
+    ungroup() 
+
+
+mdl_data_all %>% 
+    filter(parameter == "RQ", corrected_value > 0) %>% 
+    ggplot(aes(
+        time_from_injection, corrected_value, color = drug
+    )) +
+    geom_point() +
+    geom_line(aes(group=ID)) +
+    facet_wrap(~drug*SEX, scales = 'free')
 
 mdl <- rlmer(
     data = mdl_data_all %>%
       mutate(num_bf = if_else(event_flag == "before", 0, 1)),
-    meters ~ drug * num_bf * SEX + (1|ID)
+    rq_rmse ~ drug * num_bf * SEX + (1|ID),
+    control = lme4::lmerControl(optimizer = "bobyqa")
 )
 summary(mdl)
+
+emmeans::emmeans(
+    mdl,
+    pairwise ~ drug | SEX * num_bf,
+    at = list(num_bf = c(0,1)),
+)
 
 emmeans::emtrends(
     mdl,

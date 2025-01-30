@@ -69,6 +69,15 @@ bout_stamps <- bouts_data %>%
     )
 bout_stamps
 
+# RQ data
+rq <- data %>% 
+    select(
+        DateTime, RQ_1
+    ) %>% 
+    mutate(
+        DateTime = lubridate::mdy_hms(DateTime)
+    )
+
 # lets prepare another metric
 kcal <- data %>% 
     select(
@@ -86,6 +95,14 @@ kcal %>%
     )) +
     geom_line() +
     geom_vline(xintercept = bout_stamps$centroid, color = "red")
+
+rq %>% 
+    filter(RQ_1 < 1) %>% 
+    ggplot(aes(
+        DateTime, (RQ_1)
+    )) +
+    geom_point() +
+    geom_line()
 
 # map all the centroids and get a time window of 1 minute
 
