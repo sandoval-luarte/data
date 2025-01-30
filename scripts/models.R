@@ -254,7 +254,73 @@ bw_derivative %>%
 
 setwd(this.path::here())
 sable_data <- readRDS("../data/sable/sable_hr_data.rds")
+sable_data_injections <- readRDS("../data/sable/before_after_analysis.rds")
 
+## time course analysis ----
+
+rel_sable_injections <- sable_data_injections %>% 
+  group_by(ID, drug) %>% 
+  mutate(
+    parameter = `str_remove(parameter, "_[0-9]+")`,
+    t = as.numeric(time_from_injection),
+    injection_hour = hr[which.min(abs(t))],
+    fix_after_injection = hr - injection_hour,
+    fix_before_after = if_else(fix_after_injection>=0, "after", "before")
+  ) %>% 
+  ungroup() %>% 
+  group_by(ID, drug, parameter) %>% 
+  mutate(rel_corrected_value = corrected_value - corrected_value[which.min(abs(t))]) %>% 
+  ungroup()
+
+
+time_course_p1 <- rel_sable_injections %>% 
+  filter(SEX == "F", parameter == "AllMeters", fix_before_after == "after") %>%
+  ggplot(aes(
+    fix_after_injection, rel_corrected_value, color = drug
+  )) +
+  geom_point(aes(group=interaction(ID, drug))) +
+  geom_line(aes(group=interaction(ID, drug))) +
+  facet_wrap(~ID, scales = "free")
+time_course_p1
+
+mdl_allmeters <- lmerTest::lmer(
+  data = rel_sable_injections %>%
+    filter(parameter=="AllMeters", SEX=="F", fix_before_after == "after"),
+  rel_corrected_value ~ drug * fix_after_injection + (1|ID)
+)
+summary(mdl_allmeters)
+
+emmeans::emtrends(
+  mdl_allmeters,
+  pairwise ~ drug,
+  var = "fix_after_injection"
+)
+
+rel_sable_injections %>% 
+  filter(fix_before_after == "after") %>% 
+  group_by(ID, drug, parameter) %>% 
+  slice_max(order_by = corrected_value, n=1, with_ties = FALSE) %>% 
+  ungroup() %>% 
+  select(ID, drug, parameter, corrected_value) %>% 
+  pivot_wider(., names_from = c("parameter"), values_from = "corrected_value") %>%
+  ggplot(aes(
+    log(AllMeters), log(kcal_hr)
+  )) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  facet_wrap(~drug)
+
+time_course_p2 <- rel_sable_injections %>% 
+  ggplot(aes(
+    time_from_injection, corrected_value, color = drug
+  )) +
+  geom_smooth(
+    aes(group = drug),
+    method = "loess",
+    se = FALSE
+  ) +
+  facet_wrap(~`str_remove(parameter, "_[0-9]+")`*SEX, scales = "free")
+time_course_p2
 
 ## before after injection ----
 
