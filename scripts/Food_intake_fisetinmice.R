@@ -15,11 +15,6 @@ library(readr)
 FI_data <- read_csv("../data/FI.csv") %>% 
   filter(COHORT > 6) #Just fisetin mice 
   
-
-FI_data_ <- read_csv("../data/FI.csv") %>% 
-  filter(COHORT %in% c(3, 4, 5))
-FI_data
-
 fi_plot <- FI_data %>% 
   # filter(ID %in% c(3710, 3725,3708,3729,3724,3723,3728,3714,3727,3721,3722,3720)) %>% 
   ggplot(aes(x = DATE, y = corrected_intake_kcal, group =as.factor(ID))) +
@@ -70,9 +65,35 @@ echo_full %>%
   geom_point() +
   geom_line()
 
+###BW NZO MICE####
+
 bw %>% 
+  filter(DATE > "2025-01-25") %>% 
+  filter(!(ID %in% c(3722,3723,3724,3725,3727,3728,3729))) %>% 
   ggplot(aes(
     DATE, BW, group = ID, color = as.factor(ID)
   )) +
   geom_point() +
-  geom_line()
+  geom_line() #+
+  #facet_wrap(~ID)
+
+####FI NZO MICE####
+fi_plot_gr    <- read_csv("../data/FI.csv") %>% 
+  filter(COHORT %in% c(3, 4, 5)) %>% 
+  filter(corrected_intake_gr < 15) %>%  #TYPING MISTAKES
+  filter(DATE > "2025-01-25") %>% 
+  ggplot(aes(x = DATE, y = corrected_intake_gr, group =as.factor(ID))) +
+  geom_point(size = 3, alpha = 0.8) +
+  geom_line(aes(color = as.factor(ID))) +  # Add color for better distinction
+  geom_text(aes(label = ID), size = 3, vjust = -1, hjust = 1) + 
+  labs(
+    title = "Corrected Intake Over Days",
+    x = "Date",
+    y = "Corrected Intake (gr.)"
+  ) +
+  theme_minimal() +
+  facet_wrap(~ID)
+fi_plot_gr    
+
+
+
