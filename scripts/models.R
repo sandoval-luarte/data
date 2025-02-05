@@ -1,8 +1,14 @@
+# libs ----
 pacman::p_load(
     tidyverse,
     ggplot2,
     ggpubr,
-    furrr
+    furrr,
+    lme4,
+    robustlmm,
+    coxme,
+    ggsurvfit,
+    tidycmprsk
 )
 
 
@@ -253,8 +259,396 @@ bw_derivative %>%
 # sable analysis ----
 
 setwd(this.path::here())
-sable_data <- readRDS("../data/sable/sable_hr_data.rds")
+sable_data <- readRDS("../data/sable/sable_downsampled_data.rds")
 sable_data_injections <- readRDS("../data/sable/before_after_analysis.rds")
+
+## total energy expenditure ----
+
+tee_correction <- sable_data_injections %>% 
+    filter(
+        parameter %in% c("kcal_hr", "BodyMass"),
+        event_flag == "after",
+        drug == "veh"
+    ) %>% 
+    ungroup() %>% 
+    group_by(ID, drug) %>% 
+    select(ID, drug, DateTime, parameter, corrected_value, time_from_injection) %>% 
+    pivot_wider(names_from = "parameter", values_from = "corrected_value") %>% 
+    filter(kcal_hr>0.2, BodyMass>0, ID!=2001)
+tee_correction
+
+tee_corr_mdl <- lme4::lmer(
+    data = tee_correction,
+    kcal_hr ~ BodyMass + time_from_injection + (1|ID),
+    control = lmerControl(optimizer = "bobyqa")
+)
+summary(tee_corr_mdl)
+
+
+bw <- sable_data_injections %>% 
+    filter(parameter=="BodyMass",
+           event_flag=="after") %>% 
+    pull(corrected_value)
+intake <- sable_data_injections %>% 
+    filter(parameter=="FoodA",
+           event_flag=="after") %>% 
+    pull(corrected_value)
+tee <- sable_data_injections %>% 
+    filter(
+        parameter == "kcal_hr",
+        event_flag == "after"
+    ) %>% 
+    mutate(BodyMass = bw,
+           intake_gr = intake,
+           kcal_hr = corrected_value) %>% 
+    ungroup() %>% 
+    group_by(ID, drug) %>% 
+    filter(corrected_value>0) %>% 
+    mutate(
+        cum_tee = cumsum(corrected_value/60),
+        cum_intake = abs(intake_gr-lag(intake_gr)) %>% replace_na(.,0) %>% cumsum(),
+        energy_balance = (cum_intake)-(cum_tee),
+        hr_factor = trunc(time_from_injection/60) %>% as.factor(),
+        time = as.numeric(time_from_injection)
+    ) %>% 
+    ungroup() %>% 
+    mutate(
+        tee_mdl = predict(tee_corr_mdl, newdata=., re.form=NA),
+        tee_resid = kcal_hr - tee_mdl,
+        tee_resid_cumsum = cumsum(tee_resid)
+    )
+tee
+
+tee %>% 
+    ggplot(aes(
+        time, energy_balance,group=interaction(ID,drug),color=drug
+    )) +
+    geom_point() +
+    geom_line() +
+    facet_wrap(~SEX)
+
+total_tee <- tee %>% 
+    ungroup() %>% 
+    group_by(ID, drug) %>% 
+    summarise(
+        kcal = max(cum_tee)
+    )
+
+total_intake <- sable_data_injections %>% 
+    filter(
+        parameter == "FoodA",
+        event_flag == "after"
+    ) %>% 
+    ungroup() %>% 
+    group_by(ID, drug, SEX) %>% 
+    summarise(
+        intake = max(corrected_value) - min(corrected_value)
+    )
+
+intake_kcal <- total_tee %>% 
+    left_join(., total_intake, by = c("ID", "drug"))
+
+intake_kcal %>% 
+    ggplot(aes(
+        drug, intake-(kcal/60), color=drug
+    )) +
+    geom_boxplot(outlier.shape=NA) +
+    geom_point() +
+    geom_smooth(method="lm",se=FALSE,aes(group=drug)) +
+    facet_wrap(~SEX)
+
+tee %>% 
+    ggplot(aes(
+        corrected_value, group=drug, color=drug
+    )) +
+    geom_density() +
+    facet_wrap(~SEX)
+
+tee %>% 
+    filter(time < 100) %>% 
+    ggplot(aes(
+        time, corrected_value,
+        group=interaction(ID,drug),color=drug
+    )) +
+    geom_point() +
+    geom_line() +
+    facet_wrap(~ID*SEX, scale="free_y")
+
+tee_mdl <- lme4::lmer(
+    data = tee,
+    energy_balance ~ drug * SEX * time + (1|ID) + (1|SEX),
+    control = lmerControl(optimizer = "bobyqa")
+)
+
+tee_emm <- emmeans::emmeans(
+    tee_mdl,
+    pairwise ~ drug | SEX * time,
+    type = "response",
+    lmer.df = "satterthwaite",
+    lmerTest.limit=13044
+)
+tee_emm
+
+tee_emm_p <- tee_emm$emmeans %>% 
+    broom::tidy(conf.int=TRUE)
+tee_emm_p
+
+p1 <- tee %>% 
+    ggplot(aes(
+        time, cum_tee,
+        group = interaction(ID, drug), color = drug
+    )) +
+    geom_line(alpha=0.25) +
+    geom_pointrange(
+        data=tee_emm_p,
+        aes(time,estimate,ymin=conf.low,ymax=conf.high,
+            group=drug)
+    ) +
+    facet_wrap(~SEX) 
+p1
+
+## microstructure ----
+
+microstructure <- sable_data_injections %>% 
+    filter(parameter=="FoodA",
+           event_flag=="after",
+           ID != 2004) %>% 
+    group_by(ID, drug) %>% 
+    mutate(
+        is_bout = if_else(corrected_value<lag(corrected_value),"bout", "stable") %>% 
+            replace_na(., "stable"),
+        bout_tag = data.table::rleid(is_bout),
+        hr_factor = trunc(time_from_injection/60) %>% as.factor(),
+    ) %>% 
+    filter(is_bout == "bout") %>% 
+    ungroup() %>% 
+    group_by(ID, drug, bout_tag, SEX) %>% 
+    summarise(
+        init = min(time_from_injection),
+        end = max(time_from_injection),
+        centroid = (init+end)/2,
+        bout_length_sec = as.numeric(max(DateTime) - min(DateTime)),
+        intake_gr = max(corrected_value)-min(corrected_value)
+    ) %>%
+    ungroup() %>% 
+    group_by(ID, drug) %>% 
+    mutate(
+        cum_bouts = row_number()
+    )
+microstructure
+
+m <- coxme(Surv(init, end, status) ~ drug * SEX + (1|ID),
+           data = microstructure %>% mutate(status=1))
+summary(m)
+
+s <- coxph(Surv(init, end, status) ~ drug*SEX,
+             data = microstructure %>% mutate(status=1))
+
+cuminc(Surv(centroid, status)~drug, data = microstructure %>% mutate(status=1))%>% 
+    ggcuminc()
+
+
+emmeans::emmeans(
+    m, 
+    pairwise ~ drug | SEX,
+    type = "response"
+)
+
+microstructure %>% 
+    ungroup() %>% 
+    mutate(h = predict(m, re.form=NA)) %>% 
+    ggplot(aes(
+        centroid, h,
+        group = interaction(ID, drug), color = drug
+    )) +
+    geom_point() +
+    geom_line()
+
+
+microstructure_cnt_mdl <- lme4::lmer(
+    data = microstructure,
+    cum_bouts ~ drug * SEX * centroid + (1|ID),
+    control = lmerControl(optimizer = "bobyqa")
+)
+microstructure_cnt_mdl
+
+microstructure_cnt_emm <- emmeans::emmeans(
+    microstructure_cnt_mdl,
+    pairwise ~ drug | SEX*centroid,
+    at = list(centroid = seq(0, 360, 60)),
+    type = "response"
+)
+microstructure_cnt_emm
+
+microstructure_cnt_p <- microstructure_cnt_emm$emmeans %>% 
+    broom::tidy(conf.int = TRUE)
+microstructure_cnt_p
+
+p1 <- microstructure %>% 
+    ggplot(aes(
+        centroid, cum_bouts,
+        group = interaction(ID, drug), color = drug
+    )) +
+    geom_line(alpha=0.25) +
+    geom_pointrange(
+        data = microstructure_cnt_p,
+        aes(centroid, estimate,ymin=conf.low,ymax=conf.high,
+            group=drug,fill=drug)
+    ) +
+    geom_line(
+        data = microstructure_cnt_p,
+        aes(centroid, estimate,ymin=conf.low,ymax=conf.high,
+            group=drug,fill=drug)
+    ) +
+    facet_wrap(~SEX) +
+    ggpubr::theme_pubr()
+p1
+
+microstructure_len <- lme4::lmer(
+    data = microstructure,
+    bout_length_sec ~ drug * SEX * hr_factor + (1|ID),
+    control = lmerControl(optimizer = "bobyqa")
+)
+
+microstructure_len_emm <- emmeans::emmeans(
+    microstructure_len,
+    pairwise ~ drug | hr_factor * SEX,
+    type = "response"
+)
+microstructure_len_emm
+
+microstructure_in <- lme4::lmer(
+    data = microstructure,
+    intake_gr ~ drug * SEX * hr_factor + (1|ID),
+    control = lmerControl(optimizer = "bobyqa")
+)
+
+microstructure_in_emm <- emmeans::emmeans(
+    microstructure_in,
+    pairwise ~ drug | hr_factor * SEX,
+    type = "response"
+)
+microstructure_in_emm
+
+
+p1 <- microstructure %>% 
+    ungroup() %>% 
+    group_by(ID, hr_factor, drug) %>% 
+    summarise(
+        bout_length_sec = mean(bout_length_sec)
+    ) %>% 
+    ggplot(aes(
+        drug, bout_length_sec,
+        group = interaction(ID, drug), color = drug
+    )) +
+    stat_summary(
+        fun.data = "mean_se",
+        geom = "pointrange",
+        aes(group=drug)
+    ) +
+    geom_point(alpha=0.25) +
+    facet_wrap(~hr_factor, scales="free_y")
+p1
+
+p2 <- microstructure %>% 
+    ungroup() %>% 
+    group_by(ID, hr_factor, drug) %>% 
+    summarise(
+        intake_gr = mean(intake_gr)
+    ) %>% 
+    ggplot(aes(
+        drug, intake_gr,
+        group = interaction(ID, drug), color = drug
+    )) +
+    stat_summary(
+        fun.data = "mean_se",
+        geom = "pointrange",
+        aes(group=drug)
+    ) +
+    geom_point(alpha=0.25) +
+    facet_wrap(~hr_factor, scales="free_y")
+p2
+
+## all meters ----
+
+# 2004 has weird jump in all meters
+
+allmeters <- sable_data_injections %>% 
+    filter(parameter=="AllMeters",
+           event_flag=="after",
+           ID != 2004) %>% 
+    group_by(ID, drug) %>% 
+    mutate(
+        injection_value = corrected_value[abs(time_from_injection) == min(abs(time_from_injection))][1],
+        corrected_value_rel = (corrected_value - injection_value),
+        corrected_value_perc = (corrected_value - injection_value)/injection_value,
+        hr_factor = trunc(time_from_injection/60) %>% as.factor(),
+        time_scaled = scale(time_from_injection)
+    )
+allmeters
+
+allmeters_mdl <- lme4::lmer(
+    data = allmeters,
+    corrected_value_rel ~ drug * SEX * hr_factor + (1|ID),
+    control = lmerControl(optimizer = "bobyqa")
+)
+summary(allmeters_mdl)
+
+allmeters_emm <- emmeans::emmeans(
+    allmeters_mdl,
+    pairwise ~ drug|SEX*hr_factor,
+    type = "response",
+    lmer.df = "satterthwaite"
+)
+allmeters_emm
+
+allmeters_emm_p <- allmeters_emm$emmeans %>% 
+    broom::tidy(conf.int=TRUE) %>% 
+    mutate(
+        hr_factor = as.numeric(hr_factor)*60
+    )
+allmeters_emm_p
+
+allmeters_emm_contrasts <- allmeters_emm$contrasts %>% 
+    broom::tidy(conf.int=TRUE) %>% 
+    mutate(
+        hr_factor = as.numeric(hr_factor)*60
+    )
+allmeters_emm_contrasts
+
+p1 <- allmeters %>% 
+    ggplot(aes(
+        time_from_injection, corrected_value_rel,
+        color = drug
+    )) +
+    geom_line(aes(group = interaction(ID, drug)), alpha=0.25) +
+    geom_line(data = allmeters_emm_p,
+                aes(hr_factor, estimate)) +
+    geom_pointrange(data = allmeters_emm_p,
+                aes(hr_factor, estimate,
+                    ymin=conf.low, ymax=conf.high)) +
+    facet_wrap(~SEX) +
+    ggpubr::theme_pubr() +
+    ylab("Meters after injection") +
+    xlab("Minutes from injection")
+p1
+
+p2 <- allmeters_emm_contrasts %>% 
+    filter(hr_factor==360) %>% 
+    ggplot(aes(
+        contrast, estimate,
+        ymin=conf.low, ymax=conf.high
+    )) +
+    geom_hline(yintercept = 0) +
+    geom_pointrange() +
+    facet_wrap(~hr_factor*SEX) +
+    ggpubr::theme_pubr() +
+    theme(axis.text.x = element_text(angle = 90)) +
+    xlab("") +
+    scale_x_discrete(labels=c("RTI (M) - RTI (Y)",
+                              "RTI (M) - Veh",
+                              "RTI (Y) - Veh"))
+p2
 
 ## time course analysis ----
 

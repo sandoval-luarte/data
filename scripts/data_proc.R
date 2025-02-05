@@ -242,10 +242,107 @@ corrected_intake <- function(bouts, t_tests){
   )
 }
 
+fast_food_corr <- function(dataset){
+    food <- dataset %>% 
+        mutate(across(starts_with("FoodA_"), function(X){
+            F1 <- mmand::opening(X, rep(1,5)) %>% 
+                mmand::closing(., rep(1, 5)) %>% 
+                mmand::gaussianSmooth(., 5)
+            F2 <- if_else(F1>cummin(F1), NA_real_, F1)
+            F3 <- vctrs::vec_fill_missing(F2, direction = "down")
+            return(F3)
+        })
+        ) 
+}
+
+detect_outlier <- function(X) {
+    data <- X %>% 
+        ungroup() %>% 
+        filter(parameter == "FoodA") %>% 
+        group_by(ID) %>% 
+        mutate(
+            outlier = replace_na(if_else(value > lag(value) | (lag(value)-value > 4), 1, 0),0) %>% 
+                cumsum() %>% 
+                data.table::rleid(),
+            diff = case_when(
+                outlier!=lag(outlier) & value > lag(value) ~ -abs(value-lag(value)),
+                outlier!=lag(outlier) & value < lag(value) ~ abs(value-lag(value)),
+                TRUE ~ 0
+                ) %>% 
+                replace_na(.,0) %>% 
+                cumsum(),
+            fix_value = value + diff
+        ) %>% 
+        select(ID, DateTime, fix_value, parameter)
+    out <- X %>% 
+        left_join(., data, by = c("ID", "DateTime", "parameter"))
+    return(out)
+}
+
+# downsample data
+plan(multisession, workers = availableCores())
+sable_downsampled_data <- sable_csv_files %>% 
+    future_map_dfr(
+        ., function(dataset){
+            downsampled_dataset <- read_csv(dataset, show_col_types = FALSE) %>% 
+                mutate(
+                    DateTime = lubridate::mdy_hms(DateTime)
+                ) %>% 
+                filter(
+                    lubridate::second(DateTime) == 0
+                )
+            downsampled_dataset_foodcorrected <- fast_food_corr(downsampled_dataset)
+            final_dataset <- downsampled_dataset_foodcorrected %>% 
+                select(c(DateTime, matches(c("kcal_hr_",
+                                           "VO2_",
+                                           "VCO2_",
+                                           "RQ_",
+                                           "AllMeters_",
+                                           "PedMeters_",
+                                           "PedSpeed_",
+                                           "FoodA_",
+                                           "Water_",
+                                           "BodyMass"
+                                           )))) %>% 
+                pivot_longer(
+                    cols = matches(c("kcal_hr_",
+                                     "VO2_",
+                                     "VCO2_",
+                                     "RQ_",
+                                     "AllMeters_",
+                                     "PedMeters_",
+                                     "PedSpeed_",
+                                     "AllMeters_",
+                                     "FoodA_",
+                                     "Water_",
+                                     "BodyMass"
+                                     )),
+                    names_to = "parameter",
+                    values_to = "value"
+                ) %>% 
+                mutate(
+                    cage_number = str_extract(str_extract(parameter, "_[0-9]+"), "[0-9]+"),
+                    date = lubridate::as_date(DateTime),
+                    hr = lubridate::hour(DateTime),
+                    metadata_sable_code = paste(gsub('(?<=\\/)0|^0', '', format(date, "%m/%d/%Y"), perl=TRUE),
+                                          cage_number, sep = "-"),
+                    parameter = str_remove(parameter, "_[0-9]+")
+                ) %>% 
+                left_join(., metadata_sable, by = "metadata_sable_code") %>% 
+                mutate(ID = as.factor(ID))
+            return(final_dataset)
+        }
+    ) %>% 
+    detect_outlier() %>% 
+    mutate(
+        fix_value = if_else(is.na(fix_value), value, fix_value)
+    )
+saveRDS(sable_downsampled_data, "../data/sable_downsampled_data.rds")
+
 
 plan(multisession, workers = availableCores())
-sable_hr_data <- sable_csv_files %>% 
-    future_map_dfr(
+sable_hr_data <- sable_csv_files[1] %>% 
+    map_dfr(
         ., function(X){
             print(X)
             proc_data <- X %>% 
@@ -298,30 +395,30 @@ sable_hr_data <- sable_csv_files %>%
                 left_join(., metadata_sable, by = "metadata_sable_code") %>% # aqui poner el codigo para el food y water intake, tomar bout length (mean), # of bouts
                 group_by(date, hr, ID, cage_number, DIET, DIET_CODE, KCAL_PER_GR,
                          SEX, COHORT, STRAIN, AIM, sable_idx, metadata_sable_code,
-                         parameter) %>% 
-                group_split() %>% 
-                map_dfr(., function(X){
-                  patterns <- c("AllMeters_", "PedMeters_")
-                  regex_pattern <- paste(patterns, collapse = "|")
-                  if (any(grepl(regex_pattern, X$parameter[1]))){
-                    out <- X %>% 
-                      group_by(date, hr, ID, cage_number, DIET, DIET_CODE, KCAL_PER_GR,
-                               SEX, COHORT, STRAIN, AIM, sable_idx, metadata_sable_code,
-                               parameter) %>% 
-                      summarise(
-                        value = max(value), .groups = "drop_last"
-                      )}
-                    else{
-                      out <- X %>% 
-                        group_by(date, hr, min_t, ID, cage_number, DIET, DIET_CODE, KCAL_PER_GR,
-                                 SEX, COHORT, STRAIN, AIM, sable_idx, metadata_sable_code,
-                                 parameter) %>% 
-                        summarise(
-                          value = mean(value, na.rm = TRUE), .groups = "drop_last"
-                        )
-                    }
-                    return(out)
-                })
+                         parameter) # %>% 
+               # group_split() %>% 
+               # map_dfr(., function(X){
+               #   patterns <- c("AllMeters_", "PedMeters_")
+               #   regex_pattern <- paste(patterns, collapse = "|")
+               #   if (any(grepl(regex_pattern, X$parameter[1]))){
+               #     out <- X %>% 
+               #       group_by(date, hr, ID, cage_number, DIET, DIET_CODE, KCAL_PER_GR,
+               #                SEX, COHORT, STRAIN, AIM, sable_idx, metadata_sable_code,
+               #                parameter) %>% 
+               #       summarise(
+               #         value = max(value), .groups = "drop_last"
+               #       )}
+               #     else{
+               #       out <- X %>% 
+               #         group_by(date, hr, min_t, ID, cage_number, DIET, DIET_CODE, KCAL_PER_GR,
+               #                  SEX, COHORT, STRAIN, AIM, sable_idx, metadata_sable_code,
+               #                  parameter) %>% 
+               #         summarise(
+               #           value = mean(value, na.rm = TRUE), .groups = "drop_last"
+               #         )
+               #     }
+               #     return(out)
+               # })
         }, .progress = TRUE
     )
 saveRDS(sable_hr_data, file = "../data/sable/sable_hr_data.rds", compress = TRUE)
@@ -342,6 +439,7 @@ create_corrected_updata <- function(X){
             )
     return(corrected_values)
 }
+
 # this functions works for data that always goes down, such as food intake
 create_corrected_downdata <- function(X){
     corrected_values <- X %>% 
@@ -353,23 +451,22 @@ create_corrected_downdata <- function(X){
             )
     return(corrected_values)
 } 
+
 # selects the data before and after an injection time
 time_window <- function(injection_time, window_size_hr, data){
-    create_datetime <- lubridate::ymd_hms(injection_time)
-    time_before_injection <- create_datetime - lubridate::hours(window_size_hr)
-    time_after_injection <- create_datetime + lubridate::hours(window_size_hr)
+    injection_datetime <- lubridate::ymd_hms(injection_time)
+    limit = (window_size_hr)*60
+#    time_before_injection <- injection_datetime - lubridate::hours(window_size_hr)
+#    time_after_injection <- create_datetime + lubridate::hours(window_size_hr)
     data_with_dttm <- data %>% 
-        mutate(datetime = lubridate::ymd_hms(paste(date, " ", hr, ":00:00", sep = "")),
+        mutate(
+            time_diff = DateTime - injection_time,
+            time_from_injection = time_diff - min(time_diff[time_diff>0]),
                event_flag = case_when(
-                   datetime >= time_before_injection & datetime <=create_datetime ~ "before",
-                   datetime >= create_datetime & datetime <= time_after_injection ~ "after",
-                   TRUE ~ NA
-<<<<<<< HEAD
-               ), t = create_datetime) %>% 
-=======
-               ),
-               time_from_injection = datetime - create_datetime) %>% 
->>>>>>> ba32b2459a8caf0903979c7bc7bafbdd3b46548d
+                   time_from_injection>=0 & time_from_injection<=limit ~ "after",
+                   time_from_injection<0 & time_from_injection>=-limit ~ "before",
+                   TRUE ~ NA)
+               ) %>% 
       drop_na()
     return(data_with_dttm)
 }
@@ -388,7 +485,7 @@ injection_time <- read_csv("../data/META_INJECTIONS.csv") %>%
 
 # get food intake, body weight and locomotion
 # sable hr data is the hourly data needed for this analysis
-before_after_data <- sable_hr_data %>% 
+before_after_data <- sable_downsampled_data %>% 
     filter(grepl("FoodA_*|BodyMass_*|AllMeters_*|RQ_*|Water_*|kcal_hr_*", parameter)) %>% 
     group_by(str_remove(parameter, "_[0-9]+")) %>% 
     group_split()
@@ -422,15 +519,13 @@ before_after_analysis <- data_injection_grid %>%
                 BodyMass = filtered_data %>% mutate(corrected_value = value),
                 RQ = filtered_data %>% mutate(corrected_value = value),
                 Water = filtered_data %>% create_corrected_downdata(),
-                kcal_hr = filtered_data %>% mutate(corrected_value = cumsum(abs(value))),
+                kcal_hr = filtered_data %>% mutate(corrected_value = value),
                 print("ERROR")
             )
             # select here the number of hours for the time window
             time_window_data <- time_window(
                 injection_time[[X$injection_time_idx]]$INJECTION_TIME[1],
-<<<<<<< HEAD
                 6, # change this
->>>>>>> ba32b2459a8caf0903979c7bc7bafbdd3b46548d
                 corrected_data
             ) %>% mutate(drug = injection_time[[X$injection_time_idx]]$DRUG[1])
             # return the corrected data values
@@ -439,8 +534,3 @@ before_after_analysis <- data_injection_grid %>%
     }, .progress = TRUE)
 saveRDS(before_after_analysis, file = "../data/sable/before_after_analysis.rds", compress = TRUE)
 #before_after_analysis <- readRDS("../data/sable/before_after_analysis.rds")
-
-
-<<<<<<< HEAD
->>>>>>> ba32b2459a8caf0903979c7bc7bafbdd3b46548d
-
