@@ -5,7 +5,8 @@ pacman::p_load(
   googledrive,
   furrr,
   zoo,
-  robustlmm
+  robustlmm,
+  mmand
 )
 
 # change the directory to source file location
@@ -525,7 +526,7 @@ before_after_analysis <- data_injection_grid %>%
             # select here the number of hours for the time window
             time_window_data <- time_window(
                 injection_time[[X$injection_time_idx]]$INJECTION_TIME[1],
-                6, # change this
+                24, # change this
                 corrected_data
             ) %>% mutate(drug = injection_time[[X$injection_time_idx]]$DRUG[1])
             # return the corrected data values

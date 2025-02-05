@@ -334,6 +334,7 @@ total_tee <- tee %>%
         kcal = max(cum_tee)
     )
 
+
 total_intake <- sable_data_injections %>% 
     filter(
         parameter == "FoodA",
@@ -374,15 +375,22 @@ tee %>%
     geom_line() +
     facet_wrap(~ID*SEX, scale="free_y")
 
-tee_mdl <- lme4::lmer(
-    data = tee,
-    energy_balance ~ drug * SEX * time + (1|ID) + (1|SEX),
+tee_mdl <- lmer(
+    data = tee %>% filter(!(ID %in% c(2001, 2006))),
+    energy_balance ~ drug * SEX * hr_factor + (1|ID),
     control = lmerControl(optimizer = "bobyqa")
+)
+
+emmeans::emtrends(
+  tee_mdl,
+  pairwise ~ drug | SEX,
+  var = "time",
+  type = "response"
 )
 
 tee_emm <- emmeans::emmeans(
     tee_mdl,
-    pairwise ~ drug | SEX * time,
+    pairwise ~ drug | SEX * hr_factor,
     type = "response",
     lmer.df = "satterthwaite",
     lmerTest.limit=13044
@@ -395,16 +403,10 @@ tee_emm_p
 
 p1 <- tee %>% 
     ggplot(aes(
-        time, cum_tee,
-        group = interaction(ID, drug), color = drug
+        time, energy_balance, color = drug
     )) +
-    geom_line(alpha=0.25) +
-    geom_pointrange(
-        data=tee_emm_p,
-        aes(time,estimate,ymin=conf.low,ymax=conf.high,
-            group=drug)
-    ) +
-    facet_wrap(~SEX) 
+    geom_line(alpha=0.25, linewidth=3, aes(group = interaction(ID, drug))) +
+    facet_wrap(~SEX*ID,scale="free") 
 p1
 
 ## microstructure ----
@@ -437,33 +439,6 @@ microstructure <- sable_data_injections %>%
     )
 microstructure
 
-m <- coxme(Surv(init, end, status) ~ drug * SEX + (1|ID),
-           data = microstructure %>% mutate(status=1))
-summary(m)
-
-s <- coxph(Surv(init, end, status) ~ drug*SEX,
-             data = microstructure %>% mutate(status=1))
-
-cuminc(Surv(centroid, status)~drug, data = microstructure %>% mutate(status=1))%>% 
-    ggcuminc()
-
-
-emmeans::emmeans(
-    m, 
-    pairwise ~ drug | SEX,
-    type = "response"
-)
-
-microstructure %>% 
-    ungroup() %>% 
-    mutate(h = predict(m, re.form=NA)) %>% 
-    ggplot(aes(
-        centroid, h,
-        group = interaction(ID, drug), color = drug
-    )) +
-    geom_point() +
-    geom_line()
-
 
 microstructure_cnt_mdl <- lme4::lmer(
     data = microstructure,
@@ -475,7 +450,7 @@ microstructure_cnt_mdl
 microstructure_cnt_emm <- emmeans::emmeans(
     microstructure_cnt_mdl,
     pairwise ~ drug | SEX*centroid,
-    at = list(centroid = seq(0, 360, 60)),
+    at = list(centroid = seq(0, 1500, 60)),
     type = "response"
 )
 microstructure_cnt_emm
@@ -495,7 +470,7 @@ p1 <- microstructure %>%
         aes(centroid, estimate,ymin=conf.low,ymax=conf.high,
             group=drug,fill=drug)
     ) +
-    geom_line(
+    geom_pointrange(
         data = microstructure_cnt_p,
         aes(centroid, estimate,ymin=conf.low,ymax=conf.high,
             group=drug,fill=drug)
@@ -506,29 +481,66 @@ p1
 
 microstructure_len <- lme4::lmer(
     data = microstructure,
-    bout_length_sec ~ drug * SEX * hr_factor + (1|ID),
+    bout_length_sec ~ drug * SEX * centroid + (1|ID),
     control = lmerControl(optimizer = "bobyqa")
 )
 
 microstructure_len_emm <- emmeans::emmeans(
     microstructure_len,
-    pairwise ~ drug | hr_factor * SEX,
+    pairwise ~ drug | centroid * SEX,
+    at = list(centroid = seq(0, 1500, 60)),
     type = "response"
 )
 microstructure_len_emm
 
 microstructure_in <- lme4::lmer(
-    data = microstructure,
-    intake_gr ~ drug * SEX * hr_factor + (1|ID),
+    data = microstructure %>%
+      ungroup() %>% 
+      group_by(ID, drug) %>% 
+      mutate(cum_intake_gr=cumsum(intake_gr),
+             hr_factor=trunc(centroid/60) %>% as.factor()),
+    cum_intake_gr ~ drug * SEX * centroid + (1|ID),
     control = lmerControl(optimizer = "bobyqa")
 )
 
+microstructure %>%
+  filter(drug != "RTI_43_Y") %>% 
+  ungroup() %>% 
+  group_by(ID, drug) %>% 
+  mutate(cum_intake_gr=cumsum(intake_gr),
+         hr_factor=trunc(centroid/60) %>% as.factor()) %>% 
+  slice_max(order_by = cum_intake_gr, n=1) %>% 
+  ggplot(aes(
+    drug, cum_intake_gr
+  )) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_point() +
+  geom_line(aes(group=ID))+
+  facet_wrap(~SEX)
+
+microstructure_in_emm <- emmeans::emmeans(
+  microstructure_in,
+  pairwise ~ drug | SEX * hr_factor,
+  type = "response"
+)
+microstructure_in_emm
+
 microstructure_in_emm <- emmeans::emmeans(
     microstructure_in,
-    pairwise ~ drug | hr_factor * SEX,
+    pairwise ~ drug | centroid * SEX,
+    at = list(centroid = seq(0, 1500, 60)),
     type = "response"
 )
 microstructure_in_emm
+
+microstructure_in_emm$emmeans %>% 
+  broom::tidy(conf.int=TRUE) %>% 
+  ggplot(aes(
+    centroid, estimate,
+    group = drug, color = drug
+  ))+
+  geom_line() +
+  facet_wrap(~SEX)
 
 
 p1 <- microstructure %>% 
