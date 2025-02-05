@@ -459,6 +459,7 @@ microstructure_cnt_p <- microstructure_cnt_emm$emmeans %>%
     broom::tidy(conf.int = TRUE)
 microstructure_cnt_p
 
+
 p1 <- microstructure %>% 
     ggplot(aes(
         centroid, cum_bouts,
@@ -476,7 +477,9 @@ p1 <- microstructure %>%
             group=drug,fill=drug)
     ) +
     facet_wrap(~SEX) +
-    ggpubr::theme_pubr()
+    ggpubr::theme_pubr() +
+  labs(x = "Time after injection (min)", y = "Cumulative number of bouts")
+
 p1
 
 microstructure_len <- lme4::lmer(
@@ -516,7 +519,9 @@ microstructure %>%
   geom_boxplot(outlier.shape = NA) +
   geom_point() +
   geom_line(aes(group=ID))+
-  facet_wrap(~SEX)
+  facet_wrap(~SEX)+
+  labs(x = "Drug", y = "Cumulative intake in grams after 24h of injection")
+
 
 microstructure_in_emm <- emmeans::emmeans(
   microstructure_in,
