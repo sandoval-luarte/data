@@ -70,7 +70,7 @@ FI_data_ <- read_csv("../data/FI.csv") %>%
 FI_data
 
 fi_plot <- FI_data %>% 
-    filter(ID %in% c(3710, 3725,3708,3729,3724,3723,3728,3714,3727,3721,3722,3720)) %>% 
+   # filter(ID %in% c(3710, 3725,3708,3729,3724,3723,3728,3714,3727,3721,3722,3720)) %>% 
     ggplot(aes(x = DATE, y = corrected_intake_kcal, group =as.factor(ID))) +
     geom_point(size = 3, alpha = 0.8) +
     geom_line(aes(color = ID)) +  # Add color for better distinction
@@ -92,8 +92,9 @@ fi_plot <- FI_data %>%
     theme_minimal() 
 
 fi_plot_gr <- FI_data_ %>% 
-    drop_na() %>% 
-    filter(ID %in% c(3710, 3725,3708,3729,3724,3723,3728,3714,3727,3721,3722,3720)) %>% 
+   # drop_na() %>% 
+  #  filter(ID %in% c(3710, 3725,3708,3729,3724,3723,3728,3714,3727,3721,3722,3720)) %>% 
+    filter(DATE > "2025-01-20") %>% 
     ggplot(aes(x = DATE, y = corrected_intake_gr, group =as.factor(ID))) +
     geom_point(size = 3, alpha = 0.8) +
     geom_line(aes(color = as.factor(ID))) +  # Add color for better distinction
