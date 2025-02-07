@@ -54,7 +54,7 @@ fi_plot_gr <- FI_data_ %>%
 fi_plot_gr    
 
 bw <- read_csv("../data/BW.csv") %>% 
-  filter(COHORT %in% c(3, 4, 5))
+  filter(COHORT %in% c(3, 4, 5, 8))
 bw
 
 echo_full <- echomri_data %>% 
@@ -68,14 +68,14 @@ echo_full %>%
 ###BW NZO MICE####
 
 bw %>% 
-  filter(DATE > "2025-01-25") %>% 
-  filter(!(ID %in% c(3722,3723,3724,3725,3727,3728,3729))) %>% 
+  filter(SEX =="M") %>% 
+ # filter(!(ID %in% c(3722,3723,3724,3725,3727,3728,3729))) %>% 
   ggplot(aes(
     DATE, BW, group = ID, color = as.factor(ID)
   )) +
   geom_point() +
   geom_line() +
-  facet_wrap(~ID)
+  facet_wrap(~SEX)
 
 ####FI NZO MICE####
 fi_plot_gr    <- read_csv("../data/FI.csv") %>% 
