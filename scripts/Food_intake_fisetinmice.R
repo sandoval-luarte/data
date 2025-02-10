@@ -54,7 +54,7 @@ fi_plot_gr <- FI_data_ %>%
 fi_plot_gr    
 
 bw <- read_csv("../data/BW.csv") %>% 
-  filter(COHORT %in% c(3, 4, 5, 8))
+  filter(COHORT %in% c(3, 4, 5))
 bw
 
 echo_full <- echomri_data %>% 
@@ -68,21 +68,22 @@ echo_full %>%
 ###BW NZO MICE####
 
 bw %>% 
-  filter(SEX =="M") %>% 
- # filter(!(ID %in% c(3722,3723,3724,3725,3727,3728,3729))) %>% 
+ # filter(SEX =="M") %>% 
+  filter(DATE > "2025-02-01") %>% 
+ filter((ID %in% c(3722,3723,3724,3725,3727,3728,3729))) %>% 
   ggplot(aes(
     DATE, BW, group = ID, color = as.factor(ID)
   )) +
   geom_point() +
-  geom_line() +
-  facet_wrap(~SEX)
+  geom_line() #+
+  #facet_wrap(~SEX)
 
 ####FI NZO MICE####
 fi_plot_gr    <- read_csv("../data/FI.csv") %>% 
   filter(COHORT %in% c(3, 4, 5)) %>% 
-  filter(!(ID %in% c(3722,3723,3724,3725,3727,3728,3729))) %>% 
+  filter((ID %in% c(3722,3723,3724,3725,3727,3728,3729))) %>% 
   filter(corrected_intake_gr < 15) %>%  #TYPING MISTAKES
-  filter(DATE > "2025-01-25") %>% 
+  filter(DATE > "2025-02-01") %>% 
   ggplot(aes(x = DATE, y = corrected_intake_gr, group =as.factor(ID))) +
   geom_point(size = 3, alpha = 0.8) +
   geom_line(aes(color = as.factor(ID))) +  # Add color for better distinction
