@@ -58,13 +58,38 @@ bw <- read_csv("../data/BW.csv") %>%
 bw
 
 echo_full <- echomri_data %>% 
-  filter(COHORT %in% c(3, 4, 5))
+  filter(COHORT ==2)
 
-echo_full %>% 
-  ggplot(aes(Date, Lean/Weight, color = as.factor(ID))) +
+A <-echo_full %>% 
+  filter(DIET_CODE == "D12451i") %>% 
+  filter(Date=="2025-02-11") %>% 
+  ggplot(aes(Date,adiposity_index, color = as.factor(ID))) +
   geom_point() +
-  geom_line()
-
+  geom_line()+
+  geom_text(aes(label = ID), vjust = -0.5, size = 3, check_overlap = TRUE) +  # Add labels
+  facet_wrap(DIET_CODE~SEX)
+  A
+  
+  B <- echo_full %>% 
+    filter(DIET_CODE == "D12451i") %>% 
+    filter(Date=="2025-02-11") %>% 
+    mutate(REGIMEN = if_else(ID %in% c(7873,7875,7876,7879,7860,7867,7864,7862), "ADLIB", "RESTRICTED")) %>% 
+    select(c(ID, adiposity_index,DIET_CODE,REGIMEN,SEX))
+  
+  #check if the adiposity index between RESTRICTED HFD and ADLIB HFD are different using t-test (F)
+  t_test_result <- lm(adiposity_index ~ REGIMEN, data = B %>% filter(SEX=="F"))
+  # View the result
+  print(t_test_result)
+  # Summary
+  summary(t_test_result)
+  
+  #check if the adiposity index between RESTRICTED HFD and ADLIB HFD are different using t-test (M)
+  t_test_result_M <- lm(adiposity_index ~ REGIMEN, data = B %>% filter(SEX=="M"))
+  # View the result
+  print(t_test_result_M)
+  # Summary
+  summary(t_test_result_M)
+    
 ###BW NZO MICE####
 
 bw %>% 
