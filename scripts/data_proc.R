@@ -340,6 +340,7 @@ sable_downsampled_data <- sable_csv_files %>%
     )
 saveRDS(sable_downsampled_data, "../data/sable_downsampled_data.rds")
 
+# run the min or hour RDS but no both
 
 plan(multisession, workers = availableCores())
 sable_hr_data <- sable_csv_files[1] %>% 
