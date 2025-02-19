@@ -63,49 +63,34 @@ summary(t_test_result)
 
 FI_data <- read_csv("../data/FI.csv") %>% 
     filter(COHORT > 2 & COHORT < 6) %>%
-    filter(DATE > "2025-01-1") 
+    filter(DATE > "2025-02-1") 
 
 FI_data_ <- read_csv("../data/FI.csv") %>% 
-    filter(COHORT %in% c(3, 4, 5))
-FI_data
+    filter(COHORT %in% c(3, 4, 5))%>%
+    filter(ID %in% c(3710,3714,3720,3721,3722,3723, 3724, 3725, 3728, 3729)) %>% 
+    #we want to make the calculation just for the restricted mice
+    filter(DATE > "2025-02-10") %>% 
+    drop_na() %>% 
+    group_by(DATE) %>% 
+summarise(mean_FI_daily = mean(corrected_intake_gr, na.rm = TRUE))  # Calculate mean food intake per day
+FI_data_
 
-fi_plot <- FI_data %>% 
-   # filter(ID %in% c(3710, 3725,3708,3729,3724,3723,3728,3714,3727,3721,3722,3720)) %>% 
-    ggplot(aes(x = DATE, y = corrected_intake_kcal, group =as.factor(ID))) +
-    geom_point(size = 3, alpha = 0.8) +
-    geom_line(aes(color = ID)) +  # Add color for better distinction
-    stat_summary(
-        fun.data = mean_se,
-        geom = "pointrange",
-        size = 0.5,
-        shape = 21,
-        color = "black",
-        fill = "red",
-        position = position_dodge(width = 0.2)  # Mean and SEM as big points
-    ) +
-    geom_text(aes(label = ID), size = 3, vjust = -1, hjust = 1) + 
+fi_plot <- FI_data_ %>%
+    ggplot(aes(x = as.factor(DATE), y = mean_FI_daily)) +  
+    # Bar plot for mean
+    geom_bar(stat = "summary", fun = "mean", fill = "gray", color = "black", alpha = 0.8) +  
+    # Error bars for standard error
+    geom_errorbar(stat = "summary", fun.data = mean_se, width = 0.2) +  
+    # Individual data points (jitter to avoid overlap)
+    geom_jitter(aes(y = corrected_intake_gr), width = 0.2, size = 2, alpha = 0.6, color = "blue") +  
     labs(
-        title = "Corrected Intake Over Days",
         x = "Date",
-        y = "Corrected Intake (kcal)"
+        y = "Mean daily intake (g)"
     ) +
-    theme_minimal() 
+    theme_minimal()
 
-fi_plot_gr <- FI_data_ %>% 
-   # drop_na() %>% 
-  #  filter(ID %in% c(3710, 3725,3708,3729,3724,3723,3728,3714,3727,3721,3722,3720)) %>% 
-    filter(DATE > "2025-01-20") %>% 
-    ggplot(aes(x = DATE, y = corrected_intake_gr, group =as.factor(ID))) +
-    geom_point(size = 3, alpha = 0.8) +
-    geom_line(aes(color = as.factor(ID))) +  # Add color for better distinction
-    geom_text(aes(label = ID), size = 3, vjust = -1, hjust = 1) + 
-    labs(
-        title = "Corrected Intake Over Days",
-        x = "Date",
-        y = "Corrected Intake (gr.)"
-    ) +
-    theme_minimal() 
-fi_plot_gr    
+fi_plot
+
 
 bw <- read_csv("../data/BW.csv") %>% 
     filter(COHORT %in% c(3, 4, 5))
