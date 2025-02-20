@@ -129,7 +129,7 @@ sable_tee_data <- sable_dwn %>% # Load the data
     mutate(is_complete_day = if_else(min(zt_time)==0 & max(zt_time)==23, 1, 0)) %>% 
     ungroup() %>% 
     group_by(ID,complete_days,SABLE,is_complete_day) %>% 
-    summarise(tee = mean(value)) %>% 
+    summarise(tee = sum(value)*(1/60)) %>% 
     filter(ID != 3715, is_complete_day ==1) %>% 
     ungroup() %>% 
     group_by(SABLE, ID) %>% 
@@ -165,6 +165,28 @@ sable_min_plot_tee <- sable_tee_data %>%
         aes(group = SABLE)
     )
 sable_min_plot_tee 
+
+#Change in bw before and after LFD in NZO mice ####
+
+bw <- read_csv("../data/BW.csv") %>% 
+  filter(COHORT %in% c(3, 4, 5)) %>% 
+  filter(ID != 3715) %>%  # Exclude animals that died during study
+  group_by(ID) %>% 
+  mutate(daily_delta=replace_na( (BW - lag(BW))/lag(BW), 0 ),
+         cd = cumsum(daily_delta))
+
+bw %>% 
+ggplot(aes(x = DATE, y = daily_delta)) + 
+  geom_smooth()+
+  geom_point() +
+  geom_line(aes(group = ID))+
+  labs(
+    x = "Date",
+    y = "Body Weight (BW)"
+  ) +
+  theme_minimal()
+
+
 
 # RQ####
 sable_RQ_data <- sable_dwn %>% # Load the data
@@ -221,12 +243,12 @@ sable_min_plot_RQ <- sable_RQ_data %>%
     )
 sable_min_plot_RQ 
 
-# Pedmeters####
-sable_pedmeters_data <- sable_dwn %>% # Load the data
+# speedmeters####
+sable_PedSpeed_data <- sable_dwn %>% # Load the data
     filter(COHORT %in% c(3, 4, 5)) %>%   #we only want NZO mice
     mutate(lights  = if_else(hr %in% c(20,21,22,23,0,1,2,3,4,5), "off", "on")) %>% 
     mutate(SABLE  = if_else(sable_idx %in% c("SABLE_DAY_8","SABLE_DAY_9","SABLE_DAY_10"), "After", "Before")) %>% 
-    filter(grepl("PedMeters_*", parameter)) %>% # just to see TEE in kcal first
+    filter(grepl("PedSpeed_*", parameter)) %>% # just to see TEE in kcal first
     ungroup() %>% 
     group_by(ID, SABLE) %>% 
     mutate(
@@ -239,28 +261,28 @@ sable_pedmeters_data <- sable_dwn %>% # Load the data
     mutate(is_complete_day = if_else(min(zt_time)==0 & max(zt_time)==23, 1, 0)) %>% 
     ungroup() %>% 
     group_by(ID,complete_days,SABLE,is_complete_day) %>% 
-    summarise(pedmeters = mean(value)) %>% 
+    summarise(PedSpeed = mean(value)) %>% 
     filter(ID != 3715, is_complete_day ==1) %>% 
     ungroup() %>% 
     group_by(SABLE, ID) %>% 
     slice_max(order_by = complete_days, n=1)
 
-mdl_ped <- lm(
-    data = sable_pedmeters_data %>% filter(!ID %in% c(3727, 3718, 3711, 3723)),
-    pedmeters ~ SABLE
+mdl_speed <- lm(
+    data = sable_PedSpeed_data %>% filter(!ID %in% c(3727, 3718, 3711, 3723)),
+    PedSpeed ~ SABLE
 )
-summary(mdl_ped)
+summary(mdl_speed)
 
 emmeans(
-    mdl_ped,
+    mdl_speed,
     pairwise ~ SABLE,
     type = "response"
 )
 
-# Create the plot RQ
-sable_min_plot_pedmeters <- sable_pedmeters_data %>%
+# Create the plot PedSpeed
+sable_min_plot_PedSpeed <- sable_PedSpeed_data %>%
     filter(!ID %in% c(3727, 3718, 3711, 3723)) %>% #issues with cage 5
-    ggplot(aes(x = SABLE, y = pedmeters, color = as.factor(ID))) +  # or just value to see the hourly value
+    ggplot(aes(x = SABLE, y = PedSpeed, color = as.factor(ID))) +  # or just value to see the hourly value
     geom_line(aes(group = ID)) +              # Connect lines across days for each ID
     geom_point(size = 3, alpha = 0.8) +                 # Add individual points
     geom_text(aes(label = ID), hjust = 0.5, vjust = -0.5, size = 3) +
@@ -274,7 +296,7 @@ sable_min_plot_pedmeters <- sable_pedmeters_data %>%
         position = position_dodge(width = 0.2),  # Mean and SEM as big points,
         aes(group = SABLE)
     )
-sable_min_plot_pedmeters
+sable_min_plot_PedSpeed
 
 
 #FI intake over days####
@@ -292,50 +314,17 @@ fi_plot <- FI_data_ %>%
 fi_plot
 
 
-#Change in bw before and after LFD in NZO mice ####
-
-bw <- read_csv("../data/BW.csv") %>% 
-    filter(COHORT %in% c(3, 4, 5)) %>% 
-    filter(ID != 3715) %>%  # Exclude animals that died during study
-    group_by(ID) %>% 
-    mutate(WEIGHT_NORM = as.numeric(BW[DATE == "2025-02-17"]) - as.numeric(BW) ) %>% 
-    ungroup()
-ds4 <-bw %>% 
-    group_by(DATE) %>% 
-    filter(DATE =="2024-10-25") %>% 
-    ggplot(aes(as.factor(DATE),WEIGHT_NORM))+ 
-    geom_point(size=2) +
-    geom_line(aes(group=ID))+
-    geom_label(aes(label=ID), size=2.5)+
-    format.plot + 
-    labs(x = "WEEK", y = "BODY WEIGHT CHANGE (G)") 
-ds4
-
-#bw before and after LFD in NZO mice ####
-
-bw <- read_csv("../data/BW.csv") %>%
-    filter(COHORT %in% c(3, 4, 5)) %>%
-    filter(ID != 3715) %>%  # Exclude animals that died during the study
-    filter(DATE %in% c("2024-10-25", "2025-02-17"))  # Keep only selected dates
-
-ggplot(bw, aes(x = as.factor(DATE), y = BW)) +  # Convert DATE to factor
-    geom_point() +
-    labs(
-        x = "Date",
-        y = "Body Weight (BW)"
-    ) +
-    theme_minimal()
 
 #echoMRI analysis####
 echomri_data <- read_csv("../data/echomri.csv") %>% 
     filter(COHORT %in% c(3, 4, 5)) %>%
     filter(ID != 3715) %>%  # Exclude animals that died during the study
-    filter(Date %in% c("2024-11-12", "2024-11-19", "2024-11-26", "2025-01-15")) %>%   # Keep only selected dates
+  #  filter(Date %in% c("2024-11-12", "2024-11-19", "2024-11-26", "2025-02-20")) %>%   # Keep only selected dates
   select(Date,ID, adiposity_index, Fat, Lean) %>% 
    mutate(STATUS  = if_else(Date %in% c("2024-11-12", "2024-11-19", "2024-11-26"), "before", "after")) 
  
 echomri_data_<-echomri_data %>%
-    ggplot(aes(x = STATUS, y = Fat, color = as.factor(ID))) + #Fat
+    ggplot(aes(x = Date, y = Fat, color = as.factor(ID))) + #Fat
     geom_point(size = 3, alpha = 0.8) 
 echomri_data_
 
@@ -354,7 +343,7 @@ emmeans(
 #NZO mice, better known as butter mice
 
 echomri_data_<-echomri_data %>%
-    ggplot(aes(x = STATUS, y = Lean, color = as.factor(ID))) + #Fat
+    ggplot(aes(x = Date, y = adiposity_index, color = as.factor(ID))) + #Fat
     geom_point(size = 3, alpha = 0.8) 
 echomri_data_
 
