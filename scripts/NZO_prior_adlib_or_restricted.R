@@ -4,7 +4,8 @@
 #libraries
 library(dplyr) #to use pipe
 library(ggplot2) #to graph
-library(readr)  
+library(readr) 
+library(tidyr)  # to use drop-na()
 
 #----ADIPOSITY INDEX----
 
@@ -57,22 +58,20 @@ print(t_test_result)
 # Summary
 summary(t_test_result)
 
-#----FOOD INTAKE----
-# My idea is to take the mean of the last 3 days of daily food intake to restrict the animals to ~60% of the obese energy intake
-# A complementary idea is to take only the IDs that are assigned to the "restricted" group.
+### NZO MICE####
 
-FI_data <- read_csv("../data/FI.csv") %>% 
-    filter(COHORT > 2 & COHORT < 6) %>%
-    filter(DATE > "2025-02-1") 
+####----Food intake----
+
+# My idea is to take the mean of the last 3 days of daily food intake to ALL the animals to ~60% of the obese energy intake
+# A complementary idea is to take only the IDs that are assigned to the "restricted" group.
 
 FI_data_ <- read_csv("../data/FI.csv") %>% 
     filter(COHORT %in% c(3, 4, 5))%>%
-    filter(ID %in% c(3710,3714,3720,3721,3722,3723, 3724, 3725, 3728, 3729)) %>% 
-    #we want to make the calculation just for the restricted mice
+   # filter(ID %in% c(3710,3714,3720,3721,3722,3723, 3724, 3725, 3728, 3729)) %>% #restricted animals
     filter(DATE > "2025-02-10") %>% 
     drop_na() %>% 
     group_by(DATE) %>% 
-summarise(mean_FI_daily = mean(corrected_intake_gr, na.rm = TRUE))  # Calculate mean food intake per day
+mutate(mean_FI_daily = mean(corrected_intake_gr, na.rm = TRUE))  # Calculate mean food intake per day
 FI_data_
 
 fi_plot <- FI_data_ %>%
@@ -88,25 +87,22 @@ fi_plot <- FI_data_ %>%
         y = "Mean daily intake (g)"
     ) +
     theme_minimal()
-
 fi_plot
 
+#so
+#the mean of the means is  (4.43+4.95+4.79)/3 = 4.723333
+#the 60% of that is  4.72*0.6 =  2.832
+#divided in two meals per day  2.83/2 = 1.415
 
-bw <- read_csv("../data/BW.csv") %>% 
-    filter(COHORT %in% c(3, 4, 5))
-bw
+#This means we should give two meals of 1.41 grams a day
 
-echo_full <- echomri_data %>% 
-    filter(COHORT %in% c(3, 4, 5))
+#We should see if 2.83 g a day is enough to restrict most of the mice at least 60% 
 
-echo_full %>% 
-    ggplot(aes(Date, Lean/Weight, color = as.factor(ID))) +
-    geom_point() +
-    geom_line()
+FI_data_re <- read_csv("../data/FI.csv") %>% 
+    filter(COHORT %in% c(3, 4, 5))%>%
+    filter(DATE == "2025-02-17") %>% 
+    drop_na() %>% 
+    mutate(diff_FI_daily =  2.83- corrected_intake_gr ) # Calculate mean food intake per day - value per mice
+FI_data_re
 
-bw %>% 
-    ggplot(aes(
-        DATE, BW, group = ID, color = as.factor(ID)
-    )) +
-    geom_point() +
-    geom_line()
+
