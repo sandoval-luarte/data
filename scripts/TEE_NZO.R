@@ -5,7 +5,7 @@ library(dplyr) #to open a RDS and use pipe
 library(tidyr) #to use cumsum
 library(ggplot2)
 library(readr)
-
+library(lmerTest)
 #functions####
 zt_time <- function(hr){
     return(if_else(hr >= 20 & hr <= 23, hr-20, hr+4))
@@ -404,10 +404,9 @@ fi_plot
 
 echomri_data <- read_csv("../data/echomri.csv") %>% 
     filter(COHORT %in% c(3, 4, 5)) %>%
-    filter(ID != 3715) %>%  # Exclude animals that died during the study
-  #  filter(Date %in% c("2024-11-12", "2024-11-19", "2024-11-26", "2025-02-20")) %>%   # Keep only selected dates
+    filter(ID != 3715) %>% 
   select(Date,ID, adiposity_index, Fat, Lean) %>% 
-   mutate(STATUS  = if_else(Date %in% c("2024-11-12", "2024-11-19", "2024-11-26"), "before", "after")) 
+   mutate(STATUS  = if_else(Date < "2025-01-01", "period_1", "period_2")) 
  
 #FAT
 FAT<-echomri_data %>%
@@ -417,17 +416,21 @@ FAT<-echomri_data %>%
   theme_classic() 
 FAT
 
-mdl_echo_fat <- lm(
-    data = echomri_data %>% filter(!ID %in% c(3727, 3718, 3711, 3723)),
-    Fat ~ STATUS
-)
-summary(mdl_echo_fat)
+#Alternative model
+model_data <- echomri_data %>% 
+    group_by(STATUS, ID) %>% 
+    mutate(
+        time = as.numeric(Date - min(Date))
+    )
+model <-  lmer(Fat ~ STATUS * time + (1 | ID), data = model_data)
+summary(model)
 
-emmeans(
-    mdl_echo_fat,
+trend <- emtrends(
+    model,
     pairwise ~ STATUS,
-    type = "response"
+    var = "time"
 )
+trend
 
 #NZO mice, better known as butter mice
 
@@ -439,19 +442,51 @@ LEAN<-echomri_data %>%
   theme_classic() 
 LEAN
 
-mdl_echo_lean <- lm(
-  data = echomri_data %>% filter(!ID %in% c(3727, 3718, 3711, 3723)),
-  Lean ~ STATUS
+lean_data <- echomri_data %>% 
+    group_by(ID, STATUS) %>% 
+    mutate(
+        time = as.numeric(Date - min(Date))
+    )
+
+mdl_echo_lean <- lmer(
+  data = lean_data,
+  Lean ~ STATUS * time + (1|ID)
 )
 summary(mdl_echo_lean)
 
-emmeans(
+emtrends(
   mdl_echo_lean,
   pairwise ~ STATUS,
-  type = "response"
+  var = "time"
 )
 
 #ADIPOSITY INDEX
+AI<-echomri_data %>%
+    ggplot(aes(x = Date, y = adiposity_index)) + #Lean
+    geom_point(aes(group = ID), alpha = 0.5) +
+    geom_line(aes(group = ID), alpha = 0.5) +
+    theme_classic() 
+AI
+
+AI_data <- echomri_data %>% 
+    group_by(ID, STATUS) %>% 
+    mutate(
+        time = as.numeric(Date - min(Date))
+    )
+
+mdl_echo_AI <- lmer(
+    data = AI_data,
+    adiposity_index ~ STATUS * time + (1|ID)
+)
+summary(mdl_echo_AI)
+
+emtrends(
+    mdl_echo_AI,
+    pairwise ~ STATUS,
+    var = "time"
+)
+
+
 
 #Data analysis of for the food restriction####
 
