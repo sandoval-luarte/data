@@ -262,6 +262,133 @@ setwd(this.path::here())
 sable_data <- readRDS("../data/sable/sable_downsampled_data.rds")
 sable_data_injections <- readRDS("../data/sable/before_after_analysis.rds")
 
+## test ----
+
+test <- sable_data_injections %>% 
+    filter(
+        parameter %in% c("RQ", "AllMeters"),
+        event_flag == "after"
+    ) %>% 
+    group_by(ID, drug, parameter) %>% 
+    mutate(
+        vel = (corrected_value-lag(corrected_value)),
+        acc = (vel-lag(vel)),
+        jerk = (acc-lag(acc)),
+        scaled_inst_change = scale(vel)
+    ) %>% 
+    ungroup() %>% 
+    group_by(ID, parameter) %>% 
+    mutate(
+        quantile = percent_rank(jerk)
+    ) %>% 
+    ungroup()
+
+t <- test %>% filter(ID==2006,drug=="veh") %>% 
+    mutate(
+        fft_ = abs(fft(corrected_value)))
+
+t %>% 
+    filter(time_from_injection<100) %>% 
+    ggplot(aes(
+        time_from_injection, fft_
+    )) +
+    geom_point()
+
+
+test %>% 
+    filter(parameter=="AllMeters", time_from_injection>240) %>% 
+    group_by(ID, SEX, drug) %>% 
+    mutate(jerk_sum=cumsum(abs(replace_na(acc,0)))) %>% 
+    ggplot(aes(
+        time_from_injection, jerk_sum, group=interaction(ID,drug),color=drug
+    )) +
+    geom_point() +
+    geom_line() +
+    facet_wrap(~SEX*ID,scale="free")
+
+grp_speed <- test %>% 
+    group_by(drug) %>% 
+    group_split() %>% 
+    map_dfr(., function(X){
+        X %>% 
+            select(ID, SEX, drug, time_from_injection, parameter, inst_change) %>% 
+            pivot_wider(names_from = "parameter",
+                        values_from = "inst_change"
+                        )
+    })
+
+grp_speed %>% 
+    filter(RQ>0,RQ<1,
+           drug!="RTI_43_Y") %>% 
+    ggplot(aes(
+        log(AllMeters+1), log(RQ)
+    )) +
+    geom_point() +
+    facet_wrap(~drug*SEX) +
+    geom_smooth(method="lm")
+
+test %>% 
+    filter(parameter=="kcal_hr") %>% 
+    mutate(
+        cnt = as.numeric(if_else(quantile>0.9,1,0)) %>% 
+            replace_na(., 0)
+    ) %>%
+    ungroup() %>% 
+    group_by(ID, drug) %>% 
+    mutate(
+        cum_cnt = cumsum(cnt)
+    ) %>% 
+    filter(time_from_injection<=240) %>% 
+    ggplot(aes(
+        time_from_injection, cum_cnt, color=drug
+    )) +
+    geom_line() +
+    facet_wrap(~ID*SEX,scale="free")
+
+
+## bodyweight ----
+
+bw_sable <- sable_data_injections %>% 
+    filter(
+        parameter == "BodyMass",
+        event_flag == "after"
+    ) %>% 
+    filter(corrected_value > 0) %>% 
+    ungroup() %>% 
+    mutate(
+        hr_factor = trunc(time_from_injection/60) %>% as.factor(),
+        time = as.numeric(time_from_injection)
+    )
+
+bw_mdl <- lme4::lmer(
+    data = bw_sable,
+    corrected_value ~ drug * SEX * time + (1|ID),
+    control = lmerControl(optimizer = "bobyqa")
+)
+summary(bw_mdl)
+
+bw_emm <- emmeans::emtrends(
+    bw_mdl,
+    pairwise ~ drug | SEX,
+    var = "time",
+    type = "response"
+)
+bw_emm
+
+bw_sable %>% 
+    group_by(ID, drug) %>% 
+    mutate(
+        delta_bw = corrected_value - corrected_value[1]
+    ) %>% 
+    ggplot(aes(
+        time, delta_bw,
+        group=interaction(ID, drug), color=drug
+    )) +
+    geom_line(alpha=0.25) +
+    geom_smooth(method="lm", se=FALSE, aes(group=drug)) +
+    facet_wrap(~SEX)
+
+
 ## total energy expenditure ----
 
 tee_correction <- sable_data_injections %>% 
@@ -283,7 +410,6 @@ tee_corr_mdl <- lme4::lmer(
     control = lmerControl(optimizer = "bobyqa")
 )
 summary(tee_corr_mdl)
-
 
 bw <- sable_data_injections %>% 
     filter(parameter=="BodyMass",
@@ -342,9 +468,53 @@ total_intake <- sable_data_injections %>%
     ) %>% 
     ungroup() %>% 
     group_by(ID, drug, SEX) %>% 
-    summarise(
-        intake = max(corrected_value) - min(corrected_value)
+    mutate(
+        intake = max(corrected_value) - corrected_value,
+        time = as.numeric(time_from_injection),
+        hr_factor = as.factor(time/60)
     )
+
+intake_mdl <- lme4::lmer(
+    data = total_intake,
+    intake ~ drug * SEX * time + (1|ID),
+    control = lmerControl(optimizer = "bobyqa")
+)
+
+total_intake %>% 
+    ungroup() %>% 
+    mutate(preds = predict(intake_mdl, re.form=NA)) %>% 
+    ggplot(aes(
+        time, intake,
+        group=interaction(ID, drug), color=drug
+    )) +
+    geom_line(alpha=0.25) +
+    geom_line(aes(time, preds), linewidth=2) +
+    facet_wrap(~SEX)
+
+intake_emm <- emmeans::emmeans(
+    intake_mdl,
+    pairwise ~ drug | SEX,
+    at = list(time=c(1440)),
+    type="response"
+)
+intake_emm
+
+intake_emm <- emmeans::emtrends(
+    intake_mdl,
+    pairwise ~ drug | SEX,
+    var = "time",
+    type="response"
+)
+intake_emm
+
+
+total_intake %>%
+    ggplot(aes(
+        time, intake,
+        group=interaction(ID,drug), color=drug
+    )) +
+    geom_line() +
+    facet_wrap(~SEX)
 
 intake_kcal <- total_tee %>% 
     left_join(., total_intake, by = c("ID", "drug"))
@@ -381,12 +551,6 @@ tee_mdl <- lmer(
     control = lmerControl(optimizer = "bobyqa")
 )
 
-emmeans::emtrends(
-  tee_mdl,
-  pairwise ~ drug | SEX,
-  var = "time",
-  type = "response"
-)
 
 tee_emm <- emmeans::emmeans(
     tee_mdl,
@@ -396,6 +560,25 @@ tee_emm <- emmeans::emmeans(
     lmerTest.limit=13044
 )
 tee_emm
+
+tee %>% 
+    filter(hr_factor == "4") %>%
+    mutate(
+        drug = factor(as.factor(drug), levels=c("veh","RTI_43_M","RTI_43_Y"))
+    ) %>% 
+    ungroup() %>% 
+    group_by(ID, drug, SEX) %>% 
+    summarise(
+        energy_balance = max(energy_balance)
+    ) %>% 
+    ggplot(aes(
+        drug, energy_balance
+    )) +
+    geom_boxplot(outlier.shape=NA) +
+    geom_point() +
+    geom_line(aes(group=ID)) +
+    facet_wrap(~SEX) +
+    ggtitle("4 hrs energy balance")
 
 tee_emm_p <- tee_emm$emmeans %>% 
     broom::tidy(conf.int=TRUE)

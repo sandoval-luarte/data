@@ -1,0 +1,12 @@
+MM:DD:YYYY hh:mm:ss,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Failed_Retrieval_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time,Delay
+0/0/2000 0:00:03,1.17.0,uncertainty,3,4.02,nan,1,Right,LeftANDRight,0,1,0,0,0,nan,nan,543,nan
+0/0/2000 0:00:03,1.17.0,uncertainty,3,4.02,1,1,Pellet,LeftANDRight,0,1,0,1,0,27.32,nan,nan,0
+0/0/2000 0:00:03,1.17.0,uncertainty,3,4.02,nan,1,Right,LeftANDRight,0,2,0,1,0,nan,nan,281,nan
+0/0/2000 0:00:03,1.17.0,uncertainty,3,4.02,1,1,Pellet,LeftANDRight,0,2,0,2,0,0.42,0,nan,2
+0/0/2000 0:00:03,1.17.0,uncertainty,3,4.02,nan,1,Right,LeftANDRight,0,3,0,2,0,nan,nan,28,nan
+0/0/2000 0:00:03,1.17.0,uncertainty,3,4.02,1,1,Pellet,LeftANDRight,0,3,0,3,0,1.03,0,nan,22
+0/0/2000 0:00:03,1.17.0,uncertainty,3,4.02,nan,1,Right,LeftANDRight,0,4,0,3,0,nan,nan,56,nan
+0/0/2000 0:00:03,1.17.0,uncertainty,3,4.02,1,1,Pellet,LeftANDRight,0,4,0,4,0,0.42,0,nan,0
+0/0/2000 0:00:03,1.17.0,uncertainty,3,4.02,nan,1,Right,LeftANDRight,0,5,0,4,0,nan,nan,139,nan
+0/0/2000 0:00:03,1.17.0,uncertainty,3,4.02,nan,1,RightinTimeout,LeftANDRight,0,6,0,4,0,nan,nan,0,nan
+0/0/2000 0:00:03,1.17.0,uncertainty,3,4.02,1,1,Pellet,LeftANDRight,0,6,0,5,0,0.06,0,nan,2

@@ -1,0 +1,6 @@
+MM:DD:YYYY hh:mm:ss,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Failed_Retrieval_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time
+5/10/2005 1:03:00,1.17.0,No-Uncertainty,3,3.67,nan,1,Right,LeftANDRight,0,1,0,0,0,nan,nan,318
+5/10/2005 1:03:44,1.17.0,No-Uncertainty,3,3.67,14,1,Pellet,LeftANDRight,0,1,0,1,0,3.28,nan,nan
+5/10/2005 1:13:48,1.17.0,No-Uncertainty,3,3.67,nan,1,Left,LeftANDRight,1,1,0,1,0,nan,nan,615
+5/10/2005 1:15:07,1.17.0,No-Uncertainty,3,3.66,28,1,Pellet,LeftANDRight,1,1,0,2,0,2.65,683,nan
+5/10/2005 1:15:12,1.17.0,No-Uncertainty,3,3.66,nan,1,Right,LeftANDRight,1,2,0,2,0,nan,nan,497

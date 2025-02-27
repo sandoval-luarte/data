@@ -1,0 +1,81 @@
+date_ymd,id,treatment,weight_gr,pellet_intake,service_time,record_time,battery,cage_position,notes
+2025-02-19,4802,baseline,23.01,138,11:11:00 AM,,4,,First 24 hrs without chow 1 sec delay
+2025-02-19,4803,baseline,24.2,117,11:12:00 AM,,4,,First 24 hrs without chow 1 sec delay
+2025-02-19,4804,baseline,23.58,145,11:17:00 AM,,4,,First 24 hrs without chow 1 sec delay
+2025-02-19,4805,baseline,22.07,17,11:25:00 AM,,4,,First 24 hrs without chow 1 sec delay
+2025-02-19,4806,baseline,23.15,0,11:46:00 AM,,4,,First 24 hrs without chow 1 sec delay
+2025-02-19,4807,baseline,18.17,0,11:51:00 AM,,4,,First 24 hrs without chow 1 sec delay
+2025-02-19,4808,baseline,15,0,11:56:00 AM,,4,,First 24 hrs without chow 1 sec delay
+2025-02-19,4809,baseline,22.91,146,12:06:00 PM,,4,,First 24 hrs without chow 1 sec delay
+,,,,,,,,,
+2025-02-20,4802,baseline,22.6,130,11:34:00 AM,11:37:00 AM,3.8,,Second 24 hrs without chow 15 sec delay
+2025-02-20,4803,baseline,23.8,126,11:37:00 AM,11:41:00 AM,3.8,,Second 24 hrs without chow 15 sec delay
+2025-02-20,4804,baseline,23.58,137,11:42:00 AM,11:48:00 AM,3.8,,Second 24 hrs without chow 15 sec delay
+2025-02-20,4805,baseline,20.8,12,11:50:00 AM,01:46:00 PM,3.8,,Second 24 hrs without chow 15 sec delay
+2025-02-20,4806,baseline,21.6,18,11:30:50 AM,13:56:00,3.8,,Second 24 hrs without chow 15 sec delay
+2025-02-20,4807,baseline,16.97,9,11:04:00 AM,11:33:00 AM,3.9,,Second 24 hrs without chow 15 sec delay
+2025-02-20,4808,baseline,15.96,5,10:54:00 AM,14:01:00,3.8,,Second 24 hrs without chow 15 sec delay
+2025-02-20,4809,baseline,22.28,19,01:48:00 PM,01:51:00 PM,3.8,,Second 24 hrs without chow 15 sec delay
+,,,,,,,,,
+2024-02-21,4802,baseline,22.27,118,11:14:30 AM,11:16:25 AM,3.8,,sable cage measurement day 1
+2024-02-21,4803,baseline,23.69,153,11:22:55 AM,11:30:00 AM,3.8,,sable cage measurement day 1
+2024-02-21,4804,baseline,23.07,149,11:31:20 AM,11:34:00 AM,3.8,,sable cage measurement day 1
+2024-02-21,4805,baseline,22.57,143,11:36:00 AM,11:38:00 AM,3.8,,sable cage measurement day 1
+2024-02-21,4806,baseline,20.49,69,11:44:40 AM,11:49:30 AM,3.7,,sable cage measurement day 1
+2024-02-21,4807,baseline,17.5,123,11:51:00 AM,11:57:00 AM,3.8,,sable cage measurement day 1
+2024-02-21,4808,baseline,15.6,120,11:59:00 AM,12:04:00 PM,3.8,,sable cage measurement day 1
+2024-02-21,4809,baseline,21.8,124,12:05:00 PM,12:07:00 PM,3.7,,sable cage measurement day 1
+,,,,,,,,,
+2024-02-22,4802,baseline,21.7,288,11:54:00 AM,12:01:00 PM,3.8,,first check after 24 hrs of sable recordings
+2024-02-22,4803,baseline,,286,12:01:00 PM,12:04:00 PM,4.2,,first check after 24 hrs of sable recordings
+2024-02-22,4804,baseline,24.1,287,12:04:00 PM,12:41:00 PM,4.2,,first check after 24 hrs of sable recordings
+2024-02-22,4805,baseline,23.2,346,12:07:45 PM,12:11:00 PM,4.2,,first check after 24 hrs of sable recordings
+2024-02-22,4806,baseline,20,176,12:11:00 PM,12:14:00 PM,4.2,,first check after 24 hrs of sable recordings
+2024-02-22,4807,baseline,19,271,12:15:00 PM,12:21:00 PM,4.2,,first check after 24 hrs of sable recordings
+2024-02-22,4808,baseline,16.4,278,12:17:40 PM,12:21:00 PM,4.2,,first check after 24 hrs of sable recordings
+2024-02-22,4809,baseline,21.4,258,12:21:50 PM,12:23:50 PM,3.7,,first check after 24 hrs of sable recordings
+,,,,,,,,,
+2024-02-23,4802,uncertainty,,444,12:42:15 PM,12:52:00 PM,3.8,,sable cage with uncertainty/certainty from now on
+2024-02-23,4803,certainty,,123,12:52:45 PM,12:57:30 PM,4.1,,sable cage with uncertainty/certainty from now on
+2024-02-23,4804,uncertainty,,112,12:57:50 PM,01:02:00 PM,4.1,,sable cage with uncertainty/certainty from now on
+2024-02-23,4805,certainty,,177,01:04:00 PM,01:08:55 PM,4.1,,sable cage with uncertainty/certainty from now on
+2024-02-23,4806,uncertainty,,151,01:11:05 PM,01:14:10 PM,4.1,,sable cage with uncertainty/certainty from now on
+2024-02-23,4807,certainty,,189,01:16:00 PM,01:21:50 PM,3.9,,sable cage with uncertainty/certainty from now on
+2024-02-23,4808,uncertainty,,169,01:24:20 PM,01:32:00 PM,4.2,,sable cage with uncertainty/certainty from now on
+2024-02-23,4809,certainty,,164,01:32:45 PM,01:36:25 PM,3.8,,sable cage with uncertainty/certainty from now on
+,,,,,,,,,
+2024-02-24,4802,uncertainty,,117,02:30:25 PM,02:33:20 PM,4.2,,sable cage with uncertainty/certainty from now on
+2024-02-24,4803,certainty,,130,02:35:00 PM,02:42:00 PM,4,,sable cage with uncertainty/certainty from now on
+2024-02-24,4804,uncertainty,,133,02:35:00 PM,02:42:00 PM,4,,sable cage with uncertainty/certainty from now on
+2024-02-24,4805,certainty,,159,02:35:00 PM,02:42:00 PM,4,,sable cage with uncertainty/certainty from now on
+2024-02-24,4806,uncertainty,,217,02:35:00 PM,02:42:00 PM,4,,sable cage with uncertainty/certainty from now on
+2024-02-24,4807,certainty,,196,02:35:00 PM,02:42:00 PM,3.8,,sable cage with uncertainty/certainty from now on
+2024-02-24,4808,uncertainty,,183,02:35:00 PM,02:42:00 PM,4.1,,sable cage with uncertainty/certainty from now on
+2024-02-24,4809,certainty,,148,02:35:00 PM,02:42:00 PM,3.7,,sable cage with uncertainty/certainty from now on
+,,,,,,,,,
+2024-02-25,4802,uncertainty,,179,03:23:15 PM,03:25:05 PM,4.1,,sable cage with uncertainty/certainty from now on
+2024-02-25,4803,certainty,,254,03:25:20 PM,03:27:30 PM,4,,sable cage with uncertainty/certainty from now on
+2024-02-25,4804,uncertainty,,255,03:28:50 PM,03:32:20 PM,4,,sable cage with uncertainty/certainty from now on
+2024-02-25,4805,certainty,,308,03:32:25 PM,03:35:30 PM,4,,sable cage with uncertainty/certainty from now on
+2024-02-25,4806,uncertainty,,409,03:35:00 PM,03:38:50 PM,4,,sable cage with uncertainty/certainty from now on
+2024-02-25,4807,certainty,,384,03:39:45 PM,02:42:35 PM,4.2,,sable cage with uncertainty/certainty from now on
+2024-02-25,4808,uncertainty,,337,03:44:00 PM,03:48:30 PM,4,,sable cage with uncertainty/certainty from now on
+2024-02-25,4809,certainty,,300,03:44:00 PM,03:48:50 PM,4.2,,sable cage with uncertainty/certainty from now on
+,,,,,,,,,
+2024-02-26,4802,uncertainty,,138,11:06:55 AM,11:06:55 AM,4.1,,sable cage with uncertainty/certainty from now on
+2024-02-26,4803,certainty,,121,11:06:55 AM,11:06:55 AM,4,,sable cage with uncertainty/certainty from now on
+2024-02-26,4804,uncertainty,,144,11:06:55 AM,11:06:55 AM,4,,sable cage with uncertainty/certainty from now on
+2024-02-26,4805,certainty,,152,11:06:55 AM,11:06:55 AM,4,,sable cage with uncertainty/certainty from now on
+2024-02-26,4806,uncertainty,,177,11:06:55 AM,11:06:55 AM,4,,sable cage with uncertainty/certainty from now on
+2024-02-26,4807,certainty,,162,11:06:55 AM,11:06:55 AM,4.1,,sable cage with uncertainty/certainty from now on
+2024-02-26,4808,uncertainty,,102,11:06:55 AM,11:06:55 AM,4,,sable cage with uncertainty/certainty from now on
+2024-02-26,4809,certainty,,120,11:06:55 AM,11:06:55 AM,4.1,,sable cage with uncertainty/certainty from now on
+,,,,,,,,,
+2025-02-27,4802,uncertainty,22.37,0,03:25:00 PM,04:19:30 PM,4,M5,this day they were moved from sable room to catch room
+2025-02-27,4803,certainty,23.08,0,03:25:00 PM,04:19:30 PM,4,N5,this day they were moved from sable room to catch room
+2025-02-27,4804,uncertainty,22.65,0,03:25:00 PM,04:19:30 PM,4,H9,this day they were moved from sable room to catch room
+2025-02-27,4805,certainty,23.4,0,03:25:00 PM,04:19:30 PM,4,I9,this day they were moved from sable room to catch room
+2025-02-27,4806,uncertainty,23.1,0,03:25:00 PM,04:19:30 PM,4,,this one stayed to get proper recording of o2
+2025-02-27,4807,certainty,20,0,03:25:00 PM,04:19:30 PM,4,J9,this day they were moved from sable room to catch room
+2025-02-27,4808,uncertainty,17.11,0,03:25:00 PM,04:19:30 PM,4,K9,this day they were moved from sable room to catch room
+2025-02-27,4809,certainty,21.24,0,03:25:00 PM,04:19:30 PM,4,M9,this day they were moved from sable room to catch room

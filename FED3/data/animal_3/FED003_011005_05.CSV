@@ -1,0 +1,2 @@
+MM:DD:YYYY hh:mm:ss,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Failed_Retrieval_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time,Delay
+1/10/2005 1:02:52,1.17.0,UNC,3,4.18,nan,1,Left,LeftANDRight,1,0,0,0,0,nan,nan,397,nan
