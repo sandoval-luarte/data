@@ -82,20 +82,20 @@ date_ymd,id,treatment,weight_gr,pellet_intake,service_time,record_time,battery,c
 ,,,,,,,,,
 2/28/25,4806,uncertainty,,195,9:25:00 AM,9:25:00 AM,,,this one stayed in the sable room
 ,,,,,,,,,
-3/1/25,4802,uncertainty,,287,9:00:00 AM,,,M5,this day the animal is in the catch room
-3/1/25,4803,certainty,,246,9:10:00 AM,,,N5,this day the animal is in the catch room
-3/1/25,4804,uncertainty,,253,9:00:00 AM,,,H9,this day the animal is in the catch room
-3/1/25,4805,certainty,,280,9:20:00 AM,,,I9,this day the animal is in the catch room
+3/1/25,4802,uncertainty,23.04,287,9:00:00 AM,,,M5,this day the animal is in the catch room
+3/1/25,4803,certainty,23.8,246,9:10:00 AM,,,N5,this day the animal is in the catch room
+3/1/25,4804,uncertainty,23.28,253,9:00:00 AM,,,H9,this day the animal is in the catch room
+3/1/25,4805,certainty,24.62,280,9:20:00 AM,,,I9,this day the animal is in the catch room
 3/1/25,4806,uncertainty,,,,,,sable,this one stayed in the sable room
-3/1/25,4807,certainty,,151,9:23:00 AM,,,J9,this day the animal is in the catch room
-3/1/25,4808,uncertainty,,157,9:25:00 AM,,,K9,this day the animal is in the catch room
-3/1/25,4809,certainty,,254,9:30:00 AM,,,M9,this day the animal is in the catch room
+3/1/25,4807,certainty,19.92,151,9:23:00 AM,,,J9,this day the animal is in the catch room
+3/1/25,4808,uncertainty,17.37,157,9:25:00 AM,,,K9,this day the animal is in the catch room
+3/1/25,4809,certainty,21.45,254,9:30:00 AM,,,M9,this day the animal is in the catch room
 ,,,,,,,,,
-3/3/25,4802,uncertainty,,,,,,M5,this day the animal is in the catch room
-3/3/25,4803,certainty,,,,,,N5,this day the animal is in the catch room
-3/3/25,4804,uncertainty,,,,,,H9,this day the animal is in the catch room
-3/3/25,4805,certainty,,,,,,I9,this day the animal is in the catch room
-3/3/25,4806,uncertainty,,412,1:50:00 PM,,,,this day they were moved from sable room to catch room
-3/3/25,4807,certainty,,,,,,J9,this day the animal is in the catch room
-3/3/25,4808,uncertainty,,,,,,K9,this day the animal is in the catch room
-3/3/25,4809,certainty,,,,,,M9,this day the animal is in the catch room
+3/3/25,4802,uncertainty,,,,,3.8,M5,this day the animal is in the catch room
+3/3/25,4803,certainty,,,,,3.8,N5,this day the animal is in the catch room
+3/3/25,4804,uncertainty,,,,,3.8,H9,this day the animal is in the catch room
+3/3/25,4805,certainty,,,,,3.9,I9,this day the animal is in the catch room
+3/3/25,4806,uncertainty,,412,1:50:00 PM,,3.8,N9,this day they were moved from sable room to catch room
+3/3/25,4807,certainty,,,,,4,J9,this day the animal is in the catch room
+3/3/25,4808,uncertainty,,,,,3.7,K9,this day the animal is in the catch room
+3/3/25,4809,certainty,,,,,4,M9,this day the animal is in the catch room

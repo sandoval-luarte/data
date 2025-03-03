@@ -61,7 +61,7 @@ last_intake <- df_restrict %>%
   ungroup() %>% 
   group_by(ID) %>% 
   mutate(
-    restricted_intake = mean(moving_avg)*0.6,
+    restricted_intake = moving_avg*0.6,
     relative_restriction_gr = (restricted_intake - moving_avg),
     relative_restriction_perc = percent_change(restricted_intake, moving_avg)
   )
@@ -72,7 +72,6 @@ last_intake <- df_restrict %>%
 # data visualization
 #graph
 last_intake %>% 
-  filter(Restriction_group=="Restrict") %>% 
   ggplot(aes(as.factor(ID), relative_restriction_gr)) +
   geom_col() +
   geom_label(aes(label = round(relative_restriction_perc,1))) +
@@ -80,46 +79,9 @@ last_intake %>%
 
 #same graph as above, but with labeled bars  
 last_intake %>% 
-  filter(Restriction_group=="Restrict") %>% 
   ggplot(aes(as.factor(ID), relative_restriction_gr)) +
   geom_col() +
   geom_label(aes(label = paste(round(moving_avg,1), round(restricted_intake,1),
                                round(relative_restriction_perc,1),sep = " -> ")) ) +
   scale_y_continuous(breaks = seq(-5, 0, 0.5))
 
-write_csv(x = last_intake, "/Users/laurenmichels/Documents/GitHub/data/data/Food_restriction.csv")
-
-#Just for practical use to feed mice 
-#This section tells me how much to feed per meal for each mouse in the restricted group
-Per_meal <-last_intake %>%
-  group_by(ID) %>% 
-  select(ID,DATE,moving_avg,Restriction_group,restricted_intake,relative_restriction_perc)%>%
-  filter(Restriction_group=="Restrict") %>%
-  mutate (LFD_per_meal = restricted_intake*0.5)
-
-#_____________________________________________________
-#This was used originally when I thought we would be giving all of the mice the same amount of food
-#Now that we decided to restrict them on an individual basis it is no longer relevant
-#For each mouse, calculate avg daily food consumption based on the most recent 3 measurements
-#Calculate the avg of these values across all 23 mice. Calculate 60% of this.
-# taking the last rolling mean measurement of each animal 
-#Slice_tail with n=1 selects the most recent rolling average value for each mouse
-
-#df_restrict2 <- df_restrict %>% 
-#ungroup() %>% 
-#group_by(ID) %>% 
-#slice_tail(., n=1) %>%
-#ungroup() %>%
-#summarise(
-#last_measurement_mean = mean(moving_avg)
-#) %>% 
-# mutate(
-# restricted_daily_food_gr = last_measurement_mean*0.6,
-#restricted_per_meal_gr = restricted_daily_food_gr*0.5
-#) %>%
-#ungroup()
-#df_restrict2
-
-#Running this file will show the spaghetti plot and in the console it will give the mass 
-#of food to feed the restricted mice for each meal
-  
