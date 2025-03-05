@@ -54,7 +54,13 @@ fi_plot_gr <- FI_data_ %>%
 fi_plot_gr    
 
 bw <- read_csv("../data/BW.csv") %>% 
-  filter(COHORT %in% c(3, 4, 5))
+ # filter(COHORT %in% c(3, 4, 5)) %>% 
+  filter(ID == 7866) %>% 
+  ggplot(aes(
+    DATE, BW, group = ID, color = as.factor(ID)
+  )) +
+  geom_point() +
+  geom_line() 
 bw
 
 echo_full <- echomri_data %>% 
@@ -94,7 +100,7 @@ A <-echo_full %>%
 
 bw %>% 
  # filter(SEX =="M") %>% 
-  filter(DATE > "2025-02-01") %>% 
+ # filter(DATE > "2025-02-01") %>% 
  filter((ID %in% c(3722,3723,3724,3725,3727,3728,3729))) %>% 
   ggplot(aes(
     DATE, BW, group = ID, color = as.factor(ID)
