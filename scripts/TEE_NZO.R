@@ -6,6 +6,7 @@ library(tidyr) #to use cumsum
 library(ggplot2)
 library(readr)
 library(lmerTest)
+library(emmeans)
 #functions####
 zt_time <- function(hr){
     return(if_else(hr >= 20 & hr <= 23, hr-20, hr+4))
@@ -186,7 +187,7 @@ sable_tee_data <- sable_dwn %>% # Load the data
 
 mdl_tee <- lm(
     data = sable_tee_data,
-    tee ~ SABLE
+    tee ~ SABLE + (1|ID)
 )
 summary(mdl_tee)
 
@@ -256,9 +257,9 @@ sable_bw_data <- sable_dwn %>% # Load the data
   group_by(SABLE, ID) %>% 
   slice_max(order_by = complete_days, n=1)
 
-mdl_bw <- lm(
+mdl_bw <- lmer(
   data = sable_bw_data,
-  bw ~ SABLE
+  bw ~ SABLE + (1|ID)
 )
 summary(mdl_bw)
 
@@ -371,9 +372,9 @@ sable_PedSpeed_data <- sable_dwn %>% # Load the data
     group_by(SABLE, ID) %>% 
     slice_max(order_by = complete_days, n=1)
 
-mdl_speed <- lm(
+mdl_speed <- lmer(
     data = sable_PedSpeed_data %>% filter(!ID %in% c(3727, 3718, 3711, 3723)),
-    PedSpeed ~ SABLE
+    PedSpeed ~ SABLE + (1|ID)
 )
 summary(mdl_speed)
 
@@ -413,7 +414,7 @@ FI_data_
 
 fi_plot <- FI_data_ %>%
     filter(corrected_intake_gr<15, DIET=="LFD") %>% 
-    ggplot(aes(x = as.factor(DATE), y = corrected_intake_gr)) +  
+    ggplot(aes(x = as.factor(DATE), y = corrected_intake_kcal)) +  
     geom_point() +
     geom_smooth(aes(group=1))
 fi_plot
@@ -429,7 +430,7 @@ echomri_data <- read_csv("../data/echomri.csv") %>%
   select(Date,ID, adiposity_index, Fat, Lean) %>% 
    mutate(STATUS  = if_else(Date < "2025-01-01", "period_1", "period_2")) 
  
-#FAT
+#####fat####
 FAT<-echomri_data %>%
     ggplot(aes(x = Date, y = Fat)) + #Fat
   geom_point(aes(group = ID), alpha = 0.5) +
@@ -454,8 +455,7 @@ trend <- emtrends(
 trend
 
 #NZO mice, better known as butter mice
-
-#LEAN
+###Lean####
 LEAN<-echomri_data %>%
   ggplot(aes(x = Date, y = Lean)) + #Lean
   geom_point(aes(group = ID), alpha = 0.5) +
@@ -481,7 +481,7 @@ emtrends(
   var = "time"
 )
 
-#ADIPOSITY INDEX
+#####Adiposity index####
 AI<-echomri_data %>%
     ggplot(aes(x = Date, y = adiposity_index)) + #Lean
     geom_point(aes(group = ID), alpha = 0.5) +
@@ -507,6 +507,39 @@ emtrends(
     var = "time"
 )
 
+####Food intake period 1 and 2####
+FI_data <- read_csv("../data/FI.csv") %>% 
+  filter(COHORT %in% c(3, 4, 5)) %>%
+  filter(ID != 3715) %>% #DIED
+    select(DATE,ID, corrected_intake_kcal, DIET) %>% 
+  mutate(STATUS  = if_else(DATE < "2025-01-01", "period_1", "period_2")) %>% 
+  drop_na()
+
+#####FI over the period 1 and 2####
+FI_data_ <-FI_data %>%
+  filter(corrected_intake_kcal<50) %>% 
+  filter(DIET=="LFD") %>% 
+  ggplot(aes(x = DATE, y = corrected_intake_kcal)) + 
+  geom_point(aes(group = ID), alpha = 0.5) +
+  geom_line(aes(group = ID), alpha = 0.5) +
+  theme_classic() 
+
+#Alternative model for FI
+model_data <- FI_data %>% 
+  group_by(STATUS, ID) %>% 
+  mutate(
+    time = as.numeric(DATE - min(DATE))
+  )
+
+model <-  lmer(corrected_intake_kcal ~ STATUS * time + (1 | ID), data = model_data)
+summary(model)
+
+trend <- emtrends(
+  model,
+  pairwise ~ STATUS,
+  var = "time"
+)
+trend
 
 
 #Data analysis of for the food restriction####
