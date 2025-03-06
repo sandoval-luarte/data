@@ -31,12 +31,12 @@ cohort_open_files <- cohort_csv_files %>%
   map_dfr(
     ., function(X){
       read_csv(X$filepath) %>% 
-        select(ID, FOOD_WEIGHT_START_G, FOOD_WEIGHT_END_G, DATE, DIET, BODY_WEIGHT_G, DIET_FORMULA) %>% 
+        select(ID, FOOD_WEIGHT_START_G, FOOD_WEIGHT_END_G, DATE, DIET, BODY_WEIGHT_G, DIET_FORMULA,COMMENTS) %>% 
         mutate(
           INTAKE_GR = (FOOD_WEIGHT_START_G - FOOD_WEIGHT_END_G),
           DATE = lubridate::mdy(DATE)
         ) %>% 
-        select(ID, INTAKE_GR, DATE, BODY_WEIGHT_G, DIET_FORMULA) %>% 
+        select(ID, INTAKE_GR, DATE, BODY_WEIGHT_G, DIET_FORMULA,COMMENTS) %>% 
         rename(
           BW = BODY_WEIGHT_G
         )
@@ -55,7 +55,7 @@ metadata <- read_csv("../data/META.csv") %>%
 # output food-intake file
 
 FI <- cohort_open_files %>% 
-  select(ID, DIET_FORMULA, INTAKE_GR, DATE) %>% 
+  select(ID, DIET_FORMULA, INTAKE_GR, DATE,COMMENTS) %>% 
   group_by(ID) %>% 
   arrange(DATE, .by_group = TRUE) %>% 
   mutate(
@@ -75,7 +75,7 @@ FI <- cohort_open_files %>%
 BW <- cohort_open_files %>% 
   group_by(ID) %>% 
   arrange(DATE, .by_group = TRUE) %>% 
-  select(ID, BW, DATE) %>% 
+  select(ID, BW, DATE,COMMENTS) %>% 
   drop_na(BW) %>% 
     left_join(., metadata, by = "ID")
 

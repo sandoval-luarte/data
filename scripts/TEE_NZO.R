@@ -158,7 +158,7 @@ sable_min_plot <- sable_min_data %>%
   
   # White background
   theme_classic() 
-
+sable_min_plot
 
 # TEE####
 sable_tee_data <- sable_dwn %>% # Load the data
@@ -229,7 +229,7 @@ sable_min_plot_tee <- sable_tee_data %>%
   
   # White background
   theme_classic() 
-
+sable_min_plot_tee
 
 # bw####
 sable_bw_data <- sable_dwn %>% # Load the data
@@ -301,6 +301,7 @@ mutate(SABLE = factor(SABLE, levels = c("Before", "After"))) %>%
   
   # White background
    theme_classic()  
+sable_min_plot_bw 
   # # Individual points with transparency
   # geom_jitter(aes(group = ID), width = 0.1, alpha = 0.5) +
   # # Add ID labels near the points
@@ -315,16 +316,35 @@ bw <- read_csv("../data/BW.csv") %>%
   group_by(ID) %>% 
   mutate(daily_delta=replace_na(BW - head(BW,n=1)/head(BW,n=1), 0))
 
+#bw for all animals
 bw %>% 
 ggplot(aes(x = DATE, y = daily_delta)) + 
   geom_smooth()+
-  geom_point() +
+  geom_point(alpha=0.2) +
   geom_line(aes(group = ID))+
   labs(
     x = "Date",
     y = "Body Weight (BW) percent change"
   ) +  # White background
 theme_classic()  
+
+#bw for the restricted animals
+
+bw %>%
+    filter(ID %in% c(3708,3710, 3714, 3720, 3721, 3722, 3723, 3724, 3725, 3728, 3729)) %>% 
+    ggplot(aes(x = DATE, y = daily_delta)) + 
+    geom_smooth() +
+    geom_point(alpha = 0.2) +
+    geom_text(aes(label = ID), hjust = 0.5, vjust = -0.5, size = 3) +
+    geom_line(aes(group = ID)) +
+    geom_vline(data = filter(bw, COMMENTS == "RESTRICTED_DAY_1"), 
+               aes(xintercept = as.numeric(DATE)), 
+               linetype = "dashed", color = "red") +
+    labs(
+        x = "Date",
+        y = "Body Weight (BW) percent change"
+    ) +  
+    theme_classic()
 
 
 # speedmeters####
@@ -386,6 +406,7 @@ sable_min_plot_PedSpeed
 #FI intake over days####
 FI_data_ <- read_csv("../data/FI.csv") %>% 
     filter(COHORT %in% c(3, 4, 5))%>%
+    filter(DATE < "2025-02-24") %>% #ELIMINATE RESTRICTED ANIMALS FROM THE ANALYSIS
     drop_na() %>% 
     group_by(ID) 
 FI_data_
