@@ -185,7 +185,7 @@ sable_tee_data <- sable_dwn %>% # Load the data
     group_by(SABLE, ID) %>% 
     slice_max(order_by = complete_days, n=1)
 
-mdl_tee <- lm(
+mdl_tee <- lmer(
     data = sable_tee_data,
     tee ~ SABLE + (1|ID)
 )
@@ -408,15 +408,19 @@ sable_min_plot_PedSpeed
 FI_data_ <- read_csv("../data/FI.csv") %>% 
     filter(COHORT %in% c(3, 4, 5))%>%
     filter(DATE < "2025-02-24") %>% #ELIMINATE RESTRICTED ANIMALS FROM THE ANALYSIS
-    drop_na() %>% 
-    group_by(ID) 
+   # drop_na() %>% 
+    ungroup() %>% 
+    group_by(ID) %>% 
+    mutate(date_rel= DATE - min(DATE))
 FI_data_
 
 fi_plot <- FI_data_ %>%
-    filter(corrected_intake_gr<15, DIET=="LFD") %>% 
-    ggplot(aes(x = as.factor(DATE), y = corrected_intake_kcal)) +  
+    filter(ID==3706)%>%
+#    filter(corrected_intake_gr<15, DIET=="LFD") %>% 
+    ggplot(aes(x = date_rel, y = corrected_intake_kcal)) +  
     geom_point() +
-    geom_smooth(aes(group=1))
+  #  geom_smooth(aes(group=1))+
+    facet_wrap(~ID)
 fi_plot
 
 
@@ -548,7 +552,7 @@ FI_data <- read_csv("../data/FI.csv") %>%
     filter(COHORT %in% c(3, 4, 5)) %>% 
     filter((ID %in% c(3710,3714,3720,3721,3722,3723,3724,3725,3727,3728,3729))) %>% #just for restricted animals
     # filter(corrected_intake_gr < 15) %>%  #TYPING MISTAKES
-    filter(DATE > "2025-02-01") %>% 
+   # filter(DATE > "2025-02-01") %>% 
     drop_na()
 
 fi_plot_gr <- FI_data %>% 
