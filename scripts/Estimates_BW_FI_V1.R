@@ -2,6 +2,7 @@ library(dplyr)
 library(ggplot2)
 library(readr)
 library(tidyr)
+library(tidyverse)
 
 
 #BW OVER TIME FOR NZO AND C57 ANIMALS####
@@ -66,4 +67,55 @@ slopes <- FI %>%
 view(slopes)
 ##Alternative model####
 lm(FI ~ DATE + (1|ID), data = FI) #IS THIS OK?
+
+## Luis model check BW
+## this uses normalized data (z-scores)
+mdl_data <- bw %>% 
+    group_by(ID) %>% 
+    mutate(
+        ID = as.factor(ID),
+        time = as.numeric(DATE - min(DATE))
+    ) %>% 
+    ungroup() %>% 
+    mutate(
+        time = scale(time) # this is for model convergence
+    ) %>% 
+    select(
+        ID, BW, time, STRAIN, SEX, DIET_CODE
+    ) %>% 
+    ungroup()
+
+
+# here I build the statistical model with time as random slope
+# and control for relevant variables such as strain, sex, diet 
+lmer_bw <- lmerTest::lmer(
+    data = mdl_data,
+    BW ~ time + STRAIN + SEX + DIET_CODE + (1+time|ID)
+)
+summary(lmer_bw)
+coef(lmer_bw)
+
+# here I extract the individual coefficients assigned to time, which is the same as the "slope"
+# these are the random slopes
+lmer_slopes <- coef(lmer_bw)$ID %>% 
+    rownames_to_column("ID") %>% 
+    select(ID, time) %>% 
+    left_join(mdl_data, ., by = "ID",
+              suffix = c("_zscore", "_slope")) %>% 
+    ungroup() %>% 
+    group_by(ID) %>% 
+    slice(1) %>% 
+    select(ID, STRAIN, DIET_CODE, SEX, time_slope)
+lmer_slopes
+
+# distribution of slopes
+# nzo are brutal, look how the even surpass HFD c57 males!
+lmer_slopes %>% 
+    ggplot(aes(
+        interaction(STRAIN, SEX, DIET_CODE), time_slope
+    )) +
+    geom_boxplot() +
+    geom_point()
+
+
 
