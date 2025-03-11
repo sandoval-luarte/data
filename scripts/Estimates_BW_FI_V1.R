@@ -1,4 +1,9 @@
 library(dplyr)
+library(ggplot2)
+library(readr)
+library(tidyr)
+
+
 #BW OVER TIME FOR NZO AND C57 ANIMALS####
 #Our aim is obtaining the slope of the BW of NZO and C57 over the weeks
 ##Data####
@@ -37,26 +42,28 @@ FI <- read_csv("../data/FI.csv") %>%
   filter(DATE < "2025-02-24") %>%  #ELIMINATE RESTRICTED ANIMALS FROM THE ANALYSIS
   filter(corrected_intake_kcal < 50) %>% #Eliminate weird data that is probably typing mistake
   drop_na(corrected_intake_kcal) %>% 
-  mutate(rel_days= DATE - min(DATE))
+  mutate(rel_days= DATE - min(DATE)) %>% 
+  mutate(cumsum_kcal= cumsum(corrected_intake_kcal))
 
 ##Graph####
 FI %>% 
-  ggplot(aes(x = rel_days, y = corrected_intake_kcal)) + 
+  ggplot(aes(x = rel_days, y = cumsum_kcal)) + 
   geom_smooth()+
   geom_point(alpha=0.2) +
   geom_line(aes(group = ID))+
   labs(
-    x = "Date",
-    y = "FI (kcal)"
+    x = "Days",
+    y = "Cumulative Food Intake (kcal)"
   ) +  # White background
   theme_classic()  +
-  facet_grid(SEX~STRAIN)+
-  geom_text(aes(label = ID), hjust = 0.5, vjust = -0.5, size = 3) 
+  facet_grid(SEX~STRAIN)
+ # geom_text(aes(label = ID), hjust = 0.5, vjust = -0.5, size = 3) 
 ##Main model ####
 slopes <- FI %>%
   group_by(ID) %>%
-  summarize(slope = coef(lm(corrected_intake_kcal ~ as.numeric(DATE), data = cur_data()))[2])
+  summarize(slope = coef(lm(cumsum_kcal ~ as.numeric(DATE), data = cur_data()))[2])
 # View the results
 view(slopes)
 ##Alternative model####
 lm(FI ~ DATE + (1|ID), data = FI) #IS THIS OK?
+
