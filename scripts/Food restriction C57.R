@@ -33,7 +33,7 @@ df_restrict <-FI_data_ %>%
   arrange(DATE, .by_group = TRUE) %>% 
   select(ID, DATE, corrected_intake_gr) %>%
   drop_na(corrected_intake_gr) %>% 
- # filter(ID %in% c(7866,7863, 7872, 7874, 7861, 7865, 7877, 7878)) %>% # ONLY RESTRICTED ANIMALS
+  filter(ID %in% c(7866,7863, 7872, 7874, 7861, 7865, 7877, 7878)) %>% # ONLY RESTRICTED ANIMALS
   mutate(moving_avg = rollmean(corrected_intake_gr, k=3, fill=NA, align='right')) %>%
   filter(DATE > '2025-01-21') 
   
