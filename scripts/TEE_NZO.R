@@ -407,7 +407,7 @@ sable_min_plot_PedSpeed
 #FI intake over days####
 FI_data_ <- read_csv("../data/FI.csv") %>% 
     filter(COHORT %in% c(3, 4, 5))%>%
-    filter(DATE < "2025-02-24") %>% #ELIMINATE RESTRICTED ANIMALS FROM THE ANALYSIS
+   # filter(DATE < "2025-02-24") %>% #ELIMINATE RESTRICTED ANIMALS FROM THE ANALYSIS
    # drop_na() %>% 
     ungroup() %>% 
     group_by(ID) %>% 
