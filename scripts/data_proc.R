@@ -36,10 +36,11 @@ cohort_open_files <- cohort_csv_files %>%
           INTAKE_GR = (FOOD_WEIGHT_START_G - FOOD_WEIGHT_END_G),
           DATE = lubridate::mdy(DATE)
         ) %>% 
-        select(ID, INTAKE_GR, DATE, BODY_WEIGHT_G, DIET_FORMULA) %>% 
+        select(ID, INTAKE_GR, DATE, BODY_WEIGHT_G, DIET_FORMULA,COMMENTS) %>% 
         rename(
           BW = BODY_WEIGHT_G
-        )
+        ) %>% 
+        mutate(BW=as.numeric(BW))
     }
   )
 
@@ -50,12 +51,12 @@ food_desc <- read_csv("../data/food_description.csv")
 # load metadata
 
 metadata <- read_csv("../data/META.csv") %>% 
-    select(ID, SEX, COHORT, STRAIN, AIM, DIET_CODE)
+    select(ID, SEX, COHORT, STRAIN, AIM, DIET_FORMULA)
 
 # output food-intake file
 
 FI <- cohort_open_files %>% 
-  select(ID, DIET_FORMULA, INTAKE_GR, DATE) %>% 
+  select(ID, DIET_FORMULA, INTAKE_GR, DATE,COMMENTS) %>% 
   group_by(ID) %>% 
   arrange(DATE, .by_group = TRUE) %>% 
   mutate(
@@ -75,7 +76,7 @@ FI <- cohort_open_files %>%
 BW <- cohort_open_files %>% 
   group_by(ID) %>% 
   arrange(DATE, .by_group = TRUE) %>% 
-  select(ID, BW, DATE) %>% 
+  select(ID, BW, DATE,COMMENTS) %>% 
   drop_na(BW) %>% 
     left_join(., metadata, by = "ID")
 
@@ -155,7 +156,7 @@ drive_auth()
 folder_id <- as_id(drive_find("csv_files"))
 folder_contents <- drive_ls(folder_id)
 
-## step 3 download the folder contents, remember to set the path to soruce file location
+## step 3 download the folder contents, remember to set the path to souce file location
 
 ## create a directory to store files
 
@@ -395,7 +396,7 @@ sable_hr_data <- sable_csv_files[1] %>%
                 filter(!grepl("FoodA_", parameter))
             complete_data <- bind_rows(food_intake, non_food_intake) %>% 
                 left_join(., metadata_sable, by = "metadata_sable_code") %>% # aqui poner el codigo para el food y water intake, tomar bout length (mean), # of bouts
-                group_by(date, hr, ID, cage_number, DIET, DIET_CODE, KCAL_PER_GR,
+                group_by(date, hr, ID, cage_number, DIET, DIET_FORMULA, KCAL_PER_GR,
                          SEX, COHORT, STRAIN, AIM, sable_idx, metadata_sable_code,
                          parameter) # %>% 
                # group_split() %>% 

@@ -1,4 +1,8 @@
-#we aim to evaluate the metabolic changes that occurs in NZO female before and after 10 weeks with LFD
+# We aim to compare the change in total energy expenditure after 10 weeks with LFD in NZO female mice
+
+#Raw data /Users/carosandovalcaballero/Documents/GitHub/data/data/COHORT_3.csv
+#         /Users/carosandovalcaballero/Documents/GitHub/data/data/COHORT_4.csv
+#         /Users/carosandovalcaballero/Documents/GitHub/data/data/COHORT_5.csv
 
 #Libraries####
 library(dplyr) #to open a RDS and use pipe
@@ -14,11 +18,12 @@ zt_time <- function(hr){
 
 sable_dwn <- readRDS(file = "../data/sable_downsampled_data.rds") 
 
+
 #SPA####
 sable_meters_data <- sable_dwn %>% # Load the data
     filter(COHORT %in% c(3, 4, 5)) %>%   #we only want NZO mice
     mutate(lights  = if_else(hr %in% c(20,21,22,23,0,1,2,3,4,5), "off", "on")) %>% 
-    mutate(SABLE  = if_else(sable_idx %in% c("SABLE_DAY_8","SABLE_DAY_9","SABLE_DAY_10","SABLE_DAY_11"), "After", "Before")) %>% #CHECK THIS LINE
+    mutate(SABLE  = if_else(sable_idx %in% c("SABLE_DAY_8","SABLE_DAY_9","SABLE_DAY_10"), "After", "Before")) %>% 
     filter(grepl("AllMeters_*", parameter)) %>% # just to see TEE in kcal first
     ungroup() %>% 
     group_by(ID, SABLE) %>% 
@@ -33,15 +38,16 @@ sable_meters_data <- sable_dwn %>% # Load the data
     mutate(is_complete_day = if_else(min(zt_time)==0 & max(zt_time)==23, 1, 0)) %>% 
     ungroup() %>% 
     group_by(ID,complete_days,SABLE,is_complete_day) %>% 
-    mutate(meters = abs(max(value) - min(value))) %>% 
-  filter(ID != 3715, is_complete_day ==1) %>% 
-  ungroup() %>% 
+    summarise(meters = abs(max(value) - min(value))) %>% 
+    filter(!ID %in% c(3715,3727, 3718, 3711, 3723), is_complete_day ==1) %>% #3715 died and the rest of the animals were measured in cage 5 
+    ungroup() %>% 
     group_by(SABLE, ID) %>% 
     slice_max(order_by = complete_days, n=1) 
 
 sable_meters_data %>% 
   mutate(SABLE = factor(SABLE, levels = c("Before", "After"))) %>%
   ggplot(aes(SABLE, meters)) +
+  
   # Bar for mean value
   stat_summary(
     fun = mean, 
@@ -69,15 +75,14 @@ sable_meters_data %>%
   labs(x = NULL, y = "24 h SPA (meters)") +
   
   # White background
-  theme_classic() +
-  facet_grid(~lights)
+  theme_classic() 
 
 
 mdl_meters <- lmer(
     data = sable_meters_data,
-    meters~SABLE+(1|ID) 
+    meters~SABLE+(1|ID)
 )
-summary(mdl_meters) #how lights play here?
+summary(mdl_meters)
 
 emmeans(
   mdl_meters,
@@ -87,11 +92,11 @@ emmeans(
 
 #FOOD INTAKE####
 
-sable_min_data <- sable_dwn %>% 
-    filter(COHORT %in% c(3, 4, 5)) %>%  
+sable_min_data <- sable_dwn %>% # Load the data
+    filter(COHORT %in% c(3, 4, 5)) %>%   #we only want NZO mice
     mutate(lights  = if_else(hr %in% c(20,21,22,23,0,1,2,3,4,5), "off", "on")) %>% 
-    mutate(SABLE  = if_else(sable_idx %in% c("SABLE_DAY_8","SABLE_DAY_9","SABLE_DAY_10","SABLE_DAY_11"), "After", "Before")) %>% 
-    filter(grepl("FoodA_*", parameter)) %>% 
+    mutate(SABLE  = if_else(sable_idx %in% c("SABLE_DAY_8","SABLE_DAY_9","SABLE_DAY_10"), "After", "Before")) %>% 
+    filter(grepl("FoodA_*", parameter)) %>% # just to see TEE in kcal first
     ungroup() %>% 
     group_by(ID, SABLE) %>% 
     mutate(
@@ -105,8 +110,8 @@ sable_min_data <- sable_dwn %>%
     mutate(is_complete_day = if_else(min(zt_time)==0 & max(zt_time)==23, 1, 0)) %>% 
     ungroup() %>% 
     group_by(ID,complete_days,SABLE,is_complete_day) %>% 
-    mutate(intake_gr = abs(max(value) - min(value))) %>% 
-  filter(ID != 3715, is_complete_day ==1) %>% 
+    summarise(intake_gr = abs(max(value) - min(value))) %>% 
+  filter(!ID %in% c(3715,3727, 3718, 3711, 3723), is_complete_day ==1) %>% #3715 died and the rest of the animals were measured in cage 5 
   ungroup() %>% 
     group_by(SABLE, ID) %>% 
     slice_max(order_by = complete_days, n=1) %>% 
@@ -158,16 +163,14 @@ sable_min_plot <- sable_min_data %>%
   labs(x = NULL, y = "24h kcal food intake ") +
   
   # White background
-  theme_classic() +
-  facet_grid(~lights) #pareciera q son los mismos datos, weird
-
+  theme_classic() 
 sable_min_plot
 
 # TEE####
 sable_tee_data <- sable_dwn %>% # Load the data
     filter(COHORT %in% c(3, 4, 5)) %>%   #we only want NZO mice
     mutate(lights  = if_else(hr %in% c(20,21,22,23,0,1,2,3,4,5), "off", "on")) %>% 
-    mutate(SABLE  = if_else(sable_idx %in% c("SABLE_DAY_8","SABLE_DAY_9","SABLE_DAY_10","SABLE_DAY_11"), "After", "Before")) %>% 
+    mutate(SABLE  = if_else(sable_idx %in% c("SABLE_DAY_8","SABLE_DAY_9","SABLE_DAY_10"), "After", "Before")) %>% 
     filter(grepl("kcal_hr_*", parameter)) %>% # just to see TEE in kcal first
     ungroup() %>% 
     group_by(ID, SABLE) %>% 
@@ -181,8 +184,8 @@ sable_tee_data <- sable_dwn %>% # Load the data
     mutate(is_complete_day = if_else(min(zt_time)==0 & max(zt_time)==23, 1, 0)) %>% 
     ungroup() %>% 
     group_by(ID,complete_days,SABLE,is_complete_day) %>% 
-   mutate(tee = sum(value)*(1/60)) %>% 
-  filter(!ID %in% c(3715), is_complete_day ==1) %>% #3715 died and the rest of the animals were measured in cage 5 
+    summarise(tee = sum(value)*(1/60)) %>% 
+  filter(!ID %in% c(3715,3727, 3718, 3711, 3723), is_complete_day ==1) %>% #3715 died and the rest of the animals were measured in cage 5 
   ungroup() %>% 
     group_by(SABLE, ID) %>% 
     slice_max(order_by = complete_days, n=1)
@@ -196,7 +199,7 @@ summary(mdl_tee)
 emmeans(
     mdl_tee,
     pairwise ~ SABLE,
-    type = "response" #here again how can I split by lights>?
+    type = "response"
 )
 
 # Create the plot tee 
@@ -231,9 +234,7 @@ sable_min_plot_tee <- sable_tee_data %>%
   labs(x = NULL, y = "24h TEE ") +
   
   # White background
-  theme_classic() +
-  facet_grid(~lights) #pareciera q son los mismos datos, weird
-
+  theme_classic() 
 sable_min_plot_tee
 
 # bw####
@@ -313,12 +314,51 @@ sable_min_plot_bw
   # geom_text(aes(label = ID), hjust = 0.5, vjust = -0.5, size = 3) 
 
 
+#Change in bw before and after LFD in NZO mice ####
+
+bw <- read_csv("../data/BW.csv") %>% 
+  filter(COHORT %in% c(3, 4, 5)) %>% 
+  filter(ID != 3715) %>%  # Exclude animals that died during study
+  group_by(ID) %>% 
+  mutate(daily_delta=replace_na(BW - head(BW,n=1)/head(BW,n=1), 0))
+
+#bw for all animals
+bw %>% 
+ggplot(aes(x = DATE, y = daily_delta)) + 
+  geom_smooth()+
+  geom_point(alpha=0.2) +
+  geom_line(aes(group = ID))+
+  labs(
+    x = "Date",
+    y = "Body Weight (BW) percent change"
+  ) +  # White background
+theme_classic()  
+
+#bw for the restricted animals
+
+bw %>%
+    filter(ID %in% c(3708,3710, 3714, 3720, 3721, 3722, 3723, 3724, 3725, 3728, 3729)) %>% 
+    ggplot(aes(x = DATE, y = daily_delta)) + 
+    geom_smooth() +
+    geom_point(alpha = 0.2) +
+    geom_text(aes(label = ID), hjust = 0.5, vjust = -0.5, size = 3) +
+    geom_line(aes(group = ID)) +
+    geom_vline(data = filter(bw, COMMENTS == "RESTRICTED_DAY_1"), 
+               aes(xintercept = as.numeric(DATE)), 
+               linetype = "dashed", color = "red") +
+    labs(
+        x = "Date",
+        y = "Body Weight (BW) percent change"
+    ) +  
+    theme_classic()
+
+
 # speedmeters####
-sable_PedSpeed_data <- sable_dwn %>% 
-    filter(COHORT %in% c(3, 4, 5)) %>%   
+sable_PedSpeed_data <- sable_dwn %>% # Load the data
+    filter(COHORT %in% c(3, 4, 5)) %>%   #we only want NZO mice
     mutate(lights  = if_else(hr %in% c(20,21,22,23,0,1,2,3,4,5), "off", "on")) %>% 
-    mutate(SABLE  = if_else(sable_idx %in% c("SABLE_DAY_8","SABLE_DAY_9","SABLE_DAY_10", "SABLE_DAY_11"), "After", "Before")) %>% 
-    filter(grepl("PedSpeed_*", parameter)) %>% 
+    mutate(SABLE  = if_else(sable_idx %in% c("SABLE_DAY_8","SABLE_DAY_9","SABLE_DAY_10"), "After", "Before")) %>% 
+    filter(grepl("PedSpeed_*", parameter)) %>% # just to see TEE in kcal first
     ungroup() %>% 
     group_by(ID, SABLE) %>% 
     mutate(
@@ -331,14 +371,14 @@ sable_PedSpeed_data <- sable_dwn %>%
     mutate(is_complete_day = if_else(min(zt_time)==0 & max(zt_time)==23, 1, 0)) %>% 
     ungroup() %>% 
     group_by(ID,complete_days,SABLE,is_complete_day) %>% 
-   mutate(PedSpeed = mean(value)) %>% 
+    summarise(PedSpeed = mean(value)) %>% 
     filter(ID != 3715, is_complete_day ==1) %>% 
     ungroup() %>% 
     group_by(SABLE, ID) %>% 
     slice_max(order_by = complete_days, n=1)
 
 mdl_speed <- lmer(
-    data = sable_PedSpeed_data %>% 
+    data = sable_PedSpeed_data %>% filter(!ID %in% c(3727, 3718, 3711, 3723)),
     PedSpeed ~ SABLE + (1|ID)
 )
 summary(mdl_speed)
@@ -368,6 +408,28 @@ sable_min_plot_PedSpeed <- sable_PedSpeed_data %>%
     )
 sable_min_plot_PedSpeed
 
+
+#FI intake over days####
+FI_data_ <- read_csv("../data/FI.csv") %>% 
+    filter(COHORT %in% c(3, 4, 5))%>%
+   # filter(DATE < "2025-02-24") %>% #ELIMINATE RESTRICTED ANIMALS FROM THE ANALYSIS
+   # drop_na() %>% 
+    ungroup() %>% 
+    group_by(ID) %>% 
+    mutate(date_rel= DATE - min(DATE))
+FI_data_
+
+fi_plot <- FI_data_ %>%
+    filter(ID==3706)%>%
+#    filter(corrected_intake_gr<15, DIET=="LFD") %>% 
+    ggplot(aes(x = date_rel, y = corrected_intake_kcal)) +  
+    geom_point() +
+  #  geom_smooth(aes(group=1))+
+    facet_wrap(~ID)
+fi_plot
+
+
+
 #echoMRI analysis####
 #Our aim is to take the slope between the first 5 measurements and the 4 last measurements
 
@@ -381,10 +443,9 @@ echomri_data <- read_csv("../data/echomri.csv") %>%
 FAT<-echomri_data %>%
     ggplot(aes(x = Date, y = Fat)) + #Fat
   geom_point(aes(group = ID), alpha = 0.5) +
-  geom_text(aes(label = ID), size = 3, vjust = -1, hjust = 1) + 
   geom_line(aes(group = ID), alpha = 0.5) +
   theme_classic() 
-FAT #3711 3718 AND 3727 DID NOT RECOVER FROM FASTING
+FAT
 
 #Alternative model
 model_data <- echomri_data %>% 
@@ -407,7 +468,6 @@ trend
 LEAN<-echomri_data %>%
   ggplot(aes(x = Date, y = Lean)) + #Lean
   geom_point(aes(group = ID), alpha = 0.5) +
-  geom_text(aes(label = ID), size = 3, vjust = -1, hjust = 1) + 
   geom_line(aes(group = ID), alpha = 0.5) +
   theme_classic() 
 LEAN
@@ -434,7 +494,6 @@ emtrends(
 AI<-echomri_data %>%
     ggplot(aes(x = Date, y = adiposity_index)) + #Lean
     geom_point(aes(group = ID), alpha = 0.5) +
-  geom_text(aes(label = ID), size = 3, vjust = -1, hjust = 1) + 
     geom_line(aes(group = ID), alpha = 0.5) +
     theme_classic() 
 AI
@@ -473,7 +532,6 @@ FI_data_ <-FI_data %>%
   geom_point(aes(group = ID), alpha = 0.5) +
   geom_line(aes(group = ID), alpha = 0.5) +
   theme_classic() 
-FI_data_
 
 #Alternative model for FI
 model_data <- FI_data %>% 
