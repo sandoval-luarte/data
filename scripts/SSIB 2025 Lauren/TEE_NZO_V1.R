@@ -184,16 +184,15 @@ sable_tee_data <- sable_dwn %>% # Load the data
     ungroup() %>% 
     group_by(ID,complete_days,SABLE,is_complete_day) %>% 
     summarise(tee = sum(value)*(1/60)) %>% 
-  filter(!ID %in% c(3715,3727, 3718, 3711, 3723), is_complete_day ==1) %>% #3715 died and the rest of the animals were measured in cage 5 
+  filter(ID!= 3715, is_complete_day ==1) %>% #3715 died 
   ungroup() %>% 
     group_by(SABLE, ID) %>% 
-    slice_max(order_by = complete_days, n=1)
+    slice_max(order_by = complete_days, n=1) %>% 
+  group_by(ID) %>% 
+  summarise(tee_delta=(tee[SABLE=="After"]- tee[SABLE=="Before"])/tee[SABLE=="Before"])
 
-mdl_tee <- lmer(
-    data = sable_tee_data,
-    tee ~ SABLE + (1|ID)
-)
-summary(mdl_tee)
+write_csv(sable_tee_data, "sable_tee_data.csv")  # Save the dataframe as an csv file
+
 
 emmeans(
     mdl_tee,

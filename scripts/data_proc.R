@@ -20,7 +20,7 @@ cohort_csv_files <- tibble(
   filepath = list.files("../data", full.names = TRUE)
 ) %>% 
   filter(
-    grepl("COHORT_[0-9]+.csv", filepath)
+    grepl("COHORT_[0-9]+[0-9]*.csv", filepath) #now we can used cohort > 10
   )
 cohort_csv_files
 
