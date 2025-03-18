@@ -1,0 +1,4 @@
+MM:DD:YYYY hh:mm:ss,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Failed_Retrieval_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time
+2/14/2025 16:31:56,1.17.0,No-Uncertainty,8,3.60,nan,1,Left,LeftANDRight,1,0,0,0,0,nan,nan,387
+2/14/2025 16:32:42,1.17.0,No-Uncertainty,8,3.60,6,1,Pellet,LeftANDRight,1,0,0,1,0,33.76,nan,nan
+2/14/2025 16:32:56,1.17.0,No-Uncertainty,8,3.60,nan,1,Left,LeftANDRight,2,0,0,1,0,nan,nan,644

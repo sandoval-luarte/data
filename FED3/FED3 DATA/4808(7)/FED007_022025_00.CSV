@@ -1,0 +1,15 @@
+MM:DD:YYYY hh:mm:ss,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Failed_Retrieval_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time,Delay
+2/20/2025 11:00:25,1.17.0,baseline,7,3.62,nan,1,Right,LeftANDRight,0,1,0,0,0,nan,nan,680,nan
+2/20/2025 11:00:45,1.17.0,baseline,7,3.62,4,1,Pellet,LeftANDRight,0,1,0,1,0,0.06,nan,nan,15
+2/20/2025 11:00:51,1.17.0,baseline,7,3.61,nan,1,Right,LeftANDRight,0,2,0,1,0,nan,nan,543,nan
+2/20/2025 11:01:29,1.17.0,baseline,7,3.62,1,1,Pellet,LeftANDRight,0,2,0,2,0,21.92,44,nan,15
+2/20/2025 11:01:34,1.17.0,baseline,7,3.62,nan,1,Right,LeftANDRight,0,3,0,2,0,nan,nan,797,nan
+2/20/2025 11:01:54,1.17.0,baseline,7,3.62,4,1,Pellet,LeftANDRight,0,3,0,3,0,0.12,25,nan,15
+2/20/2025 11:02:00,1.17.0,baseline,7,3.62,nan,1,Right,LeftANDRight,0,4,0,3,0,nan,nan,493,nan
+2/20/2025 11:02:21,1.17.0,baseline,7,3.62,2,1,Pellet,LeftANDRight,0,4,0,4,0,2.87,27,nan,15
+2/20/2025 11:02:23,1.17.0,baseline,7,3.62,nan,1,Right,LeftANDRight,0,5,0,4,0,nan,nan,441,nan
+2/20/2025 11:02:43,1.17.0,baseline,7,3.62,1,1,Pellet,LeftANDRight,0,5,0,5,0,3.61,22,nan,15
+2/20/2025 11:02:45,1.17.0,baseline,7,3.61,nan,1,Right,LeftANDRight,0,6,0,5,0,nan,nan,498,nan
+2/20/2025 11:03:05,1.17.0,baseline,7,3.62,1,1,Pellet,LeftANDRight,0,6,0,6,0,3.86,22,nan,15
+2/20/2025 11:03:13,1.17.0,baseline,7,3.61,nan,1,Right,LeftANDRight,0,7,0,6,0,nan,nan,432,nan
+2/20/2025 11:03:31,1.17.0,baseline,7,3.62,2,1,Pellet,LeftANDRight,0,7,0,7,0,0.06,25,nan,15
