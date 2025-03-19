@@ -173,11 +173,15 @@ results <- resamples(list(null_model=mdl_0_cv,
                           tee_delta=mdl_13_cv
                           ))
 dotplot(results)
-
 # compare best model
 timecourse_model <- mdl_2_cv$finalModel
 null_model <- mdl_0_cv$finalModel
-anova(null_model, timecourse_model)
+tee_model <- mdl_13_cv$finalModel
+
+anova(null_model, timecourse_model) #null vs all variables
+anova(null_model, tee_model)  #null vs tee
+anova(tee_model, timecourse_model)
+
 
 # analysis of best model
 coeffs <- summary(timecourse_model) %>% 

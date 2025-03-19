@@ -13,18 +13,17 @@ library(tidyverse)
 
 #bw data import####
 
-bw_data <- read_csv("SSIB 2025 Lauren/BW_compilate.csv")
-
-#paired t test####
-t.test(bw_data$starting_bw, bw_data$ending_bw, paired = TRUE)
-nrow(bw_data) #number of individuals
-
+bw_data <- read_csv("~/Documents/Github/data/scripts/SSIB_2025_Lauren/BW_compilate.csv")
 # Convert to long format####
 bw_long <- bw_data %>%
   pivot_longer(cols = c(starting_bw, ending_bw),
                names_to = "timepoint",
                values_to = "body_weight") %>% 
   mutate(timepoint = factor(timepoint, levels = c("starting_bw", "ending_bw")))
+
+#paired t test####
+t.test(bw_data$ending_bw, bw_data$starting_bw, paired = TRUE)
+nrow(bw_data) #number of individuals
 
 #plot 1 bw before and after 12 weeks of LFD ####
 bw_long %>% 
