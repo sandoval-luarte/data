@@ -11,7 +11,8 @@ COHORT 6: C57bl6J young - Eegap project (Pilot experiment IP RTIOXA-43) 2303-409
 COHORT 7: C57bl6J old -  fisetin project 2411-42540A
 COHORT 8: C57bl6J and NZO young -  Eegap project VA protocol (Brianna experiment 2022)
 COHORT 9: C57bl6J young - Eegap project (Pilot White deposit IP RTIOXA-43) 2303-40942A
-COHORT 10: C57bl6J and OREXIN-Cre young - uncertainty project 2409-42368A
+COHORT 10: C57bl6J - uncertainty project 2409-42368A
+COHORT 11: C57bl6J and OREXIN-Cre young - uncertainty project 2409-42368A
 
 # raw_data
 Is within GIThub 
