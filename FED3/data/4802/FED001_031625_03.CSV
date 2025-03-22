@@ -1,0 +1,15 @@
+MM:DD:YYYY hh:mm:ss,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Failed_Retrieval_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time,Delay
+3/16/2025 11:21:15,1.17.0,uncertainty,1,4.01,nan,1,Left,LeftANDRight,1,0,0,0,0,nan,nan,345,nan
+3/16/2025 11:21:20,1.17.0,uncertainty,1,4.00,3,1,Pellet,LeftANDRight,1,0,0,1,0,0.06,nan,nan,0
+3/16/2025 11:21:42,1.17.0,uncertainty,1,4.01,nan,1,Right,LeftANDRight,1,1,0,1,0,nan,nan,351,nan
+3/16/2025 11:21:52,1.17.0,uncertainty,1,4.00,2,1,Pellet,LeftANDRight,1,1,0,2,0,0.06,32,nan,7
+3/16/2025 11:29:02,1.17.0,uncertainty,1,4.01,nan,1,Right,LeftANDRight,1,2,0,2,0,nan,nan,157,nan
+3/16/2025 11:29:29,1.17.0,uncertainty,1,4.01,2,1,Pellet,LeftANDRight,1,2,0,3,0,6.06,457,nan,18
+3/16/2025 16:00:18,1.17.0,uncertainty,1,4.00,nan,1,Left,LeftANDRight,2,2,0,3,0,nan,nan,56,nan
+3/16/2025 16:00:20,1.17.0,uncertainty,1,4.00,1,1,Pellet,LeftANDRight,2,2,0,4,0,1.09,16251,nan,0
+3/16/2025 16:00:31,1.17.0,uncertainty,1,4.00,nan,1,Left,LeftANDRight,3,2,0,4,0,nan,nan,115,nan
+3/16/2025 16:00:32,1.17.0,uncertainty,1,4.00,1,1,Pellet,LeftANDRight,3,2,0,5,0,0.06,11,nan,0
+3/16/2025 16:00:53,1.17.0,uncertainty,1,4.00,nan,1,Right,LeftANDRight,3,3,0,5,0,nan,nan,28,nan
+3/16/2025 16:00:56,1.17.0,uncertainty,1,4.00,1,1,Pellet,LeftANDRight,3,3,0,6,0,0.06,25,nan,2
+3/16/2025 16:02:02,1.17.0,uncertainty,1,4.00,nan,1,Left,LeftANDRight,4,3,0,6,0,nan,nan,88,nan
+3/16/2025 16:02:03,1.17.0,uncertainty,1,4.00,2,1,Pellet,LeftANDRight,4,3,0,7,0,0.06,67,nan,0
