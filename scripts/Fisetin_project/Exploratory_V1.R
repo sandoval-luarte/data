@@ -11,7 +11,7 @@ library(lmerTest)
 
 #Data import
 rm(list = ls())
-fisetin <- read_excel("Documents/GitHub/data/scripts/Fisetin_project/Fisetin qPCR data All.xlsx")
+fisetin <-read_excel("Fisetin qPCR data All.xlsx")
 View(fisetin)
 #Exploration
 sapply(fisetin, class) #which class is each column
@@ -25,10 +25,9 @@ fisetin <- fisetin %>%
     fold_change = "Fold.Change",
     SEX = "Sex"
   ) %>% 
-  mutate(delta_ct= as.numeric(delta_ct), fold_change=as.numeric(fold_change)) %>% 
-  filter(Cohort==5) #Just to check animals that I know
+  mutate(delta_ct= as.numeric(delta_ct), fold_change=as.numeric(fold_change)) 
 #Left joint to cohort 1 to add complete the lack of info in SEX column
-COHORT_1 <- read_csv("Documents/GitHub/data/data/COHORT_1.csv") %>% 
+COHORT_1 <- COHORT_1 <- read_csv("~/Documents/GitHub/data/data/COHORT_1.csv") %>% 
   distinct(ID, .keep_all = TRUE) %>%  # Keep only the first row for each unique ID
   select(ID, SEX) #Extract only sex to do a left joint with fisetin data
 merged_df <- left_join(fisetin, COHORT_1, by = "ID", suffix = c("", "_unique")) # Merge fisetin dataframe with the COHORT_1 based on 'ID'
@@ -41,21 +40,26 @@ merged_df <- merged_df %>%
 
 #exploratory plot####
 merged_df %>%
-  group_by(SEX, Age, Diet, Treatment, Gene) %>%
+  group_by(Age, Diet, Treatment, Gene) %>%
   ggplot(aes(x = Gene, y = fold_change)) +
   geom_point() +
-  facet_wrap(~Treatment)
+  geom_text(aes(label = ID), vjust = -0.5, size = 5) +  # Add labels with ID
+  facet_grid(Diet~Treatment)
 # 3-way ANOVA####
 # Filter for the specific gene
 gene_data <- merged_df %>%
   filter(Gene == "p21")  # gene of interest
 # Fit the ANOVA model
-anova_model <- aov(fold_change ~ Diet * SEX * Treatment, data = merged_df)
+anova_model <- aov(fold_change ~ SEX * Treatment, data = merged_df)
 # View the ANOVA table
+# Perform post-hoc Tukey's test on the interaction
+posthoc_results <- emmeans(anova_model, ~ SEX * Treatment )
+# View the pairwise comparisons
+pairs(posthoc_results, adjust = "tukey")
 summary(anova_model)
 
 #cohort 1 EchoMRIdata ####
-echomri <- read_csv("Documents/GitHub/data/data/echomri.csv") %>% 
+echomri <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>% 
   filter(COHORT ==1)
 #exploratory plot for Adiposity index ####
 echomri %>%

@@ -10,7 +10,11 @@ library(emmeans)
 #Change in bw after ~11 weeks with LFD in NZO mice ####
 
 #bw data import
-mdl_data_bw <- read_csv("../data/BW.csv") %>% 
+
+BW <- read_csv("BW.csv")
+View(BW)
+
+mdl_data_bw <- BW %>% 
   filter(COHORT %in% c(3, 4, 5)) %>% 
   filter(ID != 3715) %>%  # Exclude animals that died during study 
   #filter(DIET_FORMULA == "D12450Ki") %>% #We exclude chow data I dont know why still appear the three 3 dates that correspond to chow
@@ -50,10 +54,18 @@ rownames_to_column() %>%
 write_csv(coef_bw, "coef_bw.csv")  # Save the dataframe as an csv file
 
 
+bw <- BW %>% 
+  filter(COHORT %in% c(3, 4, 5)) %>% 
+  filter(ID != 3715) %>%  # Exclude animals that died during study 
+  #filter(DIET_FORMULA == "D12450Ki") %>% #We exclude chow data I dont know why still appear the three 3 dates that correspond to chow
+  filter(DATE <="2025-02-24") %>% #we want data prior to diet restriction
+  group_by(ID) %>% 
+  mutate(BW_rel=((BW - min(BW))/min(BW)*100))
+
 
 #plot 1 bw over days ####
-mdl_data_bw %>% 
-  ggplot(aes(x = time, y = BW_rel)) + 
+bw %>% 
+  ggplot(aes(x = DATE, y = BW_rel)) + 
   geom_smooth()+
   geom_point(alpha=0.2) +
   geom_line(aes(group = ID))+
