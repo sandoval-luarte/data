@@ -155,3 +155,84 @@ date_ymd,id,treatment,weight_gr,pellet_intake,service_time,record_time,battery,r
 3/10/25,4807,certainty,19.53,315,9:34:00 AM,,3.8,370-F,6A,K9,
 3/10/25,4808,uncertainty,18.68,320,9:07:00 AM,,4,370-F,6A,M9,
 3/10/25,4809,certainty,19.71,156,9:40:00 AM,,3.7,370-F,6A,N9,
+,,,,,,,,,,,
+3/12/25,4802,uncertainty,22.22,,,,,370-F,6A,H9,"I found the Fed off and without a door. The mouse broke the door and got in, breaking the battery cables, probably causing the blackout. The battery was replaced."
+3/12/25,4803,certainty,23.52,230,8:25:00 AM,,3.9,370-F,6A,N5,
+3/12/25,4804,uncertainty,23.56,250,23:59:00,,3.9,370-F,6A,H8,The clock indicate the date correspond to 5/11/2025
+3/12/25,4805,certainty,24.38,259,8:32:00 AM,,3.8,370-F,6A,I9,
+3/12/25,4806,uncertainty,24.76,267,8:35:00 AM,,3.8,370-F,6A,J9,
+3/12/25,4807,certainty,19.72,225,8:38:00 AM,,3.6,370-F,6A,K9,I replaced the battery with a new one
+3/12/25,4808,uncertainty,18.83,212,8:43:00 AM,,3.9,370-F,6A,M9,
+3/12/25,4809,certainty,22.82,387,8:48:00 AM,,4,370-F,6A,N9,
+,,,,,,,,,,,
+3/14/25,4802,uncertainty,23.79,285,9:53:00 AM,,3.8,370-F,6A,H9,I replaced the battery with a new one
+3/14/25,4803,certainty,23.9,229,10:07:00 AM,,3.8,370-F,6A,N5,I replaced the battery with a new one
+3/14/25,4804,uncertainty,23.88,,,,,370-F,6A,H8,I forgot to see the screen of the device
+3/14/25,4805,certainty,24.3,237,10:17:00 AM,,3.7,370-F,6A,I8,I replaced the battery with a new one
+3/14/25,4806,uncertainty,25.19,263,9:49:00 AM,,3.7,370-F,6A,J9,I replaced the battery with a new one
+3/14/25,4807,certainty,20.06,240,10:27:00 AM,,4,370-F,6A,K9,
+3/14/25,4808,uncertainty,18.8,195,10:31:00 AM,,3.9,370-F,6A,M9,
+3/14/25,4809,certainty,23.06,286,10:42:00 AM,,4,370-F,6A,N9,
+,,,,,,,,,,,
+3/16/25,4802,uncertainty,,279,11:16:00 AM,,4,370-F,6A,H9,The Fed never turns off;it just resets itself
+3/16/25,4803,certainty,,225,11:24:00 AM,,4,370-F,6A,N5,
+3/16/25,4804,uncertainty,,266,2:19:00,,3.8,370-F,6A,H8,The clock indicate the date correspond to 1/12/2025_I replaced the battery with a new one
+3/16/25,4805,certainty,,268,11:39:00 AM,,4,370-F,6A,I8,
+3/16/25,4806,uncertainty,,294,11:42:00 AM,,4.1,370-F,6A,J9,
+3/16/25,4807,certainty,,224,11:46:00 AM,,4,370-F,6A,K9,
+3/16/25,4808,uncertainty,,213,11:49:00 AM,,3.8,370-F,6A,M9,I replaced the battery with a new one
+3/16/25,4809,certainty,,212,12:00:00 PM,,3.9,370-F,6A,N9,
+,,,,,,,,,,,
+3/18/25,4802,uncertainty,20.93,,,,,370-F,6A,H9,I found the Fed off 
+3/18/25,4803,certainty,24.35,232,8:01:00 AM,,4,370-F,6A,N5,
+3/18/25,4804,uncertainty,24.01,249,21:24:00,,4.1,370-F,6A,H8,The clock indicate the date correspond to 5/31/2005
+3/18/25,4805,certainty,24.94,246,8:09:00 AM,,4,370-F,6A,I8,
+3/18/25,4806,uncertainty,26.69,286,8:12:00 AM,,4,370-F,6A,J9,
+3/18/25,4807,certainty,20.4,232,8:16:00 AM,,4,370-F,6A,K9,
+3/18/25,4808,uncertainty,19.11,202,8:19:00 AM,,3.8,370-F,6A,M9,I replaced the battery with a new one
+3/18/25,4809,certainty,22.41,168,8:27:00 AM,,3.8,370-F,6A,N9,I replaced the battery with a new one
+,,,,,,,,,,,
+3/20/25,4802,uncertainty,23.83,386,7:31:00 AM,,4,370-F,6A,H9,I found the Fed off 
+3/20/25,4803,certainty,24.34,208,7:35:00 AM,,4,370-F,6A,N5,
+3/20/25,4804,uncertainty,24.15,250,0:32:00,,4,370-F,6A,H8,The clock indicate the date correspond to 1/12/2005
+3/20/25,4805,certainty,25.2,241,7:40:00 AM,,4,370-F,6A,I8,
+3/20/25,4806,uncertainty,27.11,252,6:47:00 AM,,3.9,370-F,6A,J9,
+3/20/25,4807,certainty,20.46,228,7:49:00 AM,,3.9,370-F,6A,K9,
+3/20/25,4808,uncertainty,19.11,209,7:54:00 AM,,4.1,370-F,6A,M9,I replaced the battery with a new one
+3/20/25,4809,certainty,22.91,245,7:59:00 AM,,4,370-F,6A,N9,I replaced the battery with a new one
+,,,,,,,,,,,
+3/22/25,4802,uncertainty,23.78,309,13:19,,4,370-F,6A,H9,
+3/22/25,4803,certainty,24.64,243,13:26,,3.9,370-F,6A,N5,The Fed never turns off;it just resets itself
+3/22/25,4804,uncertainty,23.65,213,6:52,,3.8,370-F,6A,H8,The clock indicate the date correspond to 1/12/2005_I replaced the battery with a new one
+3/22/25,4805,certainty,24.48,261,13:33,,3.9,370-F,6A,I8,
+3/22/25,4806,uncertainty,26.4,263,13:36,,3.7,370-F,6A,J9,I replaced the battery with a new one
+3/22/25,4807,certainty,20.38,230,13:39,,3.8,370-F,6A,K9,I replaced the battery with a new one
+3/22/25,4808,uncertainty,19.21,217,13:42,,3.9,370-F,6A,M9,
+3/22/25,4809,certainty,22.97,245,13:45,,4,370-F,6A,N9,
+,,,,,,,,,,,
+3/24/25,4802,uncertainty,24.09,260,8:43,,3.9,370-F,6A,H9,
+3/24/25,4803,certainty,24.19,203,8:48,,3.8,370-F,6A,N5,I replaced the battery with a new one
+3/24/25,4804,uncertainty,24.27,268,20:24,,4.1,370-F,6A,H8,The clock indicate the date correspond to 1/11/2005
+3/24/25,4805,certainty,25.03,237,8:55,,3.8,370-F,6A,I8,I replaced the battery with a new one
+3/24/25,4806,uncertainty,26.99,274,8:59,,4.1,370-F,6A,J9,
+3/24/25,4807,certainty,20.68,235,9:01,,4.1,370-F,6A,K9,
+3/24/25,4808,uncertainty,19.28,208,9:04,,3.8,370-F,6A,M9,I replaced the battery with a new one
+3/24/25,4809,certainty,22.7,193,9:07,,4,370-F,6A,N9,
+,,,,,,,,,,,
+3/26/25,4802,uncertainty,24.09,248,9:08,,3.9,370-F,6A,H9,
+3/26/25,4803,certainty,24.23,215,9:14,,4.1,370-F,6A,N5,
+3/26/25,4804,uncertainty,24.12,269,1:28,,4,370-F,6A,H8,The clock indicate the date correspond to 5/12/2005
+3/26/25,4805,certainty,25.09,279,9:25,,4.1,370-F,6A,I8,"FED3 was accidentally reset, but we fixed it (maybe accidentally deleted sd card data) instead of copying"
+3/26/25,4806,uncertainty,27.22,261,9:29,,4,370-F,6A,J9,when turned off multiple times still doesn’t register nose pokes. Try adding new device w/same sd card
+3/26/25,4807,certainty,20.76,228,9:47,,4,370-F,6A,K9,
+3/26/25,4808,uncertainty,19.4,234,9:52,,4.1,370-F,6A,M9,
+3/26/25,4809,certainty,23.36,247,9:56,,3.9,370-F,6A,N9,
+,,,,,,,,,,,
+3/27/25,4802,uncertainty,24.05,221,9:52,,3.8,370-F,6A,H9,I replaced the battery with a new one
+3/27/25,4803,certainty,24.09,229,9:57,,4,370-F,6A,N5,
+3/27/25,4804,uncertainty,24.15,254,1:39,,3.9,370-F,6A,H8,The clock indicate the date correspond to 5/12/2005
+3/27/25,4805,certainty,25.17,259,10:02,,4,370-F,6A,I8,
+3/27/25,4806,uncertainty,27.36,264,10:06,,3.9,370-F,6A,J9,
+3/27/25,4807,certainty,20.49,237,10:09,,4,370-F,6A,K9,
+3/27/25,4808,uncertainty,19.64,237,10:13,,4,370-F,6A,M9,
+3/27/25,4809,certainty,23.15,226,10:16,,3.8,370-F,6A,N9,

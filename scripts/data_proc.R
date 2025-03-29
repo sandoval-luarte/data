@@ -48,6 +48,7 @@ cohort_open_files <- cohort_csv_files %>%
 
 food_desc <- read_csv("../data/food_description.csv")
 
+
 # load metadata
 
 metadata <- read_csv("../data/META.csv") %>% 
