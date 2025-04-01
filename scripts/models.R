@@ -814,9 +814,10 @@ allmeters_emm_contrasts <- allmeters_emm$contrasts %>%
     mutate(
         hr_factor = as.numeric(hr_factor)*60
     )
-allmeters_emm_contrasts
+view(allmeters_emm_contrasts)
 
 p1 <- allmeters %>% 
+  filter(hr_factor==360) %>% 
     ggplot(aes(
         time_from_injection, corrected_value_rel,
         color = drug
@@ -834,7 +835,7 @@ p1 <- allmeters %>%
 p1
 
 p2 <- allmeters_emm_contrasts %>% 
-    filter(hr_factor==360) %>% 
+    filter(hr_factor==1440) %>% 
     ggplot(aes(
         contrast, estimate,
         ymin=conf.low, ymax=conf.high

@@ -40,7 +40,7 @@ cohort_open_files <- cohort_csv_files %>%
         rename(
           BW = BODY_WEIGHT_G
         ) %>% 
-        mutate(BW=as.numeric(BW))
+        mutate(BW=as.numeric(BW), ID=as.factor(ID))
     }
   )
 
@@ -52,7 +52,8 @@ food_desc <- read_csv("../data/food_description.csv")
 # load metadata
 
 metadata <- read_csv("../data/META.csv") %>% 
-    select(ID, SEX, COHORT, STRAIN, AIM, DIET_FORMULA)
+    select(ID, SEX, COHORT, STRAIN, AIM, DIET_FORMULA) %>% 
+  mutate(ID=as.factor(ID))
 
 # output food-intake file
 
@@ -108,7 +109,7 @@ echomri_open_files <- echomri_csv_files %>%
             mutate(day = gsub(",", "", day),
                    Date = paste(year, month, day, sep = "-"),
                    Date = lubridate::ymd(Date),
-                   ID =  as.numeric(ID)) %>% 
+                   ID =  as.factor(ID)) %>% 
             select(-hms, -month, -day, -year)
     }) %>% 
     bind_rows() %>% 
@@ -538,3 +539,4 @@ before_after_analysis <- data_injection_grid %>%
     }, .progress = TRUE)
 saveRDS(before_after_analysis, file = "../data/sable/before_after_analysis.rds", compress = TRUE)
 #before_after_analysis <- readRDS("../data/sable/before_after_analysis.rds")
+
