@@ -830,8 +830,9 @@ p1 <- allmeters %>%
                     ymin=conf.low, ymax=conf.high)) +
     facet_wrap(~SEX) +
     ggpubr::theme_pubr() +
-    ylab("Meters after injection") +
-    xlab("Minutes from injection")
+    ylab("SPA (meters)") +
+    xlab("Time from injection (minutes)")+
+  scale_color_manual(values = c("veh" = "indianred1","RTI_43_M" = "springgreen3", "RTI_43_Y" = "cornflowerblue")) 
 p1
 
 p2 <- allmeters_emm_contrasts %>% 
