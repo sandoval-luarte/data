@@ -2,6 +2,10 @@
 #we aim split the orexin cre males into two groups: the first will receive the inhibitory DREADD and the second one will receive contro (mcherry)
 #due technical issues not all the orexin cre males could be measured in the echoMRI because the piercing issue
 
+library(ggplot2)
+library(readr)
+library(dplyr)
+
 echomri_data <-read_csv("../data/echomri.csv") #data import
 
 echomri_data <- echomri_data %>% 
