@@ -3062,6 +3062,7 @@ ID,DIET_FORMULA.x,INTAKE_GR,DATE,COMMENTS,delta_measurement,corrected_intake_gr,
 312,2918_teklad_Irradiated_Global_18%_Protein_Rodent_Diet,10.410000000000025,2025-04-02,NA,2,5.2050000000000125,CHOW,3.1,16.13550000000004,F,11,OREXIN-CRE,UNCERTAINTY,2918_teklad_Irradiated_Global_18%_Protein_Rodent_Diet
 312,2918_teklad_Irradiated_Global_18%_Protein_Rodent_Diet,7.759999999999991,2025-04-04,NA,2,3.8799999999999955,CHOW,3.1,12.027999999999986,F,11,OREXIN-CRE,UNCERTAINTY,2918_teklad_Irradiated_Global_18%_Protein_Rodent_Diet
 312,2918_teklad_Irradiated_Global_18%_Protein_Rodent_Diet,10.220000000000027,2025-04-07,NA,3,3.4066666666666756,CHOW,3.1,10.560666666666695,F,11,OREXIN-CRE,UNCERTAINTY,2918_teklad_Irradiated_Global_18%_Protein_Rodent_Diet
+313,2918_teklad_Irradiated_Global_18%_Protein_Rodent_Diet,NA,2025-03-14,ARRIVAL,0,NA,CHOW,3.1,NA,M,11,C57BL/6J,UNCERTAINTY,2918_teklad_Irradiated_Global_18%_Protein_Rodent_Diet
 313,2918_teklad_Irradiated_Global_18%_Protein_Rodent_Diet,NA,2025-03-20,ANIMAL_SEPARATION,6,NA,CHOW,3.1,NA,M,11,C57BL/6J,UNCERTAINTY,2918_teklad_Irradiated_Global_18%_Protein_Rodent_Diet
 313,2918_teklad_Irradiated_Global_18%_Protein_Rodent_Diet,18.860000000000014,2025-03-24,NA,4,4.715000000000003,CHOW,3.1,14.616500000000011,M,11,C57BL/6J,UNCERTAINTY,2918_teklad_Irradiated_Global_18%_Protein_Rodent_Diet
 313,2918_teklad_Irradiated_Global_18%_Protein_Rodent_Diet,8.039999999999992,2025-03-26,NA,2,4.019999999999996,CHOW,3.1,12.461999999999987,M,11,C57BL/6J,UNCERTAINTY,2918_teklad_Irradiated_Global_18%_Protein_Rodent_Diet
@@ -3070,7 +3071,6 @@ ID,DIET_FORMULA.x,INTAKE_GR,DATE,COMMENTS,delta_measurement,corrected_intake_gr,
 313,2918_teklad_Irradiated_Global_18%_Protein_Rodent_Diet,11.519999999999982,2025-04-02,NA,2,5.759999999999991,CHOW,3.1,17.855999999999973,M,11,C57BL/6J,UNCERTAINTY,2918_teklad_Irradiated_Global_18%_Protein_Rodent_Diet
 313,2918_teklad_Irradiated_Global_18%_Protein_Rodent_Diet,10.159999999999968,2025-04-04,NA,2,5.079999999999984,CHOW,3.1,15.747999999999951,M,11,C57BL/6J,UNCERTAINTY,2918_teklad_Irradiated_Global_18%_Protein_Rodent_Diet
 313,2918_teklad_Irradiated_Global_18%_Protein_Rodent_Diet,13.080000000000041,2025-04-07,NA,3,4.360000000000014,CHOW,3.1,13.516000000000043,M,11,C57BL/6J,UNCERTAINTY,2918_teklad_Irradiated_Global_18%_Protein_Rodent_Diet
-314,2918_teklad_Irradiated_Global_18%_Protein_Rodent_Diet,NA,2025-03-20,ANIMAL_SEPARATION,6,NA,CHOW,3.1,NA,M,11,OREXIN-CRE,UNCERTAINTY,2918_teklad_Irradiated_Global_18%_Protein_Rodent_Diet
 314,2918_teklad_Irradiated_Global_18%_Protein_Rodent_Diet,21.27000000000004,2025-03-24,NA,4,5.31750000000001,CHOW,3.1,16.48425000000003,M,11,OREXIN-CRE,UNCERTAINTY,2918_teklad_Irradiated_Global_18%_Protein_Rodent_Diet
 314,2918_teklad_Irradiated_Global_18%_Protein_Rodent_Diet,-19.99000000000001,2025-03-26,NA,2,-9.995000000000005,CHOW,3.1,-30.984500000000015,M,11,OREXIN-CRE,UNCERTAINTY,2918_teklad_Irradiated_Global_18%_Protein_Rodent_Diet
 314,2918_teklad_Irradiated_Global_18%_Protein_Rodent_Diet,38.03999999999999,2025-03-28,NA,2,19.019999999999996,CHOW,3.1,58.96199999999999,M,11,OREXIN-CRE,UNCERTAINTY,2918_teklad_Irradiated_Global_18%_Protein_Rodent_Diet

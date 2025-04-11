@@ -6,17 +6,15 @@ library(ggplot2)
 library(readr)
 library(dplyr)
 
-echomri_data <-read_csv("../data/echomri.csv") #data import
+echomri_data <-read_csv("~/Documents/GitHub/data/data/echomri.csv") #data import
 
 echomri_data <- echomri_data %>% 
   filter(COHORT ==11) %>% 
-  select(ID, adiposity_index,SEX,STRAIN) %>% 
+  select(ID, adiposity_index,SEX,STRAIN) %>% #good so here we checked there is 27 animals in total (cohort 11)
   filter(SEX=="M") %>% 
-  filter(STRAIN=="OREXIN-CRE") %>% 
-  mutate(VIRUS_GROUP = if_else(ID %in% c(315,320,318), "INHIBITORY_DREADD", "CONTROL"))
+  filter(STRAIN=="OREXIN-CRE") %>% # here we confirmed we have 12 males
+  mutate(VIRUS_GROUP = if_else(ID %in% c(320,318,316,315), "INHIBITORY_DREADD", "CONTROL")) # I already did the surgery for #320 and #318
   
-#In total we have 12 males orexin cre, however here appear just 7 so 5 animals are pending in the echoMRI
-
 # Summarize the data
 summary_data <- echomri_data %>%
   group_by(VIRUS_GROUP) %>%
