@@ -8,6 +8,7 @@
 library(ggplot2)
 library(readr)
 library(dplyr)
+library(tidyr)
 
 echomri_data <-read_csv("~/Documents/GitHub/data/data/echomri.csv") #data import
 
