@@ -6,8 +6,6 @@ library(readr)
 library(tidyverse)
 
 #bw data import####
-
-
 BW_data <- read_csv("~/Documents/GitHub/data/data/BW.csv") %>% 
   group_by(ID) %>% 
   mutate(
@@ -17,5 +15,5 @@ BW_data <- read_csv("~/Documents/GitHub/data/data/BW.csv") %>%
 ggplot(BW_data, aes(date_rel, bw_rel)) +
   geom_point() +
   geom_text(aes(label = ID), vjust = -0.5, size = 3) +  # add ID labels above points
-  facet_grid(~STRAIN)
+  facet_wrap(SEX~STRAIN)
 
