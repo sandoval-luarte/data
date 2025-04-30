@@ -15,5 +15,5 @@ BW_data <- read_csv("~/Documents/GitHub/data/data/BW.csv") %>%
 ggplot(BW_data, aes(date_rel, bw_rel)) +
   geom_point() +
   geom_text(aes(label = ID), vjust = -0.5, size = 3) +  # add ID labels above points
-  facet_wrap(SEX~STRAIN)
+  facet_wrap(~STRAIN)
 
