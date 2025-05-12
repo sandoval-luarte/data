@@ -80,13 +80,25 @@ ical_long <- ical_long %>%
   ) %>%
   drop_na()
 
-ical_long <- ical_long %>% 
+ical_counts <- ical_long %>% 
+  ungroup() %>% 
+  group_by(ID) %>% 
+  mutate(period= cumsum(as.numeric(replace_na(daycycle != lag(daycycle),0)))) %>% 
+  ungroup() %>% 
   group_by(ID,daycycle) %>% 
-  mutate(cumsumcounts = cumsum(count)) 
-max_counts <- ical_long %>%
-  group_by(ID, daycycle,DIET_FORMULA) %>%
-  summarise(max_count = max(count, na.rm = TRUE), .groups = "drop")
-ggplot(max_counts, aes(daycycle, max_count, group = ID)) +
+  mutate(period_rel = scales::rescale(period,to= c(0,1))) %>% 
+  ungroup() %>% 
+  group_by(ID,daycycle,period_rel,DIET_FORMULA) %>% 
+summarise(total_movement =sum(count))
+
+counts_model <- ical_counts %>% 
+  ungroup() %>% 
+  group_by(ID,daycycle, DIET_FORMULA) %>% 
+  summarise(mean_counts = mean(total_movement),
+            sd_counts = sd(total_movement))
+
+
+ggplot(counts_model, aes(daycycle, mean_counts, group = ID)) +
   geom_point() +
   geom_text(aes(label = ID), vjust = -0.5, size = 3) +  # add ID labels above points
   geom_line() +
@@ -196,7 +208,13 @@ cell_count <- read_csv("~/Documents/GitHub/data/data/Kotz_Cellcounts.csv") %>%
   select(ID, cellcounts) %>% 
   left_join(META, by = "ID") %>% 
   #filter(!ID == 4021) %>%  
-  drop_na()
+  drop_na() %>% 
+  left_join(counts_model, by = c("ID","DIET_FORMULA")) %>% 
+  ungroup() %>% 
+  group_by(ID) %>% 
+  mutate(rel_movement = (mean_counts[daycycle=="dark"] - mean_counts[daycycle=="light"])/
+           mean_counts[daycycle=="light"])
+
 
 # Now run the unpaired t-test
 t_test_result <- t.test(cellcounts ~ DIET_FORMULA, data = cell_count,var.equal = TRUE)
@@ -209,40 +227,6 @@ ggplot(cell_count, aes(DIET_FORMULA,cellcounts,group = ID)) +
   geom_text(aes(label = ID), vjust = -0.5, size = 3) +  # add ID labels above points
 theme_minimal()
 
-#the next question should be if we have obesity prone mice and obesity resistant mice and how that affects orexin neuron activity
-
-#delta movement####
-delta_movement_df <- max_counts %>%
-  pivot_wider(names_from = daycycle, values_from = max_count) %>%
-  mutate(delta_movement = abs(light - dark)) %>%
-  select(ID, DIET_FORMULA, delta_movement) %>% 
-  left_join(cell_count, by = "ID") %>% 
-  rename(DIET_FORMULA = DIET_FORMULA.x) %>% #There is no differences between columns x and y. 
-  select(-DIET_FORMULA.y) 
-
-# Calculate correlation and p-value by diet (if you haven't already)
-correlation_with_p <- delta_movement_df %>%
-  group_by(DIET_FORMULA) %>%
-  summarise(
-    correlation_r = cor(delta_movement, cellcounts),
-    p_value = cor.test(delta_movement, cellcounts)$p.value,
-    max_delta = max(delta_movement, na.rm = TRUE) * 0.8, # Max within group
-    max_cellcounts = max(cellcounts, na.rm = TRUE) * 0.9, # Max within group
-    .groups = "drop"
-  )
-
-ggplot(delta_movement_df, aes(x = delta_movement, y = cellcounts)) +
-  geom_point() +
-  geom_smooth(method = "lm", se = FALSE) +
-  facet_wrap(~ DIET_FORMULA) +
-  labs(x = "Delta Movement",
-       y = "Cell Counts") +
-  geom_text(data = correlation_with_p,
-            aes(x = max_delta,
-                y = max_cellcounts,
-                label = paste("R = ", round(correlation_r, 2),
-                              ", p = ", format.pval(p_value, digits = 2, method = "e"))),
-            hjust = 1,
-            inherit.aes = FALSE)+
-  theme_minimal()
-
+neuron_locomotion_model <- lm(data=cell_count %>% 
+                                filter(daycycle=="dark"), rel_movement ~ cellcounts*DIET_FORMULA)
+summary(neuron_locomotion_model)
