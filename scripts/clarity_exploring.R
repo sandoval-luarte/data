@@ -1,6 +1,6 @@
 #Description####
 #This script aims to explore the relationship between orexin neuron activation and diet.
-#Our hypothesis is that HFD mice will have less orexin neuron activation within LHA and locomotion 
+#Our hypothesis is that HFD mice will have less orexin expression within LHA and locomotion 
 
 #Libraries####
 library(dplyr) #to open a RDS and use pipe
@@ -102,7 +102,7 @@ ggplot(counts_model, aes(daycycle, mean_counts, group = ID)) +
   geom_point() +
   geom_text(aes(label = ID), vjust = -0.5, size = 3) +  # add ID labels above points
   geom_line() +
-  facet_wrap(~DIET_FORMULA) +
+  facet_wrap(ID~DIET_FORMULA) +
   theme_minimal()
 
 
@@ -196,7 +196,7 @@ t_test_result <- t.test(adiposity_index ~ DIET_FORMULA, data = echoMRI_data,var.
 # View the result
 print(t_test_result)
 
-ggplot(echoMRI_data, aes(DIET_FORMULA,adiposity_index)) +
+ggplot(echoMRI_data, aes(DIET_FORMULA,)) +
   geom_point() +
   geom_text(aes(label = ID), vjust = -0.5, size = 3) +  # add ID labels above points
   theme_minimal()
