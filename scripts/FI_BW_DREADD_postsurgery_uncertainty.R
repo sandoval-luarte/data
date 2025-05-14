@@ -17,21 +17,23 @@ library(lme4)
     filter(!ID %in% c(298, 315)) %>% #died in surgery
     filter(!ID %in% c(308, 317, 324)) %>% #C57BL6J not used in surgery
     group_by(ID) %>% 
-     mutate(bw_rel = 100 * (BW - first(BW)) / first(BW)) %>% 
+    arrange(DATE) %>% 
+     mutate(bw_rel = 100 * (BW - first(BW)) / first(BW),
+            body_lag = lag(BW) - BW) %>% 
     group_by(ID) %>% 
     mutate(day_rel = DATE - first(DATE))
   
-  n_distinct(BW_data$ID) #here we know there is 27 animals in total n=18 orexin cre and 9 c57
+  n_distinct(BW_data$ID) #here we know there is 14 animals
   
 # Subset rows where COMMENTS == "FIRST_DAY_JUST_FED3_BASELINE"
 highlight_data <- BW_data %>%
   filter(COMMENTS == "FIRST_DAY_JUST_FED3_BASELINE")
 
 plot <- BW_data %>% 
-  ggplot(aes(DATE, bw_rel, group = ID, color = SEX)) +
+  ggplot(aes(DATE, body_lag, group = ID, color = SEX)) +
   geom_point() +
   geom_line() +
-  facet_wrap(STRAIN~SEX) +
+  facet_wrap(~STRAIN) +
   geom_text(data = BW_data,
             aes(label = ID), 
             hjust = -0.2, vjust = 0.5, 
@@ -53,7 +55,7 @@ echoMRI_data <- echoMRI_data %>%
   select(ID,Fat,Lean,Weight,n_measurement,adiposity_index)
 
 plot_echo <- echoMRI_data %>% 
-  ggplot(aes(n_measurement, Fat, group = ID)) +
+  ggplot(aes(n_measurement, Lean, group = ID)) +
   geom_line() +
   geom_text(data = echoMRI_data,
             aes(label = ID), 
