@@ -1,4 +1,5 @@
-# This script aims to explore BW and FI in NZO female mice
+# This script aims to explore BW, FI and locomotion in NZO female mice after different stages of feeding:
+#1. Basal, 2: peak obesity, 3: Acute ody weight loss 4: BW maintenance
 
 #libraries
 library(dplyr) #to use pipe
@@ -27,16 +28,18 @@ highlight_data <- BW_data %>%
   filter(COMMENTS == "RESTRICTED_DAY_1")
 
 plot <- BW_data %>% 
-  ggplot(aes(DATE, BW, group = ID)) +
+
+  ggplot(aes(day_rel, bw_rel, group = ID)) +
   geom_point() +
   geom_line() +
   facet_wrap(~GROUP) +
-  geom_smooth()+
-  # Highlight using vertical lines
-  geom_vline(data = highlight_data, 
-    aes(xintercept = as.numeric(DATE)), 
-   linetype = "dashed", color = "red", alpha = 0.7)
-plot
+   geom_smooth()+
+  geom_text(aes(label = ID), vjust = -0.5, size = 2.5, alpha = 0.6) # Add ID labels+  
+#   # Highlight using vertical lines
+#   geom_vline(data = highlight_data, 
+#     aes(xintercept = as.numeric(DATE)), 
+#    linetype = "dashed", color = "red", alpha = 0.7)
+ plot
 
 #fi####
 FI_data <- read_csv("../data/FI.csv") %>% 
