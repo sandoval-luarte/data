@@ -1,5 +1,5 @@
 # This script aims to explore BW, FI and locomotion in NZO female mice after different stages of feeding:
-#1. Basal, 2: peak obesity, 3: Acute ody weight loss 4: BW maintenance
+#1: Basal, 2: peak obesity, 3: Acute body weight loss 4: BW maintenance
 
 #libraries
 library(dplyr) #to use pipe
