@@ -3,6 +3,8 @@
 # different stages of feeding:1: Basal, 2: peak obesity, 3: Acute body 
 #weight loss 4: BW maintenance
 
+#Let's take decisions with Lauren and Cathy
+
 #libraries
 library(dplyr) #to use pipe
 library(ggplot2) #to graph
@@ -12,7 +14,7 @@ library(tidyr)  # to use drop-na()
 #body weight####
 BW_data <- read_csv("../data/BW.csv") %>% 
   filter(COHORT > 2 & COHORT < 6) %>% #Just NZO females
-  filter(!ID %in% c(3712, 3715 )) %>% #died during study
+  filter(!ID %in% c(3712, 3715)) %>% #died during study
   group_by(ID) %>% 
   arrange(DATE) %>% 
   mutate(bw_rel = 100 * (BW - first(BW)) / first(BW),
@@ -25,18 +27,51 @@ BW_data <- read_csv("../data/BW.csv") %>%
 
 n_distinct(BW_data$ID) #here we know there is 22 animals
 
-plot <- BW_data %>% 
 
-  ggplot(aes(day_rel, bw_rel, group = ID)) +
+plot <- BW_data %>% # just raw BW over dates
+  ggplot(aes(DATE, BW, group = ID)) +
   geom_point() +
   geom_line() +
   facet_wrap(~GROUP) +
    geom_smooth()+
   geom_text(aes(label = ID), vjust = -0.5, size = 2.5, alpha = 0.6) + #ID label
   labs(
-    x = "Relative day",
-    y = "% BW gain")
+    x = "Date",
+    y = "BW (grams)")
 
+ plot
+ 
+ # Subset rows to identify when sable measurements occurs 
+ highlight_data <- BW_data %>%
+   filter(COMMENTS == "DAY_1_SABLE")
+ 
+ plot <- BW_data %>% 
+   ggplot(aes(DATE, bw_rel, group = ID)) +
+   geom_point() +
+   geom_line() +
+   facet_wrap(~GROUP) +
+   geom_smooth()+
+   geom_text(aes(label = ID), vjust = -0.5, size = 2.5, alpha = 0.6) + #ID label
+   labs(
+     x = "Relative day",
+     y = "% BW gain")+
+   # Highlight using vertical lines
+   geom_vline(data = highlight_data, 
+              aes(xintercept = as.numeric(DATE)), 
+              linetype = "dashed", color = "red", alpha = 0.7)
+ 
+ plot
+ 
+ plot <- BW_data %>%  #weight change over relative days 
+   ggplot(aes(day_rel, bw_rel, group = ID)) +
+   geom_point() +
+   geom_line() +
+   facet_wrap(~GROUP) +
+   geom_smooth()+
+   geom_text(aes(label = ID), vjust = -0.5, size = 2.5, alpha = 0.6) + #ID label
+   labs(
+     x = "Relative day",
+     y = "% BW gain")
  plot
 
 #food intake kcal ####
@@ -69,18 +104,6 @@ plot <- FI_data %>% #daily food intake
     x = "Relative day",
     y = "daily kcal food intake")
 plot
-
-plot <- FI_data %>% #cumulative food intake , I'm unsure about how to interpret this. Talk with team
-  filter(corrected_intake_kcal <= 40) %>% 
-  ggplot(aes(date_rel,FI_cum , group = ID)) +
-  geom_point() +
-  geom_line() +
-  facet_wrap(~GROUP) +
-  geom_smooth()+
-  labs(
-    x = "Relative day",
-    y = "cumulative kcal food intake")
-plot #Im wondering if the resolution of the data cares here
 
 #body comp analysis####
 ##echoMRI data####
@@ -174,17 +197,23 @@ sable_data <- readRDS("../data/sable_downsampled_data.rds") %>%
 
 sable_data_locomotion <- sable_data %>%  #Here I should add light and night per day
   filter(parameter =="AllMeters") %>%
-  arrange(sable_idx) %>% 
+  arrange(sable_idx)%>% 
   mutate(GROUP = case_when(
     ID %in% c(3706, 3707, 3709, 3711, 3712, 3713, 3717, 3716, 3719, 3718, 3726) ~ "ad lib",
     ID %in% c(3708, 3714, 3720, 3721, 3710, 3722, 3723, 3724, 3725, 3727, 3728, 3729) ~ "restricted")) %>% 
   group_by(ID) %>% 
-  filter(ID %in% c(3706, 3708)) 
+  mutate(hr=lubridate::hour(DateTime),
+         day = lubridate::day(DateTime),
+         day_night = if_else(hr %in% c(6,7,8,9,10,11,12,13,14,15,16,17,18,19,20),"light","dark")) %>% 
+  filter(ID %in% c(3706, 3708)) %>% 
+  ungroup() %>% 
+  group_by(ID,day_night,day,GROUP) %>% 
+  summarise(meters = mean(value))
 
 plot_locomotion <- sable_data_locomotion %>% #I'm not sure what I am seeing
-  ggplot(aes(DateTime, value)) +
+  ggplot(aes(day, meters)) +
   geom_point() + 
-  facet_wrap(~GROUP)+
+  facet_wrap(~GROUP*day_night)+ #LACKS STAGE HERE PEAK OBESITY AND BASAL AND MAINTENCE
   geom_text(aes(label = ID), vjust = -0.5, size = 2.5, alpha = 0.6)  #ID label
 
 plot_locomotion

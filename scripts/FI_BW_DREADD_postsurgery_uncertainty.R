@@ -16,16 +16,15 @@ BW_data <- BW_data %>%
       ID %in% c(297, 313,318, 320) ~ "OREXIN_CRE_DREADD",
       ID %in% c(305, 306, 314, 322) ~ "WT_CONTROL",
       ID %in% c(307, 316, 319,321,323,325) ~ "OREXIN_CRE_CONTROL"
-     )) 
-  # %>% 
-  # ungroup() %>% 
-  # mutate(GROUP = case_when(
-  #   ID %in% c(321, 323, 325) ~ "OREXIN_CRE_CONTROL_UNCERT",
-  #   ID %in% c(297, 313, 318, 320) ~ "OREXIN_CRE_DREADD_UNCERT",
-  #   ID %in% c(305, 306, 314, 322) ~ "WT_CONTROL_NO_UNCERT",
-  #   ID %in% c(307,316, 319) ~ "OREXIN_CRE_CONTROL_NO_UNCERT"
-  # )) %>% 
-  # filter(ID %in% c(297, 305, 306, 307, 314, 316, 321,325)) #only calorimetry guys
+      )) %>%
+   ungroup() %>%
+   mutate(GROUP = case_when(
+     ID %in% c(321, 323, 325) ~ "OREXIN_CRE_CONTROL_UNCERT",
+     ID %in% c(297, 313, 318, 320) ~ "OREXIN_CRE_DREADD_UNCERT",
+     ID %in% c(305, 306, 314, 322) ~ "WT_CONTROL_NO_UNCERT",
+     ID %in% c(307,316, 319) ~ "OREXIN_CRE_CONTROL_NO_UNCERT"
+   )) %>%
+   filter(ID %in% c(297, 305, 306, 307, 314, 316, 321,325)) #only calorimetry guys
 
 BW_data_1 <- BW_data %>% 
       group_by(ID) %>% 
@@ -43,7 +42,7 @@ highlight_data <- BW_data %>%
   filter(COMMENTS == "FIRST_DAY_JUST_FED3_BASELINE")
 
 plot <- BW_data_1 %>% 
-  ggplot(aes(DATE, BW, group = ID, color = SEX)) +
+  ggplot(aes(DATE, body_lag, group = ID, color = SEX)) +
   geom_point() +
   geom_line() +
   facet_wrap(~GROUP) +
@@ -113,18 +112,18 @@ summary_data <- echoMRI_data_analysis %>%
 
 #plot####
 plot <- ggplot() +
-  geom_point(data = echoMRI_data_analysis, aes(x = GROUP, y = Lean), alpha = 0.7) +
+  geom_point(data = echoMRI_data_analysis, aes(x = GROUP, y = adiposity_index), alpha = 0.7) +
   geom_text(data = echoMRI_data_analysis, 
-            aes(x = GROUP, y = Lean, label = ID), 
+            aes(x = GROUP, y = adiposity_index, label = ID), 
             vjust = -0.5, size = 3) +  # Adjust vjust/size as needed
-  geom_point(data = summary_data, aes(x = GROUP, y = mean_Lean), 
+  geom_point(data = summary_data, aes(x = GROUP, y = mean_adiposity), 
              color = "red", size = 3) +
   geom_errorbar(data = summary_data, aes(x = GROUP, 
-                                         ymin = mean_Lean - se_Lean, 
-                                         ymax = mean_Lean + se_Lean),
+                                         ymin = mean_adiposity - se_adiposity, 
+                                         ymax = mean_adiposity + se_adiposity),
                 width = 0.2, color = "red") +
   theme_minimal() +
-  ylab("Lean (g)") +
+  ylab("adiposity index") +
   xlab("Virus Group")
 plot
 
