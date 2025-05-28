@@ -40,7 +40,7 @@ n_distinct(BW_data$ID) #here we know there is 22 animals
 
 
 plot <- BW_data %>%
-  filter(DATE <= "2025-02-24") %>% # just raw BW over dates
+ # filter(DATE <= "2025-02-24") %>% # just raw BW over dates
   ggplot(aes(day_rel, BW, group = ID)) +
   geom_point() +
   geom_line() +

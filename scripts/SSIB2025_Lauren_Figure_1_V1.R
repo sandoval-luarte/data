@@ -1,4 +1,5 @@
-# We aim to test if BW is statistically different after 12 weeks with LFD in NZO female mice
+# We aim to test if BW is statistically different after 100 days ( ~14 weeks) with LFD in NZO female mice
+
 #Libraries####
 library(dplyr) #to open a RDS and use pipe
 library(tidyr) #to use cumsum
@@ -6,6 +7,7 @@ library(ggplot2)
 library(readr)
 library(tidyverse)
 library(ggpubr)
+
 #format plot
 scaleFill <- scale_fill_manual(values = c("#C03830FF", "#317EC2FF"))
 
@@ -18,7 +20,6 @@ format.plot <- theme_pubr() +
         axis.text = element_text(family = "Helvetica", size = 13),
         axis.title = element_text(family = "Helvetica", size = 14))
 
-#NZO####
 ##bw over time - timecourse####
 BW_data <- read_csv("../data/BW.csv") %>% 
   filter(COHORT > 2 & COHORT < 6) %>% #Just NZO females
@@ -58,7 +59,7 @@ plot_1 <- BW_data %>%
     y = "Body weight (g)"
   ) +
   format.plot +
-  scale_y_continuous(limits = c(25, 60)) +
+  scale_y_continuous(limits = c(25, 55)) +
   scale_x_continuous(breaks = seq(3, 12, by = 3)) 
 plot_1
 
@@ -79,6 +80,15 @@ scale_x_discrete(labels = function(x) {
   x[x == "98"] <- "peak of obesity"
   return(x)
 })
+
+# Reshape to wide format for easier comparison
+BW_wide <- BW_data %>%
+  select(ID, day_rel, BW) %>%
+  pivot_wider(names_from = day_rel, values_from = BW)
+
+# Run paired t-test
+t.test(BW_wide$`0`, BW_wide$`98`, paired = TRUE)
+
 
 plot_2 <- BW_data %>%
   ggplot(aes(x = as.factor(day_rel), y = BW)) +
@@ -101,6 +111,15 @@ plot_2 <- BW_data %>%
     x[x == "98"] <- "12"
     return(x)
   })
+plot_2
+
+plot_2 <- plot_2 +
+  annotate("text", 
+           x = 1.5,  # midpoint between x = "0" and "98"
+           y = max(BW_data$BW, na.rm = TRUE) + 2,  # a bit above the max BW
+           label = "t(22) = -17.64, p < 0.001\nΔ = 14.2 g [95% CI: 12.5–15.9]", 
+           size = 4, hjust = 0.5)
+
 plot_2
 
 

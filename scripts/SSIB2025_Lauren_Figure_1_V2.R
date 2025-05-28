@@ -1,7 +1,5 @@
-# This script aims to explore changes in body weight, food intake,
-# body composition and locomotion in middle age NZO female mice after 
-# different stages of feeding:1: Basal, 2: peak obesity, 3: Acute body 
-#weight loss 4: BW maintenance
+# We aim to test if BW is statistically different after 100 days ( ~14 weeks) with LFD in NZO female mice
+
 #libraries
 library(dplyr) #to use pipe
 library(ggplot2) #to graph
@@ -25,7 +23,7 @@ format.plot <- theme_pubr() +
 ##body weight####
 BW_data <- read_csv("../data/BW.csv") %>% 
   filter(COHORT > 2 & COHORT < 6) %>% #Just NZO females
-  filter(!ID %in% c(3712, 3715)) %>% #died during study %>% 
+  filter(!ID== 3715) %>% #died during study
   filter(DATE <= "2025-02-24") %>% # day 2 of restriction diet
   group_by(ID) %>% 
   arrange(DATE) %>% 
@@ -62,7 +60,7 @@ plot_1 <- BW_data %>%
   ) +
   format.plot +
  # scale_y_continuous(limits = c(25, 60)) +
-  scale_x_continuous(breaks = seq(0, 100, by = 10)) 
+  scale_x_continuous(breaks = seq(0, 100, by = 20)) 
 plot_1
 
 ##bw discrete ####
@@ -72,8 +70,9 @@ BW_data <- read_csv("../data/BW.csv") %>%
   filter(!ID== 3715) %>% #died during study
   group_by(ID) %>% 
   arrange(DATE) %>% 
+  mutate(bw_rel = 100 * (BW - first(BW)) / first(BW)) %>% 
   mutate(day_rel = DATE - first(DATE)) %>% 
-  filter(day_rel < 100) %>% 
+  filter(day_rel <=100) %>% 
   filter(day_rel %in% c(0, 98))
 
 scale_x_discrete(labels = function(x) {
@@ -83,8 +82,17 @@ scale_x_discrete(labels = function(x) {
   return(x)
 })
 
+# Reshape to wide format for easier comparison
+BW_wide <- BW_data %>%
+  select(ID, day_rel, bw_rel) %>%
+  pivot_wider(names_from = day_rel, values_from = bw_rel)
+
+# Run paired t-test
+t.test(BW_wide$`0`, BW_wide$`98`, paired = TRUE)
+
+
 plot_2 <- BW_data %>%
-  ggplot(aes(x = as.factor(day_rel), y = BW)) +
+  ggplot(aes(x = as.factor(day_rel), y = bw_rel)) +
   geom_point(aes(group = ID), alpha = 0.1) +
   geom_line(aes(group = ID), alpha = 0.1) +
   stat_summary(fun.data = mean_se, 
@@ -95,7 +103,7 @@ plot_2 <- BW_data %>%
                aes(group = 1)) +
   labs(
     x = "Days",
-    y = "Body weight (g)"
+    y = "% of body weight gain"
   ) +
   format.plot +
   scale_x_discrete(labels = function(x) {
@@ -104,6 +112,15 @@ plot_2 <- BW_data %>%
     x[x == "98"] <- "100"
     return(x)
   })
+plot_2
+
+plot_2 <- plot_2 +
+  annotate("text", 
+           x = 1.5,  # midpoint between x = "0" and "98"
+           y = max(BW_data$BW, na.rm = TRUE) + 2,  # a bit above the max BW
+           label = "t(22) = -17.64, p < 0.001\nΔ = 14.2 g [95% CI: 12.5–15.9]", 
+           size = 4, hjust = 0.5)
+
 plot_2
 
 
