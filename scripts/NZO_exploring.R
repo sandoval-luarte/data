@@ -7,7 +7,7 @@ library(dplyr) #to use pipe
 library(ggplot2) #to graph
 library(readr) 
 library(tidyr)  # to use drop-na()
-
+library(ggpubr)
 
 #format plot
 scaleFill <- scale_fill_manual(values = c("#C03830FF", "#317EC2FF"))
@@ -39,7 +39,8 @@ BW_data <- read_csv("../data/BW.csv") %>%
 n_distinct(BW_data$ID) #here we know there is 22 animals
 
 
-plot <- BW_data %>% # just raw BW over dates
+plot <- BW_data %>%
+  filter(DATE <= "2025-02-24") %>% # just raw BW over dates
   ggplot(aes(day_rel, BW, group = ID)) +
   geom_point() +
   geom_line() +
@@ -55,7 +56,7 @@ plot <- BW_data %>% # just raw BW over dates
  
  # Subset rows to identify when sable measurements occurs 
  highlight_data <- BW_data %>%
-   filter(COMMENTS == "DAY_4_SABLE")
+   filter(COMMENTS == "RESTRICTED_DAY_1")
  
  plot <- BW_data %>% 
    ggplot(aes(DATE, bw_rel, group = ID)) +
@@ -75,8 +76,9 @@ plot <- BW_data %>% # just raw BW over dates
  
  plot
  
- plot <- BW_data %>%  #weight change over relative days 
-   ggplot(aes(day_rel, bw_rel, group = ID)) +
+ plot <- BW_data %>%
+   filter(DATE <= 2025-24-03) %>% #weight change over relative days 
+   ggplot(aes(DATE, bw_rel, group = ID)) +
    geom_point() +
    geom_line() +
    facet_wrap(~GROUP) +
@@ -94,8 +96,8 @@ FI_data <- read_csv("../data/FI.csv") %>%
   filter(!ID %in% c(3712, 3715 )) %>% #died during study
   rename(DIET_FORMULA = DIET_FORMULA.x) %>% #There is no differences between columns x and y. 
   select(-DIET_FORMULA.y) %>% 
+   group_by(ID) %>%
   arrange(DATE) %>% 
-  group_by(ID) %>%
   filter(!is.na(corrected_intake_gr)) %>% 
   mutate(corrected_intake_kcal = replace_na(corrected_intake_kcal, 0),) %>% 
   mutate(FI_rel = corrected_intake_kcal - first(corrected_intake_kcal),
@@ -126,6 +128,7 @@ echoMRI_data <-read_csv("~/Documents/GitHub/data/data/echomri.csv") #data import
 
 echoMRI_data <- echoMRI_data %>% 
   filter(COHORT > 2 & COHORT < 6) %>% #Just NZO females
+  group_by(ID) %>%
   arrange(Date) %>% 
   filter(!ID %in% c(3712, 3715)) %>% #died during study 
   mutate(GROUP = case_when(
@@ -139,9 +142,9 @@ echoMRI_data <- echoMRI_data %>%
 
 ###adiposity index####
 plot_echo <- echoMRI_data %>% #Adiposity index
-  ggplot(aes(day_rel, adiposity_index, group = ID)) +
+  ggplot(aes(Date, adiposity_index, group = ID)) +
   geom_line() +
-  facet_wrap(~GROUP) +
+#  facet_wrap(~GROUP) +
   geom_text(data = echoMRI_data,
             aes(label = ID), 
             hjust = -0.2, vjust = 0.5, 
@@ -273,7 +276,7 @@ plot
 
 # Subset rows to ide# Subset rows to ide# Subset rows to identify when sable measurements occurs 
 highlight_data <- BW_data %>%
-  filter(COMMENTS == "DAY_4_SABLE")
+  filter(DATE == "2025-02-24")
 
 plot <- BW_data %>% 
   ggplot(aes(DATE, bw_rel, group = ID)) +
@@ -342,6 +345,7 @@ echoMRI_data <-read_csv("~/Documents/GitHub/data/data/echomri.csv") #data import
 
 echoMRI_data <- echoMRI_data %>% 
   filter(COHORT > 2 & COHORT < 6) %>% #Just NZO females
+  group_by(ID) %>% 
   arrange(Date) %>% 
   filter(!ID %in% c(3712, 3715)) %>% #died during study 
   mutate(GROUP = case_when(
@@ -351,13 +355,15 @@ echoMRI_data <- echoMRI_data %>%
   mutate(day_rel = Date - first(Date),
          adiposity_index_rel = 100 * (adiposity_index - first(adiposity_index)) / first(adiposity_index),
          fat_rel = 100 * (Fat - first(Fat)) / first(Fat),
-         lean_rel = 100 * (Lean - first(Lean)) / first(Lean))
+         lean_rel = 100 * (Lean - first(Lean)) / first(Lean)) %>% 
+  filter(day_rel <= 100) 
 
 ###adiposity index####
-plot_echo <- echoMRI_data %>% #Adiposity index
+plot_echo <- echoMRI_data %>%
+  #filter(Date <= "2025-03-10") %>% # just raw BW over dates
   ggplot(aes(day_rel, adiposity_index, group = ID)) +
   geom_line() +
-  facet_wrap(~GROUP) +
+#  facet_wrap(~GROUP) +
   geom_text(data = echoMRI_data,
             aes(label = ID), 
             hjust = -0.2, vjust = 0.5, 

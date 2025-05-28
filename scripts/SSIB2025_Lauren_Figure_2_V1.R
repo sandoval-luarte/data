@@ -111,9 +111,7 @@ echoMRI_data <- echoMRI_data %>%
          date_rel = Date - first(Date),
          adiposity_index_rel = 100 * (adiposity_index - first(adiposity_index)) / first(adiposity_index),
          fat_rel = 100 * (Fat - first(Fat)) / first(Fat),
-         lean_rel = 100 * (Lean - first(Lean)) / first(Lean)) %>% 
- # mutate(relative_weeks = as.integer(date_rel / 7) + 1) %>% 
-  filter(date_rel <=100)
+         lean_rel = 100 * (Lean - first(Lean)) / first(Lean)) 
 
 ###adiposity index####
 
@@ -125,7 +123,6 @@ adiposity_summary <- echoMRI_data %>%
     sem_adiposity = sd(adiposity_index, na.rm = TRUE) / sqrt(n())
   )
 
-# Plot with mean and SEM
 plot_1 <- echoMRI_data %>%
   ggplot(aes(x = day_rel, y = adiposity_index)) +
   geom_point(aes(group = ID), alpha = 0.1) +
@@ -145,8 +142,77 @@ plot_1 <- echoMRI_data %>%
   geom_text(data = echoMRI_data,
             aes(label = ID), 
             hjust = -0.2, vjust = 0.5, 
-            size = 3, show.legend = FALSE) 
+           size = 3, show.legend = FALSE) 
   
 
 plot_1
+
+###Lean mass####
+
+# Calculate mean and SEM
+lean_summary <- echoMRI_data %>%
+  group_by(day_rel) %>%
+  summarise(
+    mean_lean = mean(Lean, na.rm = TRUE),
+    sem_lean = sd(Lean, na.rm = TRUE) / sqrt(n())
+  )
+
+# Plot with mean and SEM
+plot_2 <- echoMRI_data %>%
+  ggplot(aes(x = day_rel, y = Lean)) +
+  geom_point(aes(group = ID), alpha = 0.1) +
+  geom_line(aes(group = ID), alpha = 0.1) +
+  geom_ribbon(data = lean_summary, 
+              mapping = aes(x = day_rel, ymin = mean_lean - sem_lean, ymax = mean_lean + sem_lean), 
+              inherit.aes = FALSE, fill = "gray70", alpha = 0.6) +
+  geom_line(data = lean_summary, 
+            mapping = aes(x = day_rel, y = mean_lean), 
+            color = "black", size = 1.2) +
+  labs(
+    x = "measurement",
+    y = "Lean mass (g)"
+  ) +
+  format.plot# +
+#  scale_x_continuous(breaks = seq(0, 12, by = 2.4)) +
+# geom_text(data = echoMRI_data,
+# aes(label = ID), 
+# hjust = -0.2, vjust = 0.5, 
+# size = 3, show.legend = FALSE) 
+
+plot_2
+
+###Fat mass####
+
+# Calculate mean and SEM
+fat_summary <- echoMRI_data %>%
+  group_by(day_rel) %>%
+  summarise(
+    mean_fat = mean(Fat, na.rm = TRUE),
+    sem_fat = sd(Fat, na.rm = TRUE) / sqrt(n())
+  )
+
+# Plot with mean and SEM
+plot_3 <- echoMRI_data %>%
+  ggplot(aes(x = day_rel, y = Fat)) +
+  geom_point(aes(group = ID), alpha = 0.1) +
+  geom_line(aes(group = ID), alpha = 0.1) +
+  geom_ribbon(data = fat_summary, 
+              mapping = aes(x = day_rel, ymin = mean_fat - sem_fat, ymax = mean_fat + sem_fat), 
+              inherit.aes = FALSE, fill = "gray70", alpha = 0.6) +
+  geom_line(data = fat_summary, 
+            mapping = aes(x = day_rel, y = mean_fat), 
+            color = "black", size = 1.2) +
+  labs(
+    x = "measurement",
+    y = "Fat mass (g)"
+  ) +
+  format.plot# +
+#  scale_x_continuous(breaks = seq(0, 12, by = 2.4)) +
+# geom_text(data = echoMRI_data,
+# aes(label = ID), 
+# hjust = -0.2, vjust = 0.5, 
+# size = 3, show.legend = FALSE) 
+
+plot_3
+
 

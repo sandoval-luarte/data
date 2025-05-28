@@ -23,8 +23,7 @@ BW_data <- BW_data %>%
      ID %in% c(297, 313, 318, 320) ~ "OREXIN_CRE_DREADD_UNCERT",
      ID %in% c(305, 306, 314, 322) ~ "WT_CONTROL_NO_UNCERT",
      ID %in% c(307,316, 319) ~ "OREXIN_CRE_CONTROL_NO_UNCERT"
-   )) %>%
-   filter(ID %in% c(297, 305, 306, 307, 314, 316, 321,325)) #only calorimetry guys
+   )) 
 
 BW_data_1 <- BW_data %>% 
       group_by(ID) %>% 
@@ -39,7 +38,7 @@ n_distinct(BW_data$ID) #here we know there is 14 animals
   
 # Subset rows where COMMENTS == "FIRST_DAY_JUST_FED3_BASELINE"
 highlight_data <- BW_data %>%
-  filter(COMMENTS == "FIRST_DAY_JUST_FED3_BASELINE")
+  filter(COMMENTS == "DAY_1_SABLE")
 
 plot <- BW_data_1 %>% 
   ggplot(aes(DATE, body_lag, group = ID, color = SEX)) +
