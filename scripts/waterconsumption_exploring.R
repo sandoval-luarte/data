@@ -21,7 +21,7 @@ format.plot <- theme_pubr() +
         axis.title = element_text(family = "Helvetica", size = 14))
 
 #orexin-cre mice####
-##body weight####
+##water intake####
 water <- read_csv("../data/WATER_CONSUMPTION.csv") %>% 
   filter(AIM=="UNCERTAINTY") %>% 
   mutate(WATER_GR = (WATER_START_G - WATER_END_G)) %>% 
@@ -39,21 +39,6 @@ water %>%
   group_by(GROUP) %>% 
   summarise(mean = mean(WATER_GR, na.rm = TRUE)) 
 
-#one way anova 
-# Check normality by group (Shapiro-Wilk test)
-water %>%
-  group_by(GROUP) %>%
-  summarise(p_value = shapiro.test(WATER_GR)$p.value) #all data normally distributed 
-# Check equal variances (Levene’s Test)
-leveneTest(WATER_GR ~ GROUP, data = water) #p = 0.6 
-#one way anoca
-anova_result <- aov(WATER_GR ~ GROUP, data = water)
-summary(anova_result)
-
-emmeans_result <- emmeans(anova_result, pairwise ~ GROUP)
-summary(emmeans_result)
-
-
 plot <- water  %>%
   ggplot(aes(GROUP, WATER_GR, group = ID)) +
   geom_point() +
@@ -62,9 +47,24 @@ plot <- water  %>%
   geom_text(aes(label = ID), vjust = -0.5, size = 2.5, alpha = 0.6) + #ID label
   labs(
     x = "group",
-    y = "Water intake (grams)/2 days")+
+    y = "Water intake (g)/2 days")+
   format.plot+
   theme(
     axis.text.x = element_text(angle = 45, hjust = 1, size = 10))
  plot
+ 
+ ##one way anova ####
+ # Check normality by group (Shapiro-Wilk test)
+ water %>%
+   group_by(GROUP) %>%
+   summarise(p_value = shapiro.test(WATER_GR)$p.value) #all data normally distributed 
+ # Check equal variances (Levene’s Test)
+ leveneTest(WATER_GR ~ GROUP, data = water) #p = 0.6 
+ #one way anoca
+ anova_result <- aov(WATER_GR ~ GROUP, data = water)
+ summary(anova_result)
+ 
+ emmeans_result <- emmeans(anova_result, pairwise ~ GROUP)
+ summary(emmeans_result)
+ 
  

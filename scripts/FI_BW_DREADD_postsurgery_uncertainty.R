@@ -59,10 +59,11 @@ plot <- BW_data_1 %>%
   ggplot(aes(DATE, BW, group = ID, color = STRAIN)) +
   geom_point() +
   geom_line() +
-  facet_wrap(~ID) +
+  stat_summary(aes(group = ID), fun = "mean")+
   geom_vline(data = highlight_data, 
              aes(xintercept = as.numeric(DATE)), 
-             linetype = "dashed", color = "red", alpha = 0.7)
+             linetype = "dashed", color = "red", alpha = 0.7)+
+  scale_y_continuous(lim = c(0,50))
 plot
 
 #echoMRI data####
