@@ -1,4 +1,4 @@
-# We aim to test the rate of change of FI over 12 weeks of LFD in NZO mice
+# We aim to test the changes in body comp in NZO mice after 12 weeks of LFD
 
 #Libraries####
 library(dplyr) #to open a RDS and use pipe
@@ -7,9 +7,7 @@ library(ggplot2)
 library(readr)
 library(tidyverse)
 library(lme4)  # For mixed-effects models
-
-#format plot
-scaleFill <- scale_fill_manual(values = c("#C03830FF", "#317EC2FF"))
+library(ggpubr)  
 
 format.plot <- theme_pubr() +
   theme(strip.background = element_blank(), 
@@ -19,99 +17,25 @@ format.plot <- theme_pubr() +
         legend.position = "none",
         axis.text = element_text(family = "Helvetica", size = 13),
         axis.title = element_text(family = "Helvetica", size = 14))
+#echoMRI data import####
 
-
-fi_data <- read_csv("../data/FI.csv") %>% 
-  filter(COHORT %in% c(3, 4, 5)) %>% 
-  filter(ID != 3715) %>% 
-  group_by(ID) %>%
-  drop_na(corrected_intake_kcal) %>% 
-  select(ID,DATE,corrected_intake_kcal) %>% 
-  mutate(
-    ID = as.factor(ID),
-    time = as.numeric(DATE - min(DATE))
-  ) %>% 
-  filter(corrected_intake_kcal < 50) %>% #Eliminate weird data that is probably typing mistake
-  mutate(cumsum_kcal= cumsum(corrected_intake_kcal),
-         day_rel = DATE - first(DATE)) %>% 
-  mutate(relative_weeks = as.integer(day_rel / 7) + 1) %>% 
-  filter(relative_weeks <=13)
-
-# Custom function for mean ± SEM
-mean_se <- function(x) {
-  se <- sd(x) / sqrt(length(x))
-  return(c(y = mean(x), ymin = mean(x) - se, ymax = mean(x) + se))
-}
-
-plot_1 <- fi_data %>%
-  ggplot(aes(x = relative_weeks, y = cumsum_kcal)) +
-  geom_point(aes(group = ID), alpha = 0.1) +             # individual points
-  geom_line(aes(group = ID), alpha = 0.1) +              # individual lines
-  stat_summary(fun.data = mean_se, 
-               geom = "ribbon", fill = "grey70", color = NA, 
-               aes(group = 1), alpha = 0.7) +
-  stat_summary(fun = mean, 
-               geom = "line", color = "black", 
-               aes(group = 1)) +
-  labs(
-    x = "Weeks",
-    y = "cumulative intake in kcal"
-  ) +
-  format.plot +
- scale_y_continuous(limits = c(0, 800)) +
- scale_x_continuous(breaks = seq(3, 12, by = 3)) 
-plot_1 
-
-
-# #Backup####
-# fi_data <- read_csv("../data/FI.csv") %>% 
-# filter(COHORT %in% c(3, 4, 5)) %>% 
-#   filter(ID != 3715) %>% 
-#   group_by(ID) %>%
-#   mutate(start_date = ifelse(COMMENTS == "DAY_7_SABLE_DAY_1_LFD", DATE, NA)) %>%
-#   fill(start_date, .direction = "down") %>%  # Propagate the date down within each ID group
-#   filter(DATE >= start_date) %>%
-#   select(-start_date) %>%  # Remove the helper column
-#   drop_na(corrected_intake_kcal) %>% 
-#   select(ID,DATE,corrected_intake_kcal) %>% 
-#   filter(is.finite(corrected_intake_kcal)) %>%  #to eliminate inf values 
-#   mutate(
-#     ID = as.factor(ID),
-#     time = as.numeric(DATE - min(DATE))
-#   ) %>% 
-#   filter(DATE < "2025-02-24") %>%  #ELIMINATE RESTRICTION PERIOD FROM THE ANALYSIS
-#   filter(corrected_intake_kcal < 50) %>% #Eliminate weird data that is probably typing mistake
-#   mutate(cumsum_kcal= cumsum(corrected_intake_kcal)) %>% 
-#   mutate(
-#     time = scale(time) # this is for model convergence
-#   ) %>% 
-#   ungroup() %>% 
-#   pivot_longer(cols="cumsum_kcal") %>% 
-#   select(
-#     ID, time, name, value
-#   ) 
-# # Fit a linear mixed model: cumulative intake ~ time with random effect for ID
-# model <- lmer(value ~ time + (1 | ID), data = fi_data)
-# # Summary of the model
-# summary(model)
-# 
-# #The model estimated the rate of food intake as 156.99 kcal/day across all animals. 
-# #Given that we analyzed 23 animals, this corresponds to an average increase of 6.82 kcal/day per mouse (SE = 0.76, t = 205.9).
-# 
-
-#echoMRI data####
 echoMRI_data <-read_csv("~/Documents/GitHub/data/data/echomri.csv") #data import
 
 echoMRI_data <- echoMRI_data %>% 
   filter(COHORT %in% c(3, 4, 5)) %>% 
+ filter(Date <= "2025-02-2024") %>% #DAY 1 OF RESTRICTION 
   filter(ID != 3715) %>% 
   arrange(Date) %>% 
   select(ID,Date,Fat,Lean,Weight,n_measurement,adiposity_index) %>% 
+  group_by(ID) %>% 
   mutate(day_rel = n_measurement - first(n_measurement),
          date_rel = Date - first(Date),
          adiposity_index_rel = 100 * (adiposity_index - first(adiposity_index)) / first(adiposity_index),
          fat_rel = 100 * (Fat - first(Fat)) / first(Fat),
-         lean_rel = 100 * (Lean - first(Lean)) / first(Lean)) 
+         lean_rel = 100 * (Lean - first(Lean)) / first(Lean),
+         GROUP = case_when(
+           ID %in% c(3706, 3707, 3709, 3711, 3712, 3713, 3717, 3716, 3719, 3718, 3726) ~ "ad lib",
+           ID %in% c(3708, 3714, 3720, 3721, 3710, 3722, 3723, 3724, 3725, 3727, 3728, 3729) ~ "restricted")) 
 
 ###adiposity index####
 
@@ -124,30 +48,64 @@ adiposity_summary <- echoMRI_data %>%
   )
 
 plot_1 <- echoMRI_data %>%
+  ggplot(aes(x = day_rel*3, y = adiposity_index)) +
+  geom_point(aes(group = ID), alpha = 0.1) +
+  geom_line(aes(group = ID), alpha = 0.1) +
+  geom_ribbon(data = adiposity_summary, 
+              mapping = aes(x = day_rel*3, ymin = mean_adiposity - sem_adiposity, ymax = mean_adiposity + sem_adiposity), 
+              inherit.aes = FALSE, fill = "gray70", alpha = 0.6) +
+  geom_line(data = adiposity_summary, 
+           mapping = aes(x = day_rel*3, y = mean_adiposity), 
+            color = "black", size = 1.2) +
+  labs(
+    x = "Weeks",
+    y = "Adiposity Index"
+  )+
+  format.plot
+
+plot_1
+
+first_last_measurements <- echoMRI_data %>%
+  arrange(ID, day_rel) %>%
+  group_by(ID) %>%
+  filter(row_number() == 1 | row_number() == n()) %>%
+  ungroup()
+
+first_last_measurements <- first_last_measurements %>%
+  mutate(day_rel = ifelse(day_rel == 4, 3, day_rel))
+
+# Calculate mean and SEM
+adiposity_summary <- first_last_measurements%>%
+  group_by(day_rel) %>%
+  summarise(
+    n = n(),  # number of observations
+    mean_adiposity = mean(adiposity_index, na.rm = TRUE),
+    sem_adiposity = sd(adiposity_index, na.rm = TRUE) / sqrt(n())
+  )
+
+plot_2 <- first_last_measurements %>%
   ggplot(aes(x = day_rel, y = adiposity_index)) +
   geom_point(aes(group = ID), alpha = 0.1) +
   geom_line(aes(group = ID), alpha = 0.1) +
   geom_ribbon(data = adiposity_summary, 
-              mapping = aes(x = day_rel, ymin = mean_adiposity - sem_adiposity, ymax = mean_adiposity + sem_adiposity), 
+              aes(x = day_rel, ymin = mean_adiposity - sem_adiposity, ymax = mean_adiposity + sem_adiposity), 
               inherit.aes = FALSE, fill = "gray70", alpha = 0.6) +
   geom_line(data = adiposity_summary, 
-            mapping = aes(x = day_rel, y = mean_adiposity), 
+            aes(x = day_rel, y = mean_adiposity), 
             color = "black", size = 1.2) +
-  labs(
-    x = "measurement",
-    y = "Adiposity Index"
+  scale_x_continuous(
+    breaks = c(0, 3), 
+    labels = c("0", "12")
   ) +
-  format.plot +
-#  scale_x_continuous(breaks = seq(0, 12, by = 2.4)) +
-  geom_text(data = echoMRI_data,
-            aes(label = ID), 
-            hjust = -0.2, vjust = 0.5, 
-           size = 3, show.legend = FALSE) 
-  
+  labs(
+    x = "Weeks",
+    y = "Adiposity Index")+
+      format.plot
+   
+plot_2
 
-plot_1
 
-###Lean mass####
+###Lean amass####
 
 # Calculate mean and SEM
 lean_summary <- echoMRI_data %>%
@@ -157,62 +115,60 @@ lean_summary <- echoMRI_data %>%
     sem_lean = sd(Lean, na.rm = TRUE) / sqrt(n())
   )
 
-# Plot with mean and SEM
-plot_2 <- echoMRI_data %>%
+plot_3 <- echoMRI_data %>%
+  ggplot(aes(x = day_rel*3, y = Lean)) +
+  geom_point(aes(group = ID), alpha = 0.1) +
+  geom_line(aes(group = ID), alpha = 0.1) +
+  geom_ribbon(data = lean_summary, 
+              mapping = aes(x = day_rel*3, ymin = mean_lean - sem_lean, ymax = mean_lean + sem_lean), 
+              inherit.aes = FALSE, fill = "gray70", alpha = 0.6) +
+  geom_line(data = lean_summary, 
+            mapping = aes(x = day_rel*3, y = mean_lean), 
+            color = "black", size = 1.2) +
+  labs(
+    x = "Weeks",
+    y = "Lean mass (g)"
+  )+
+  format.plot
+
+plot_3
+
+# Calculate mean and SEM
+lean_summary <- first_last_measurements%>%
+  group_by(day_rel) %>%
+  summarise(
+    n = n(),  # number of observations
+    mean_lean = mean(Lean, na.rm = TRUE),
+    sem_lean = sd(Lean, na.rm = TRUE) / sqrt(n())
+  )
+
+plot_4 <- first_last_measurements %>%
   ggplot(aes(x = day_rel, y = Lean)) +
   geom_point(aes(group = ID), alpha = 0.1) +
   geom_line(aes(group = ID), alpha = 0.1) +
   geom_ribbon(data = lean_summary, 
-              mapping = aes(x = day_rel, ymin = mean_lean - sem_lean, ymax = mean_lean + sem_lean), 
+              aes(x = day_rel, ymin = mean_lean - sem_lean, ymax = mean_lean + sem_lean), 
               inherit.aes = FALSE, fill = "gray70", alpha = 0.6) +
   geom_line(data = lean_summary, 
-            mapping = aes(x = day_rel, y = mean_lean), 
+            aes(x = day_rel, y = mean_lean), 
             color = "black", size = 1.2) +
-  labs(
-    x = "measurement",
-    y = "Lean mass (g)"
+  scale_x_continuous(
+    breaks = c(0, 3), 
+    labels = c("0", "12")
   ) +
-  format.plot# +
-#  scale_x_continuous(breaks = seq(0, 12, by = 2.4)) +
-# geom_text(data = echoMRI_data,
-# aes(label = ID), 
-# hjust = -0.2, vjust = 0.5, 
-# size = 3, show.legend = FALSE) 
-
-plot_2
-
-###Fat mass####
-
-# Calculate mean and SEM
-fat_summary <- echoMRI_data %>%
-  group_by(day_rel) %>%
-  summarise(
-    mean_fat = mean(Fat, na.rm = TRUE),
-    sem_fat = sd(Fat, na.rm = TRUE) / sqrt(n())
-  )
-
-# Plot with mean and SEM
-plot_3 <- echoMRI_data %>%
-  ggplot(aes(x = day_rel, y = Fat)) +
-  geom_point(aes(group = ID), alpha = 0.1) +
-  geom_line(aes(group = ID), alpha = 0.1) +
-  geom_ribbon(data = fat_summary, 
-              mapping = aes(x = day_rel, ymin = mean_fat - sem_fat, ymax = mean_fat + sem_fat), 
-              inherit.aes = FALSE, fill = "gray70", alpha = 0.6) +
-  geom_line(data = fat_summary, 
-            mapping = aes(x = day_rel, y = mean_fat), 
-            color = "black", size = 1.2) +
   labs(
-    x = "measurement",
-    y = "Fat mass (g)"
-  ) +
-  format.plot# +
-#  scale_x_continuous(breaks = seq(0, 12, by = 2.4)) +
-# geom_text(data = echoMRI_data,
-# aes(label = ID), 
-# hjust = -0.2, vjust = 0.5, 
-# size = 3, show.legend = FALSE) 
+    x = "Weeks",
+    y = "Lean mass (g)")+
+  format.plot
 
-plot_3
+plot_4
+
+# Create an arranged plot
+ggarrange(plot_1, plot_2, plot_3, plot_4, 
+          nrow = 1, 
+          ncol = 2,
+          align = "hv", 
+          widths = c(0.7, 0.3),  # Increase width of panel A, decrease B
+          labels = c("A", "B","C", "D"))
 
 
