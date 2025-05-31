@@ -23,10 +23,12 @@ format.plot <- theme_pubr() +
 #orexin-cre mice####
 ##water intake####
 water <- read_csv("../data/WATER_CONSUMPTION.csv") %>% 
+  mutate(DATE = lubridate::mdy(DATE)) %>% 
   filter(AIM=="UNCERTAINTY") %>% 
+  group_by(ID) %>% 
   mutate(WATER_GR = (WATER_START_G - WATER_END_G)) %>% 
-  #mutate(delta_measurement = DATE - lag(DATE)),
-         # corrected_waterintake_gr = WATER_GR / as.numeric(delta_measurement)) #DAILY WATER INTAKE
+  mutate(delta_measurement = (DATE - lag(DATE)),
+          corrected_waterintake_gr = (WATER_GR / as.numeric(delta_measurement))) %>% #DAILY WATER INTAKE
     mutate(GROUP = case_when(
     ID %in% c(321, 323, 325) ~ "OREXIN_CRE_CONTROL_UNCERT",
     ID %in% c(297, 313, 318, 320) ~ "OREXIN_CRE_DREADD_UNCERT",
@@ -37,17 +39,17 @@ n_distinct(water$ID) #here we know there is 14 animals
 
 water %>%
   group_by(GROUP) %>% 
-  summarise(mean = mean(WATER_GR, na.rm = TRUE)) 
+  summarise(mean = mean( corrected_waterintake_gr, na.rm = TRUE)) 
 
 plot <- water  %>%
-  ggplot(aes(GROUP, WATER_GR, group = ID)) +
+  ggplot(aes(GROUP,  corrected_waterintake_gr, group = ID)) +
   geom_point() +
   geom_line() +
    geom_smooth()+
   geom_text(aes(label = ID), vjust = -0.5, size = 2.5, alpha = 0.6) + #ID label
   labs(
     x = "group",
-    y = "Water intake (g)/2 days")+
+    y = "Daily Water intake (g)")+
   format.plot+
   theme(
     axis.text.x = element_text(angle = 45, hjust = 1, size = 10))
