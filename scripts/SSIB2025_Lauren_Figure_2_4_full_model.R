@@ -2,7 +2,10 @@ pacman::p_load(
     tidyverse,
     ggplot2,
     lmtest,
-    caret
+    caret,
+    ggpubr,
+    latex2exp,
+    patchwork
 )
 
 # change the directory to source file location
@@ -203,3 +206,96 @@ best_mdl_emm <- emmeans::emmeans(
 )
 best_mdl_emm
 
+
+colorblind_m <- c("#0072B2", "#D55E00", "#009E73", "#CC79A7", "#56B4E9", "#E69F00", "#F0E442")
+
+#starting body weight ----
+
+p1 <- dat %>% 
+  ggplot(aes(x=starting_bw) )+ 
+  geom_density(fill=colorblind_m[1])+
+  theme_pubr()
+p1
+
+#starting food intake ----
+p2<- dat %>% 
+  ggplot(aes(x=starting_fi) )+ 
+  geom_density(fill=colorblind_m[2])+
+  theme_pubr()
+p2
+
+#starting adiposity index ----
+p3<- dat %>% 
+  ggplot(aes(x=starting_ai) )+ 
+  geom_density(fill=colorblind_m[3])+
+  theme_pubr()
+p3
+
+#starting fat mass ----
+p4<- dat %>% 
+  ggplot(aes(x=starting_fat) )+ 
+  geom_density(fill=colorblind_m[4])+
+  theme_pubr()
+p4
+
+#starting lean mass ----
+p5<- dat %>% 
+  ggplot(aes(x=starting_lean) )+ 
+  geom_density(fill=colorblind_m[5])+
+  theme_pubr()
+p5
+
+#time FI ----
+p6<- dat %>% 
+  ggplot(aes(x=time_fi) )+ 
+  geom_density(fill=colorblind_m[2])+
+  theme_pubr() +
+  xlab(latex2exp::TeX(r"($\beta_{food \ intake}$)"))
+p6 
+
+#time AI ----
+p7<- dat %>% 
+  ggplot(aes(x=time_ai) )+ 
+  geom_density(fill=colorblind_m[3])+
+  theme_pubr() +
+  xlab(latex2exp::TeX(r"($\beta_{adiposity \ index}$)"))
+p7 
+
+#time fat ----
+p8<- dat %>% 
+  ggplot(aes(x=time_fat) )+ 
+  geom_density(fill=colorblind_m[4])+
+  theme_pubr() +
+  xlab(latex2exp::TeX(r"($\beta_{fat}$)"))
+p8 
+
+#time lean ----
+p9<- dat %>% 
+  ggplot(aes(x=time_lean) )+ 
+  geom_density(fill=colorblind_m[5])+
+  theme_pubr() +
+  xlab(latex2exp::TeX(r"($\beta_{lean}$)"))
+p9 
+
+#time EE ----
+p10<- dat %>% 
+  ggplot(aes(x=tee_delta) )+ 
+  geom_density(fill=colorblind_m[7],adjust=5)+
+  theme_pubr() +
+  xlab(latex2exp::TeX(r"($\beta_{tee}$)"))
+p10 
+
+#arrange FIGURE 2 Lauren SSIB 2025----
+
+
+p1 <- p1 + labs(x = "Body weight (g) at baseline")
+p2 <- p2 + labs(x = "food intake (kcal) at baseline") 
+p5 <- p5 + labs(x = "Lean mass (g) at baseline") 
+p4 <- p4 + labs(x = "Fat mass (g) at baseline") 
+p3 <- p3 + labs(x = "Adiposity index at baseline") 
+
+
+col_1 <- (p1 + p10 + p2 + p6 +p5 + p9 + p4 + p8 + p3 + p7)+
+  plot_layout(ncol = 2, nrow=5) +
+  plot_annotation(tag_levels = list(c("A","B","C","D","E","F","G","H","I","J")))
+col_1 

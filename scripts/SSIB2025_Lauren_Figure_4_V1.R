@@ -32,7 +32,8 @@ sable_tee_data <- sable_dwn %>% # Load the data
     ungroup() %>% 
     group_by(ID,complete_days,SABLE,is_complete_day) %>% 
    mutate(tee = sum(value)*(1/60)) %>% 
-  filter(!ID %in% c(3715,3723), is_complete_day ==1) %>% #3715 died and something weird happend with 3723 
+  filter(!ID %in% c(3715,3723), is_complete_day ==1) %>% #3715 died and something weird happens with 3723 
+#  filter(!ID %in% c(3707,3713,3706,3709,3716,3712,3717), is_complete_day ==1) %>% # those animals has weird data
   ungroup() %>% 
     group_by(SABLE, ID) %>% 
     slice_max(order_by = complete_days, n=1)
