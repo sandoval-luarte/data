@@ -245,7 +245,6 @@ plot_locomotion
 #body weight####
 BW_data <- read_csv("../data/BW.csv") %>% 
   filter(COHORT ==2) %>% #Just C57
-  filter(SEX =="F") %>% #Just C57
   group_by(ID) %>% 
   arrange(DATE) %>% 
   mutate(bw_rel = 100 * (BW - first(BW)) / first(BW),
@@ -264,13 +263,12 @@ plot <- BW_data %>% # just raw BW over dates
   ggplot(aes(day_rel, bw_rel, group = ID)) +
   geom_point() +
   geom_line() +
-  facet_wrap(~GROUP*DIET_FORMULA) +
+  facet_wrap(~GROUP*DIET_FORMULA*SEX) +
   geom_smooth()+
   geom_text(aes(label = ID), vjust = -0.5, size = 2.5, alpha = 0.6) + #ID label
   labs(
     x = "Relative day",
-    y = " % BW gain")+
-  format.plot
+    y = " % BW gain")
 
 plot
 
@@ -291,8 +289,7 @@ plot <- BW_data %>%
   # Highlight using vertical lines
   geom_vline(data = highlight_data, 
              aes(xintercept = as.numeric(DATE)), 
-             linetype = "dashed", color = "red", alpha = 0.7)+
-  format.plot
+             linetype = "dashed", color = "red", alpha = 0.7)
 
 plot
 
@@ -344,27 +341,31 @@ plot
 echoMRI_data <-read_csv("~/Documents/GitHub/data/data/echomri.csv") #data import
 
 echoMRI_data <- echoMRI_data %>% 
-  filter(COHORT > 2 & COHORT < 6) %>% #Just NZO females
+  filter(COHORT ==2) %>% #Just c57
   group_by(ID) %>% 
   arrange(Date) %>% 
-  filter(!ID %in% c(3712, 3715)) %>% #died during study 
   mutate(GROUP = case_when(
-    ID %in% c(3706, 3707, 3709, 3711, 3712, 3713, 3717, 3716, 3719, 3718, 3726) ~ "ad lib",
-    ID %in% c(3708, 3714, 3720, 3721, 3710, 3722, 3723, 3724, 3725, 3727, 3728, 3729) ~ "restricted"))%>% 
+    ID %in% c(7876, 7873, 7875, 7864, 7862, 7867, 7869, 7870, 7871,
+              7879, 7860, 7880, 7881, 7882, 7883, 7868) ~ "ad lib",
+    ID %in% c(7872, 7874, 7878, 7865, 7861, 7863, 7877, 7866) ~ "restricted")) %>% 
   select(ID,Date,Fat,Lean,Weight,n_measurement,adiposity_index,GROUP) %>% 
   mutate(day_rel = Date - first(Date),
          adiposity_index_rel = 100 * (adiposity_index - first(adiposity_index)) / first(adiposity_index),
          fat_rel = 100 * (Fat - first(Fat)) / first(Fat),
          lean_rel = 100 * (Lean - first(Lean)) / first(Lean)) %>% 
-  filter(day_rel <= 100) 
+  left_join(BW_data %>% select(ID, DIET_FORMULA,SEX), by = "ID") %>% 
+  group_by(ID, day_rel) %>% 
+  slice(1) 
 
 ###adiposity index####
 plot_echo <- echoMRI_data %>%
-  #filter(Date <= "2025-03-10") %>% # just raw BW over dates
+  filter(GROUP == "restricted") 
+
+plot_echo <- plot_echo %>%  
   ggplot(aes(day_rel, adiposity_index, group = ID)) +
   geom_line() +
-#  facet_wrap(~GROUP) +
-  geom_text(data = echoMRI_data,
+  facet_wrap(~SEX) +
+  geom_text(data = plot_echo,
             aes(label = ID), 
             hjust = -0.2, vjust = 0.5, 
             size = 3, show.legend = FALSE)
@@ -374,7 +375,7 @@ plot_echo
 plot_echo <- echoMRI_data %>% #Fat mass
   ggplot(aes(day_rel, Fat, group = ID)) +
   geom_line() +
-  facet_wrap(~GROUP) +
+  facet_wrap(~GROUP*DIET_FORMULA*SEX) +
   geom_text(data = echoMRI_data,
             aes(label = ID), 
             hjust = -0.2, vjust = 0.5, 
@@ -393,10 +394,10 @@ plot_echo <- echoMRI_data %>% #Lean mass
 plot_echo #Interesting, ad lib guys still build muscle. It seem's like restricted ones just mantain muscle mass
 
 ### % change adiposity index####
-plot_echo <- echoMRI_data %>% #Lean mass
+plot_echo <- echoMRI_data %>% 
   ggplot(aes(day_rel, adiposity_index_rel, group = ID)) +
   geom_line() +
-  facet_wrap(~GROUP) +
+  facet_wrap(~GROUP*DIET_FORMULA*SEX) +
   geom_text(data = echoMRI_data,
             aes(label = ID), 
             hjust = -0.2, vjust = 0.5, 

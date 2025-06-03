@@ -176,6 +176,24 @@ results <- resamples(list(null_model=mdl_0_cv,
                           tee_delta=mdl_13_cv
                           ))
 dotplot(results)
+
+results_option1 <- resamples(list("Null model"=mdl_0_cv,
+                                  "Baseline values"=mdl_1_cv,
+                                  "ROCV"=mdl_2_cv,
+                                  "Full model"=mdl_3_cv,
+                                  "Baseline BW"=mdl_4_cv,
+                                  "Baseline FI"=mdl_5_cv,
+                                  "Baseline AI"=mdl_6_cv,
+                                  "Baseline fat"=mdl_7_cv,
+                                  "Baseline lean"=mdl_8_cv,
+                                  "Δ FI"=mdl_9_cv,
+                                  "Δ AI"=mdl_10_cv,
+                                  "Δ fat"=mdl_11_cv,
+                                  "Δ lean"=mdl_12_cv,
+                                  "ΔTEE"=mdl_13_cv
+))
+dotplot(results_option1)
+
 # compare best model
 timecourse_model <- mdl_2_cv$finalModel
 null_model <- mdl_0_cv$finalModel
