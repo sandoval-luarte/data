@@ -1,7 +1,6 @@
-# This script aims to explore changes in body weight, food intake,
-# body composition and locomotion in middle age NZO female mice after 
-# different stages of feeding:1: Basal, 2: peak obesity, 3: Acute body 
-#weight loss 4: BW maintenance
+# This script aims to explore changes in body weight, food intake and body comp
+# in middle age NZO and C57 after different stages of feeding:
+#1: Basal, 2: peak obesity, 3: Acute body, weight loss 4: BW maintenance
 #libraries
 library(dplyr) #to use pipe
 library(ggplot2) #to graph
@@ -49,10 +48,9 @@ plot <- BW_data %>%
   geom_text(aes(label = ID), vjust = -0.5, size = 2.5, alpha = 0.6) + #ID label
   labs(
     x = "day_rel",
-    y = "BW (grams)")+
-  format.plot
+    y = "BW (grams)")
 
- plot
+plot
  
  # Subset rows to identify when sable measurements occurs 
  highlight_data <- BW_data %>%
@@ -71,13 +69,11 @@ plot <- BW_data %>%
    # Highlight using vertical lines
    geom_vline(data = highlight_data, 
               aes(xintercept = as.numeric(DATE)), 
-              linetype = "dashed", color = "red", alpha = 0.7)+
-   format.plot
+              linetype = "dashed", color = "red", alpha = 0.7)
  
  plot
  
  plot <- BW_data %>%
-   filter(DATE <= 2025-24-03) %>% #weight change over relative days 
    ggplot(aes(DATE, bw_rel, group = ID)) +
    geom_point() +
    geom_line() +
@@ -86,8 +82,7 @@ plot <- BW_data %>%
    geom_text(aes(label = ID), vjust = -0.5, size = 2.5, alpha = 0.6) + #ID label
    labs(
      x = "Relative day",
-     y = "% BW gain")+
-   format.plot
+     y = "% BW gain")
  plot
 
 #food intake kcal ####

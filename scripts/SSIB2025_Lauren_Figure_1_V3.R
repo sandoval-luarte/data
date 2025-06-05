@@ -201,7 +201,7 @@ sable_tee_data <- sable_dwn %>% # Load the data
   mutate(tee = sum(value)*(1/60)) %>% 
   filter(!ID == 3715, is_complete_day ==1) %>% #3715 died and something weird happend with 3723 
   # filter(!ID %in% c(3715,3723), is_complete_day ==1) %>% #3715 died and something weird happend with 3723 
-  #  filter(!ID %in% c(3707,3713,3706,3709,3716,3712,3717), is_complete_day ==1) %>% # those animals has weird data
+   # filter(!ID %in% c(3706,3707,3709,3712,3713, 3716,3717), is_complete_day ==1) %>% # those animals has weird data
   ungroup() %>% 
   group_by(SABLE, ID) %>% 
   slice_max(order_by = complete_days, n=1)
@@ -221,6 +221,7 @@ emmeans(
 # Create the plot tee 
 # Add ID labels to the lowest TEE values
 plot_5 <- sable_tee_data %>%
+  
   mutate(SABLE = factor(SABLE, levels = c("Before", "After"), labels = c("0", "12"))) %>%
   ggplot(aes(SABLE, tee)) +
   geom_point(aes(group = ID), color = "gray", alpha = 0.3)+
