@@ -200,7 +200,7 @@ sable_tee_data <- sable_dwn %>% # Load the data
   group_by(ID,complete_days,SABLE,is_complete_day) %>% 
   mutate(tee = sum(value)*(1/60)) %>% 
   filter(!ID == 3715, is_complete_day ==1) %>% #3715 died and something weird happend with 3723 
-  # filter(!ID %in% c(3715,3723), is_complete_day ==1) %>% #3715 died and something weird happend with 3723 
+   filter(!ID %in% c(3715,3723), is_complete_day ==1) %>% #3715 died and something weird happend with 3723 
    # filter(!ID %in% c(3706,3707,3709,3712,3713, 3716,3717), is_complete_day ==1) %>% # those animals has weird data
   ungroup() %>% 
   group_by(SABLE, ID) %>% 
@@ -258,7 +258,9 @@ FI_data <- FI_data %>%
          GROUP = case_when(
            ID %in% c(3706, 3707, 3709, 3711, 3712, 3713, 3717, 3716, 3719, 3718, 3726) ~ "ad lib",
            ID %in% c(3708, 3714, 3720, 3721, 3710, 3722, 3723, 3724, 3725, 3727, 3728, 3729) ~ "restricted")) %>% 
-  mutate(relative_weeks = as.integer(DATE_rel / 7) + 1) 
+  mutate(relative_weeks = as.integer(DATE_rel / 7) + 1) %>% 
+  filter(relative_weeks < 14) 
+  
 
 # Filter data to even-numbered weeks only
 FI_data_even <- FI_data %>%
@@ -279,7 +281,7 @@ plot_6 <- ggplot(FI_data_even, aes(x = as.factor(relative_weeks), y = cumulative
 plot_6
 
 # Create an arranged plot
-ggarrange(plot_1, plot_6,plot_5, plot_4,plot_2, plot_3,
+ggarrange(plot_1, plot_5,plot_6, plot_4,plot_3, plot_2,
           nrow = 2, ncol=3,
           align = "hv", 
           labels = c("A", "B","C", "D", "E", "F"))
