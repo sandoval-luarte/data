@@ -94,8 +94,8 @@ plot_echo <- NZO_injections %>%
   ggplot(aes(INJECTION, adiposity_index, group = ID)) +
   geom_point() +
   geom_line() +
-  facet_wrap(~GROUP) #+
-#   geom_text(aes(label = ID), vjust = -0.5, size = 2.5, alpha = 0.6)  #ID label
+  facet_wrap(~GROUP) +
+   geom_text(aes(label = ID), vjust = -0.5, size = 2.5, alpha = 0.6)  #ID label
   
 plot_echo
 
@@ -107,5 +107,5 @@ plot_inject <- echoMRI_data %>%
   facet_wrap(~GROUP*SEX) +
   geom_text(aes(label = ID), vjust = -0.5, size = 2.5, alpha = 0.6)  #ID label
 
-plot_echo
+plot_inject
 
