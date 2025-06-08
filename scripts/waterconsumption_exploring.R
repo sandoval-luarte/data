@@ -37,23 +37,34 @@ water <- read_csv("../data/WATER_CONSUMPTION.csv") %>%
   ))
 n_distinct(water$ID) #here we know there is 14 animals
 
-water %>%
-  group_by(GROUP) %>% 
-  summarise(mean = mean( corrected_waterintake_gr, na.rm = TRUE)) 
+# Calculate mean water intake per date and group
+mean_intake <- water %>%
+  group_by(DATE, GROUP) %>%
+  summarise(mean_water = mean(corrected_waterintake_gr, na.rm = TRUE), .groups = "drop") %>% 
+  drop_na()
 
-plot <- water  %>%
-  ggplot(aes(GROUP,  corrected_waterintake_gr, group = ID)) +
-  geom_point() +
-  geom_line() +
-   geom_smooth()+
-  geom_text(aes(label = ID), vjust = -0.5, size = 2.5, alpha = 0.6) + #ID label
+# Plot
+plot <- ggplot(water, aes(x = DATE, y = corrected_waterintake_gr, group = ID)) +
+  geom_line(aes(color = ID), alpha = 0.4) +  # Individual lines
+  geom_point(aes(color = ID), size = 1.5, alpha = 0.6) +  # Individual points
+  geom_text(aes(label = ID), vjust = -0.5, size = 2.5, alpha = 0.5) +  # ID labels
+  geom_line(data = mean_intake, aes(x = DATE, y = mean_water), 
+            color = "black", size = 1.2, inherit.aes = FALSE) +  # Mean line
   labs(
-    x = "group",
-    y = "Daily Water intake (g)")+
-  format.plot+
+    x = "Date",
+    y = "Daily Water Intake (g)",
+  ) +
+  theme_pubr() +
   theme(
-    axis.text.x = element_text(angle = 45, hjust = 1, size = 10))
- plot
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 10),
+    axis.text = element_text(family = "Helvetica", size = 13),
+    axis.title = element_text(family = "Helvetica", size = 14),
+    legend.position = "none"
+  ) +
+  facet_wrap(~GROUP)
+
+plot
+
  
  ##one way anova ####
  # Check normality by group (Shapiro-Wilk test)
