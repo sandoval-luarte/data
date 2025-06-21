@@ -49,11 +49,7 @@ BW_data_1 <- BW_data %>%
 n_distinct(BW_data$ID) #here we know there is 14 animals
   
 highlight_data <- BW_data %>%
- filter(COMMENTS %in% c("BILATERAL_INH_DREADD_INJECTION_SURGERY", #surgery day
-                        "BILATERAL_CONTROL_DREADD_INJECTION_SURGERY", #surgery day
-                        "DAY_1_JUST_FED3_BASELINE", #feeding just with the FED3
-                        "DAY_1_SABLE_DAY_1_CERTAINTY", #indirect calorimetry measurement
-                        "DAY_1_SABLE_DAY_1_UNCERTAINTY")) #indirect calorimetry measurement
+ filter(COMMENTS %in% c("DAY_1_CNO")) #indirect calorimetry measurement
 
 plot <- BW_data_1 %>% 
   ggplot(aes(DATE, BW, group = ID, color = STRAIN)) +
@@ -63,7 +59,8 @@ plot <- BW_data_1 %>%
   geom_vline(data = highlight_data, 
              aes(xintercept = as.numeric(DATE)), 
              linetype = "dashed", color = "red", alpha = 0.7)+
-  scale_y_continuous(lim = c(0,50))
+  scale_y_continuous(lim = c(0,50))+
+  facet_wrap(~ID)
 plot
 
 #echoMRI data####
@@ -152,3 +149,4 @@ print(anova_result) #no diff among groups
 #Osea a todos los animales las cirugias y los FEDs les pegan = (body comp)
 
 #Should we re run the sables after 1 month of uncertainty from day 1 with CNO?
+
