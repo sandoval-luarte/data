@@ -23,52 +23,28 @@ format.plot <- theme_pubr() +
         axis.title = element_text(family = "Helvetica", size = 14))
 
 ##Body weight ####
-BW_data <- read_csv("../data/BW.csv") %>% 
-  filter(COHORT > 2 & COHORT < 6) %>% #Just NZO females
-  filter(!ID== 3715) %>% #died during study
-  group_by(ID) %>% 
-  arrange(DATE) %>% 
-  mutate(day_rel = DATE - first(DATE)) %>% 
-  filter(day_rel < 100) %>% 
-  filter(day_rel %in% c(0, 98))
+BW_data <- read_csv("../data/BW_compilate.csv")
 
-scale_x_discrete(labels = function(x) {
-  x <- as.character(x)
-  x[x == "0"] <- "baseline"
-  x[x == "98"] <- "peak of obesity"
-  return(x)
-})
+# t test
+  t.test(BW_data$starting_bw, BW_data$ending_bw, paired = TRUE)
 
-# Reshape to wide format for easier comparison
-BW_wide <- BW_data %>%
-  select(ID, day_rel, BW) %>%
-  pivot_wider(names_from = day_rel, values_from = BW)
+  # Reshape to long format for plotting
+  BW_long <- BW_data %>%
+    pivot_longer(cols = c(starting_bw, ending_bw),
+                 names_to = "timeframe",
+                 values_to = "BW") %>% 
+    mutate(Time = factor(timeframe, levels = c("starting_bw", "ending_bw"))) 
 
-# Run paired t-test
-t.test(BW_wide$`0`, BW_wide$`98`, paired = TRUE)
-
-plot_1 <- BW_data %>%
-  ggplot(aes(x = as.factor(day_rel), y = BW)) +
-  geom_point(aes(group = ID), alpha = 0.1) +
-  geom_line(aes(group = ID), alpha = 0.1) +
-  stat_summary(fun.data = mean_se, 
-               geom = "ribbon", fill = "gray", color = NA, 
-               aes(group = 1), alpha = 0.6) +
-  stat_summary(fun = mean, 
-               geom = "line", color = "black", size = 1.2,
-               aes(group = 1)) +
-  labs(
-    x = "weeks",
-    y = "Body weight (g)"
-  ) +
-  format.plot +
-  scale_x_discrete(labels = function(x) {
-    x <- as.character(x)
-    x[x == "0"] <- "0"
-    x[x == "98"] <- "12"
-    return(x)
-  })
-plot_1
+  ggplot(BW_long, aes(x = Time, y = BW, group = ID)) +
+    geom_point(size = 3, color = "black", alpha = 0.1) +      # decrease alpha here
+    geom_line(alpha = 0.5, color = "gray40") +
+    stat_summary(aes(group = 1), fun = mean, geom = "line",       # add mean line
+                 color = "black", size = 1.2, linetype = "solid") +
+    stat_summary(aes(group = 1), fun = mean, geom = "point",      # add mean points
+                 color = "black", size = 4) +
+    labs(x = "Weeks", y = "Body weight (g)") +
+    scale_x_discrete(labels = c("starting_bw" = "0", "ending_bw" = "12")) +
+    format.plot
 
 #echoMRI data import####
 
