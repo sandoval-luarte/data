@@ -89,6 +89,36 @@ NZO_injections <-echoMRI_data %>%
               3717) ~ "rtioxa_47"))
   
 
+
+C57_injections <-echoMRI_data %>%
+  filter(STRAIN =="C57BL6/J") %>% 
+  slice_tail(n = 1) %>% 
+  mutate(INJECTION = case_when(
+    ID %in% c(7880,
+              7881,
+              7882,
+              7883,
+              7869,
+              7870,
+              7871,
+              7868,
+              7872,
+              7878,
+              7861,
+              7863,
+              7875,
+              7876,
+              7867,
+              7864)  ~ "Vehicle",
+    ID %in% c(7874,
+              7877,
+              7865,
+              7866,
+              7873,
+              7879,
+              7860,
+              7862) ~ "rtioxa_47"))
+
 ###adiposity index####
 plot_echo <- NZO_injections %>%
   ggplot(aes(INJECTION, adiposity_index, group = ID)) +
@@ -109,3 +139,49 @@ plot_inject <- echoMRI_data %>%
 
 plot_inject
 
+###adiposity index####
+plot_echo <- C57_injections %>%
+  filter(DIET_FORMULA=="D12451i") %>% 
+  ggplot(aes(INJECTION, adiposity_index, group = ID)) +
+  geom_point() +
+  geom_line() +
+  facet_wrap(~GROUP*SEX) +
+  geom_text(aes(label = ID), vjust = -0.5, size = 2.5, alpha = 0.6)  #ID label
+
+plot_echo
+
+library(dplyr)
+library(purrr)
+library(broom)
+
+# Filter relevant data
+anova_data <- C57_injections %>%
+  filter(DIET_FORMULA == "D12451i", !is.na(INJECTION))
+
+# Split data by GROUP and SEX
+split_data <- anova_data %>%
+  group_by(GROUP, SEX) %>%
+  group_split()
+
+# Create informative names for each split
+group_labels <- anova_data %>%
+  distinct(GROUP, SEX) %>%
+  mutate(label = paste(GROUP, SEX, sep = "_")) %>%
+  pull(label)
+
+# Run ANOVA on each subgroup
+anova_results <- map(split_data, ~ {
+  if (n_distinct(.x$INJECTION) > 1) {
+    # only run ANOVA if both injection groups are present
+    model <- aov(adiposity_index ~ INJECTION, data = .x)
+    broom::tidy(model)
+  } else {
+    tibble(term = NA, p.value = NA, warning = "Only one injection group present")
+  }
+})
+
+# Set names
+names(anova_results) <- group_labels
+
+# Print results
+anova_results
