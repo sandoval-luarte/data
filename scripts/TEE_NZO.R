@@ -1,4 +1,4 @@
-#we aim to evaluate the metabolic changes that occurs in NZO female before and after 10 weeks with LFD
+#we aim to evaluate the metabolic changes that occurs in NZO female before and after 12 weeks with LFD
 
 #Libraries####
 library(dplyr) #to open a RDS and use pipe
