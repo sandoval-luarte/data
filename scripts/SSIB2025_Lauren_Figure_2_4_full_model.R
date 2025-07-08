@@ -15,7 +15,8 @@ setwd(this.path::here())
 dat <- read_csv("parameter_compilate.csv") %>% 
     mutate(
         ID = as.factor(ID)
-    )
+    ) %>% 
+  drop_na()
 
 # all single variable models ----
 
@@ -52,7 +53,8 @@ p1
 # models ----
 
 dat_scaled <- dat %>% 
-    mutate(across(starting_bw:tee_delta, scale))
+    mutate(across(starting_bw:tee_delta, scale)) %>% 
+  drop_na()
 
 # starting body composition model ----
 mdl_1 <- lm(
@@ -110,7 +112,7 @@ ctrl <- trainControl(method = "repeatedcv", number=5, repeats=100)
 
 # starting values
 mdl_0_cv <- train(time_bw ~ null,
-                  data = dat_scaled %>% mutate(null=rnorm(23,0,1)), method="lm",
+                  data = dat_scaled %>% mutate(null=rnorm(22,0,1)), method="lm",
                   trControl=ctrl)
 mdl_1_cv <- train(time_bw ~ starting_bw + starting_fi + starting_ai +
                       starting_ai + starting_fat + starting_lean,
@@ -317,3 +319,4 @@ col_1 <- (p1 + p10 + p2 + p6 +p5 + p9 + p4 + p8 + p3 + p7)+
   plot_layout(ncol = 2, nrow=5) +
   plot_annotation(tag_levels = list(c("A","B","C","D","E","F","G","H","I","J")))
 col_1 
+

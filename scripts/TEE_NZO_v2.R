@@ -50,12 +50,12 @@ sable_TEE_data <- sable_dwn %>% # Load the data
     group_by(ID, complete_days) %>% 
     mutate(is_complete_day = if_else(min(zt_time)==0 & max(zt_time)==23, 1, 0)) %>% 
     ungroup() %>% 
-    group_by(ID,complete_days,SABLE,is_complete_day) %>% 
+    group_by(ID,complete_days,is_complete_day,SABLE) %>% 
    mutate(tee = sum(value)*(1/60)) %>% 
-  filter(!ID %in% c(3715), is_complete_day ==1) %>% #3715 died 
+  filter(!ID %in% c(3715), is_complete_day ==1, complete_days==2) %>% #3715 died 
   ungroup() %>% 
-    group_by(SABLE, ID) %>% 
-    slice_max(order_by = complete_days, n=1)
+    group_by(ID,SABLE) %>% 
+  filter(tee>0, SABLE %in% c("baseline", "peak obesity"))
 
 mdl_tee <- lmer(
     data = sable_TEE_data,
@@ -91,3 +91,20 @@ sable_min_plot_tee <- sable_TEE_data %>%
   labs(x = NULL, y = "24h TEE ") +
   theme_classic() 
 sable_min_plot_tee
+
+
+  plot <- sable_TEE_data %>% 
+  ggplot(aes(complete_days,tee, group=ID))+
+  geom_line()+
+  facet_wrap(~SABLE)
+plot
+
+#delta calculation TEE
+
+delta <- sable_TEE_data %>% 
+  ungroup() %>% 
+  group_by(ID,SABLE) %>% 
+  summarise(tee = mean(tee)) %>% 
+  summarise(delta_tee = tee[SABLE =="peak obesity"] - tee[SABLE =="baseline"]) 
+
+write_csv(x = delta,file = "delta_tee.csv")
