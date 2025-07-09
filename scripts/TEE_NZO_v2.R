@@ -52,10 +52,14 @@ sable_TEE_data <- sable_dwn %>% # Load the data
     ungroup() %>% 
     group_by(ID,complete_days,is_complete_day,SABLE) %>% 
    mutate(tee = sum(value)*(1/60)) %>% 
-  filter(!ID %in% c(3715), is_complete_day ==1, complete_days==2) %>% #3715 died 
+  filter(!ID %in% c(3715), is_complete_day ==1, complete_days==2) %>% #3715 died and 3723 has issues with the sable ,3723,3718,3709,3725
   ungroup() %>% 
     group_by(ID,SABLE) %>% 
-  filter(tee>0, SABLE %in% c("baseline", "peak obesity"))
+  mutate(diet_group = if_else(ID %in% c(
+    3711, 3718, 3707, 3719, 3709,
+    3726, 3712, 3716, 3713, 3717, 3706
+  ), "AD_LIB", "RESTRICTED"))
+ # filter(tee>0, SABLE %in% c("baseline", "peak obesity"))
 
 mdl_tee <- lmer(
     data = sable_TEE_data,
@@ -89,7 +93,10 @@ sable_min_plot_tee <- sable_TEE_data %>%
     fill = "red"
   ) +
   labs(x = NULL, y = "24h TEE ") +
-  theme_classic() 
+  theme_classic() +
+  geom_text(data = sable_TEE_data, 
+            aes(x = SABLE, y = tee, label = ID))
+            
 sable_min_plot_tee
 
 
