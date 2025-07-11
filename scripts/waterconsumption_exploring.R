@@ -24,7 +24,6 @@ format.plot <- theme_pubr() +
 ##water intake####
 water <- read_csv("../data/WATER_CONSUMPTION.csv") %>% 
   mutate(DATE = lubridate::mdy(DATE)) %>% 
-  filter(AIM=="UNCERTAINTY") %>% 
   group_by(ID) %>% 
   mutate(WATER_GR = (WATER_START_G - WATER_END_G)) %>% 
   mutate(delta_measurement = (DATE - lag(DATE)),
@@ -34,7 +33,8 @@ water <- read_csv("../data/WATER_CONSUMPTION.csv") %>%
     ID %in% c(297, 313, 318, 320) ~ "OREXIN_CRE_DREADD_UNCERT",
     ID %in% c(305, 306, 314, 322) ~ "WT_CONTROL_CERT",
     ID %in% c(307,316, 319) ~ "OREXIN_CRE_CONTROL_CERT"
-  ))
+  )) %>% 
+  filter( corrected_waterintake_gr < 10) #animals that drink more than 10 mL is because they had issues with the water bottle so that data was excluded
 n_distinct(water$ID) #here we know there is 14 animals
 
 # Calculate mean water intake per date and group

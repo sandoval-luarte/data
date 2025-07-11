@@ -100,12 +100,6 @@ sable_min_plot_tee <- sable_TEE_data %>%
 sable_min_plot_tee
 
 
-  plot <- sable_TEE_data %>% 
-  ggplot(aes(complete_days,tee, group=ID))+
-  geom_line()+
-  facet_wrap(~SABLE)
-plot
-
 #delta calculation TEE
 
 delta <- sable_TEE_data %>% 

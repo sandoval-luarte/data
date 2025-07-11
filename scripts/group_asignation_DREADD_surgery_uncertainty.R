@@ -16,7 +16,7 @@ echomri_data <-read_csv("~/Documents/GitHub/data/data/echomri.csv") #data import
 
 echomri_data <- echomri_data %>% 
   filter(COHORT ==11) %>% 
-  select(ID, adiposity_index,SEX,STRAIN) %>% #good so here we checked there is 27 animals in total (cohort 11)
+  select(ID, adiposity_index,SEX,STRAIN,n_measurement) %>% #good so here we checked there is 27 animals in total (cohort 11)
   filter(SEX=="M") %>% 
   filter(ID != c(298, 315)) %>%  # died in surgery
   mutate(GROUP = case_when(
@@ -28,7 +28,7 @@ echomri_data <- echomri_data %>%
   drop_na()
 # Summarize the data####
 summary_data <- echomri_data %>%
-  group_by(GROUP) %>%
+  group_by(GROUP,n_measurement) %>%
   summarise(
     mean_adiposity = mean(adiposity_index, na.rm = TRUE),
     se_adiposity = sd(adiposity_index, na.rm = TRUE) / sqrt(n()),
