@@ -56,7 +56,7 @@ echoMRI_data <-read_csv("~/Documents/GitHub/data/data/echomri.csv") #data import
 echoMRI_data <- echoMRI_data %>% 
   filter(COHORT %in% c(3, 4, 5)) %>% 
  filter(Date <= "2025-02-24") %>% #DAY 1 OF RESTRICTION 
-  filter(!ID %in% c(3715,3723)) %>% #3715 died and 3723 has issues with the sable data
+  filter(!ID %in% c(3715,3723)) %>% #3712 died due sickness, 3715 in echoMRI died and 3723 has issues with the sable data
   arrange(Date) %>% 
   select(ID,Date,Fat,Lean,Weight,n_measurement,adiposity_index) %>% 
   group_by(ID) %>% 
