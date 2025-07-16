@@ -39,7 +39,7 @@ BW_data <- read_csv("../data/BW_compilate.csv") %>%
 
  plot_1 <- plot_1 <- BW_long %>%
    ggplot(aes(x = Time, y = BW, group = ID)) +
-    geom_point(size = 3, color = "black", alpha = 0.1) +      # decrease alpha here
+    geom_point(size = 1.2, color = "black", alpha = 0.1) +      # decrease alpha here
     geom_line(alpha = 0.5, color = "gray40") +
     stat_summary(aes(group = 1), fun = mean, geom = "line",       # add mean line
                  color = "black", size = 1.2, linetype = "solid") +
@@ -249,7 +249,7 @@ sable_TEE_summary <- sable_TEE_data %>%
 plot_5 <- sable_TEE_summary %>% 
   mutate(SABLE = factor(SABLE, levels = c("baseline", "peak obesity"), labels = c("0", "12"))) %>%
   ggplot(aes(x = SABLE, y = tee, group = ID)) +
-  geom_point(size = 3, color = "black", alpha = 0.1) +      # match figure A
+  geom_point(size = 1.2, color = "black", alpha = 0.1) +      # match figure A
   geom_line(alpha = 0.5, color = "gray40") +                # match figure A
   stat_summary(aes(group = 1), fun = mean, geom = "line",
                color = "black", size = 1.2, linetype = "solid") +  # mean line
