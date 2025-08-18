@@ -238,8 +238,7 @@ plot <- BW_post_injection %>%
   facet_wrap(~GROUP*DRUG) +
   labs(
     x = "Date",
-    y = "BW (grams)")+
-  format.plot
+    y = "BW (grams)")
 plot
 
 # Step 3: Compute slope (BW ~ DATE) per ID
