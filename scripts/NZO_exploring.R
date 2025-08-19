@@ -1,12 +1,18 @@
 # This script aims to explore changes in body weight, food intake and body comp
-# in middle age NZO and C57 after different stages of feeding:
-#1: Basal, 2: peak obesity, 3: Acute body, weight loss 4: BW maintenance
+# in middle age NZO after different stages of feeding:
+#1 from baseline to peak obesity,
+#2:from peak of obesity to acute body weight loss
+#3 from acute body weight loss to body weight maintenance
+#4 from body weight maintenance to body weight gain after RTIOXA-47 injections
+
 #libraries
 library(dplyr) #to use pipe
 library(ggplot2) #to graph
-library(readr) 
+library(readr) #to read csv
 library(tidyr)  # to use drop-na()
 library(ggpubr)
+library(purrr)
+library(broom)
 
 #format plot
 scaleFill <- scale_fill_manual(values = c("#C03830FF", "#317EC2FF"))
@@ -16,7 +22,6 @@ format.plot <- theme_pubr() +
         strip.text = element_blank(),
         panel.spacing.x = unit(0.1, "lines"),          
         panel.spacing.y = unit(1.5, "lines"),  
-        legend.position = "none",
         axis.text = element_text(family = "Helvetica", size = 13),
         axis.title = element_text(family = "Helvetica", size = 14))
 
@@ -30,60 +35,137 @@ BW_data <- read_csv("../data/BW.csv") %>%
   mutate(bw_rel = 100 * (BW - first(BW)) / first(BW),
          body_lag = (lag(BW) - BW),
          GROUP = case_when(
-         ID %in% c(3706, 3707, 3709, 3711, 3712, 3713, 3717, 3716, 3719, 3718, 3726) ~ "ad lib",
-         ID %in% c(3708, 3714, 3720, 3721, 3710, 3722, 3723, 3724, 3725, 3727, 3728, 3729) ~ "restricted")) %>% 
-  group_by(ID) %>% 
-  mutate(day_rel = DATE - first(DATE))
+           ID %in% c(3706, 3707, 3709, 3711, 3712, 3713, 3717, 3716, 3719, 3718, 3726) ~ "ad lib",
+           ID %in% c(3708, 3714, 3720, 3721, 3710, 3722, 3723, 3724, 3725, 3727, 3728, 3729) ~ "restricted"),
+         DRUG = case_when(
+           ID %in% c(3706, 3707, 3709, 3711, 3713, 3714, 3720, 3724, 3725, 3727, 3728) ~ "vehicle",
+           ID %in% c(3708, 3710, 3716, 3717, 3718, 3719, 3721, 3722, 3723, 3726, 3729) ~ "RTIOXA_47"),) %>% 
+  mutate(day_rel = DATE - first(DATE)) 
 
 n_distinct(BW_data$ID) #here we know there is 22 animals
 
 
+# Subset rows to identify when sable measurements occurs 
+highlight_data <- BW_data %>%
+  filter(COMMENTS == "RESTRICTED_DAY_1")
+
+highlight_data2 <- BW_data %>%
+  filter(COMMENTS == "DAY_1_INJECTIONS")
+
 plot <- BW_data %>%
- # filter(DATE <= "2025-02-24") %>% # just raw BW over dates
-  ggplot(aes(day_rel, BW, group = ID)) +
+  ggplot(aes(DATE, BW, group = ID, color = GROUP)) +  # color by group
   geom_point() +
   geom_line() +
-  facet_wrap(~GROUP) +
-   geom_smooth()+
-  geom_text(aes(label = ID), vjust = -0.5, size = 2.5, alpha = 0.6) + #ID label
+  facet_wrap(GROUP~DRUG) +  # keep faceting by DRUG only
   labs(
-    x = "day_rel",
-    y = "BW (grams)")
-
+    x = "Date",
+    y = "Body weight (grams)",
+    color = "Feeding group") +  # legend title
+  # Highlight using vertical lines
+  geom_vline(data = highlight_data, 
+             aes(xintercept = as.numeric(DATE)), 
+             linetype = "dashed", color = "red", alpha = 0.7) +
+  geom_vline(data = highlight_data2, 
+             aes(xintercept = as.numeric(DATE)), 
+             linetype = "dashed", color = "blue", alpha = 0.7) +
+  theme_minimal()
 plot
- 
- # Subset rows to identify when sable measurements occurs 
- highlight_data <- BW_data %>%
-   filter(COMMENTS == "RESTRICTED_DAY_1")
- 
- plot <- BW_data %>% 
-   ggplot(aes(DATE, bw_rel, group = ID)) +
-   geom_point() +
-   geom_line() +
-   facet_wrap(~GROUP) +
-   geom_smooth()+
-   geom_text(aes(label = ID), vjust = -0.5, size = 2.5, alpha = 0.6) + #ID label
-   labs(
-     x = "Date",
-     y = "% BW gain")+
-   # Highlight using vertical lines
-   geom_vline(data = highlight_data, 
-              aes(xintercept = as.numeric(DATE)), 
-              linetype = "dashed", color = "red", alpha = 0.7)
- 
- plot
- 
- plot <- BW_data %>%
-   ggplot(aes(DATE, bw_rel, group = ID)) +
-   geom_point() +
-   geom_line() +
-   facet_wrap(~GROUP) +
-   geom_smooth()+
-   geom_text(aes(label = ID), vjust = -0.5, size = 2.5, alpha = 0.6) + #ID label
-   labs(
-     x = "Relative day",
-     y = "% BW gain")
- plot
+
+##SLOPE AFTER DAY 1 OF INJECTIONS FOR NZO MICE
+# Read and clean the data
+BW_data <- read_csv("../data/BW.csv") %>% 
+  filter(COHORT > 1 & COHORT < 6) %>%  # Only NZO females
+  filter(!ID %in% c(3712, 3715)) %>%   # Exclude animals that died
+  arrange(ID, DATE) %>% 
+  group_by(ID) %>% 
+  mutate(bw_rel = 100 * (BW - first(BW)) / first(BW),
+         body_lag = (lag(BW) - BW),
+         GROUP = case_when(
+           ID %in% c(3706, 3707, 3709, 3711, 3712, 3713, 3717, 3716, 3719, 3718, 3726) ~ "ad lib",
+           ID %in% c(3708, 3714, 3720, 3721, 3710, 3722, 3723, 3724, 3725, 3727, 3728, 3729) ~ "restricted"),
+         DRUG = case_when(
+           ID %in% c(3706, 3707, 3709, 3711, 3713, 3714, 3720, 3724, 3725, 3727, 3728) ~ "vehicle",
+           ID %in% c(3708, 3710, 3716, 3717, 3718, 3719, 3721, 3722, 3723, 3726, 3729) ~ "RTIOXA_47"),
+         day_rel = DATE - first(DATE)) %>% 
+  ungroup()
+
+# Step 1: Get injection day per ID
+injection_days <- BW_data %>%
+  filter(COMMENTS == "DAY_1_INJECTIONS") %>%
+  select(ID, inj_date = DATE)
+
+# Step 2: Join to original data and filter post-injection
+BW_post_injection <- BW_data %>%
+  left_join(injection_days, by = "ID") %>%
+  filter(DATE >= inj_date)
+
+
+plot <- BW_post_injection %>%
+  ggplot(aes(DATE, BW, group = ID)) +
+  geom_point() +
+  geom_line() +
+  geom_smooth(method = "lm", se = FALSE, aes(group = ID), color = "blue")+ 
+  facet_wrap(~GROUP*DRUG) +
+  labs(
+    x = "Date",
+    y = "BW (grams)")
+plot
+
+# Step 3: Compute slope (BW ~ DATE) per ID
+slopes <- BW_post_injection %>%
+  group_by(ID) %>%
+  filter(n() >= 2) %>%  # Make sure there's enough data
+  do(tidy(lm(BW ~ as.numeric(DATE), data = .))) %>%
+  filter(term == "as.numeric(DATE)") %>%
+  select(ID, slope = estimate)
+
+# Preview the result
+print(slopes)
+
+# 1. Merge slope with group info (just once per ID)
+slopes_grouped <- slopes %>%
+  left_join(BW_data %>% select(ID, DRUG,GROUP) %>% distinct(), by = "ID")
+
+ggplot(slopes_grouped, aes(x = GROUP, y = slope)) +
+  geom_boxplot(alpha = 0.5, outlier.shape = NA) +  # Boxplot without outlier dots
+  geom_jitter(width = 0.1, size = 2, alpha = 0.7) + # Add individual slopes
+  labs(title = "Slope of BW Change After DAY_1_INJECTIONS",
+       y = "Slope (g/day)",
+       x = "Group") +
+  theme_minimal() +
+  theme(legend.position = "none")+
+  facet_grid(GROUP~DRUG) 
+
+# Subset the data
+adlib_data <- slopes_grouped %>% filter(GROUP == "ad lib")
+restricted_data <- slopes_grouped %>% filter(GROUP == "restricted")
+
+# Compare vehicle vs RTIOXA_47 within each diet group using Wilcoxon rank-sum test
+adlib_test <- wilcox.test(slope ~ DRUG, data = adlib_data)
+restricted_test <- wilcox.test(slope ~ DRUG, data = restricted_data)
+
+# Show results
+adlib_test
+restricted_test
+
+# Compare means between vehicle and RTIOXA_47 within the ad lib group
+t.test(slope ~ DRUG, data = adlib_data)
+
+# Compare means between vehicle and RTIOXA_47 within the restricted group
+t.test(slope ~ DRUG, data = restricted_data)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #food intake kcal ####
 FI_data <- read_csv("../data/FI.csv") %>% 
