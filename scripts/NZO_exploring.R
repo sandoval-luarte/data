@@ -35,7 +35,7 @@ BW_data <- read_csv("../data/BW.csv") %>%
   mutate(bw_rel = 100 * (BW - first(BW)) / first(BW),
          body_lag = (lag(BW) - BW),
          GROUP = case_when(
-           ID %in% c(3706, 3707, 3709, 3711, 3712, 3713, 3717, 3716, 3719, 3718, 3726) ~ "ad lib",
+           ID %in% c(3706, 3707, 3709, 3711, 3713, 3717, 3716, 3719, 3718, 3726) ~ "ad lib",
            ID %in% c(3708, 3714, 3720, 3721, 3710, 3722, 3723, 3724, 3725, 3727, 3728, 3729) ~ "restricted"),
          DRUG = case_when(
            ID %in% c(3706, 3707, 3709, 3711, 3713, 3714, 3720, 3724, 3725, 3727, 3728) ~ "vehicle",
@@ -56,7 +56,7 @@ plot <- BW_data %>%
   ggplot(aes(DATE, BW, group = ID, color = GROUP)) +  # color by group
   geom_point() +
   geom_line() +
-  facet_wrap(GROUP~DRUG) +  # keep faceting by DRUG only
+  facet_wrap(~DRUG) +  # keep faceting by DRUG only
   labs(
     x = "Date",
     y = "Body weight (grams)",
@@ -99,16 +99,19 @@ BW_post_injection <- BW_data %>%
   left_join(injection_days, by = "ID") %>%
   filter(DATE >= inj_date)
 
+n_distinct(BW_post_injection$ID)
+
 
 plot <- BW_post_injection %>%
-  ggplot(aes(DATE, BW, group = ID)) +
+  ggplot(aes(DATE, BW, group = ID,color=GROUP)) +
   geom_point() +
   geom_line() +
-  geom_smooth(method = "lm", se = FALSE, aes(group = ID), color = "blue")+ 
-  facet_wrap(~GROUP*DRUG) +
+  geom_smooth(method = "lm", se = FALSE, aes(group = ID), color = "black")+ 
+  facet_wrap(GROUP~DRUG) +
   labs(
     x = "Date",
-    y = "BW (grams)")
+    y = "Body weight (grams)")+
+  theme_minimal()
 plot
 
 # Step 3: Compute slope (BW ~ DATE) per ID
@@ -126,15 +129,16 @@ print(slopes)
 slopes_grouped <- slopes %>%
   left_join(BW_data %>% select(ID, DRUG,GROUP) %>% distinct(), by = "ID")
 
-ggplot(slopes_grouped, aes(x = GROUP, y = slope)) +
-  geom_boxplot(alpha = 0.5, outlier.shape = NA) +  # Boxplot without outlier dots
-  geom_jitter(width = 0.1, size = 2, alpha = 0.7) + # Add individual slopes
-  labs(title = "Slope of BW Change After DAY_1_INJECTIONS",
+ggplot(slopes_grouped, aes(x = GROUP, y = slope, color = GROUP)) +
+  geom_boxplot(alpha = 0.5, outlier.shape = NA) +  # <- adds boxplot + violins
+  geom_jitter(width = 0.1, size = 2, alpha = 0.7) + 
+  labs(
        y = "Slope (g/day)",
        x = "Group") +
   theme_minimal() +
-  theme(legend.position = "none")+
-  facet_grid(GROUP~DRUG) 
+  theme(legend.position = "none") +
+  facet_grid(~GROUP*DRUG)
+
 
 # Subset the data
 adlib_data <- slopes_grouped %>% filter(GROUP == "ad lib")
