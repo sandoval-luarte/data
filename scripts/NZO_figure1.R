@@ -1,0 +1,62 @@
+# This script aims to explore changes in body weight in middle age NZO after different stages of feeding:
+#1 from baseline to peak obesity,
+#2:from peak of obesity to acute body weight loss
+#3 from acute body weight loss to body weight maintenance
+#4 from body weight maintenance to body weight gain after RTIOXA-47 injections
+
+#libraries
+library(dplyr) #to use pipe
+library(ggplot2) #to graph
+library(readr) #to read csv
+library(tidyr)  # to use drop-na()
+library(ggpubr)
+library(purrr)
+library(broom)
+BW_data <- read_csv("../data/BW.csv") %>% 
+  filter(COHORT > 2 & COHORT < 6) %>% # Just NZO females
+  filter(!ID %in% c(3712, 3715)) %>% # died during study
+  group_by(ID) %>% 
+  arrange(DATE) %>% 
+  mutate(
+    bw_rel = 100 * (BW - first(BW)) / first(BW),
+    body_lag = (lag(BW) - BW),
+    GROUP = case_when(
+      ID %in% c(3706, 3707, 3709, 3711, 3713, 3717, 3716, 3719, 3718, 3726) ~ "ad lib",
+      ID %in% c(3708, 3714, 3720, 3721, 3710, 3722, 3723, 3724, 3725, 3727, 3728, 3729) ~ "restricted"
+    ),
+    DRUG = case_when(
+      ID %in% c(3706, 3707, 3709, 3711, 3713, 3714, 3720, 3724, 3725, 3727, 3728) ~ "vehicle",
+      ID %in% c(3708, 3710, 3716, 3717, 3718, 3719, 3721, 3722, 3723, 3726, 3729) ~ "RTIOXA_47"
+    ),
+    day_rel = DATE - first(DATE)
+  ) %>%
+  mutate(
+    STATUS = case_when(
+      day_rel == 0 ~ "baseline", 
+      COMMENTS == "DAY_1_INJECTIONS" ~ "BW maintenance", 
+      COMMENTS == "DAY_4_SABLE_AND_SAC" ~ "BW regain",
+      day_rel == 161 ~ "BW loss",
+      DATE == as.Date("2025-02-24") ~ "peak obesity",
+      TRUE ~ NA_character_
+    )
+  ) %>%
+  filter(!is.na(STATUS))  # <-- filter must be outside mutate
+
+# Make STATUS an ordered factor
+BW_data <- BW_data %>%
+  mutate(STATUS = factor(STATUS, 
+                         levels = c("baseline", "peak obesity", "BW loss", 
+                                    "BW maintenance", "BW regain")))
+plot <- BW_data %>%
+  ggplot(aes(x = STATUS, y = BW, color = DRUG)) +
+  geom_jitter(width = 0.2, height = 0, alpha = 0.7) +  # individual points
+  stat_summary(fun = mean, geom = "col", aes(fill = DRUG), alpha = 0.3, position = "dodge") + # mean columns
+  theme_minimal() +
+  labs(y = "Body Weight (BW) in grams", color = "Drug", fill = "Drug") +
+  facet_wrap(~DRUG) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+plot
+
+
