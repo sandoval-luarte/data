@@ -72,106 +72,31 @@ sable_locomotion_data <- sable_dwn %>% # Load the data
       ID %in% c(3706, 3707, 3709, 3711, 3713, 3714, 3720, 3724, 3725, 3727, 3728) ~ "vehicle",
       ID %in% c(3708, 3710, 3716, 3717, 3718, 3719, 3721, 3722, 3723, 3726, 3729) ~ "RTIOXA_47"
     )) %>% 
-  mutate(value = max(value))
-
-
-
-sable_min_plot_locomotion <- sable_locomotion_data %>% 
-  mutate(SABLE = factor(SABLE, 
-                        levels = c("baseline", "peak obesity", "BW loss", 
-                                   "BW maintenance", "BW regain"))) %>% 
-  filter(!(ID %in% c(3723,3725,3718,3709)))
-
-
-#format plot
-scaleFill <- scale_fill_manual(values = c("#C03830FF", "#317EC2FF"))
-
-format.plot <- theme_pubr() +
-  theme(strip.background = element_blank(), 
-        #   strip.text = element_blank(),
-        panel.spacing.x = unit(0.1, "lines"),          
-        panel.spacing.y = unit(1.5, "lines"),  
-        axis.text = element_text(family = "Helvetica", size = 13),
-        axis.title = element_text(family = "Helvetica", size = 14))
-
-plot <- sable_min_plot_locomotion %>%
-  ggplot(aes(x = SABLE, y = tee, color = DRUG, group = ID)) +
-  
-  # individual trajectories
-  geom_line(alpha = 0.3) +   
-  geom_point(size = 2, alpha = 0.3) +  
-  
-  # mean ± SD ribbon (need to set 'fill' separately from 'color')
-  stat_summary(
-    fun.data = mean_sdl, fun.args = list(mult = 1), 
-    geom = "ribbon", aes(group = DRUG, fill = DRUG), 
-    alpha = 0.2, color = NA
-  ) +
-  
-  # mean solid line
-  stat_summary(
-    fun = mean, geom = "line", aes(group = DRUG, color = DRUG), 
-    size = 1.2
-  ) +
-  
-  # mean dashed line (optional, if you want to keep it too)
-  # stat_summary(fun = mean, geom = "line", aes(group = DRUG, color = DRUG), 
-  #              size = 1.2, linetype = "dashed") +
-  
-  theme_minimal() +
-  labs(y = "locomotion ", color = "Drug", fill = "Drug") +
-  facet_wrap(~GROUP) +
-  # format.plot+
-  theme(
-    axis.text.x = element_text(angle = 45, hjust = 1)
-  )
-plot
-
-
-sable_locomotion_max <- sable_dwn %>%
-  filter(COHORT %in% c(3, 4, 5)) %>% 
-  mutate(
-    lights  = if_else(hr %in% c(20,21,22,23,0,1,2,3,4,5), "off", "on"),
-    SABLE = case_when(
-      sable_idx %in% paste0("SABLE_DAY_", 1:7) ~ "baseline",
-      sable_idx %in% paste0("SABLE_DAY_", 8:11) ~ "peak obesity",
-      sable_idx %in% paste0("SABLE_DAY_", 12:15) ~ "BW loss",
-      sable_idx %in% paste0("SABLE_DAY_", 16:19) ~ "BW maintenance",
-      sable_idx %in% paste0("SABLE_DAY_", 20:23) ~ "BW regain"
-    )
-  ) %>% 
-  filter(grepl("AllMeters_*", parameter)) %>%
   ungroup() %>% 
-  group_by(ID, SABLE) %>% 
-  mutate(
-    zt_time = zt_time(hr),
-    is_zt_init = replace_na(as.numeric(hr != lag(hr)), 0),
-    complete_days = cumsum(if_else(zt_time == 0 & is_zt_init == 1, 1, 0))
-  ) %>% 
-  ungroup() %>% 
-  group_by(ID, complete_days) %>% 
-  mutate(is_complete_day = if_else(min(zt_time) == 0 & max(zt_time) == 23, 1, 0)) %>% 
-  ungroup() %>% 
-  group_by(ID, complete_days, is_complete_day, SABLE, lights) %>% 
-  filter(!ID %in% c(3715, 3712),
-         is_complete_day == 1,
-         complete_days == 2) %>% 
-  ungroup() %>% 
-  group_by(ID, SABLE, lights, hr) %>%   # 🔹 include hr here
-  summarise(
-    max_value = max(value, na.rm = TRUE),
-    .groups = "drop"
-  ) %>% 
-  mutate(
-    GROUP = case_when(
-      ID %in% c(3706, 3707, 3709, 3711, 3713, 3717, 3716, 3719, 3718, 3726) ~ "ad lib",
-      ID %in% c(3708, 3714, 3720, 3721, 3710, 3722, 3723, 3724, 3725, 3727, 3728, 3729) ~ "restricted"
-    ),
-    DRUG = case_when(
-      ID %in% c(3706, 3707, 3709, 3711, 3713, 3714, 3720, 3724, 3725, 3727, 3728) ~ "vehicle",
-      ID %in% c(3708, 3710, 3716, 3717, 3718, 3719, 3721, 3722, 3723, 3726, 3729) ~ "RTIOXA_47"
-    )
-  )
+  group_by(ID,complete_days) %>% 
+  mutate(loc_act=value-lag(value)) %>% 
+  filter(loc_act>=0)
+
+daily_loc <-sable_locomotion_data %>% 
+ungroup() %>% 
+  group_by(ID,complete_days,hr,lights,GROUP,SABLE) %>% 
+  summarise(total_act =sum(loc_act))
+summary(daily_loc$total_act)
+
+daily_loc %>% ggplot(aes(x=lights,y=total_act))+
+  stat_summary(fun.data = "mean_se",aes(group = ID),geom = "pointrange",color="red")+
+stat_summary(fun.data = "mean_se",aes(group = ID),geom = "line",color="red")+
+  facet_wrap(~GROUP)
+
+loc_model <- lmer(data=daily_loc, total_act ~ lights*GROUP + (1|ID))
+summary(loc_model)
+
+loc_model_emm <- emmeans(loc_model,pairwise ~ GROUP|lights, type="response")
+loc_model_emm
+
+loc_model_emm2 <- emmeans(loc_model,pairwise ~ lights|GROUP, type="response")
+loc_model_emm2
+
 
 
 
