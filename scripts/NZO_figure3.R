@@ -13,6 +13,8 @@ library(ggpubr)
 library(purrr)
 library(broom)
 library(Hmisc)
+library(lme4)
+library(emmeans)
 
 echoMRI_data <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
   filter(COHORT > 2 & COHORT < 6) %>% # Just NZO females
@@ -50,50 +52,121 @@ echoMRI_data <- echoMRI_data %>%
                          levels = c("baseline", "peak obesity", "BW loss", 
                                     "BW maintenance", "BW regain")))
 #format plot
+
 scaleFill <- scale_fill_manual(values = c("#C03830FF", "#317EC2FF"))
 
-format.plot <- theme_pubr() +
-  theme(strip.background = element_blank(), 
-        #   strip.text = element_blank(),
-        panel.spacing.x = unit(0.1, "lines"),          
-        panel.spacing.y = unit(1.5, "lines"),  
-        axis.text = element_text(family = "Helvetica", size = 13),
-        axis.title = element_text(family = "Helvetica", size = 14))
 
+format.plot <- theme(
+  strip.background = element_blank(),
+  panel.spacing.x = unit(0.1, "lines"),          
+  panel.spacing.y = unit(1.5, "lines"),  
+  axis.text = element_text(family = "Helvetica", size = 13),
+  axis.title = element_text(family = "Helvetica", size = 14),
+  
+  # remove background grid lines only
+  panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(),
+  
+  # keep axis lines
+  axis.line = element_line(color = "black")
+)
 
-plot <- echoMRI_data  %>%
-  ggplot(aes(x = STATUS, y = Fat, color = DRUG, group = ID)) +
+plot <- echoMRI_data %>%
+  ggplot(aes(x = STATUS, y = Fat, fill = GROUP)) +
   
-  # individual trajectories
-  geom_line(alpha = 0.3) +   
-  geom_point(size = 2, alpha = 0.3) +  
-  
-  # mean ± SD ribbon (need to set 'fill' separately from 'color')
+  # mean bars
   stat_summary(
-    fun.data = mean_sdl, fun.args = list(mult = 1), 
-    geom = "ribbon", aes(group = DRUG, fill = DRUG), 
-    alpha = 0.2, color = NA
+    fun = mean,
+    geom = "col",
+    position = position_dodge(width = 0.8),
+    color = "black", width = 0.7, alpha = 0.7
   ) +
   
-  # mean solid line
+  # error bars (mean ± SE)
   stat_summary(
-    fun = mean, geom = "line", aes(group = DRUG, color = DRUG), 
-    size = 1.2
+    fun.data = mean_se,
+    geom = "errorbar",
+    position = position_dodge(width = 0.8),
+    width = 0.3
   ) +
   
-  # mean dashed line (optional, if you want to keep it too)
-  # stat_summary(fun = mean, geom = "line", aes(group = DRUG, color = DRUG), 
-  #              size = 1.2, linetype = "dashed") +
+  # individual data points
+  geom_point(
+    aes(color = DRUG),
+    position = position_dodge(width = 0.8),
+    alpha = 0.7, size = 2
+  ) +
   
+  scaleFill +
   theme_minimal() +
-  labs(y = "Fat mass in grams", color = "Drug", fill = "Drug") +
-  facet_wrap(~GROUP) +
-  format.plot+
+  labs(y = "Fat in grams", fill = "Group", color = "Drug") +
+  format.plot +
   theme(
     axis.text.x = element_text(angle = 45, hjust = 1)
   )
+
 plot
 
+fat_plotdata <-echoMRI_data  %>%
+  mutate(
+    PlotGroup = case_when(
+      STATUS %in% c("baseline", "peak obesity") ~ "all",          # collapse all
+      STATUS %in% c("BW loss", "BW maintenance") ~ GROUP,         # separate by GROUP
+      STATUS == "BW regain" ~ paste(GROUP, DRUG, sep = "_")       # GROUP × DRUG
+    )
+  )
 
+# Define custom colors
+custom_colors <- c(
+  "all" = "gray70",
+  "ad lib" = "#E67E22",              # orange
+  "restricted" = "#3498DB",          # sky blue
+  "ad lib_vehicle" = "#E67E22",      # darker orange
+  "ad lib_RTIOXA_47" = "#F39C12",    # lighter orange
+  "restricted_vehicle" = "#3498DB",  # darker blue
+  "restricted_RTIOXA_47" = "#5DADE2" # lighter blue
+)
 
+plot <- fat_plotdata %>%
+  ggplot(aes(x = STATUS, y = Fat, fill = PlotGroup)) +
+  
+  stat_summary(fun = mean, geom = "col",
+               position = position_dodge(width = 0.8),
+               color = "black", width = 0.7, alpha = 0.7) +
+  
+  stat_summary(fun.data = mean_se, geom = "errorbar",
+               position = position_dodge(width = 0.8),
+               width = 0.3) +
+  
+  geom_point(aes(color = PlotGroup),
+             position = position_jitterdodge(dodge.width = 0.8, jitter.width = 0.2),
+             alpha = 0.6, size = 2) +
+  
+  scale_fill_manual(values = custom_colors) +
+  scale_color_manual(values = custom_colors) +
+  
+  theme_minimal() +
+  labs(y = "Fat (g)", fill = "Group", color = "Group") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  format.plot
 
+plot
+
+# Fit model
+model <- lmer(Fat ~ STATUS * GROUP * DRUG + (1|ID), data = echoMRI_data)
+summary(model)
+
+# Save emmeans results
+emmeans_results <- emmeans(model, pairwise ~ STATUS * GROUP * DRUG, adjust = "tukey")
+
+#to evaluate baseline ad lib - baseline restricted   p=1
+# to evaluate peak obesity ad lib - peak obesity restricted p=0.99
+
+# Convert to data frame
+df_emm <- as.data.frame(emmeans_results$emmeans)   # estimated means
+df_pairs <- as.data.frame(emmeans_results$contrasts)  # pairwise comparisons
+
+# Print all rows
+print(df_emm, n = Inf)
+print(df_pairs, n = Inf)
+View(df_pairs)   # opens spreadsheet-style viewer in RStudio

@@ -11,6 +11,8 @@ library(ggplot2)
 library(readr)
 library(lmerTest)
 library(emmeans)
+library(ggpubr)
+
 #functions####
 zt_time <- function(hr){
   return(if_else(hr >= 20 & hr <= 23, hr-20, hr+4))
@@ -79,7 +81,7 @@ sable_min_plot_tee <- sable_TEE_data %>%
   mutate(SABLE = factor(SABLE, 
                         levels = c("baseline", "peak obesity", "BW loss", 
                                    "BW maintenance", "BW regain"))) %>% 
-  filter(!(ID %in% c(3723,3725,3718,3709)))
+  filter(!(ID %in% c(3723,3725,3718,3709,3717,3724))) #cage 5 in at least one SABLE stage
 
 
 #format plot
@@ -94,13 +96,20 @@ format.plot <- theme_pubr() +
         axis.title = element_text(family = "Helvetica", size = 14))
 
 plot <- sable_min_plot_tee %>%
-ggplot(aes(x = SABLE, y = tee, color = DRUG, group = ID)) +
+  ggplot(aes(x = SABLE, y = tee, color = DRUG, group = ID)) +
   
   # individual trajectories
   geom_line(alpha = 0.3) +   
   geom_point(size = 2, alpha = 0.3) +  
   
-  # mean ± SD ribbon (need to set 'fill' separately from 'color')
+  # add ID labels
+  geom_text(aes(label = ID), 
+            size = 3,          # font size of labels
+            vjust = -0.5,      # vertical position
+            alpha = 0.7,       # transparency so they don’t clutter too much
+            show.legend = FALSE) +  
+  
+  # mean ± SD ribbon
   stat_summary(
     fun.data = mean_sdl, fun.args = list(mult = 1), 
     geom = "ribbon", aes(group = DRUG, fill = DRUG), 
@@ -113,14 +122,9 @@ ggplot(aes(x = SABLE, y = tee, color = DRUG, group = ID)) +
     size = 1.2
   ) +
   
-  # mean dashed line (optional, if you want to keep it too)
-  # stat_summary(fun = mean, geom = "line", aes(group = DRUG, color = DRUG), 
-  #              size = 1.2, linetype = "dashed") +
-  
   theme_minimal() +
   labs(y = "24 h TEE", color = "Drug", fill = "Drug") +
   facet_wrap(~GROUP) +
- # format.plot+
   theme(
     axis.text.x = element_text(angle = 45, hjust = 1)
   )
