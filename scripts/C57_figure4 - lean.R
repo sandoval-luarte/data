@@ -1,4 +1,4 @@
-# This script aims to explore changes fat mass in middle age NZO after different stages of feeding:
+# This script aims to explore changes lean mass in middle age C57 after different stages of feeding:
 #1 from baseline to peak obesity,
 #2:from peak of obesity to acute body weight loss
 #3 from acute body weight loss to body weight maintenance
@@ -17,34 +17,32 @@ library(lme4)
 library(emmeans)
 
 echoMRI_data <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
-  filter(COHORT > 2 & COHORT < 6) %>% # Just NZO females
-  filter(!ID %in% c(3712, 3715)) %>% # died during study
+  filter(COHORT == 2) %>% # Just C57 males and females
   group_by(ID) %>%
   arrange(Date) %>%
   mutate(
     GROUP = case_when(
-      ID %in% c(3706, 3707, 3709, 3711, 3713, 3717, 3716, 3719, 3718, 3726) ~ "ad lib",
-      ID %in% c(3708, 3714, 3720, 3721, 3710, 3722, 3723, 3724, 3725, 3727, 3728, 3729) ~ "restricted"
+      ID %in% c(7860, 7862, 7864, 7867, 7868, 7869, 7870, 7871, 7873, 7875, 7876, 7879, 7880, 7881,
+                7882, 7883) ~ "ad lib",
+      ID %in% c(7861, 7863, 7865, 7866, 7872, 7874, 7877, 7878) ~ "restricted"
     ),
     DRUG = case_when(
-      ID %in% c(3706, 3707, 3709, 3711, 3713, 3714, 3720, 3724, 3725, 3727, 3728) ~ "vehicle",
-      ID %in% c(3708, 3710, 3716, 3717, 3718, 3719, 3721, 3722, 3723, 3726, 3729) ~ "RTIOXA_47"
-    )
-  ) %>%
-  select(ID, Date, Fat, Lean, Weight, n_measurement, adiposity_index, GROUP, DRUG) %>%
+      ID %in% c(7861, 7863, 7864, 7878, 7867, 7872, 7875, 7876, 7869, 7870, 7871, 7868, 7880, 7881, 7882, 7883) ~ "vehicle",
+      ID %in% c(7862, 7865, 7873, 7874, 7877, 7866, 7879, 7860) ~ "RTIOXA_47"
+    ))%>%
+  select(ID, Date, Fat, Lean, Weight, n_measurement, adiposity_index, GROUP, DRUG,SEX) %>%
   mutate(
     day_rel = Date - first(Date),
     STATUS = case_when(
       n_measurement == 1 ~ "baseline",
-      Date == as.Date("2025-02-20") ~ "peak obesity",
-      Date %in% as.Date(c("2025-04-28", "2025-05-05","2025-05-05","2025-05-06")) ~ "BW loss",
-      Date == as.Date("2025-05-27") ~ "BW maintenance",
-      Date %in% as.Date(c("2025-07-22", "2025-07-21","2025-07-17","2025-07-16",
-                          "2025-07-14","2025-07-09","2025-07-08")) ~ "BW regain",
+      Date == as.Date("2025-03-07") ~ "peak obesity",
+      Date == as.Date("2025-04-21") ~ "BW loss",
+      Date == as.Date("2025-06-05") ~ "BW maintenance",
+      Date %in% as.Date(c("2025-09-11", "2025-09-10","2025-09-05","2025-09-04",
+                          "2025-09-02","2025-09-01","2025-08-28","2025-08-27")) ~ "BW regain",
       TRUE ~ NA_character_
     )) %>% 
-  filter(!is.na(STATUS)) %>%  # <-- optional
-  filter(!(ID == 3726 & Date == as.Date("2025-04-28")))  #repeated
+  filter(!is.na(STATUS))
 
 # Make STATUS an ordered factor
 echoMRI_data <- echoMRI_data %>%
@@ -72,7 +70,7 @@ format.plot <- theme(
 )
 
 plot <- echoMRI_data %>%
-  ggplot(aes(x = STATUS, y = Fat, fill = GROUP)) +
+  ggplot(aes(x = STATUS, y = Lean, fill = GROUP)) +
   
   # mean bars
   stat_summary(
@@ -99,11 +97,12 @@ plot <- echoMRI_data %>%
   
   scaleFill +
   theme_minimal() +
-  labs(y = "Fat in grams", fill = "Group", color = "Drug") +
+  labs(y = "Lean mass in grams", fill = "Group", color = "Drug") +
   format.plot +
   theme(
     axis.text.x = element_text(angle = 45, hjust = 1)
-  )
+  )+
+  facet_wrap(~SEX)
 
 plot
 
@@ -128,7 +127,7 @@ custom_colors <- c(
 )
 
 plot <- fat_plotdata %>%
-  ggplot(aes(x = STATUS, y = Fat, fill = PlotGroup)) +
+  ggplot(aes(x = STATUS, y = Lean, fill = PlotGroup)) +
   
   stat_summary(fun = mean, geom = "col",
                position = position_dodge(width = 0.8),
@@ -146,19 +145,20 @@ plot <- fat_plotdata %>%
   scale_color_manual(values = custom_colors) +
   
   theme_minimal() +
-  labs(y = "Fat (g)", fill = "Group", color = "Group") +
+  labs(y = "Lean mass (g)", fill = "Group", color = "Group") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  facet_wrap(~SEX)+
   format.plot
 
 plot
 
 # Fit model
-model <- lmer(Fat ~ STATUS * GROUP * DRUG + (1|ID), data = echoMRI_data)
+model <- lmer(Lean ~ SEX* STATUS * GROUP * DRUG + (1|ID), data = echoMRI_data)
 summary(model)
 
 # Save emmeans results
-emmeans_results <- emmeans(model, pairwise ~ STATUS * GROUP * DRUG, adjust = "tukey")
-
+emmeans_results <- emmeans(model, pairwise ~ SEX* STATUS* GROUP * DRUG, adjust = "tukey")
+emmeans_results
 #to evaluate baseline ad lib - baseline restricted   p=1
 # to evaluate peak obesity ad lib - peak obesity restricted p=0.99
 
@@ -169,4 +169,11 @@ df_pairs <- as.data.frame(emmeans_results$contrasts)  # pairwise comparisons
 # Print all rows
 print(df_emm, n = Inf)
 print(df_pairs, n = Inf)
-View(df_pairs)   # opens spreadsheet-style viewer in RStudio
+# Keep only significant contrasts
+df_sig <- df_pairs %>%
+  filter(p.value <= 0.05)
+
+# View the results
+print(df_sig, n = Inf)
+View(df_sig)
+
