@@ -1,4 +1,4 @@
-# This script aims to explore changes fat mass in middle age C57 after different stages of feeding:
+# This script aims to explore changes ADIPOSITY INDEX in middle age C57 after different stages of feeding:
 #1 from baseline to peak obesity,
 #2:from peak of obesity to acute body weight loss
 #3 from acute body weight loss to body weight maintenance
@@ -30,7 +30,7 @@ echoMRI_data <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
       ID %in% c(7861, 7863, 7864, 7878, 7867, 7872, 7875, 7876, 7869, 7870, 7871, 7868, 7880, 7881, 7882, 7883) ~ "vehicle",
       ID %in% c(7862, 7865, 7873, 7874, 7877, 7866, 7879, 7860) ~ "RTIOXA_47"
     ))%>%
-  select(ID, Date, Fat, Lean, Weight, n_measurement, adiposity_index, GROUP, DRUG,SEX,DIET_FORMULA) %>%
+  select(ID, Date, Fat, Lean, Weight, n_measurement, adiposity_index, GROUP, DRUG,SEX) %>%
   mutate(
     day_rel = Date - first(Date),
     STATUS = case_when(
@@ -70,7 +70,7 @@ format.plot <- theme(
 )
 
 plot <- echoMRI_data %>%
-  ggplot(aes(x = STATUS, y = Fat, fill = GROUP)) +
+  ggplot(aes(x = STATUS, y = adiposity_index, fill = GROUP)) +
   
   # mean bars
   stat_summary(
@@ -97,7 +97,7 @@ plot <- echoMRI_data %>%
   
   scaleFill +
   theme_minimal() +
-  labs(y = "Fat in grams", fill = "Group", color = "Drug") +
+  labs(y = "adiposity index (fat/lean mass)", fill = "Group", color = "Drug") +
   format.plot +
   theme(
     axis.text.x = element_text(angle = 45, hjust = 1)
@@ -127,7 +127,7 @@ custom_colors <- c(
 )
 
 plot <- fat_plotdata %>%
-  ggplot(aes(x = STATUS, y = Fat, fill = PlotGroup)) +
+  ggplot(aes(x = STATUS, y = adiposity_index, fill = PlotGroup)) +
   
   stat_summary(fun = mean, geom = "col",
                position = position_dodge(width = 0.8),
@@ -145,19 +145,19 @@ plot <- fat_plotdata %>%
   scale_color_manual(values = custom_colors) +
   
   theme_minimal() +
-  labs(y = "Fat (g)", fill = "Group", color = "Group") +
+  labs(y = "adiposity index (fat/lean mass)", fill = "Group", color = "Group") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))+
-  facet_wrap(~SEX*DIET_FORMULA)+
+  facet_wrap(~SEX)+
   format.plot
 
 plot
 
 # Fit model
-model <- lmer(Fat ~ SEX * STATUS * GROUP * DRUG * DIET_FORMULA + (1|ID), data = echoMRI_data)
+model <- lmer(adiposity_index ~ SEX* STATUS * GROUP * DRUG + (1|ID), data = echoMRI_data)
 summary(model)
 
 # Save emmeans results
-emmeans_results <- emmeans(model, pairwise ~ SEX* STATUS * DRUG * DIET_FORMULA, adjust = "tukey")
+emmeans_results <- emmeans(model, pairwise ~ SEX* STATUS* GROUP*DRUG, adjust = "tukey")
 emmeans_results
 #to evaluate baseline ad lib - baseline restricted   p=1
 # to evaluate peak obesity ad lib - peak obesity restricted p=0.99

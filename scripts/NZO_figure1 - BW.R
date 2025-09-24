@@ -161,7 +161,7 @@ model <- lmer(BW ~ STATUS * GROUP * DRUG + (1|ID), data = BW_data)
 summary(model)
 
 # Save emmeans results
-emmeans_results <- emmeans(model, pairwise ~ STATUS * GROUP * DRUG, adjust = "tukey")
+emmeans_results <- emmeans(model, pairwise ~ STATUS * GROUP, adjust = "tukey")
 
 #to evaluate baseline ad lib - baseline restricted   p=1
 # to evaluate peak obesity ad lib - peak obesity restricted p=0.99
@@ -173,6 +173,11 @@ df_pairs <- as.data.frame(emmeans_results$contrasts)  # pairwise comparisons
 # Print all rows
 print(df_emm, n = Inf)
 print(df_pairs, n = Inf)
-View(df_pairs)   # opens spreadsheet-style viewer in RStudio
+# Keep only significant contrasts
+df_sig <- df_pairs %>%
+  filter(p.value <= 0.05)
 
+# View the results
+print(df_sig, n = Inf)
+View(df_sig)
 

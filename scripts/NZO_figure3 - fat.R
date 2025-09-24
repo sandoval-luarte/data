@@ -169,4 +169,11 @@ df_pairs <- as.data.frame(emmeans_results$contrasts)  # pairwise comparisons
 # Print all rows
 print(df_emm, n = Inf)
 print(df_pairs, n = Inf)
-View(df_pairs)   # opens spreadsheet-style viewer in RStudio
+# Keep only significant contrasts
+df_sig <- df_pairs %>%
+  filter(p.value <= 0.05)
+
+# View the results
+print(df_sig, n = Inf)
+View(df_sig)
+

@@ -148,17 +148,17 @@ plot <- BW_plotdata %>%
   theme_minimal() +
   labs(y = "Body Weight (g)", fill = "Group", color = "Group") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))+
-  facet_wrap(~SEX)+
+  facet_wrap(~SEX*DIET_FORMULA)+
   format.plot
 
 plot
 
 # Fit model
-model <- lmer(BW ~ SEX* STATUS * GROUP * DRUG + (1|ID), data = BW_data)
+model <- lmer(BW ~ SEX * STATUS * GROUP * DRUG * DIET_FORMULA + (1|ID), data = BW_data)
 summary(model)
 
 # Save emmeans results
-emmeans_results <- emmeans(model, pairwise ~ SEX*STATUS * GROUP, adjust = "tukey")
+emmeans_results <- emmeans(model, pairwise ~ SEX *STATUS * GROUP * DRUG * DIET_FORMULA, adjust = "tukey")
 
 #to evaluate baseline ad lib - baseline restricted   p=1
 # to evaluate peak obesity ad lib - peak obesity restricted p=0.99
