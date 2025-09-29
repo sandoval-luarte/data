@@ -107,7 +107,7 @@ plot <- sable_min_plot_tee %>%
   # mean ± SD ribbon
   stat_summary(
     fun.data = mean_sdl, fun.args = list(mult = 1), 
-    geom = "ribbon", aes(group = GROUP, fill = GROUP), 
+    geom = "ribbon", aes(group = DRUG, fill = DRUG), 
     alpha = 0.2, color = NA
   ) +
   
@@ -119,7 +119,7 @@ plot <- sable_min_plot_tee %>%
   
   theme_minimal() +
   labs(y = "24 h TEE", color = "Drug", fill = "Drug") +
-  facet_wrap(~GROUP*SEX) +
+  facet_wrap(~GROUP) +
   theme(
     axis.text.x = element_text(angle = 45, hjust = 1)
   )
