@@ -42,7 +42,7 @@ sable_TEE_data <- sable_dwn %>% # Load the data
                      "SABLE_DAY_15",
                      "SABLE_DAY_16") ~ "BW regain"
   )) %>% 
-  filter(grepl("kcal_hr_*", parameter)) %>% # just to see TEE in kcal first
+  filter(grepl("kcal_hr_*", parameter)) %>% 
   ungroup() %>% 
   group_by(ID, SABLE) %>% 
   mutate(
@@ -54,11 +54,20 @@ sable_TEE_data <- sable_dwn %>% # Load the data
   group_by(ID, complete_days) %>% 
   mutate(is_complete_day = if_else(min(zt_time)==0 & max(zt_time)==23, 1, 0)) %>% 
   ungroup() %>% 
-  group_by(ID,complete_days,is_complete_day,SABLE) %>% 
-  mutate(tee = sum(value)*(1/60)) %>% 
-  filter( is_complete_day ==1, complete_days==2) %>% 
-  ungroup() %>% 
-  group_by(ID,SABLE) %>% 
+  
+  # calculate TEE for each day (no lights split!)
+  group_by(ID, complete_days, is_complete_day, SABLE) %>% 
+  summarise(tee = sum(value)*(1/60), .groups="drop") %>% 
+  
+  # keep both complete days
+  filter(is_complete_day == 1, complete_days %in% c(1,2)) %>% 
+  filter(!(ID %in% c(7866, 7874, 7877, 7879, 7864, 7881))) %>%  #cage 5 in at least one SABLE stage
+
+  # average across the 2 days per ID × SABLE
+  group_by(ID, SABLE) %>% 
+  summarise(tee = mean(tee), .groups = "drop") %>% 
+  
+  # reattach GROUP and DRUG
   mutate(
     GROUP = case_when(
       ID %in% c(7860, 7862, 7864, 7867, 7868, 7869, 7870, 7871, 7873, 7875, 7876, 7879, 7880, 7881,
@@ -68,62 +77,22 @@ sable_TEE_data <- sable_dwn %>% # Load the data
     DRUG = case_when(
       ID %in% c(7861, 7863, 7864, 7878, 7867, 7872, 7875, 7876, 7869, 7870, 7871, 7868, 7880, 7881, 7882, 7883) ~ "vehicle",
       ID %in% c(7862, 7865, 7873, 7874, 7877, 7866, 7879, 7860) ~ "RTIOXA_47"
-    ))
-  
+    )) %>%
+  mutate(
+    SABLE = factor(SABLE, 
+                   levels = c("baseline", 
+                              "peak obesity", 
+                              "BW loss", 
+                              "BW maintenance", 
+                              "BW regain")))
 
 
-sable_min_plot_tee <- sable_TEE_data %>% 
-  mutate(SABLE = factor(SABLE, 
-                        levels = c("baseline", "peak obesity", "BW loss", 
-                                   "BW maintenance", "BW regain"))) %>% 
-  filter(!(ID %in% c(7866, 7874, 7877, 7879, 7864, 7881))) #cage 5 in at least one SABLE stage
-
-
-#format plot
-scaleFill <- scale_fill_manual(values = c("#C03830FF", "#317EC2FF"))
-
-format.plot <- theme_pubr() +
-  theme(strip.background = element_blank(), 
-        #   strip.text = element_blank(),
-        panel.spacing.x = unit(0.1, "lines"),          
-        panel.spacing.y = unit(1.5, "lines"),  
-        axis.text = element_text(family = "Helvetica", size = 13),
-        axis.title = element_text(family = "Helvetica", size = 14))
-
-plot <- sable_min_plot_tee %>%
-  ggplot(aes(x = SABLE, y = tee, color = DRUG, group = ID)) +
-  
-  # individual trajectories
-  geom_line(alpha = 0.3) +   
-  geom_point(size = 2, alpha = 0.3) +  
-  
-  # add ID labels
-  geom_text(aes(label = ID), 
-            size = 3,          # font size of labels
-            vjust = -0.5,      # vertical position
-            alpha = 0.7,       # transparency so they don’t clutter too much
-            show.legend = FALSE) +  
-  
-  # mean ± SD ribbon
-  stat_summary(
-    fun.data = mean_sdl, fun.args = list(mult = 1), 
-    geom = "ribbon", aes(group = DRUG, fill = DRUG), 
-    alpha = 0.2, color = NA
-  ) +
-  
-  # mean solid line
-  stat_summary(
-    fun = mean, geom = "line", aes(group = DRUG, color = DRUG), 
-    size = 1.2
-  ) +
-  
-  theme_minimal() +
-  labs(y = "24 h TEE", color = "Drug", fill = "Drug") +
-  facet_wrap(~GROUP) +
-  theme(
-    axis.text.x = element_text(angle = 45, hjust = 1)
-  )
-plot
-
-
+ggplot(sable_TEE_data, aes(x = SABLE, y = tee, color = DRUG, group = ID)) +
+  geom_line(alpha = 0.3) +
+  geom_point(size = 2, alpha = 0.5) +
+  geom_text(aes(label = ID), size = 2.5, show.legend = FALSE) +
+  stat_summary(fun = mean, geom = "line", aes(group = DRUG), size = 1.2) +
+  facet_wrap(~GROUP) +  # only group, no lights
+  labs(y = "TEE (kcal/day)", color = "Drug") +
+  theme_minimal()
 
