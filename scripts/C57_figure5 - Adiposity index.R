@@ -30,7 +30,7 @@ echoMRI_data <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
       ID %in% c(7861, 7863, 7864, 7878, 7867, 7872, 7875, 7876, 7869, 7870, 7871, 7868, 7880, 7881, 7882, 7883) ~ "vehicle",
       ID %in% c(7862, 7865, 7873, 7874, 7877, 7866, 7879, 7860) ~ "RTIOXA_47"
     ))%>%
-  select(ID, Date, Fat, Lean, Weight, n_measurement, adiposity_index, GROUP, DRUG,SEX) %>%
+  select(ID, Date, Fat, Lean, Weight, n_measurement, adiposity_index, GROUP, DRUG,SEX,DIET_FORMULA) %>%
   mutate(
     day_rel = Date - first(Date),
     STATUS = case_when(
@@ -102,7 +102,7 @@ plot <- echoMRI_data %>%
   theme(
     axis.text.x = element_text(angle = 45, hjust = 1)
   )+
-  facet_wrap(~SEX)
+  facet_wrap(~SEX*DIET_FORMULA)
 
 plot
 
@@ -147,7 +147,7 @@ plot <- fat_plotdata %>%
   theme_minimal() +
   labs(y = "adiposity index (fat/lean mass)", fill = "Group", color = "Group") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))+
-  facet_wrap(~SEX)+
+  facet_wrap(~SEX*DIET_FORMULA)+
   format.plot
 
 plot

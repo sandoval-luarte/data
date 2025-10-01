@@ -102,7 +102,7 @@ plot <- echoMRI_data %>%
   theme(
     axis.text.x = element_text(angle = 45, hjust = 1)
   )+
-  facet_wrap(~SEX)
+  facet_wrap(~SEX*DIET_FORMULA)
 
 plot
 
