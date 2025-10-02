@@ -61,14 +61,7 @@ format.plot <- theme(
   panel.spacing.x = unit(0.1, "lines"),          
   panel.spacing.y = unit(1.5, "lines"),  
   axis.text = element_text(family = "Helvetica", size = 13),
-  axis.title = element_text(family = "Helvetica", size = 14),
-  
-  # remove background grid lines only
-  panel.grid.major = element_blank(),
-  panel.grid.minor = element_blank(),
-  
-  # keep axis lines
-  axis.line = element_line(color = "black")
+  axis.title = element_text(family = "Helvetica", size = 14))
 )
 
 plot <- BW_data %>%
