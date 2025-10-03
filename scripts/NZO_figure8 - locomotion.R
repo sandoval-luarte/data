@@ -86,7 +86,7 @@ summary(daily_loc$total_act)
 daily_loc %>% ggplot(aes(x=lights,y=total_act))+
   stat_summary(fun.data = "mean_se",aes(group = ID),geom = "pointrange",color="red")+
 stat_summary(fun.data = "mean_se",aes(group = ID),geom = "line",color="red")+
-  facet_wrap(~GROUP)
+  facet_wrap(~GROUP*SABLE)
 
 loc_model <- lmer(data=daily_loc, total_act ~ lights*GROUP + (1|ID))
 summary(loc_model)

@@ -62,7 +62,8 @@ sable_TEE_data <- sable_dwn %>% # Load the data
   # keep both complete days
   filter(is_complete_day == 1, complete_days %in% c(1,2)) %>% 
   filter(!(ID %in% c(7866, 7874, 7877, 7879, 7864, 7881))) %>%  #cage 5 in at least one SABLE stage
-
+  filter(!(ID %in% c(7865, 7875, 7882 ))) %>%  #cage 6 issues in SABLE stage BW Mainten or regain
+  
   # average across the 2 days per ID × SABLE
   group_by(ID, SABLE) %>% 
   summarise(tee = mean(tee), .groups = "drop") %>% 

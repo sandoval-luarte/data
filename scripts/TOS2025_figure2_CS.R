@@ -25,7 +25,9 @@ echoMRI_data <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
   filter(!ID %in% c(3706, 3707, 3709, 3711, 3713, 3717, 3716, 3719, 3718, 3726)) %>% # ad lib NZO
   filter(!ID %in% c(7860, 7862, 7864, 7867, 7868, 7869, 7870, 7871, 7873, 7875, 7876, 7879, 7880, 7881,
                     7882, 7883)) %>% # ad lib C57
-  filter(!ID %in% c(3723, 3724, 3725)) %>% # CAGE 5 ISSUES NZO AND 3724 CAGE 6 ISSUES 
+  filter(!ID %in% c(3723, 3724, 3725)) %>% # CAGE 5 ISSUES NZO AND 3724 CAGE 6 ISSUES
+  filter(!(ID %in% c(7866, 7874, 7877, 7879, 7864, 7881))) %>%  #cage 5 in at least one SABLE stage
+  filter(!(ID %in% c(7865, 7875, 7882 ))) %>%  #cage 6 issues in SABLE stage BW Mainten or regain
   select(ID, Date, Fat, Lean, Weight, n_measurement, adiposity_index,STRAIN,DIET_FORMULA) %>%
   mutate(
     day_rel = Date - first(Date),
@@ -42,13 +44,12 @@ echoMRI_data <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
                                                  "2025-09-02", #7874 last day of echo
                                                  "2025-09-05")#7877 last day of echo
                                                ) ~ "BW regain",
-      STRAIN == "NZO/HlLtJ" & Date %in% as.Date(c("2025-07-22",
-                                                  "2025-07-21",
-                                                  "2025-07-17",
-                                                  "2025-07-16",
-                                                  "2025-07-14",
-                                                  "2025-07-09",
-                                                  "2025-07-08") #3708 last day of echo
+      STRAIN == "NZO/HlLtJ" & Date %in% as.Date(c("2025-07-08", #3708 last day of echo
+                                                  "2025-07-09",#3710 last day of echo
+                                                  "2025-07-14",#3714 last day of echo
+                                                  "2025-07-17", #3720, 3721, 3722 last day of echo
+                                                  "2025-07-22"#3727, 3728, 3729 last day of echo
+                                                  ) 
                                                 ) ~ "BW regain",
       
       TRUE ~ NA_character_
@@ -82,11 +83,10 @@ format.plot <- theme(
 
 
 plot <- echoMRI_data %>%
-  filter(STRAIN == "C57BL6/J") %>% 
   ggplot(aes(day_rel, Fat, group = ID)) +
   geom_point() +
   geom_line() +
-  #facet_wrap(~STRAIN) +
+  facet_wrap(~ID) +
   #geom_smooth()+
   #geom_text(aes(label = ID), vjust = -0.5, size = 2.5, alpha = 0.6) + # ID label
   labs(
