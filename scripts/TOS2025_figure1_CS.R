@@ -32,7 +32,7 @@ mutate(
       day_rel == 0 ~ "baseline", 
       STRAIN == "NZO/HlLtJ" & DATE == as.Date("2025-02-21") ~ "peak obesity",
       STRAIN == "C57BL6/J" & DATE == as.Date("2025-02-26") ~ "peak obesity",
-      STRAIN == "C57BL6/J" & day_rel == 234 ~ "BW loss",
+      STRAIN == "C57BL6/J" & day_rel == 209 ~ "BW loss",
       STRAIN == "NZO/HlLtJ" & day_rel == 161 ~ "BW loss",
       STRAIN == "C57BL6/J" & day_rel == 300 ~ "BW maintenance", 
       STRAIN == "NZO/HlLtJ" & day_rel == 196 ~ "BW maintenance",
