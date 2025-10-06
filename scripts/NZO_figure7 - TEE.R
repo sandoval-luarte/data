@@ -83,13 +83,13 @@ sable_TEE_data <- sable_TEE_data %>%
   )
 
 
-ggplot(sable_TEE_data, aes(x = SABLE, y = tee, color = DRUG, group = ID)) +
+ggplot(sable_TEE_data, aes(x = SABLE, y = tee, color = GROUP, group = ID)) +
   geom_line(alpha = 0.3) +
   geom_point(size = 2, alpha = 0.5) +
-  geom_text(aes(label = ID), size = 2.5, show.legend = FALSE) +
-  stat_summary(fun = mean, geom = "line", aes(group = DRUG), size = 1.2) +
-  facet_wrap(~lights*GROUP) +
-  labs(y = "TEE (kcal/day)", color = "Drug") +
+ # geom_text(aes(label = ID), size = 2.5, show.legend = FALSE) +
+  stat_summary(fun = mean, geom = "line", aes(group = GROUP), size = 1.2) +
+  facet_wrap(~lights) +
+  labs(y = "TEE (kcal/day)", color = "Group") +
   theme_minimal()
 
 
