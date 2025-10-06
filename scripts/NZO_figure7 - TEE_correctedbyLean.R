@@ -49,15 +49,15 @@ sable_TEE_data <- sable_dwn %>%
   ungroup() %>% 
   
   # calculate TEE for each day *and lights period*
-  group_by(ID, complete_days, is_complete_day, SABLE, lights) %>% 
+  group_by(ID, complete_days, is_complete_day, SABLE) %>% 
   summarise(tee = sum(value)*(1/60), .groups="drop") %>% 
   
   # keep both complete days
   filter(!ID %in% c(3715,3712), is_complete_day == 1, complete_days %in% c(1,2)) %>% 
   filter(!ID %in% c(3709, 3717, 3718, 3723, 3724, 3725)) %>% #3709, 3717, 3718, 3723, 3725 has cage5 issues and 3724 cage 6 is was not registered correctly
   
-  # average across the 2 days per ID × SABLE × lights
-  group_by(ID, SABLE,lights) %>% 
+  # average across the 2 days per ID × SABLE 
+  group_by(ID, SABLE) %>% 
   summarise(tee = mean(tee), .groups = "drop") %>% 
   
   # reattach GROUP and DRUG
@@ -137,6 +137,12 @@ summary(model_TEE_lean)
 
 n_distinct(sable_TEE_adj$ID) #good we have 16 animals
 
+
+emm_TEE <- emmeans(model_TEE_lean, ~ SABLE * GROUP, cov.reduce = mean)
+emm_TEE_df <- as.data.frame(emm_TEE)
+
+
+
 # Pairwise contrasts within each GROUP
 contrasts_by_group <- contrast(emm_TEE, method = "pairwise", by = "GROUP")
 
@@ -148,11 +154,6 @@ restricted_contrast <- contrasts_df %>%
   filter(GROUP == "restricted", contrast == "baseline - BW maintenance")
 
 restricted_contrast
-
-
-emm_TEE <- emmeans(model_TEE_lean, ~ SABLE * GROUP, cov.reduce = mean)
-emm_TEE_df <- as.data.frame(emm_TEE)
-
 
 
 
