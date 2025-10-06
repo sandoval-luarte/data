@@ -44,19 +44,19 @@ sable_TEE_data <- sable_dwn %>% # Load the data
   )) %>% 
   filter(grepl("kcal_hr_*", parameter)) %>% 
   ungroup() %>% 
-  group_by(ID, SABLE,SEX) %>% 
+  group_by(ID, SABLE) %>% 
   mutate(
     zt_time = zt_time(hr),
     is_zt_init = replace_na(as.numeric(hr!=lag(hr)), 0),
     complete_days = cumsum(if_else(zt_time==0 & is_zt_init == 1,1,0))
   ) %>% 
   ungroup() %>% 
-  group_by(ID, complete_days,SEX) %>% 
+  group_by(ID, complete_days) %>% 
   mutate(is_complete_day = if_else(min(zt_time)==0 & max(zt_time)==23, 1, 0)) %>% 
   ungroup() %>% 
   
   # calculate TEE for each day (no lights split!)
-  group_by(ID, complete_days, is_complete_day, SABLE,SEX) %>% 
+  group_by(ID, complete_days, is_complete_day, SABLE) %>% 
   summarise(tee = sum(value)*(1/60), .groups="drop") %>% 
   
   # keep both complete days
@@ -65,7 +65,7 @@ sable_TEE_data <- sable_dwn %>% # Load the data
   filter(!(ID %in% c(7865, 7875, 7882 ))) %>%  #cage 6 issues in SABLE stage BW Mainten or regain
   
   # average across the 2 days per ID × SABLE
-  group_by(ID, SABLE,SEX) %>% 
+  group_by(ID, SABLE) %>% 
   summarise(tee = mean(tee), .groups = "drop") %>% 
   
   # reattach GROUP and DRUG
@@ -87,12 +87,84 @@ sable_TEE_data <- sable_dwn %>% # Load the data
                               "BW maintenance", 
                               "BW regain")))
 
-ggplot(sable_TEE_data, aes(x = SABLE, y = tee, color = GROUP, group = ID)) +
-  geom_line(alpha = 0.3) +
-  geom_point(size = 2, alpha = 0.5) +
-  # geom_text(aes(label = ID), size = 2.5, show.legend = FALSE) +
-  stat_summary(fun = mean, geom = "line", aes(group = GROUP), size = 1.2) +
+
+echoMRI_data <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
+  filter(COHORT == 2) %>% # Just C57 males and females
+  mutate(ID = as.factor(ID)) %>% 
+  group_by(ID) %>%
+  arrange(Date) %>%
+  mutate(
+    GROUP = case_when(
+      ID %in% c(7860, 7862, 7864, 7867, 7868, 7869, 7870, 7871, 7873, 7875, 7876, 7879, 7880, 7881,
+                7882, 7883) ~ "ad lib",
+      ID %in% c(7861, 7863, 7865, 7866, 7872, 7874, 7877, 7878) ~ "restricted"
+    ),
+    DRUG = case_when(
+      ID %in% c(7861, 7863, 7864, 7878, 7867, 7872, 7875, 7876, 7869, 7870, 7871, 7868, 7880, 7881, 7882, 7883) ~ "vehicle",
+      ID %in% c(7862, 7865, 7873, 7874, 7877, 7866, 7879, 7860) ~ "RTIOXA_47"
+    ))%>%
+  select(ID, Date, Fat, Lean, Weight, n_measurement, adiposity_index, GROUP, DRUG,SEX, DIET_FORMULA) %>%
+  mutate(
+    day_rel = Date - first(Date),
+    STATUS = case_when(
+      Date == as.Date("2025-03-07") ~ "peak obesity",
+      Date == as.Date("2025-04-21") ~ "BW loss",
+      Date == as.Date("2025-06-05") ~ "BW maintenance",
+      Date %in% as.Date(c("2025-09-11", "2025-09-10","2025-09-05","2025-09-04",
+                          "2025-09-02","2025-09-01","2025-08-28","2025-08-27")) ~ "BW regain",
+      TRUE ~ NA_character_
+    )) %>% 
+  filter(!is.na(STATUS))
+
+# Make STATUS an ordered factor
+echoMRI_data <- echoMRI_data %>%
+  mutate(STATUS = factor(STATUS, 
+                         levels = c("peak obesity", "BW loss", 
+                                    "BW maintenance", "BW regain")))
+
+# Rename STATUS to SABLE for merging
+echoMRI_data <- echoMRI_data %>%
+  rename(SABLE = STATUS)
+
+# Left join lean mass info into TEE dataset
+sable_TEE_adj <- sable_TEE_data %>%
+  left_join(
+    echoMRI_data %>% select(ID, SABLE, Lean,SEX,DIET_FORMULA),
+    by = c("ID", "SABLE")
+  ) 
+
+#statistical model
+model_TEE_lean <- lmer(tee ~ SABLE * GROUP *SEX + Lean + (1 | ID), data = sable_TEE_adj)
+summary(model_TEE_lean)
+
+sable_TEE_adj %>%
+  group_by(SEX) %>%
+  summarise(n_ID = n_distinct(ID))
+
+
+emm_TEE <- emmeans(model_TEE_lean, ~ SABLE * GROUP*SEX, cov.reduce = mean)
+emm_TEE_df <- as.data.frame(emm_TEE)
+
+# Pairwise contrasts within each GROUP
+contrasts_by_group <- contrast(emm_TEE, method = "pairwise", by = "GROUP")
+
+# Convert to a data frame
+contrasts_df <- as.data.frame(contrasts_by_group)
+
+
+ggplot(emm_TEE_df, aes(x = SABLE, y = emmean, color = GROUP, group = GROUP)) +
+  geom_point(position = position_dodge(0.2), size = 3) +
+  geom_line(position = position_dodge(0.2), linewidth = 1) +
+  geom_errorbar(aes(ymin = emmean - SE, ymax = emmean + SE),
+                width = 0.1, position = position_dodge(0.2)) +
   facet_wrap(~SEX) +
-  labs(y = "TEE (kcal/day)", color = "Group") +
-  theme_minimal()
+  theme_minimal(base_size = 14) +
+  labs(y = "TEE (adjusted for Lean mass)", x = "SABLE phase",
+       color = "Group",
+       title = "TEE across SABLE phases (adjusted for Lean mass)") +
+  theme(legend.position = "top")
+
+sable_TEE_adj %>%
+  group_by(SEX, SABLE) %>%
+  summarise(mean_lean = mean(Lean), .groups = "drop")
 

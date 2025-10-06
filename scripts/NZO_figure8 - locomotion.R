@@ -79,7 +79,7 @@ sable_locomotion_data <- sable_dwn %>% # Load the data
 
 daily_loc <-sable_locomotion_data %>% 
 ungroup() %>% 
-  group_by(ID,complete_days,hr,lights,GROUP,SABLE) %>% 
+  group_by(ID,complete_days,lights,GROUP,SABLE) %>% 
   summarise(total_act =sum(loc_act))
 summary(daily_loc$total_act)
 
