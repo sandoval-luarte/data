@@ -33,6 +33,8 @@ spa_plotdata <- spa_data %>%
   ) %>%
   ungroup()  # remove grouping for plotting
 
+
+
 # --- Custom color palette ---
 custom_colors <- c(
   "all" = "gray70",

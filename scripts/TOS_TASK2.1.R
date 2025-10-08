@@ -1,6 +1,6 @@
 #TOS 2025 LL CS TASK 2.1 and 2.2
 #AIM task 2.1> Build deviations using modeling (LMER), must fit a linear mixed-effects model (LMM) controlling for sex, strain, and diet, with random intercepts by animal (ID).
-#AIM task 2.2> evaluate goodnes of fit of each model (generates an AIC ranking for all models using the best per y predicted)
+#AIM task 2.2> evaluate goodness of fit of each model (generates an AIC ranking for all models using the best per y predicted)
 
 #Libraries####
 library(lmerTest)
@@ -15,9 +15,9 @@ y1_model <- y1_data %>%
   distinct()
 
 # Simple linear models instead of mixed models because I dont have more than one obs per ID
-m1 <- lm(y1 ~ 1, data = y1_model)
+m1 <- lm(y1 ~ 1, data = y1_model)#Apparently this is the best model
 m2 <- lm(y1 ~ SEX, data = y1_model)
-m3 <- lm(y1 ~ STRAIN, data = y1_model) #Apparently this is the best model
+m3 <- lm(y1 ~ STRAIN, data = y1_model) 
 m4 <- lm(y1 ~ DIET_FORMULA, data = y1_model)
 m5 <- lm(y1 ~ SEX * STRAIN, data = y1_model)
 m6 <- lm(y1 ~ SEX * DIET_FORMULA, data = y1_model)
@@ -26,7 +26,7 @@ m8 <- lm(y1 ~ SEX * STRAIN * DIET_FORMULA, data = y1_model)
 
 #compare models
 anova(m1, m2, m3, m4, m5, m6, m7, m8)
-#STRAIN explains most of the variance in y1 (BW). Adding STRAIN reduces RSS from 0.0517 to 0.0359.
+#o term improves the model significantly, the simplest model (Model 1: y1 ~ 1) is the best according to parsimony and significance tests.
 
 #Y2####
 y2_data <- read_csv("../data/y2_data.csv")
@@ -78,8 +78,8 @@ y4_model <- y4_data %>%
   distinct()
 
 # Simple linear models for y4
-m1 <- lm(y4 ~ 1, data = y4_model) #Apparently this is the best model
-m2 <- lm(y4 ~ SEX, data = y4_model)
+m1 <- lm(y4 ~ 1, data = y4_model) 
+m2 <- lm(y4 ~ SEX, data = y4_model) #Apparently this is the best model
 m3 <- lm(y4 ~ STRAIN, data = y4_model)
 m4 <- lm(y4 ~ DIET_FORMULA, data = y4_model)
 m5 <- lm(y4 ~ SEX * STRAIN, data = y4_model)
@@ -89,4 +89,4 @@ m8 <- lm(y4 ~ SEX * STRAIN * DIET_FORMULA, data = y4_model)
 
 # Compare models
 anova(m1, m2, m3, m4, m5, m6, m7, m8)
-#The rate of change of adiposity index during the regain phase is mostly similar across STRAIN and DIET_FORMULA. SEX shows a trend for differences, but it is not statistically significant in this dataset.
+#SEX effect has p = 0.075, which is not significant at 0.05, but it’s borderline

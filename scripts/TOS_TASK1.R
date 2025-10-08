@@ -50,7 +50,7 @@ BW_data <- read_csv("../data/BW.csv") %>%
   drop_na(STATUS)
 
 BW_data %>%
-  group_by(STRAIN, SEX) %>%
+  group_by(STRAIN, SEX,STATUS) %>%
   summarise(
     n_ID = n_distinct(ID)
   )
@@ -75,7 +75,9 @@ echoMRI_data <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
       n_measurement == 1 ~ "baseline",
       STRAIN == "C57BL6/J" & Date == as.Date("2025-03-07") ~ "peak obesity",
       STRAIN == "NZO/HlLtJ" & Date == as.Date("2025-02-20") ~ "peak obesity",
-      STRAIN == "C57BL6/J" & Date == as.Date("2025-03-31") ~ "BW loss",
+      STRAIN == "C57BL6/J" & SEX=="F" & Date == as.Date("2025-03-31") ~ "BW loss",
+      STRAIN == "C57BL6/J" & ID==7872 & Date == as.Date("2025-04-21") ~ "BW loss",
+      STRAIN == "C57BL6/J" & SEX=="M" & Date == as.Date("2025-04-21") ~ "BW loss",
       STRAIN == "NZO/HlLtJ" & Date %in% as.Date(c("2025-04-28", "2025-05-05","2025-05-05","2025-05-06")) ~ "BW loss",
       STRAIN == "C57BL6/J" & Date == as.Date("2025-06-05") ~ "BW maintenance",
       STRAIN == "NZO/HlLtJ" & Date == as.Date("2025-05-27") ~ "BW maintenance",
@@ -102,7 +104,7 @@ echoMRI_data <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
   ) %>% 
   drop_na(STATUS)
 
-BW_data %>%
+echoMRI_data  %>%
   group_by(STRAIN, SEX,STATUS) %>%
   summarise(
     n_ID = n_distinct(ID)
@@ -118,6 +120,12 @@ y1_data <- BW_data %>%
   )
 y1_data
 
+y1_data  %>%
+  group_by(STRAIN, SEX) %>%
+  summarise(
+    n_ID = n_distinct(ID)
+  )
+
 write_csv(y1_data, "../data/y1_data.csv") # Save as CSV
 
 ## y2 ####
@@ -129,6 +137,14 @@ y2_data <- echoMRI_data %>%
     y2 = (`BW regain` - `peak obesity`) / `peak obesity`
   )
 y2_data
+
+y2_data  %>%
+  group_by(STRAIN, SEX) %>%
+  summarise(
+    n_ID = n_distinct(ID)
+  )
+
+
 write_csv(y2_data, "../data/y2_data.csv") # Save as CSV
 
 
@@ -143,6 +159,13 @@ y3_data <- BW_data %>%
     y3 = ((`BW_BW regain` - `BW_BW maintenance`) / `BW_BW maintenance`) / days
   )
 y3_data
+
+y3_data  %>%
+  group_by(STRAIN, SEX) %>%
+  summarise(
+    n_ID = n_distinct(ID)
+  )
+
 write_csv(y3_data, "../data/y3_data.csv") # Save as CSV
 
 ## y4 ####
@@ -156,6 +179,13 @@ y4_data <- echoMRI_data %>%
             `adiposity_index_BW maintenance`) / days
   )
 y4_data
+
+y4_data  %>%
+  group_by(STRAIN, SEX) %>%
+  summarise(
+    n_ID = n_distinct(ID)
+  )
+
 write_csv(y4_data, "../data/y4_data.csv") # Save as CSV
 
 

@@ -118,11 +118,11 @@ loc_plot <- loc_plotdata %>%
 loc_plot
 
 # --- Mixed model for locomotion ---
-loc_model <- lmer(total_act ~ SABLE * GROUP * DRUG + (1|ID), data = sable_locomotion_data)
+loc_model <- lmer(total_act ~ SABLE * GROUP * DRUG *lights + (1|ID), data = sable_locomotion_data)
 summary(loc_model)
 
 # --- Estimated marginal means ---
-loc_emm <- emmeans(loc_model, pairwise ~ SABLE * GROUP * DRUG, adjust = "tukey")
+loc_emm <- emmeans(loc_model, pairwise ~ SABLE * GROUP * DRUG*lights, adjust = "tukey")
 
 # --- Convert to dataframes for results ---
 df_emm_loc <- as.data.frame(loc_emm$emmeans)

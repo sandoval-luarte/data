@@ -15,14 +15,14 @@ library(emmeans)
 
 BW_data <- read_csv("../data/BW.csv") %>% 
   filter(COHORT > 1 & COHORT < 6) %>% # Just NZO AND C57
-  filter(SEX == "F") %>% # Just females from both strains
+ # filter(SEX == "F") %>% # Just females from both strains
   filter(!ID %in% c(3712, 3715)) %>% # died during study
   filter(!ID %in% c(3706, 3707, 3709, 3711, 3713, 3717, 3716, 3719, 3718, 3726)) %>% # ad lib NZO
   filter(!ID %in% c(7860, 7862, 7864, 7867, 7868, 7869, 7870, 7871, 7873, 7875, 7876, 7879, 7880, 7881,
                     7882, 7883)) %>% # ad lib C57
-  filter(!ID %in% c(3723, 3724, 3725)) %>% # CAGE 5 ISSUES NZO AND 3724 CAGE 6 ISSUES 
-  filter(!(ID %in% c(7866, 7874, 7877, 7879, 7864, 7881))) %>%  #cage 5 in at least one SABLE stage
-  filter(!(ID %in% c(7865, 7875, 7882 ))) %>%  #cage 6 issues in SABLE stage BW Mainten or regain
+  #filter(!ID %in% c(3723, 3724, 3725)) %>% # CAGE 5 ISSUES NZO AND 3724 CAGE 6 ISSUES 
+  #filter(!(ID %in% c(7866, 7874, 7877, 7879, 7864, 7881))) %>%  #cage 5 in at least one SABLE stage
+  #filter(!(ID %in% c(7865, 7875, 7882 ))) %>%  #cage 6 issues in SABLE stage BW Mainten or regain
   group_by(ID) %>% 
   arrange(DATE) %>% 
   mutate(
@@ -74,7 +74,7 @@ plot <- BW_data %>%
   ggplot(aes(day_rel, BW, group = ID)) +
   geom_point() +
   geom_line() +
-  facet_wrap(~STRAIN) +
+  facet_wrap(~ID) +
   geom_smooth()+
   #geom_text(aes(label = ID), vjust = -0.5, size = 2.5, alpha = 0.6) + # ID label
   labs(

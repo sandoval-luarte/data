@@ -34,19 +34,19 @@ sable_locomotion_data <- sable_dwn %>%
   filter(!is.na(SABLE)) %>%
   
   filter(grepl("AllMeters_*", parameter)) %>%
-  group_by(ID, SABLE,STRAIN,SEX,DIET_FORMULA) %>%
+  group_by(ID, SABLE,STRAIN,SEX) %>%
   mutate(
     zt_time = zt_time(hr),
     is_zt_init = replace_na(as.numeric(hr != lag(hr)), 0),
     complete_days = cumsum(if_else(zt_time == 0 & is_zt_init == 1, 1, 0))
   ) %>%
   ungroup() %>%
-  group_by(ID, complete_days,STRAIN,SEX,DIET_FORMULA) %>%
+  group_by(ID, complete_days,STRAIN,SEX) %>%
   mutate(is_complete_day = if_else(min(zt_time) == 0 & max(zt_time) == 23, 1, 0)) %>%
   ungroup() %>%
   
   # compute locomotor activity incrementally
-  group_by(ID, complete_days, SABLE,STRAIN, SEX,DIET_FORMULA) %>%
+  group_by(ID, complete_days, SABLE,STRAIN, SEX) %>%
   mutate(loc_act = value - lag(value)) %>%
   filter(loc_act >= 0) %>%
   summarise(total_act = sum(loc_act), .groups = "drop") %>%
@@ -56,7 +56,7 @@ sable_locomotion_data <- sable_dwn %>%
   filter(complete_days %in% c(1, 2)) %>%
   
   # average across 2 complete days
-  group_by(ID, SABLE,STRAIN,SEX,DIET_FORMULA) %>%
+  group_by(ID, SABLE,STRAIN,SEX) %>%
   summarise(total_act = mean(total_act), .groups = "drop") %>%
   
   # reattach GROUP and DRUG
