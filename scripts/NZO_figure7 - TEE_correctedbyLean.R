@@ -175,3 +175,13 @@ ggplot() +
        color = "Group",
        title = "TEE across SABLE phases (adjusted for Lean mass)") +
   theme(legend.position = "top")
+
+# Collapse adjusted data the same way you did before for non lean mass correction
+TEE_adj_plotdata <- emm_TEE_df %>%
+  mutate(
+    PlotGroup = case_when(
+      SABLE %in% c("baseline", "peak obesity") ~ "all",          # collapse all
+      SABLE %in% c("BW loss", "BW maintenance") ~ GROUP,         # separate by GROUP
+      SABLE == "BW regain" ~ paste(GROUP, "RTIOXA_47", sep = "_") # keep consistent labeling
+    )
+  )
