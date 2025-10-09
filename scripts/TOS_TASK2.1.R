@@ -6,6 +6,11 @@
 library(lmerTest)
 library(readr)
 library(caret)
+library(dplyr)
+library(stringr)
+library(purrr)
+
+
 setwd(this.path::here())
 
 
@@ -28,8 +33,8 @@ m7_y1 <- lm(y1 ~ STRAIN * DIET_FORMULA, data = y1_model)
 m8_y1 <- lm(y1 ~ SEX * STRAIN * DIET_FORMULA, data = y1_model)
 
 # compare models
-anova(m1, m2, m3, m4, m5, m6, m7, m8)
-# o term improves the model significantly, the simplest model (Model 1: y1 ~ 1) is the best according to parsimony and significance tests.
+anova(m1_y1, m2_y1, m3_y1, m4_y1, m5_y1, m6_y1, m7_y1, m8_y1)
+# no term improves the model significantly, the simplest model (Model 1: y1 ~ 1) is the best according to parsimony and significance tests.
 
 # Y2####
 y2_data <- read_csv("../data/y2_data.csv")
@@ -49,7 +54,7 @@ m7_y2 <- lm(y2 ~ STRAIN * DIET_FORMULA, data = y2_model)
 m8_y2 <- lm(y2 ~ SEX * STRAIN * DIET_FORMULA, data = y2_model)
 
 # Compare models
-anova(m1, m2, m3, m4, m5, m6, m7, m8)
+anova(m1_y2, m2_y2, m3_y2, m4_y2, m5_y2, m6_y2, m7_y2, m8_y2)
 # Does this means adiposity index in our dataset doesn’t differ significantly by SEX, STRAIN, DIET_FORMULA, or their interactions?
 
 # Y3####
@@ -70,8 +75,8 @@ m7_y3 <- lm(y3 ~ STRAIN * DIET_FORMULA, data = y3_model)
 m8_y3 <- lm(y3 ~ SEX * STRAIN * DIET_FORMULA, data = y3_model)
 
 # Compare models
-anova(m1, m2, m3, m4, m5, m6, m7, m8)
-AIC(m1, m2, m3, m4, m5, m6, m7, m8)
+anova(m1_y3, m2_y3, m3_y3, m4_y3, m5_y3, m6_y3, m7_y3, m8_y3)
+AIC(m1_y3, m2_y3, m3_y3, m4_y3, m5_y3, m6_y3, m7_y3, m8_y3)
 # The rate of body weight change during the regain phase does not differ significantly by SEX, STRAIN, DIET_FORMULA, or their interactions in this dataset.
 
 # Y4####
@@ -92,7 +97,7 @@ m7_y4 <- lm(y4 ~ STRAIN * DIET_FORMULA, data = y4_model)
 m8_y4 <- lm(y4 ~ SEX * STRAIN * DIET_FORMULA, data = y4_model)
 
 # Compare models
-anova(m1, m2, m3, m4, m5, m6, m7, m8)
+anova(m1_y4, m2_y4, m3_y4, m4_y4, m5_y4, m6_y4, m7_y4, m8_y4)
 # SEX effect has p = 0.075, which is not significant at 0.05, but it’s borderline
 
 # aic comparisons
