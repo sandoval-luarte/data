@@ -1,6 +1,7 @@
 # TOS 2025 LL CS TASK 2.1 and 2.2
 # AIM task 2.1> Build deviations using modeling (LMER), must fit a linear mixed-effects model (LMM) controlling for sex, strain, and diet, with random intercepts by animal (ID).
 # AIM task 2.2> evaluate goodness of fit of each model (generates an AIC ranking for all models using the best per y predicted)
+# AIM task 2.3> Build deviation and residuals
 
 # Libraries####
 library(lmerTest)
@@ -253,3 +254,16 @@ final_df <- complete_data %>%
             arrange(ID),
         by = "ID"
     )
+
+sapply(final_df, class) #from y1 to y4 are matrix so I can not save this to csv to run task 3 in a different .R file
+
+final_df <- final_df %>%
+  mutate(
+    y1 = as.numeric(y1),
+    y2 = as.numeric(y2),
+    y3 = as.numeric(y3),
+    y4 = as.numeric(y4)
+  )
+
+write_csv(final_df, "../data/final_df_task2.csv")
+
