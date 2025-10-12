@@ -4,7 +4,7 @@
 #3 from acute body weight loss to body weight maintenance
 #4 from body weight maintenance to body weight gain after RTIOXA-47 injections
 
-#libraries
+#libraries----
 library(dplyr) #to use pipe
 library(ggplot2) #to graph
 library(readr) #to read csv
@@ -15,7 +15,10 @@ library(broom)
 library(Hmisc)
 library(lme4)
 library(emmeans)
+library(patchwork)
 
+
+#BW CSV data import RTIOXA 47 ----
 BW_data <- read_csv("../data/BW.csv") %>% 
   filter(COHORT > 1 & COHORT < 6) %>% # Just NZO females
   filter(!ID %in% c(3712, 3715)) %>% # died during study
@@ -87,6 +90,7 @@ format.plot <- theme(
   axis.title = element_text(family = "Helvetica", size = 14))
 
 
+#plot 1 description of BW over time per ID----
 plot <- BW_data %>% 
   ggplot(aes(day_rel, BW, group = ID)) +
   geom_point() +
@@ -130,6 +134,7 @@ summary_data <- BW_data %>%
     .groups = "drop"
   )
 
+#plot 2 BW in each STATUS collapsed by DIET_FORMULA----
 ggplot() +
   # Individual points, smaller and more transparent
   geom_point(data = BW_data, 
@@ -172,7 +177,8 @@ summary_data_rel <- BW_data %>%
     .groups = "drop"
   )
 
-# Plot using bw_rel
+#plot 3 % BW gain in each STATUS collapsed by DIET_FORMULA----
+
 ggplot() +
   # Individual points, smaller and more transparent
   geom_point(data = BW_data, 
@@ -207,6 +213,10 @@ ggplot() +
   ) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   format.plot
+
+
+#plot 4 BW in all females together ----
+
 
 # Compute mean ± SEM per STRAIN, STATUS, GROUP, SEX
 summary_data_rel <- BW_data %>%
@@ -267,6 +277,7 @@ ggplot() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   format.plot
 
+#plot 5 % BW gain in all females together ----
 
 # Compute mean ± SEM per STRAIN, STATUS, GROUP, SEX
 summary_data_rel <- BW_data %>%
@@ -326,4 +337,103 @@ ggplot() +
   ) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   format.plot
+
+# plot 6 RTI47 PLOT BW% GAIN ----
+
+# Step 1. Compute % change from BW maintenance → BW regain
+BW_delta <- BW_DATA_INJ %>%
+  filter(STATUS %in% c("BW maintenance", "BW regain")) %>%
+  filter(DRUG %in% c("vehicle", "RTIOXA_47")) %>%
+  select(ID, DRUG, STATUS, BW,STRAIN,SEX) %>%
+  pivot_wider(names_from = STATUS, values_from = BW) %>%
+  filter(!is.na(`BW maintenance`) & !is.na(`BW regain`)) %>%
+  group_by(ID,SEX,STRAIN) %>% 
+  mutate(
+    DRUG = factor(DRUG, levels = c("vehicle", "RTIOXA_47")),
+    bw_rel = 100 * (`BW regain` - `BW maintenance`) / `BW maintenance` # % change
+  )
+
+# Step 2. Plot mean ± SEM bars with individual mice
+ggplot(BW_delta, aes(x = DRUG, y = bw_rel, fill = DRUG)) +
+  # Bars for mean ± SEM
+  stat_summary(fun = mean, geom = "bar", color = "black", width = 0.7) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.15, linewidth = 0.8) +
+  # Individual mice points
+  geom_point(position = position_jitter(width = 0.1), size = 2, color = "black")  +
+  # T-test statistics
+  stat_compare_means(
+    comparisons = list(c("vehicle", "RTIOXA_47")),
+    method = "t.test",
+    label = "p.signif",
+    label.y = max(BW_delta$bw_rel) + 2
+  ) +
+  labs(
+    x = "",
+    y = "% BW change from BW maintenance",
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(legend.position = "none") +
+  scale_fill_manual(values = c("gray70", "#8DA0CB"))+
+  facet_grid(~STRAIN*SEX)
+
+#BW CSV data import RTIOXA 43 x 5 days  ----
+
+BW_data_43 <- read_csv("../data/BW.csv") %>% 
+  filter(COHORT == 9) %>% # 
+  group_by(ID) %>% 
+  arrange(DATE) %>% 
+  mutate(
+    bw_rel = 100 * (BW - first(BW)) / first(BW),
+    body_lag = (lag(BW) - BW),
+    DRUG = case_when(
+      ID %in% c(8096, 8099, 8102) ~ "RTI_43_Y",
+      ID %in% c(8097, 8098, 8101) ~ "RTI_43_M",
+      ID %in% c(8095, 8100, 8103) ~ "Vehicle"),
+    day_rel = DATE - first(DATE)) %>% 
+  filter(as.Date(DATE) >= as.Date("2025-04-16"))
+
+n_distinct(BW_data_43$ID) #9 animals in total, 3 veh, 3 rtioxa 43 from medchem and 3 rtioxa 43 from yanan
+
+
+# Step 1. Prepare baseline vs endpoint using bw_rel
+BW_compare <- BW_data_43 %>%
+  filter(COMMENTS %in% c("DAY_1_INJECTIONS", "SAC_AND_WHITE_DEPOSIT_QUANTIFICATION")) %>%
+  mutate(COMMENTS = recode(COMMENTS,
+                           "DAY_1_INJECTIONS" = "baseline",
+                           "SAC_AND_WHITE_DEPOSIT_QUANTIFICATION" = "endpoint")) %>%
+  select(ID, DRUG, COMMENTS, bw_rel) %>%
+  pivot_wider(names_from = COMMENTS, values_from = bw_rel) %>%
+  filter(!is.na(endpoint)) %>%
+  mutate(DRUG = factor(DRUG, levels = c("Vehicle", "RTI_43_Y", "RTI_43_M")))
+
+# Step 2. Remove groups with <2 animals
+valid_groups <- BW_compare %>%
+  group_by(DRUG) %>%
+  filter(n() >= 2) %>%
+  ungroup()
+
+# Step 3. Plot with raw data, mean ± SEM bars, and statistics
+ggplot(valid_groups, aes(x = DRUG, y = endpoint, fill = DRUG)) +
+  # Mean ± SEM bars
+  stat_summary(fun = mean, geom = "bar", color = "black", width = 0.7) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.15, linewidth = 0.8) +
+  # Individual points
+  geom_jitter(width = 0.1, alpha = 0.7, size = 2) +
+  # T-test statistics
+  stat_compare_means(
+    comparisons = list(c("Vehicle", "RTI_43_Y"),
+                       c("Vehicle", "RTI_43_M")),
+    method = "t.test",
+    label = "p.signif",
+    label.y = c(max(valid_groups$endpoint) + 5,
+                max(valid_groups$endpoint) + 10),
+    tip.length = 0.02
+  ) +
+  labs(
+    x = "",
+    y = "% of BW gain from baseline)"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(legend.position = "none") +
+  scale_fill_manual(values = c("gray70", "#66C2A5", "darkgreen"))
 
