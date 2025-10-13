@@ -13,6 +13,7 @@ library(lmerTest)
 library(emmeans)
 library(ggpubr)
 library(ggrepel) # optional, but better for labels
+library(outliers)
 
 #functions####
 zt_time <- function(hr){
@@ -185,3 +186,37 @@ TEE_adj_plotdata <- emm_TEE_df %>%
       SABLE == "BW regain" ~ paste(GROUP, "RTIOXA_47", sep = "_") # keep consistent labeling
     )
   )
+
+#Grubb test to evaluate if 3711 is an outlayer using raw data
+
+sable_TEE_adj <- sable_TEE_data %>%
+  filter(SABLE == "BW loss") 
+
+shapiro.test(bwloss$tee)
+
+hist(bwloss$tee, main = "TEE distribution (BW loss)", xlab = "TEE")
+qqnorm(bwloss$tee)
+qqline(bwloss$tee)
+
+
+sable_TEE_adj %>%
+  ggplot(aes(x = GROUP, y = tee, color = GROUP)) +
+  geom_jitter(width = 0.2, size = 3, alpha = 0.7) +
+  geom_text_repel(aes(label = ID), size = 3, max.overlaps = 20) +
+  labs(title = "TEE during BW loss phase", y = "TEE (kcal/day)") +
+  theme_minimal()
+
+# Run Grubbs' test (detects one outlier)
+grubbs.test(bwloss$tee, type = 10) #this is for raw data
+
+
+#Grubb test to evaluate if 3711 is an outlayer using adjusted data
+sable_TEE_data$residuals <- resid(model_TEE_lean)
+bwloss <- sable_TEE_data %>% filter(SABLE == "BW loss")
+grubbs.test(bwloss$residuals, type = 10)
+
+#Even if 3711’s TEE looks low compared to others
+#statistically it is not an outlier once you adjust for 
+#lean mass with the LMER model.
+
+
