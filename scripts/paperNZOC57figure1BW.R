@@ -341,7 +341,9 @@ ggplot() +
 # plot 6 RTI47 PLOT BW% GAIN ----
 
 # Step 1. Compute % change from BW maintenance → BW regain
-BW_delta <- BW_DATA_INJ %>%
+
+
+BW_delta <- BW_data %>%
   filter(STATUS %in% c("BW maintenance", "BW regain")) %>%
   filter(DRUG %in% c("vehicle", "RTIOXA_47")) %>%
   select(ID, DRUG, STATUS, BW,STRAIN,SEX) %>%
@@ -376,7 +378,7 @@ ggplot(BW_delta, aes(x = DRUG, y = bw_rel, fill = DRUG)) +
   scale_fill_manual(values = c("gray70", "#8DA0CB"))+
   facet_grid(~STRAIN*SEX)
 
-#BW CSV data import RTIOXA 43 x 5 days  ----
+#BW CSV data import RTIOXA 43 x 5 days in a row  ----
 
 BW_data_43 <- read_csv("../data/BW.csv") %>% 
   filter(COHORT == 9) %>% # 
@@ -412,6 +414,8 @@ valid_groups <- BW_compare %>%
   filter(n() >= 2) %>%
   ungroup()
 
+# plot 7 RTI43 PLOT BW% GAIN ----
+
 # Step 3. Plot with raw data, mean ± SEM bars, and statistics
 ggplot(valid_groups, aes(x = DRUG, y = endpoint, fill = DRUG)) +
   # Mean ± SEM bars
@@ -436,4 +440,114 @@ ggplot(valid_groups, aes(x = DRUG, y = endpoint, fill = DRUG)) +
   theme_minimal(base_size = 14) +
   theme(legend.position = "none") +
   scale_fill_manual(values = c("gray70", "#66C2A5", "darkgreen"))
+
+# --- Plot 6: RTIOXA-47 % BW change (Panel A) ----
+BW_delta <- BW_data %>%
+  filter(STATUS %in% c("BW maintenance", "BW regain")) %>%
+  filter(DRUG %in% c("vehicle", "RTIOXA_47")) %>%
+  select(ID, DRUG, STATUS, BW, STRAIN, SEX) %>%
+  pivot_wider(names_from = STATUS, values_from = BW) %>%
+  filter(!is.na(`BW maintenance`) & !is.na(`BW regain`)) %>%
+  group_by(ID, SEX, STRAIN) %>%
+  mutate(
+    DRUG = factor(DRUG, levels = c("vehicle", "RTIOXA_47")),
+    bw_rel = 100 * (`BW regain` - `BW maintenance`) / `BW maintenance`
+  )
+
+plot_A <- ggplot(BW_delta, aes(x = DRUG, y = bw_rel, fill = DRUG)) +
+  stat_summary(fun = mean, geom = "bar", color = "black", width = 0.7) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.15, linewidth = 0.8) +
+  geom_point(position = position_jitter(width = 0.1), size = 2, color = "black") +
+  stat_compare_means(
+    comparisons = list(c("vehicle", "RTIOXA_47")),
+    method = "t.test",
+    label = "p.signif",
+    label.y = max(BW_delta$bw_rel, na.rm = TRUE) + 2
+  ) +
+  labs(
+    x = "",
+    y = "% BW change from BW maintenance"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    legend.position = "none",
+    strip.text = element_text(size = 14, face = "bold"),
+    plot.title = element_text(hjust = -0.1, vjust = 1.5, size = 18)
+  ) +
+  scale_fill_manual(values = c("vehicle" = "white", "RTIOXA_47" = "#8DA0CB")) +
+  facet_grid(~ STRAIN * SEX) +
+  coord_cartesian(ylim = c(0, 40))  # <<--- unified Y axis
+
+
+# --- Plot 7: RTIOXA-43 % BW gain (Panel B) ----
+BW_data_43 <- read_csv("../data/BW.csv") %>%
+  filter(COHORT == 9) %>%
+  group_by(ID) %>%
+  arrange(DATE) %>%
+  mutate(
+    bw_rel = 100 * (BW - first(BW)) / first(BW),
+    body_lag = (lag(BW) - BW),
+    DRUG = case_when(
+      ID %in% c(8096, 8099, 8102) ~ "RTIOXA_43_donated",
+      ID %in% c(8097, 8098, 8101) ~ "RTIOXA_43_Medchem",
+      ID %in% c(8095, 8100, 8103) ~ "vehicle"
+    ),
+    day_rel = DATE - first(DATE),
+    STRAIN = "C57BL6/J"
+  ) %>%
+  filter(as.Date(DATE) >= as.Date("2025-04-16"))
+
+BW_compare <- BW_data_43 %>%
+  filter(COMMENTS %in% c("DAY_1_INJECTIONS", "SAC_AND_WHITE_DEPOSIT_QUANTIFICATION")) %>%
+  mutate(COMMENTS = recode(COMMENTS,
+                           "DAY_1_INJECTIONS" = "baseline",
+                           "SAC_AND_WHITE_DEPOSIT_QUANTIFICATION" = "endpoint")) %>%
+  select(ID, DRUG, COMMENTS, bw_rel, STRAIN, SEX) %>%
+  pivot_wider(names_from = COMMENTS, values_from = bw_rel) %>%
+  filter(!is.na(endpoint)) %>%
+  mutate(DRUG = factor(DRUG, levels = c("vehicle", "RTIOXA_43_donated", "RTIOXA_43_Medchem")))
+
+valid_groups <- BW_compare %>%
+  group_by(DRUG) %>%
+  filter(n() >= 2) %>%
+  ungroup()
+
+plot_B <- ggplot(valid_groups, aes(x = DRUG, y = endpoint, fill = DRUG)) +
+  stat_summary(fun = mean, geom = "bar", color = "black", width = 0.7) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.15, linewidth = 0.8) +
+  geom_point(position = position_jitter(width = 0.1), size = 2, color = "black") +
+  stat_compare_means(
+    comparisons = list(
+      c("vehicle", "RTIOXA_43_donated"),
+      c("vehicle", "RTIOXA_43_Medchem")
+    ),
+    method = "t.test",
+    label = "p.signif",
+    label.y = c(max(valid_groups$endpoint) + 5,
+                max(valid_groups$endpoint) + 10),
+    tip.length = 0.02
+  ) +
+  labs(
+    x = "",
+    y = "% BW gain from baseline"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    legend.position = "none",
+    strip.text = element_text(size = 14, face = "bold"),
+    plot.title = element_text(hjust = -0.1, vjust = 1.5, size = 18)
+  ) +
+  scale_fill_manual(values = c(
+    "vehicle" = "white",
+    "RTIOXA_43_donated" = "#66C2A5",
+    "RTIOXA_43_Medchem" = "darkgreen"
+  )) +
+  facet_grid(~ STRAIN * SEX) +
+  coord_cartesian(ylim = c(0, 40))  # <<--- unified Y axis
+
+
+# --- Combine plots A and B ----
+library(patchwork)
+
+(plot_B | plot_A) + plot_annotation(tag_levels = "A")
 
