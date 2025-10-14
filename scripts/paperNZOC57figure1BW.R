@@ -441,7 +441,7 @@ ggplot(valid_groups, aes(x = DRUG, y = endpoint, fill = DRUG)) +
   theme(legend.position = "none") +
   scale_fill_manual(values = c("gray70", "#66C2A5", "darkgreen"))
 
-# --- Plot 6: RTIOXA-47 % BW change (Panel A) ----
+# --- Plot A: RTIOXA-47 % BW change  ----
 BW_delta <- BW_data %>%
   filter(STATUS %in% c("BW maintenance", "BW regain")) %>%
   filter(DRUG %in% c("vehicle", "RTIOXA_47")) %>%
@@ -479,7 +479,7 @@ plot_A <- ggplot(BW_delta, aes(x = DRUG, y = bw_rel, fill = DRUG)) +
   coord_cartesian(ylim = c(0, 40))  # <<--- unified Y axis
 
 
-# --- Plot 7: RTIOXA-43 % BW gain (Panel B) ----
+# --- Plot B: RTIOXA-43 % BW gain  ----
 BW_data_43 <- read_csv("../data/BW.csv") %>%
   filter(COHORT == 9) %>%
   group_by(ID) %>%
@@ -545,9 +545,88 @@ plot_B <- ggplot(valid_groups, aes(x = DRUG, y = endpoint, fill = DRUG)) +
   facet_grid(~ STRAIN * SEX) +
   coord_cartesian(ylim = c(0, 40))  # <<--- unified Y axis
 
+# --- Plot C: RTIOXA-47 for 5 days in a row  BW  ----
+BW_data_47 <- read_csv("../data/BW.csv") %>%
+  filter(COHORT == 12) %>%
+  group_by(ID) %>%
+  arrange(DATE) %>%
+  mutate(
+    DRUG = case_when(
+      ID %in% c(8075, 8077, 8078) ~ "RTIOXA_47",
+      ID %in% c(8074, 8076, 8079) ~  "vehicle",
+    ),
+    STRAIN = "C57BL6/J"
+  ) 
 
-# --- Combine plots A and B ----
+# 1. Filter baseline and final
+BW_compare <- BW_data_47 %>%
+  filter(COMMENTS %in% c("INJECTION_DAY_1", "ECHO_MRI_AND_SAC")) %>%
+  select(ID, DATE, BW, DRUG, STRAIN, SEX, COMMENTS)
+
+# 2. Pivot to wide format
+BW_wide <- BW_compare %>%
+  pivot_wider(
+    id_cols = c(ID, DRUG, STRAIN, SEX),
+    names_from = COMMENTS,
+    values_from = BW
+  )
+
+# 3. Calculate % BW change
+BW_wide <- BW_wide %>%
+  mutate(
+    bw_rel = 100 * (ECHO_MRI_AND_SAC - INJECTION_DAY_1) / INJECTION_DAY_1,
+    DRUG = factor(DRUG, levels = c("vehicle", "RTIOXA_47"))
+  )
+# 3b. Keep only groups with at least 2 mice
+valid_groups_C <- BW_wide %>%
+  group_by(DRUG) %>%
+  filter(n() >= 2) %>%
+  ungroup()
+
+# 4. Plot with statistics
+plot_C <- ggplot(valid_groups_C, aes(x = DRUG, y = bw_rel, fill = DRUG)) +
+  stat_summary(fun = mean, geom = "bar", color = "black", width = 0.7, alpha = 0.7) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.15, linewidth = 0.8) +
+  geom_point(position = position_jitter(width = 0.1), size = 2, color = "black") +
+  stat_compare_means(
+    comparisons = list(c("vehicle", "RTIOXA_47")),
+    method = "t.test",
+    label = "p.format",         # << show numeric p-value
+    label.y = max(valid_groups_C$bw_rel, na.rm = TRUE) + 2,
+    tip.length = 0.02
+  ) +
+  labs(
+    x = "",
+    y = "% BW change from baseline"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    legend.position = "none",
+    strip.text = element_text(size = 14, face = "bold"),
+    plot.title = element_text(hjust = -0.1, vjust = 1.5, size = 18),
+    axis.text.x = element_text(angle = 45, hjust = 1)  # rotate drug names
+  ) +
+  scale_fill_manual(values = c("vehicle" = "white", "RTIOXA_47" = "#8DA0CB")) +
+  facet_grid(~ STRAIN * SEX) +
+  coord_cartesian(ylim = c(-3, 3))
+
+plot_C
+
+plot_A <- plot_A +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+y_max <- max(valid_groups_C$bw_rel, na.rm = TRUE)
+plot_C <- plot_C +
+  coord_cartesian(ylim = c(min(valid_groups_C$bw_rel, na.rm = TRUE) - 1,
+                           y_max + 5))
+plot_C <- plot_C +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+# --- Combine plots 6,7,8 and B ----
 library(patchwork)
 
-(plot_B | plot_A) + plot_annotation(tag_levels = "A")
+(plot_B | plot_C| plot_A) + plot_annotation(tag_levels = "A")
 
+# Run t-test for Plot C
+t_test_C <- t.test(bw_rel ~ DRUG, data = valid_groups_C)
+t_test_C
