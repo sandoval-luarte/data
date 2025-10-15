@@ -543,7 +543,8 @@ plot_B <- ggplot(valid_groups, aes(x = DRUG, y = endpoint, fill = DRUG)) +
     "RTIOXA_43_Medchem" = "darkgreen"
   )) +
   facet_grid(~ STRAIN * SEX) +
-  coord_cartesian(ylim = c(0, 40))  # <<--- unified Y axis
+  coord_cartesian(ylim = c(0, 40)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))# <<--- unified Y axis
 
 # --- Plot C: RTIOXA-47 for 5 days in a row  BW  ----
 BW_data_47 <- read_csv("../data/BW.csv") %>%
@@ -615,6 +616,7 @@ plot_C
 plot_A <- plot_A +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 y_max <- max(valid_groups_C$bw_rel, na.rm = TRUE)
+
 plot_C <- plot_C +
   coord_cartesian(ylim = c(min(valid_groups_C$bw_rel, na.rm = TRUE) - 1,
                            y_max + 5))
@@ -630,3 +632,4 @@ library(patchwork)
 # Run t-test for Plot C
 t_test_C <- t.test(bw_rel ~ DRUG, data = valid_groups_C)
 t_test_C
+

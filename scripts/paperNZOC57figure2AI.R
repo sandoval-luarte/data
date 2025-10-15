@@ -10,7 +10,7 @@ library(lme4)
 library(emmeans)
 library(ARTool)
 
-# C57BL6J RTIOXA-43 × 5 days in a row ----
+# RTIOXA-43 × 5 days in a row ----
 
 echoMRI_data_43 <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
   filter(COHORT == 9) %>% # C57BL6J RTIOXA-43 × 5 days in a row 
@@ -52,6 +52,7 @@ pairwise_result <- pairwise.t.test(
 )
 pairwise_result
 
+## plot 1----
 
 ggplot(echoMRI_data_43, aes(x = DRUG, y = delta_adiposity_index, fill = DRUG)) +
   stat_summary(fun = mean, geom = "col", color = "black", width = 0.7, alpha = 0.7) +
@@ -75,14 +76,81 @@ ggplot(echoMRI_data_43, aes(x = DRUG, y = delta_adiposity_index, fill = DRUG)) +
     "RTIOXA_43_Medchem" = "darkgreen"
   ))
 
-# C57BL6J and NZO RTIOXA-47 × 5 weeks ----
-library(dplyr)
-library(readr)
-library(ARTool)
-library(artTools)
-library(emmeans)
-library(ggplot2)
-library(ggpubr)
+
+# RTIOXA-47 for 5 days in a row ----
+BW_data_47 <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
+  filter(COHORT == 12) %>%
+  group_by(ID) %>%
+  arrange(Date) %>%
+  mutate(
+    DRUG = case_when(
+      ID %in% c(8075, 8077, 8078) ~ "RTIOXA_47",
+      ID %in% c(8074, 8076, 8079) ~  "vehicle"
+    ),
+    STRAIN = "C57BL6/J"
+  ) %>%
+  ungroup()
+
+# 1️⃣ Select baseline (n=1) and end (n=2)
+BW_compare <- BW_data_47 %>%
+  filter(n_measurement %in% c(1, 2)) %>%
+  select(ID, DRUG, STRAIN, SEX, n_measurement, Fat, Lean)
+
+# 2️⃣ Pivot wider (baseline and end columns)
+BW_wide <- BW_compare %>%
+  pivot_wider(
+    id_cols = c(ID, DRUG, STRAIN, SEX),
+    names_from = n_measurement,
+    values_from = c(Fat, Lean),
+    names_prefix = "n"
+  )
+
+# 3️⃣ Calculate deltas and ΔFat / ΔLean
+BW_wide <- BW_wide %>%
+  mutate(
+    delta_fat  = Fat_n2 - Fat_n1,
+    delta_lean = Lean_n2 - Lean_n1,
+    delta_adiposity_index = ifelse(delta_lean == 0, NA, delta_fat / delta_lean),
+    DRUG = factor(DRUG, levels = c("vehicle", "RTIOXA_47"))
+  )
+
+# --- One-way ANOVA
+anova_result_47 <- aov(delta_adiposity_index ~ DRUG, 
+                       data = distinct(BW_wide, ID, DRUG, delta_adiposity_index))
+summary(anova_result_47)
+
+# --- Pairwise t-tests (Bonferroni correction)
+pairwise_result_47 <- pairwise.t.test(
+  x = distinct(BW_wide, ID, DRUG, delta_adiposity_index)$delta_adiposity_index,
+  g = distinct(BW_wide, ID, DRUG, delta_adiposity_index)$DRUG,
+  p.adjust.method = "bonferroni"
+)
+pairwise_result_47
+
+## plot 2 ----
+
+ggplot(BW_wide, aes(x = DRUG, y = delta_adiposity_index, fill = DRUG)) +
+  stat_summary(fun = mean, geom = "col", color = "black", width = 0.7, alpha = 0.7) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.3) +
+  geom_point(alpha = 0.7, size = 2) +
+  theme_minimal() +
+  labs(x = NULL, y = "ΔFat / ΔLean") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "none") +
+  stat_compare_means(
+    method = "t.test",
+    comparisons = list(
+      c("vehicle", "RTIOXA_47")
+    ),
+    label = "p.signif"
+  ) +
+  scale_fill_manual(values = c(
+    "vehicle" = "white",
+    "RTIOXA_47" = "#66C2A5"
+  ))
+
+
+# RTIOXA-47 × 5 weeks ----
 
 # --- 1. Load and preprocess data ---
 echoMRI_data <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
@@ -175,6 +243,8 @@ pairwise_df <- art_results %>%
     )
   )
 
+##plot 3----
+
 ggplot(echoMRI_delta, aes(x = DRUG, y = delta_adiposity_index, fill = DRUG)) +
   stat_summary(fun = mean, geom = "col", color = "black", width = 0.7, alpha = 0.7) +
   stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.3) +
@@ -190,10 +260,6 @@ ggplot(echoMRI_delta, aes(x = DRUG, y = delta_adiposity_index, fill = DRUG)) +
   stat_pvalue_manual(pairwise_df, label = "p.signif",
                      inherit.aes = FALSE)  # important
 
-
-library(dplyr)
-library(ggplot2)
-library(ggpubr)
 
 # --- 1. Add Experiment column ---
 echoMRI_data_43_plot <- echoMRI_data_43 %>%
@@ -230,22 +296,92 @@ pairwise_47 <- pairwise_df %>%
 
 pairwise_combined <- bind_rows(pairwise_43, pairwise_47)
 
-# --- 4. Plot combined ---
+# plot combined----
+
+##  Prepare each dataset for consistent merging ----
+
+## RTIOXA-43 (5 days)
+echoMRI_data_43_plot <- echoMRI_data_43 %>%
+  mutate(
+    Experiment = "RTIOXA-43 (C57BL6J, 5 days)",
+    STRAIN = "C57BL6J",
+    SEX = "M"
+  ) %>%
+  select(ID, DRUG, STRAIN, SEX, delta_adiposity_index, Experiment)
+
+## RTIOXA-47 (5 days)
+BW_wide_plot <- BW_wide %>%
+  mutate(
+    Experiment = "RTIOXA-47 (C57BL6J, 5 days)",
+    STRAIN = "C57BL6J",
+    SEX = "M"
+  ) %>%
+  select(ID, DRUG, STRAIN, SEX, delta_adiposity_index, Experiment)
+
+## RTIOXA-47 (5 weeks)
+echoMRI_delta_plot <- echoMRI_delta %>%
+  mutate(Experiment = "RTIOXA-47 (C57BL6J & NZO, 5 weeks)") %>%
+  select(ID, DRUG, STRAIN, SEX, delta_adiposity_index, Experiment)
+
+#  Combine all experiments ----
+combined_data <- bind_rows(
+  echoMRI_data_43_plot,
+  BW_wide_plot,
+  echoMRI_delta_plot
+)
+
+#  Combine significance results ----
+
+## RTIOXA-43
+pairwise_43 <- data.frame(
+  Experiment = "RTIOXA-43 (C57BL6J, 5 days)",
+  STRAIN = "C57BL6J",
+  SEX = "M",
+  group1 = c("vehicle", "vehicle"),
+  group2 = c("RTIOXA_43_donated", "RTIOXA_43_Medchem"),
+  y.position = max(echoMRI_data_43$delta_adiposity_index, na.rm = TRUE) * 1.05,
+  p.signif = c("*", "*")
+)
+
+## RTIOXA-47 (5 days)
+pairwise_47_5d <- data.frame(
+  Experiment = "RTIOXA-47 (C57BL6J, 5 days)",
+  STRAIN = "C57BL6J",
+  SEX = "M",
+  group1 = "vehicle",
+  group2 = "RTIOXA_47",
+  y.position = max(BW_wide$delta_adiposity_index, na.rm = TRUE) * 1.05,
+  p.signif = ifelse(
+    pairwise_result_47$p.value[1] < 0.001, "***",
+    ifelse(pairwise_result_47$p.value[1] < 0.01, "**",
+           ifelse(pairwise_result_47$p.value[1] < 0.05, "*", "ns"))
+  )
+)
+
+## RTIOXA-47 (5 weeks) — reuse from your ART output
+pairwise_47_5w <- pairwise_df %>%
+  mutate(Experiment = "RTIOXA-47 (C57BL6J & NZO, 5 weeks)") %>%
+  select(Experiment, STRAIN, SEX, group1, group2, y.position, p.signif)
+
+## Combine all
+pairwise_combined <- bind_rows(pairwise_43, pairwise_47_5d, pairwise_47_5w)
+
+# --- 4️⃣ Plot combined figure ----
 ggplot(combined_data, aes(x = DRUG, y = delta_adiposity_index, fill = DRUG)) +
   stat_summary(fun = mean, geom = "col", color = "black", width = 0.7, alpha = 0.7) +
   stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.3) +
-  geom_point(aes(x = DRUG, y = delta_adiposity_index), 
-             alpha = 0.7, size = 2, position = position_jitter(width = 0.15)) +
+  geom_point(alpha = 0.7, size = 2, position = position_jitter(width = 0.15)) +
   theme_minimal() +
   labs(x = NULL, y = "ΔFat / ΔLean") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1),
-        legend.position = "none") +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "none"
+  ) +
   facet_wrap(~Experiment + STRAIN + SEX, scales = "free_x") +
   scale_fill_manual(values = c(
-    "vehicle" = "white", 
+    "vehicle" = "white",
     "RTIOXA_43_donated" = "#66C2A5",
     "RTIOXA_43_Medchem" = "darkgreen",
     "RTIOXA_47" = "orange"
   )) +
   stat_pvalue_manual(pairwise_combined, label = "p.signif", inherit.aes = FALSE)
-
