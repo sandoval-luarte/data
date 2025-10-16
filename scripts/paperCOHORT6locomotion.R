@@ -1,4 +1,4 @@
-#COHORT 6
+#COHORT 6 LOCOMOTION
 #Libraries####
 library(dplyr) #to open a RDS and use pipe
 library(tidyr) #to use cumsum
@@ -9,6 +9,8 @@ library(emmeans)
 library(ggpubr)
 library(ggrepel) # optional, but better for labels
 library(lme4)
+library(stringr)
+
 
 
 #functions####
@@ -18,9 +20,9 @@ zt_time <- function(hr){
 
 sable_dwn <- readRDS(file = "../data/sable_downsampled_data.rds") 
 
-#TEE####
+#locomotion####
 # build the summarized dataset
-sable_TEE_data <- sable_dwn %>% 
+sable_loc_data <- sable_dwn %>% 
   filter(COHORT == 6) %>%   
   mutate(lights  = if_else(hr %in% c(20,21,22,23,0,1,2,3,4,5), "off", "on"),
          SEX = case_when(
@@ -71,7 +73,7 @@ sable_TEE_data <- sable_dwn %>%
     ID==2007 & sable_idx %in% c("SABLE_DAY_4","SABLE_DAY_5","SABLE_DAY_6") ~ "RTIOXA_43_medchem",
     ID==2007 & sable_idx %in% c("SABLE_DAY_7","SABLE_DAY_8","SABLE_DAY_9") ~ "RTIOXA_43_donated",
   )) %>% 
-  filter(grepl("kcal_hr_*", parameter)) %>% 
+  filter(grepl("AllMeters_*", parameter)) %>% 
   ungroup() %>% 
   group_by(ID, DRUG,SEX) %>% 
   mutate(
@@ -80,33 +82,35 @@ sable_TEE_data <- sable_dwn %>%
     complete_days = cumsum(if_else(zt_time==0 & is_zt_init == 1,1,0))
   ) %>% 
   ungroup() %>% 
-  group_by(ID, complete_days,SEX) %>% 
+  group_by(ID, complete_days,SEX,DRUG) %>% 
   mutate(is_complete_day = if_else(min(zt_time)==0 & max(zt_time)==23, 1, 0)) %>% 
   ungroup() %>% 
   
-  # calculate TEE for each day *and lights period*
+  # calculate LOCOMOTION for each day *and lights period*
   group_by(ID, complete_days, is_complete_day, DRUG, lights,SEX) %>% 
-  summarise(tee = sum(value)*(1/60), .groups="drop") %>% 
+  mutate(loc_act = value - lag(value)) %>%
+  filter(loc_act >= 0) %>%
+  summarise(total_act = sum(loc_act), .groups = "drop") %>%
   
   # keep both complete days
   filter(!ID %in% c(1003,2001), is_complete_day == 1, complete_days %in% c(1,2)) %>% #ID 1003 DIED DURING EXPERIMENT AND ID 2005 WAS IN CAGE 5
-
+  
   # average across the 2 days per ID × DRUG × lights
   group_by(ID, DRUG,lights,SEX) %>% 
-  summarise(tee = mean(tee), .groups = "drop") %>% 
+  summarise(total_act = mean(total_act), .groups = "drop") %>%
   mutate(
     DRUG = factor(DRUG, 
-                   levels = c("vehicle", 
-                              "RTIOXA_43_medchem", 
-                              "RTIOXA_43_donated")))
+                  levels = c("vehicle", 
+                             "RTIOXA_43_medchem", 
+                             "RTIOXA_43_donated")))
 
 
-sable_TEE_data %>%
+sable_loc_data %>%
   group_by(DRUG,SEX) %>%
   summarise(n_ID = n_distinct(ID)) #this is good
 
 # ---- 1. Ensure factors are correct ----
-sable_TEE_data <- sable_TEE_data %>%
+sable_loc_data <- sable_loc_data %>%
   mutate(
     ID = factor(ID),
     DRUG = factor(DRUG, levels = c("vehicle", "RTIOXA_43_medchem", "RTIOXA_43_donated")),
@@ -114,62 +118,8 @@ sable_TEE_data <- sable_TEE_data %>%
     lights = factor(lights)
   )
 
-# ---- 2. Fit the linear mixed model ----
-# Each animal is a random intercept (repeated measures)
-model <- lmer(tee ~ DRUG * SEX * lights + (1 | ID), data = sable_TEE_data)
-anova(model, type = 3)  # Type III ANOVA table
-
-# ---- 3. Compute emmeans and pairwise comparisons ----
-emm <- emmeans(model, ~ DRUG | SEX * lights)          # marginal means per facet
-library(dplyr)
-library(stringr)
-library(emmeans)
-
-# Convert emmeans object to data frame
-emm_df <- as.data.frame(emm)
-
-# The columns in emm_df include: DRUG, SEX, lights, emmean, SE, df, lower.CL, upper.CL
-# Now do pairwise contrasts
-posthoc_df <- pairs(emm, adjust = "bonferroni") %>% as.data.frame()
-
-# Add the facet variables (SEX and lights) by matching the 'emm' object
-# The 'emmGrid' labels are stored in rownames, but easier is to use the
-# original emm_df to merge by DRUG within each SEX*lights
-
-# First, create a helper key in both
-posthoc_df <- posthoc_df %>%
-  mutate(
-    group1 = sub(" - .*", "", contrast),
-    group2 = sub(".*- ", "", contrast)
-  )
-
-# Now, expand posthoc_df to include facet info
-# The simplest way: for each contrast, join the facet info by DRUG in emm_df
-# We only need one of the DRUGs to define the facet (both have same SEX & lights)
-posthoc_df <- posthoc_df %>%
-  left_join(
-    emm_df %>% select(DRUG, SEX, lights),
-    by = c("group1" = "DRUG")
-  ) %>%
-  mutate(
-    label = case_when(
-      p.value < 0.001 ~ "***",
-      p.value < 0.01  ~ "**",
-      p.value < 0.05  ~ "*",
-      TRUE ~ "ns"
-    ),
-    y.position = max(sable_TEE_data$tee) * 1.05
-  ) %>%
-  mutate(
-    SEX = factor(SEX, levels = c("F","M")),
-    lights = factor(lights, levels = c("off","on"))
-  )
-
-library(ggplot2)
-library(dplyr)
-
 # ---- Plot mean ± SEM bars with individual points ----
-ggplot(sable_TEE_data, aes(x = DRUG, y = tee, fill = DRUG)) +
+ggplot(sable_loc_data, aes(x = DRUG, y = total_act, fill = DRUG)) +
   stat_summary(fun = mean, geom = "col", color = "black", width = 0.7, alpha = 0.8) +
   stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.3) +
   geom_point(aes(group = ID), alpha = 0.7, size = 2,
@@ -187,8 +137,98 @@ ggplot(sable_TEE_data, aes(x = DRUG, y = tee, fill = DRUG)) +
     strip.text = element_text(face = "bold")
   ) +
   labs(
-    y = "TEE (kcal/h)",
+    y = "locomotion (m/period)",
     x = ""
   )
 
+
+
+library(dplyr)
+library(ggplot2)
+library(lme4)
+library(lmerTest)
+library(emmeans)
+library(ggpubr)
+
+# --- Ensure factors are correct ---
+sable_loc_data <- sable_loc_data %>%
+  mutate(
+    ID = factor(ID),
+    DRUG = factor(DRUG, levels = c("vehicle", "RTIOXA_43_medchem", "RTIOXA_43_donated")),
+    SEX = factor(SEX, levels = c("F","M")),
+    lights = factor(lights, levels = c("off","on"))
+  )
+
+# --- Function to fit LMM, get emmeans, pairwise vs vehicle ---
+get_emm_contrasts <- function(data_sex) {
+  
+  # Fit model
+  model <- lmer(total_act ~ DRUG + (1 | ID), data = data_sex)
+  
+  # Estimated marginal means
+  emm <- emmeans(model, ~ DRUG)
+  
+  # Pairwise comparisons vs vehicle
+  posthoc <- pairs(emm, adjust = "bonferroni")
+  posthoc_df <- as.data.frame(posthoc) %>%
+    mutate(
+      group1 = sub(" - .*", "", contrast),
+      group2 = sub(".*- ", "", contrast),
+      label = case_when(
+        p.value < 0.001 ~ "***",
+        p.value < 0.01  ~ "**",
+        p.value < 0.05  ~ "*",
+        TRUE ~ "ns"
+      )
+    )
+  
+  list(emm = emm, posthoc = posthoc_df)
+}
+
+# --- Split by sex ---
+sable_loc_F <- subset(sable_loc_data, SEX == "F")
+sable_loc_M <- subset(sable_loc_data, SEX == "M")
+
+res_F <- get_emm_contrasts(sable_loc_F)
+res_M <- get_emm_contrasts(sable_loc_M)
+
+# --- Combine results for plotting ---
+# Add SEX column to posthoc
+res_F$posthoc$SEX <- "F"
+res_M$posthoc$SEX <- "M"
+posthoc_all <- bind_rows(res_F$posthoc, res_M$posthoc)
+
+# --- Plot mean ± SEM bars with individual points and significance ---
+ggplot(sable_loc_data, aes(x = DRUG, y = total_act, fill = DRUG)) +
+  stat_summary(fun = mean, geom = "col", color = "black", width = 0.7, alpha = 0.8) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.3) +
+  geom_point(aes(group = ID), alpha = 0.7, size = 2,
+             position = position_jitter(width = 0.1)) +
+  facet_grid(SEX ~ lights) +
+  scale_fill_manual(values = c(
+    "vehicle" = "white",
+    "RTIOXA_43_donated" = "#66C2A5",    # light green
+    "RTIOXA_43_medchem" = "darkgreen"
+  )) +
+  theme_minimal(base_size = 14) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "none",
+    strip.text = element_text(face = "bold")
+  ) +
+  labs(
+    y = "Locomotion (m/period)",
+    x = ""
+  ) +
+  # Add significance labels above bars
+  geom_text(
+    data = posthoc_all %>% filter(group1 == "vehicle"), 
+    aes(
+      x = group2, 
+      y = max(sable_loc_data$total_act) * 1.05, 
+      label = label
+    ),
+    inherit.aes = FALSE,
+    size = 5
+  )
 
