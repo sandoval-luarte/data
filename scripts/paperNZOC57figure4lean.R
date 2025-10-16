@@ -38,21 +38,19 @@ echoMRI_data_43 <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
   mutate(DRUG = factor(DRUG, levels = c("vehicle", "RTIOXA_43_Z", "RTIOXA_43_M")))
 
 # Shapiro-Wilk test for all data
-shapiro.test(echoMRI_data_43$delta_fat) #so this data is normal so we can use a ANOVA then
-
+shapiro.test(echoMRI_data_43$delta_lean) #so this data is normal so we can use a ANOVA then
 
 echoMRI_data_43 %>%
   group_by(DRUG) %>%
-  summarise(shapiro_p = shapiro.test(delta_fat)$p.value)
-
+  summarise(shapiro_p = shapiro.test(delta_lean)$p.value)
 
 # One-way ANOVA
-anova_result <- aov(delta_fat ~ DRUG, data = echoMRI_data_43)
+anova_result <- aov(delta_lean ~ DRUG, data = echoMRI_data_43)
 summary(anova_result)
 
 # Post-hoc pairwise t-tests (Bonferroni)
 pairwise_result <- pairwise.t.test(
-  x = echoMRI_data_43$delta_fat,
+  x = echoMRI_data_43$delta_lean,
   g = echoMRI_data_43$DRUG,
   p.adjust.method = "bonferroni"
 )
@@ -87,19 +85,19 @@ BW_wide <- BW_compare %>%
     values_from = c(Fat, Lean),
     names_prefix = "n"
   ) %>%
-  mutate(delta_fat = Fat_n2 - Fat_n1,
+  mutate(delta_lean = Lean_n2 - Lean_n1,
          DRUG = factor(DRUG, levels = c("vehicle", "RTIOXA_47")))
 
 # Shapiro-Wilk test for all data
-shapiro.test(BW_wide$delta_fat) #so this data is normal so we can use a ANOVA then
+shapiro.test(BW_wide$delta_lean) #so this data is normal so we can use a ANOVA then
 
 # One-way ANOVA
-anova_result_47 <- aov(delta_fat ~ DRUG, data = BW_wide)
+anova_result_47 <- aov(delta_lean ~ DRUG, data = BW_wide)
 summary(anova_result_47)
 
 # Pairwise t-test
 pairwise_result_47 <- pairwise.t.test(
-  x = BW_wide$delta_fat,
+  x = BW_wide$delta_lean,
   g = BW_wide$DRUG,
   p.adjust.method = "bonferroni"
 )
@@ -146,13 +144,13 @@ echoMRI_data <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
 echoMRI_delta <- echoMRI_data %>%
   group_by(ID, DRUG, STRAIN, SEX, GROUP) %>%
   summarise(
-    delta_fat = Fat[STATUS == "BW regain"][1] - Fat[STATUS == "BW maintenance"][1],
+    delta_lean = Lean[STATUS == "BW regain"][1] - Lean[STATUS == "BW maintenance"][1],
     .groups = "drop"
   ) %>%
   mutate(DRUG = factor(DRUG, levels = c("vehicle", "RTIOXA_47")))
 
 # Shapiro-Wilk test for all data
-shapiro.test(echoMRI_delta$delta_fat) #so this data is normal so we can use a ANOVA then
+shapiro.test(echoMRI_delta$delta_lean) #so this data is normal so we can use a ANOVA then
 
 # ART + post-hoc
 art_results <- echoMRI_delta %>%
@@ -161,7 +159,7 @@ art_results <- echoMRI_delta %>%
     df <- .x
     keys <- .y
     if(length(unique(df$DRUG)) == 2) {
-      art_model <- art(delta_fat ~ DRUG, data = df)
+      art_model <- art(delta_lean ~ DRUG, data = df)
       lm_model <- artlm(art_model, "DRUG")
       emm <- emmeans(lm_model, ~ DRUG)
       pairwise <- pairs(emm, adjust = "bonferroni") %>% as.data.frame()
@@ -179,7 +177,7 @@ art_results <- echoMRI_delta %>%
 # Plotting positions for p-values
 y_positions <- echoMRI_delta %>%
   group_by(STRAIN, SEX, GROUP) %>%
-  summarise(y_pos = max(delta_fat, na.rm = TRUE) * 1.05, .groups = "drop")
+  summarise(y_pos = max(delta_lean, na.rm = TRUE) * 1.05, .groups = "drop")
 
 pairwise_df <- art_results %>%
   left_join(y_positions, by = c("STRAIN", "SEX", "GROUP")) %>%
@@ -199,48 +197,49 @@ pairwise_df <- art_results %>%
 # --- PLOTS -------------------
 # -----------------------------
 # Y-axis limit for 5-day plots
-y_max_5D <- max(c(echoMRI_data_43$delta_fat, BW_wide$delta_fat), na.rm = TRUE) * 1.1
+y_max_5D <- max(c(echoMRI_data_43$delta_lean, BW_wide$delta_lean), na.rm = TRUE) * 1.1
 
-plot_43_5D <- ggplot(echoMRI_data_43, aes(x = DRUG, y = delta_fat, fill = DRUG)) +
+plot_43_5D <- ggplot(echoMRI_data_43, aes(x = DRUG, y = delta_lean, fill = DRUG)) +
   stat_summary(fun = mean, geom = "col", color = "black", width = 0.7, alpha = 0.7) +
   stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.3) +
-  geom_point(alpha = 0.7, size = 2) +
-  scale_y_continuous(limits = c(0, y_max_5D)) +
+  geom_point(alpha = 0.7, size = 2, position = position_jitter(width = 0.15)) +
   theme_minimal() +
-  labs(x = NULL, y = "ΔFat") +
+  labs(x = NULL, y = "ΔLean") +
   stat_compare_means(
     method = "t.test",
     comparisons = list(c("vehicle", "RTIOXA_43_M"), c("vehicle", "RTIOXA_43_Z")),
     label = "p.signif"
   ) +
-  scale_fill_manual(values = c("vehicle" = "white", "RTIOXA_43_Z" = "#66C2A5", "RTIOXA_43_M" = "darkgreen"))+
+  scale_fill_manual(values = c("vehicle" = "white", "RTIOXA_43_Z" = "#66C2A5", "RTIOXA_43_M" = "darkgreen")) +
   theme(legend.position = "none")
 
-plot_47_5D <- ggplot(BW_wide, aes(x = DRUG, y = delta_fat, fill = DRUG)) +
+
+plot_47_5D <- ggplot(BW_wide, aes(x = DRUG, y = delta_lean, fill = DRUG)) +
   stat_summary(fun = mean, geom = "col", color = "black", width = 0.7, alpha = 0.7) +
   stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.3) +
-  geom_point(alpha = 0.7, size = 2) +
-  scale_y_continuous(limits = c(0, y_max_5D)) +
+  geom_point(alpha = 0.7, size = 2, position = position_jitter(width = 0.15)) +  # jitter to see overlapping points
   theme_minimal() +
-  labs( x = NULL, y = "ΔFat") +
+  labs(x = NULL, y = "ΔLean") +
   stat_compare_means(
     method = "t.test",
     comparisons = list(c("vehicle", "RTIOXA_47")),
     label = "p.signif"
   ) +
-  scale_fill_manual(values = c("vehicle" = "gray70", "RTIOXA_47" = "#8DA0CB"))+
+  scale_fill_manual(values = c("vehicle" = "gray70", "RTIOXA_47" = "#8DA0CB")) +
   theme(legend.position = "none")
 
-plot_47_5W <- ggplot(echoMRI_delta, aes(x = DRUG, y = delta_fat, fill = DRUG)) +
+
+plot_47_5W <- ggplot(echoMRI_delta, aes(x = DRUG, y = delta_lean, fill = DRUG)) +
   stat_summary(fun = mean, geom = "col", color = "black", width = 0.7, alpha = 0.7) +
   stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.3) +
-  geom_point(aes(x = DRUG, y = delta_fat), alpha = 0.7, size = 2,
+  geom_point(aes(x = DRUG, y = delta_lean), alpha = 0.7, size = 2,
              position = position_jitter(width = 0.15)) +
   theme_minimal() +
-  labs( x = NULL, y = "ΔFat") +
-  facet_grid(GROUP ~ STRAIN + SEX) +
+  labs(x = NULL, y = "ΔLean") +
+  facet_grid(GROUP ~ STRAIN + SEX, scales = "free_y") +  # <-- free y-axis per facet
   scale_fill_manual(values = c("vehicle" = "gray70", "RTIOXA_47" = "#8DA0CB")) +
   stat_pvalue_manual(pairwise_df, label = "p.signif", inherit.aes = FALSE)
+
 
 # -----------------------------
 # --- Combine plots -----------
