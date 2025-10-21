@@ -1,4 +1,4 @@
-#COHORT 6
+#COHORT 6 TEE
 #Libraries####
 library(dplyr) #to open a RDS and use pipe
 library(tidyr) #to use cumsum
@@ -9,6 +9,8 @@ library(emmeans)
 library(ggpubr)
 library(ggrepel) # optional, but better for labels
 library(lme4)
+library(stringr)
+
 
 
 #functions####
@@ -121,9 +123,7 @@ anova(model, type = 3)  # Type III ANOVA table
 
 # ---- 3. Compute emmeans and pairwise comparisons ----
 emm <- emmeans(model, ~ DRUG | SEX * lights)          # marginal means per facet
-library(dplyr)
-library(stringr)
-library(emmeans)
+
 
 # Convert emmeans object to data frame
 emm_df <- as.data.frame(emm)
@@ -143,38 +143,13 @@ posthoc_df <- posthoc_df %>%
     group2 = sub(".*- ", "", contrast)
   )
 
-# Now, expand posthoc_df to include facet info
-# The simplest way: for each contrast, join the facet info by DRUG in emm_df
-# We only need one of the DRUGs to define the facet (both have same SEX & lights)
-posthoc_df <- posthoc_df %>%
-  left_join(
-    emm_df %>% select(DRUG, SEX, lights),
-    by = c("group1" = "DRUG")
-  ) %>%
-  mutate(
-    label = case_when(
-      p.value < 0.001 ~ "***",
-      p.value < 0.01  ~ "**",
-      p.value < 0.05  ~ "*",
-      TRUE ~ "ns"
-    ),
-    y.position = max(sable_TEE_data$tee) * 1.05
-  ) %>%
-  mutate(
-    SEX = factor(SEX, levels = c("F","M")),
-    lights = factor(lights, levels = c("off","on"))
-  )
-
-library(ggplot2)
-library(dplyr)
-
 # ---- Plot mean ± SEM bars with individual points ----
 ggplot(sable_TEE_data, aes(x = DRUG, y = tee, fill = DRUG)) +
   stat_summary(fun = mean, geom = "col", color = "black", width = 0.7, alpha = 0.8) +
   stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.3) +
   geom_point(aes(group = ID), alpha = 0.7, size = 2,
              position = position_jitter(width = 0.1)) +
-  facet_grid(SEX ~ lights) +
+  facet_grid(~ lights*SEX) +
   scale_fill_manual(values = c(
     "vehicle" = "white",
     "RTIOXA_43_donated" = "#66C2A5",    # light green
@@ -187,8 +162,40 @@ ggplot(sable_TEE_data, aes(x = DRUG, y = tee, fill = DRUG)) +
     strip.text = element_text(face = "bold")
   ) +
   labs(
-    y = "TEE (kcal/h)",
+    y = "TEE (kcal/24h)",
     x = ""
   )
+
+
+ggplot(sable_TEE_data, aes(x = DRUG, y = tee, fill = DRUG)) +
+  
+  # Bars: mean ± SEM
+  stat_summary(fun = mean, geom = "col", color = "black", width = 0.7, alpha = 0.8) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.3) +
+  
+  # Lines connecting the same mouse
+  geom_line(aes(group = ID), color = "gray50", alpha = 0.7) +
+  
+  # Points for each mouse
+  geom_point(aes(group = ID), alpha = 0.7, size = 2,
+             position = position_jitter(width = 0.1)) +
+  
+  facet_grid(~ lights*SEX) +
+  scale_fill_manual(values = c(
+    "vehicle" = "white",
+    "RTIOXA_43_donated" = "#66C2A5",    # light green
+    "RTIOXA_43_medchem" = "darkgreen"
+  )) +
+  theme_minimal(base_size = 14) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "none",
+    strip.text = element_text(face = "bold")
+  ) +
+  labs(
+    y = "TEE (kcal/24h)",
+    x = ""
+  )
+
 
 

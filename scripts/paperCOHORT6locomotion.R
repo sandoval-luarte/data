@@ -1,4 +1,4 @@
-#COHORT 6 LOCOMOTION
+#COHORT 6 24h LOCOMOTION
 #Libraries####
 library(dplyr) #to open a RDS and use pipe
 library(tidyr) #to use cumsum
@@ -10,8 +10,6 @@ library(ggpubr)
 library(ggrepel) # optional, but better for labels
 library(lme4)
 library(stringr)
-
-
 
 #functions####
 zt_time <- function(hr){
@@ -141,14 +139,6 @@ ggplot(sable_loc_data, aes(x = DRUG, y = total_act, fill = DRUG)) +
     x = ""
   )
 
-
-
-library(dplyr)
-library(ggplot2)
-library(lme4)
-library(lmerTest)
-library(emmeans)
-library(ggpubr)
 
 # --- Ensure factors are correct ---
 sable_loc_data <- sable_loc_data %>%

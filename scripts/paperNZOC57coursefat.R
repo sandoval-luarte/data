@@ -1,4 +1,4 @@
-# This script aims to explore changes in body weight in NZO and c57 after different stages of feeding:
+# This script aims to explore changes in fat mass in NZO and c57 after different stages of feeding:
 #1 from baseline to peak obesity,
 #2:from peak of obesity to acute body weight loss
 #3 from acute body weight loss to body weight maintenance
@@ -18,15 +18,13 @@ library(emmeans)
 library(patchwork)
 
 
-#BW CSV data import RTIOXA 47 ----
-BW_data <- read_csv("../data/BW.csv") %>% 
+#body comp CSV data import RTIOXA 47 ----
+echoMRI_data <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
   filter(COHORT > 1 & COHORT < 6) %>% # Just NZO females
   filter(!ID %in% c(3712, 3715)) %>% # died during study
   group_by(ID) %>% 
-  arrange(DATE) %>% 
+  arrange(Date) %>% 
   mutate(
-    bw_rel = 100 * (BW - first(BW)) / first(BW),
-    body_lag = (lag(BW) - BW),
     GROUP = case_when(
       ID %in% c(3706, 3707, 3709, 3711, 3713, 3717, 3716, 3719, 3718, 3726,
                 7860, 7862, 7864, 7867, 7868, 7869, 7870, 7871, 7873, 7875, 
@@ -41,8 +39,19 @@ BW_data <- read_csv("../data/BW.csv") %>%
       ID %in% c(3708, 3710, 3716, 3717, 3718, 3719, 3721, 3722, 3723, 3726, 3729,
                 7862, 7865, 7873, 7874, 7877, 7866, 7879, 7860) ~ "RTIOXA_47"
     ),
-    day_rel = DATE - first(DATE)
   ) %>%
+  select(ID, Date, Fat, Lean, Weight, n_measurement, adiposity_index, GROUP, DRUG) %>%
+  mutate(
+    day_rel = Date - first(Date),
+    STATUS = case_when(
+      n_measurement == 1 ~ "baseline",
+      STRAIN == "NZO/HlLtJ" & Date == as.Date("2025-02-20") ~ "peak obesity",
+      STRAIN == "NZO/HlLtJ" & Date %in% as.Date(c("2025-04-28", "2025-05-05","2025-05-05","2025-05-06")) ~ "BW loss",
+      STRAIN == "NZO/HlLtJ" & Date == as.Date("2025-05-27") ~ "BW maintenance",
+      STRAIN == "NZO/HlLtJ" & Date %in% as.Date(c("2025-07-22", "2025-07-21","2025-07-17","2025-07-16",
+                          "2025-07-14","2025-07-09","2025-07-08")) ~ "BW regain",
+      STRAIN == "C57BL6/J" &
+  
   mutate(
     STATUS = case_when(
       day_rel == 0 ~ "baseline", 
@@ -61,7 +70,7 @@ BW_data <- read_csv("../data/BW.csv") %>%
       STRAIN == "NZO/HlLtJ" & COMMENTS == "DAY_4_SABLE_AND_SAC" ~ "BW regain",
       TRUE ~ NA_character_
     ) ) #%>% 
-  #filter(STRAIN == "NZO/HlLtJ" | (STRAIN == "C57BL6/J" & DIET_FORMULA == "D12451i"))
+#filter(STRAIN == "NZO/HlLtJ" | (STRAIN == "C57BL6/J" & DIET_FORMULA == "D12451i"))
 
 n_distinct(BW_data$ID) #9 NZO in total and 4 C57 in total
 
