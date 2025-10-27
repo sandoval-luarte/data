@@ -63,7 +63,12 @@ BW_data <- read_csv("../data/BW.csv") %>%
     ) ) #%>% 
   #filter(STRAIN == "NZO/HlLtJ" | (STRAIN == "C57BL6/J" & DIET_FORMULA == "D12451i"))
 
-n_distinct(BW_data$ID) #9 NZO in total and 4 C57 in total
+BW_data %>% 
+  group_by(STRAIN,STATUS) %>%
+  summarise(n_ID = n_distinct(ID)) #this we have 22 NZO and 24 C57 
+
+write_csv(BW_data, "../data/BW_data.csv") # Save as CSV
+
 
 highlight_data <- BW_data %>%
   filter(STATUS == "peak obesity")

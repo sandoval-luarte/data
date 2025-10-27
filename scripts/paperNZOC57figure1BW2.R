@@ -8,6 +8,7 @@
   
   # ---- Read BW data ----
   BW_data <- read_csv("../data/BW.csv") %>% 
+    filter(COHORT > 1 & COHORT < 6) %>% # Just NZO females and c57
     filter(!ID %in% c(3712, 3715)) %>%  # remove animals that died
     group_by(ID) %>% 
     arrange(DATE) %>% 
@@ -195,4 +196,5 @@
     plot_annotation(tag_levels = "A")
   
   combined_BW
+  
   
