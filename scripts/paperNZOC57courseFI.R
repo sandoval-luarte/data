@@ -27,8 +27,6 @@ FI_data <- read_csv("../data/FI.csv") %>%
   arrange(DATE) %>% 
   rename(DIET_FORMULA = DIET_FORMULA.x) %>% #There is no differences between columns x and y. 
   select(-DIET_FORMULA.y) %>% 
-  group_by(ID) %>%
-  arrange(DATE) %>% 
   filter(!is.na(corrected_intake_gr)) %>% 
   mutate(corrected_intake_kcal = replace_na(corrected_intake_kcal, 0),) %>% 
   mutate(
@@ -185,7 +183,7 @@ ggplot(FI_stage_long, aes(x = transition, y = kcal, fill = GROUP)) +
 #we should evaluate a better approximation to standardize for time of exposure to the diets
 
 
-#OK I will standarize per BW of each ID within each STATUS
+#OK I will standardize per BW of each ID within each STATUS
 
 
 # --- Step 1: Import FI and BW data ---
@@ -311,8 +309,9 @@ df_transitions <- df_transitions %>%
   mutate(
     delta_days_num = as.numeric(gsub(" days", "", delta_days)),
     FI_kcal_per_day = delta_FI_cum / delta_days_num,
-    FI_kcal_per_BWchange = ifelse(abs(BW_change) > 0.001, delta_FI_cum / BW_change, NA)
-  )
+    FI_kcal_per_BWchange = ifelse(abs(BW_change) > 0.001, delta_FI_cum / BW_change, NA),
+    energy_efficiency = ((BW_change /delta_FI_cum)/delta_days_num))
+
 
 # Define order for the transitions
 status_order <- c(
@@ -325,11 +324,10 @@ status_order <- c(
 # Prepare data
 df_transitions <- df_transitions %>%
   mutate(
-    delta_days_num = as.numeric(gsub(" days", "", delta_days)),
+    delta_days_num = as.numeric(gsub(" days", "",delta_days)),
     FI_kcal_per_day = delta_FI_cum / delta_days_num,
     facet_group = interaction(STRAIN, GROUP),
-    STATUS_TRANSITION = factor(STATUS_TRANSITION, levels = status_order)
-  )
+    STATUS_TRANSITION = factor(STATUS_TRANSITION, levels = status_order))
 
 # Bar plot with fixed y-axis across all facets
 ggplot(df_transitions, aes(x = STATUS_TRANSITION, y = FI_kcal_per_day, fill = STRAIN)) +
@@ -362,6 +360,27 @@ ggplot(df_transitions, aes(x = STATUS_TRANSITION, y = FI_kcal_per_BWchange, fill
   labs(
     x = "Status transition",
     y = "Food intake (kcal / g BW change)",
-    fill = "Strain",
-    title = "Food intake normalized by BW change (kcal per g BW gained)"
+    fill = "Strain"
   )
+
+
+# Bar plot with energy efficiency (g BW gained per kcal)
+ggplot(df_transitions, aes(x = STATUS_TRANSITION, y = energy_efficiency, fill = STRAIN)) +
+  geom_bar(stat = "summary", fun = "mean", position = position_dodge(width = 0.9)) +
+  geom_errorbar(stat = "summary", fun.data = mean_se,
+                position = position_dodge(width = 0.9), width = 0.3) +
+  facet_wrap(~ facet_group, scales = "free_y") +
+  geom_hline(data = data.frame(yintercept = 0), 
+             aes(yintercept = yintercept), 
+             color = "black", linetype = "dashed") +  
+  theme_bw(base_size = 14) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    strip.text = element_text(face = "bold", size = 12)
+  ) +
+  labs(
+    x = "Status transition",
+    y = "Energy efficiency (g BW change per kcal consumed)",
+    fill = "Strain"
+  )
+
