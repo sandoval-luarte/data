@@ -310,8 +310,8 @@ df_transitions <- df_transitions %>%
     delta_days_num = as.numeric(gsub(" days", "", delta_days)),
     FI_kcal_per_day = delta_FI_cum / delta_days_num,
     FI_kcal_per_BWchange = ifelse(abs(BW_change) > 0.001, delta_FI_cum / BW_change, NA),
-    energy_efficiency = ((BW_change /delta_FI_cum)/delta_days_num))
-
+    energy_efficiency = ((BW_change /delta_FI_cum)/delta_days_num),
+    DRUG = factor(DRUG)) 
 
 # Define order for the transitions
 status_order <- c(
@@ -326,8 +326,8 @@ df_transitions <- df_transitions %>%
   mutate(
     delta_days_num = as.numeric(gsub(" days", "",delta_days)),
     FI_kcal_per_day = delta_FI_cum / delta_days_num,
-    facet_group = interaction(STRAIN, GROUP),
-    STATUS_TRANSITION = factor(STATUS_TRANSITION, levels = status_order))
+    facet_group = interaction(STRAIN,GROUP),
+    STATUS_TRANSITION = factor(STATUS_TRANSITION, levels = status_order)) 
 
 # Bar plot with fixed y-axis across all facets
 ggplot(df_transitions, aes(x = STATUS_TRANSITION, y = FI_kcal_per_day, fill = STRAIN)) +
@@ -365,11 +365,11 @@ ggplot(df_transitions, aes(x = STATUS_TRANSITION, y = FI_kcal_per_BWchange, fill
 
 
 # Bar plot with energy efficiency (g BW gained per kcal)
-ggplot(df_transitions, aes(x = STATUS_TRANSITION, y = energy_efficiency, fill = STRAIN)) +
+ggplot(df_transitions, aes(x = STATUS_TRANSITION, y = energy_efficiency, fill= STRAIN)) +
   geom_bar(stat = "summary", fun = "mean", position = position_dodge(width = 0.9)) +
   geom_errorbar(stat = "summary", fun.data = mean_se,
                 position = position_dodge(width = 0.9), width = 0.3) +
-  facet_wrap(~ facet_group, scales = "free_y") +
+  facet_wrap(~ facet_group, scales = "fixed") +
   geom_hline(data = data.frame(yintercept = 0), 
              aes(yintercept = yintercept), 
              color = "black", linetype = "dashed") +  
@@ -383,4 +383,5 @@ ggplot(df_transitions, aes(x = STATUS_TRANSITION, y = energy_efficiency, fill = 
     y = "Energy efficiency (g BW change per kcal consumed)",
     fill = "Strain"
   )
+
 
