@@ -84,6 +84,10 @@ sable_loc_data <- sable_dwn %>%
   mutate(is_complete_day = if_else(min(zt_time)==0 & max(zt_time)==23, 1, 0)) %>% 
   ungroup() %>% 
   
+  # ✅ Keep only the first 4 hours of the dark period
+  filter(lights == "off", zt_time < 9) %>% 
+  
+  
   # calculate LOCOMOTION for each day *and lights period*
   group_by(ID, complete_days, is_complete_day, DRUG, lights,SEX) %>% 
   mutate(loc_act = value - lag(value)) %>%
@@ -112,8 +116,8 @@ sable_loc_data <- sable_loc_data %>%
   mutate(
     ID = factor(ID),
     DRUG = factor(DRUG, levels = c("vehicle", "RTIOXA_43_medchem", "RTIOXA_43_donated")),
-    SEX = factor(SEX),
-    lights = factor(lights)
+    SEX = factor(SEX)#,
+  #  lights = factor(lights)
   )
 
 # ---- Plot mean ± SEM bars with individual points ----
@@ -122,10 +126,13 @@ ggplot(sable_loc_data, aes(x = DRUG, y = total_act, fill = DRUG)) +
   stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.3) +
   geom_point(aes(group = ID), alpha = 0.7, size = 2,
              position = position_jitter(width = 0.1)) +
-  facet_grid(SEX ~ lights) +
+  geom_text(aes(label = ID),
+            position = position_jitter(width = 0.1, height = 0),
+            vjust = -0.8, size = 3, color = "black") +
+  facet_grid( ~ SEX) +
   scale_fill_manual(values = c(
     "vehicle" = "white",
-    "RTIOXA_43_donated" = "#66C2A5",    # light green
+    "RTIOXA_43_donated" = "#66C2A5",
     "RTIOXA_43_medchem" = "darkgreen"
   )) +
   theme_minimal(base_size = 14) +
@@ -134,10 +141,8 @@ ggplot(sable_loc_data, aes(x = DRUG, y = total_act, fill = DRUG)) +
     legend.position = "none",
     strip.text = element_text(face = "bold")
   ) +
-  labs(
-    y = "locomotion (m/period)",
-    x = ""
-  )
+  labs(y = "locomotion (m/period)", x = "")
+
 
 
 # --- Ensure factors are correct ---
