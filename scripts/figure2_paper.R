@@ -183,3 +183,4 @@ summary(aov(delta_adiposity_index ~ DRUG, data = echoMRI_data_47))
 
 #conclusion> There is no indication that RTIOXA-47 decreases body weight, fat mass, 
 # or adiposity after 5 days. Probably because data are underpowered (n=3 per group).
+
