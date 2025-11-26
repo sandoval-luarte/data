@@ -6,17 +6,18 @@ A cohort is defined as a group of mice that are tested together during a shared 
 COHORT 0: C57BL/6J young - Clarity project 2303-40942A
 COHORT 1:C57BL/6J young - fisetin project 2411-42540A
 COHORT 2: C57BL/6J young - Eegap project 2303-40942A
-COHORT 3: NZO young - Eegap project 2303-40942A
-COHORT 4: NZO young - Eegap project 2303-40942A 
-COHORT 5: NZO young - Eegap project 2303-40942A 
-COHORT 6: C57BL/6J young - Eegap project (Pilot experiment IP RTIOXA-43) 2303-40942A 
+COHORT 3: NZO young - Eegap project 2303-40942A (chronic IP RTIOXA 47 for 5 weeks in BW regain period)
+COHORT 4: NZO young - Eegap project 2303-40942A (chronic IP RTIOXA 47 for 5 weeks in BW regain period)
+COHORT 5: NZO young - Eegap project 2303-40942A (chronic IP RTIOXA 47 for 5 weeks in BW regain period)
+COHORT 6: C57BL/6J young - Eegap project (Pilot experiment acute IP RTIOXA-43 for 5 days) 2303-40942A 
 COHORT 7: C57BL/6J old - fisetin project 2411-42540A 
 COHORT 8: C57BL/6 and NZO young - Eegap project VA protocol (Brianna experiment 2022) 
-COHORT 9: C57BL/6J young - Eegap project (Pilot White deposit IP RTIOXA-43) 2303-40942A 
+COHORT 9: C57BL/6J young - Eegap project (Pilot White deposit acute IP RTIOXA-43 for 5 days) 2303-40942A 
 COHORT 10: C57BL/6J - uncertainty project 2409-42368A 
 COHORT 11: C57BL/6 and OREXIN-Cre young - uncertainty project 2409-42368A 
-COHORT 12: C57BL/6J young - Eegap project (Pilot White deposit IP RTIOXA-47) 2303-40942A 
+COHORT 12: C57BL/6J young - Eegap project (Pilot White deposit acute IP RTIOXA-47 for 5 days) 2303-40942A 
 COHORT 13: C57BL/6J - Laurie Eegap project (IP RTIOXA-47) VA
+COHORT 14: C57BL/6J young - Eegap project (second cohort experiment acute IP RTIOXA-43 and RTIOXA-47 for 5 days) 2303-40942A 
 
 # Raw_data
 
