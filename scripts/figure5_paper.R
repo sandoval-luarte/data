@@ -12,6 +12,8 @@ library(ggrepel) # optional, but better for labels
 library(lme4)
 library(stringr)
 library(lme4)
+library(car)  # car for Anova(), vif()
+library(effsize) # for Cohen's d; install if needed
 
 zt_time <- function(hr){
   return(if_else(hr >= 20 & hr <= 23, hr-20, hr+4))
@@ -41,7 +43,7 @@ sable_loc_data <- sable_dwn %>%
       TRUE ~ NA_character_
     )
   ) %>%
-  filter(!ID %in% c(3715,3712,3720,3721)) %>%
+  filter(!ID %in% c(3715,3712)) %>%
   filter(grepl("AllMeters_*", parameter)) %>%
   ungroup() %>%
   mutate(
@@ -55,28 +57,27 @@ sable_loc_data <- sable_dwn %>%
       ID %in% c(3708, 3710, 3716, 3717, 3718, 3719, 3721, 3722, 3723, 3726, 3729, 7862, 7865, 7873, 7874, 7877, 7866, 7879, 7860) ~ "RTIOXA_47"
     )
   ) %>%
-  group_by(ID, DRUG,SEX,STRAIN,GROUP,DIET_FORMULA) %>% 
+  group_by(ID, DRUG,SEX,STRAIN,GROUP,DIET_FORMULA,SABLE) %>% 
   mutate(
     zt_time = zt_time(hr),
     is_zt_init = replace_na(as.numeric(hr!=lag(hr)), 0),
     complete_days = cumsum(if_else(zt_time==0 & is_zt_init == 1,1,0))
   ) %>% 
   ungroup() %>% 
-  group_by(ID, complete_days,SEX,DRUG,STRAIN,DIET_FORMULA) %>% 
+  group_by(ID, complete_days,SEX,DRUG,STRAIN,DIET_FORMULA,SABLE) %>% 
   mutate(is_complete_day = if_else(min(zt_time)==0 & max(zt_time)==23, 1, 0)) %>% 
   filter(!complete_days %in% c(0, 3)) %>% 
-  filter( is_complete_day == 1, complete_days %in% c(1,2)) %>% 
+ filter( is_complete_day == 1, complete_days %in% c(1,2)) %>% 
   mutate(
     SABLE = factor(SABLE,
                    levels = c("baseline", "peak obesity", "BW loss", 
                               "BW maintenance", "BW regain"))) %>% 
   filter(!(STRAIN == "C57BL6/J" & DIET_FORMULA == "D12450Ki"))
 
-  
-
 sable_loc_data_minutes <- sable_loc_data %>%
+  filter(SABLE =="BW regain") %>% 
   arrange(ID, complete_days, hr) %>%       # make sure data is ordered
-  group_by(ID, DRUG, complete_days,SEX,STRAIN,GROUP,DIET_FORMULA) %>%    # group per animal, drug, and day
+  group_by(ID, DRUG, complete_days,SEX,STRAIN,GROUP,DIET_FORMULA,SABLE) %>%    # group per animal, drug, and day
   mutate(
     locomotion = value - lag(value),       # change in meters
     locomotion = if_else(locomotion < 0, 0, locomotion),  # remove negative jumps
@@ -88,15 +89,15 @@ sable_loc_data_minutes <- sable_loc_data %>%
     total_distance = sum(locomotion),      # total meters per day
     .groups = "drop"
   ) %>%
-  group_by(ID, DRUG,SEX,STRAIN,GROUP,DIET_FORMULA) %>%
+  group_by(ID, DRUG,SEX,STRAIN,GROUP,DIET_FORMULA,SABLE) %>%
   summarise(
     avg_moving_hr = mean(total_moving_min/60),  # average across days
     avg_distance = mean(total_distance),
     .groups = "drop"
-  )
+  ) 
 
 sable_loc_data_minutes%>%
-  group_by(STRAIN) %>%
+  group_by(STRAIN,SABLE) %>%
   summarise(n_ID = n_distinct(ID)) #this is good
 
 sable_loc_data_minutes<- sable_loc_data_minutes %>%
@@ -106,7 +107,8 @@ sable_loc_data_minutes<- sable_loc_data_minutes %>%
     SEX = factor(SEX),
     GROUP = factor(GROUP),
     DIET_FORMULA = factor(DIET_FORMULA),
-    STRAIN = factor(STRAIN)
+    STRAIN = factor(STRAIN),
+    SABLE = factor(SABLE)
   )
 
 
@@ -117,7 +119,7 @@ ggplot(sable_loc_data_minutes, aes(x = DRUG, y =  avg_distance , fill = DRUG)) +
   stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.3) +
   geom_point(aes(group = ID), alpha = 0.7, size = 2,   # individual points
              position = position_jitter(width = 0.1)) +
-  facet_grid(~ SEX*GROUP*STRAIN*DIET_FORMULA) +
+  facet_grid(~ SEX) +
   scale_fill_manual(values = c(
     "vehicle" = "white",
     "RTIOXA_47" = "orange"
@@ -127,7 +129,44 @@ ggplot(sable_loc_data_minutes, aes(x = DRUG, y =  avg_distance , fill = DRUG)) +
     legend.position = "none",
     strip.text = element_text(face = "bold")
   ) +
-  labs(y = "total locomotion (meters in 24h)", x = "")
+  labs(y = "locomotion (meters in 24h)", x = "")
+
+# data analysis----
+#to evaluate if vehicle is different to RTIOXA 47 group in terms of meters/24h
+
+# Quick sample sizes per cell
+sable_loc_data_minutes %>%
+  group_by(DRUG, GROUP, SEX, STRAIN) %>%
+  summarise(n = n(), .groups = "drop") %>%
+  print(n = Inf)
+
+# Base model: DRUG effect controlling for GROUP, SEX, STRAIN
+model_base <- lm(
+  avg_distance ~ DRUG + GROUP + SEX + STRAIN,
+  data = sable_loc_data_minutes
+)
+
+# Model with interaction between DRUG and GROUP (test whether drug effect depends on feeding group)
+model_inter <- lm(
+  avg_distance ~ DRUG * GROUP + SEX + STRAIN,
+  data = sable_loc_data_minutes
+)
+
+emm_group <- emmeans(model_inter, ~ DRUG | GROUP)
+pairs(emm_group)
+
+emm_sex <- emmeans(model_inter, ~ DRUG | SEX)
+pairs(emm_sex)
+
+emm_strain <- emmeans(model_inter, ~ DRUG | STRAIN)
+pairs(emm_strain)
+
+model_subgroup <- lm(
+  avg_distance ~ DRUG * GROUP * SEX * STRAIN,
+  data = sable_loc_data_minutes
+)
+emm_sub <- emmeans(model_subgroup, ~ DRUG | SEX * STRAIN * GROUP)
+pairs(emm_sub) #NO EFFECTS IN TOTAL METERS
 
 
 # Plot time spent moving in min ----
@@ -137,7 +176,7 @@ ggplot(sable_loc_data_minutes, aes(x = DRUG, y =  avg_moving_hr , fill = DRUG)) 
   stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.3) +
   geom_point(aes(group = ID), alpha = 0.7, size = 2,   # individual points
              position = position_jitter(width = 0.1)) +
-  facet_grid(~ SEX*GROUP*STRAIN) +
+  facet_grid(~ GROUP) +
   scale_fill_manual(values = c(
     "vehicle" = "white",
     "RTIOXA_47" = "orange"
@@ -151,6 +190,93 @@ ggplot(sable_loc_data_minutes, aes(x = DRUG, y =  avg_moving_hr , fill = DRUG)) 
   geom_text_repel(aes(label = ID),
                   size = 3, alpha = 0.7)
 
+#data analysis to evaluate if ID 3708 is outlier
+
+subset_data <- sable_loc_data_minutes %>%
+  filter(GROUP == "restricted")
+
+
+ggplot(subset_data, aes(y = avg_moving_hr, x = "")) +
+  geom_boxplot(outlier.colour = "red", outlier.shape = 8) +
+  geom_point(aes(label = ID), position = position_jitter(width = 0.1)) +
+  geom_text_repel(aes(label = ID)) +
+  labs(y = "Avg Moving Hours", x = "") +
+  theme_minimal() #IT SEEMS LIKE ID 3708 IS AN OUTLIER
+
+Q1 <- quantile(subset_data$avg_moving_hr, 0.25)
+Q3 <- quantile(subset_data$avg_moving_hr, 0.75)
+IQR_val <- Q3 - Q1
+
+lower_bound <- Q1 - 1.5 * IQR_val
+upper_bound <- Q3 + 1.5 * IQR_val
+
+subset_data %>%
+  mutate(outlier_IQR = avg_moving_hr < lower_bound | avg_moving_hr > upper_bound) 
+
+#conclusion 3708 IS an outlier so lets run the analysis without those ID
+
+sable_loc_data_minutes<- sable_loc_data_minutes %>% 
+  filter(!ID == 3708) 
+  
+# Plot time spent moving in min without ID 3708 ----
+ggplot(sable_loc_data_minutes, aes(x = DRUG, y =  avg_moving_hr , fill = DRUG)) +
+  #  geom_line(aes(group = ID), color = "gray50", alpha = 0.5) +   # connect the same ID across drugs
+  stat_summary(fun = mean, geom = "col", color = "black", width = 0.7, alpha = 0.8) +   # bars with mean ± SEM
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.3) +
+  geom_point(aes(group = ID), alpha = 0.7, size = 2,   # individual points
+             position = position_jitter(width = 0.1)) +
+  facet_grid(~GROUP) +
+  scale_fill_manual(values = c(
+    "vehicle" = "white",
+    "RTIOXA_47" = "orange"
+  )) +
+  theme_minimal(base_size = 14) +
+  theme(
+    legend.position = "none",
+    strip.text = element_text(face = "bold")
+  ) +
+  labs(y = "time spent moving (hr in 24h)", x = "", title = 'time spent moving in food restricted animals')+
+  geom_text_repel(aes(label = ID),
+                  size = 3, alpha = 0.7)
+
+#data analysis
+
+# Base model: DRUG effect controlling for GROUP, SEX, STRAIN
+model_base <- lm(
+  avg_moving_hr  ~ DRUG + GROUP + SEX + STRAIN,
+  data = sable_loc_data_minutes
+)
+
+# Model with interaction between DRUG and GROUP (test whether drug effect depends on feeding group)
+model_inter <- lm(
+  avg_moving_hr  ~ DRUG * GROUP + SEX + STRAIN,
+  data = sable_loc_data_minutes
+)
+
+emm_group <- emmeans(model_inter, ~ DRUG | GROUP)
+pairs(emm_group) 
+
+#so RTIOXA-47 decreased time spent moving in ad lib animals 
+#we should eliminate 3708 considering that ID as an outlier
+#these effects are only significant when we collapsed SEX and STRAIN
+
+emm_sex <- emmeans(model_inter, ~ DRUG | SEX)
+pairs(emm_sex)
+
+emm_strain <- emmeans(model_inter, ~ DRUG | STRAIN)
+pairs(emm_strain)
+
+restricted_data <- sable_loc_data_minutes %>%
+  filter(GROUP == "restricted")
+
+model_restricted <- lm(
+  avg_moving_hr ~ DRUG * SEX * STRAIN,
+  data = restricted_data
+)
+
+emm_restricted <- emmeans(model_restricted, ~ DRUG | SEX * STRAIN)
+pairs(emm_restricted) 
+#conclusion: there is no effect of RTIOXA 47 in time spent moving 
 
 # mean of day 1 and 2 separated by lights----
 
@@ -275,16 +401,6 @@ ggplot(sable_loc_data_minutes_lights, aes(x = DRUG, y =  avg_moving_hr , fill = 
                   size = 3, alpha = 0.7)
 
 
-# data analysis----
-#effect of drug in time spent moving considering SEX,STRAIN,GROUP and DRUG
-
-model <- lmer(
-  avg_moving_hr ~ DRUG * SEX * STRAIN * GROUP + (1 | ID),
-  data = sable_loc_data_minutes 
-)
-summary(model)
-anova(model)
-emmeans(model, pairwise ~ DRUG | SEX * STRAIN * GROUP , adjust = "tukey")
 
 
 
