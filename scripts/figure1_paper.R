@@ -39,7 +39,7 @@ echoMRI_data_43_assignation <- read_csv("~/Documents/GitHub/data/data/echomri.cs
   filter(n_measurement == 1) %>% 
   mutate(
     DRUG_ASSIGNATION = case_when(
-      ID %in% c(8096,8099,  8102) ~ "RTIOXA_43_Z", #8099 eliminated for now
+      ID %in% c(8096,8099,  8102) ~ "RTIOXA_43_Z", 
       ID %in% c(8097, 8098, 8101) ~ "RTIOXA_43_M",
       ID %in% c(8095, 8100, 8103) ~ "vehicle"
     )
@@ -269,7 +269,7 @@ plot_43_5D_bw2 <- ggplot(echoMRI_data_432, aes(x = DRUG, y = delta_bw, fill = DR
   theme_minimal() +
   labs(x = NULL, y = "Δ body weight") +
   format.plot+
-  scale_fill_manual(values = c("vehicle" = "white", "RTIOXA_43_Z" = "#66C2A5", "RTIOXA_43_M" = "darkgreen")) +
+  scale_fill_manual(values = c("vehicle" = "white", "RTIOXA_43" = "#66C2A5")) +
   theme(legend.position = "none")
 
 plot_43_5D_bw2
@@ -283,7 +283,7 @@ plot_43_5D_ai2 <- ggplot(echoMRI_data_432, aes(x = DRUG, y = delta_adiposity_ind
   theme_minimal() +
   labs(x = NULL, y = "Δ adiposity index") +
   format.plot+
-  scale_fill_manual(values = c("vehicle" = "white", "RTIOXA_43_Z" = "#66C2A5", "RTIOXA_43_M" = "darkgreen")) +
+  scale_fill_manual(values = c("vehicle" = "white", "RTIOXA_43" = "#66C2A5")) +
   theme(legend.position = "none")
 
 plot_43_5D_ai2
@@ -297,7 +297,7 @@ plot_43_5D_lean2 <- ggplot(echoMRI_data_432, aes(x = DRUG, y = delta_lean, fill 
   theme_minimal() +
   labs(x = NULL, y = "Δ lean mass") +
   format.plot+
-  scale_fill_manual(values = c("vehicle" = "white", "RTIOXA_43_Z" = "#66C2A5", "RTIOXA_43_M" = "darkgreen")) +
+  scale_fill_manual(values = c("vehicle" = "white", "RTIOXA_43" = "#66C2A5")) +
   theme(legend.position = "none")
 
 plot_43_5D_lean2
@@ -311,7 +311,7 @@ plot_43_5D_fat2 <- ggplot(echoMRI_data_432, aes(x = DRUG, y = delta_fat, fill = 
   theme_minimal() +
   labs(x = NULL, y = "Δ fat mass") +
   format.plot+
-  scale_fill_manual(values = c("vehicle" = "white", "RTIOXA_43_Z" = "#66C2A5", "RTIOXA_43_M" = "darkgreen")) +
+  scale_fill_manual(values = c("vehicle" = "white", "RTIOXA_43" = "#66C2A5")) +
   theme(legend.position = "none")
 
 plot_43_5D_fat2
@@ -349,29 +349,30 @@ summary(aov(delta_adiposity_index ~ DRUG, data = echoMRI_data_432))
 
 subdata <- echoMRI_data_432 %>% 
   filter(DRUG =="RTIOXA_43") %>% 
-  select(ID,DRUG,delta_lean)
+  select(ID,DRUG,delta_adiposity_index)
 
-ggplot(subdata, aes(y = delta_lean, x = "")) +
+ggplot(subdata, aes(y = delta_adiposity_index, x = "")) +
   geom_boxplot(outlier.colour = "red", outlier.shape = 8) +
   geom_point(aes(label = ID), position = position_jitter(width = 0.1)) +
   geom_text_repel(aes(label = ID)) +
-  labs(y = "delta lean mass", x = "") +
+  labs(y = "delta adiposity index", x = "") +
   theme_minimal() #IT SEEMS LIKE ID 8099 IS AN OUTLIER
 
-Q1 <- quantile(subdata$delta_lean, 0.25)
-Q3 <- quantile(subdata$delta_lean, 0.75)
+Q1 <- quantile(subdata$delta_adiposity_index, 0.25)
+Q3 <- quantile(subdata$delta_adiposity_index, 0.75)
 IQR_val <- Q3 - Q1
 
 lower_bound <- Q1 - 1.5 * IQR_val
 upper_bound <- Q3 + 1.5 * IQR_val
 
 subdata %>%
-  mutate(outlier_IQR = delta_lean < lower_bound | delta_lean > upper_bound) 
+  mutate(outlier_IQR = delta_adiposity_index < lower_bound | delta_adiposity_index > upper_bound) 
 
 #conclusion 
 #8099 IS NOT an outlier for delta BW
 #8099 IS an outlier for delta adiposity index 
 #8099 IS an outlier for delta fat
+#8099 IS NOT an outlier for delta lean
 #8101 IS an outlier for delta lean
 
 #so lets run the analysis without ID 8099
@@ -616,7 +617,7 @@ plot_43_5D_bw2 <- ggplot(echoMRI_data_432, aes(x = DRUG, y = delta_bw, fill = DR
   theme_minimal() +
   labs(x = NULL, y = "Δ body weight") +
   format.plot+
-  scale_fill_manual(values = c("vehicle" = "white", "RTIOXA_43_Z" = "#66C2A5", "RTIOXA_43_M" = "darkgreen")) +
+  scale_fill_manual(values = c("vehicle" = "white", "RTIOXA_43" = "#66C2A5")) +
   theme(legend.position = "none")+
   geom_text_repel(aes(label = ID)) 
 
@@ -631,7 +632,7 @@ plot_43_5D_ai2 <- ggplot(echoMRI_data_432, aes(x = DRUG, y = delta_adiposity_ind
   theme_minimal() +
   labs(x = NULL, y = "Δ adiposity index") +
   format.plot+
-  scale_fill_manual(values = c("vehicle" = "white", "RTIOXA_43_Z" = "#66C2A5", "RTIOXA_43_M" = "darkgreen")) +
+  scale_fill_manual(values = c("vehicle" = "white", "RTIOXA_43" = "#66C2A5")) +
   theme(legend.position = "none")+
   geom_text_repel(aes(label = ID)) 
 
@@ -646,7 +647,7 @@ plot_43_5D_lean2 <- ggplot(echoMRI_data_432, aes(x = DRUG, y = delta_lean, fill 
   theme_minimal() +
   labs(x = NULL, y = "Δ lean mass") +
   format.plot+
-  scale_fill_manual(values = c("vehicle" = "white", "RTIOXA_43_Z" = "#66C2A5", "RTIOXA_43_M" = "darkgreen")) +
+  scale_fill_manual(values = c("vehicle" = "white", "RTIOXA_43" = "#66C2A5")) +
   theme(legend.position = "none")+
   geom_text_repel(aes(label = ID)) 
 
@@ -661,7 +662,7 @@ plot_43_5D_fat2 <- ggplot(echoMRI_data_432, aes(x = DRUG, y = delta_fat, fill = 
   theme_minimal() +
   labs(x = NULL, y = "Δ fat mass") +
   format.plot+
-  scale_fill_manual(values = c("vehicle" = "white", "RTIOXA_43_Z" = "#66C2A5", "RTIOXA_43_M" = "darkgreen")) +
+  scale_fill_manual(values = c("vehicle" = "white", "RTIOXA_43" = "#66C2A5")) +
   theme(legend.position = "none")+
   geom_text_repel(aes(label = ID)) 
 
