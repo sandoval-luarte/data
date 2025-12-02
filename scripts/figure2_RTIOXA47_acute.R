@@ -18,6 +18,7 @@ library(ARTool)
 library(car)
 library(patchwork)
 library(stringr)
+library(ggrepel)
 
 #format plot
 format.plot <- theme_pubr() +
@@ -242,3 +243,4 @@ plot_47_foodintake
 #the animal that seems to be an outlayer in food intake is 8074 and actually 
 #that ID with 8078 both left a lot of spillage accordingly to my lab notes. 
 #so foos intake measurements could not be accurate in that case
+

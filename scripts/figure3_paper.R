@@ -1,5 +1,6 @@
 #We aim to explore changes in body composition (bw, fat mass, lean mass and adiposity index)
-#in adult females C57BL6J and NZO mice and males C57BL6J after 5 weeks of IP injection of RTIOXA-47
+#and food intake 
+#in adult females C57BL6J and NZO mice and males C57BL6J after 4 weeks of IP injection of RTIOXA-47
 
 #libraries
 
