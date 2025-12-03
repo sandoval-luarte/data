@@ -16,7 +16,7 @@ library(lme4)
 library(emmeans)
 library(car)
 library(patchwork)
-
+library(tidyverse)
 
 #format plot
 format.plot <- theme_pubr() +
@@ -32,7 +32,7 @@ format.plot <- theme_pubr() +
 
 echoMRI_data_47_chronic_assignation <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
   filter(COHORT > 1 & COHORT < 6) %>%
-  filter(!ID %in% c(3712, 3715)) %>%
+  filter(!ID %in% c(3712, 3715)) %>% #died over the experiment
   group_by(ID) %>%
   arrange(Date) %>%
   mutate(
@@ -77,7 +77,7 @@ plot_47_chronic_assignation <- ggplot(echoMRI_data_47_chronic_assignation, aes(x
   labs(x = NULL, y = "adiposity index prior injections") + 
  # format.plot+
   scale_fill_manual(values = c("vehicle" = "white", "RTIOXA_47" = "orange"))+
-  facet_wrap(~STRAIN*SEX*GROUP)+
+  facet_wrap(~STRAIN*GROUP)+
   theme(legend.position = "none")
 
 plot_47_chronic_assignation
@@ -89,17 +89,15 @@ echoMRI_data_47_chronic_assignation <- echoMRI_data_47_chronic_assignation %>%
   mutate(DRUG_ASSIGNATION = factor(DRUG_ASSIGNATION))
 
 levene_results <- echoMRI_data_47_chronic_assignation %>%
-  group_by(STRAIN, SEX,GROUP) %>%
+  group_by(STRAIN,GROUP) %>%
   do(tidy(leveneTest(adiposity_index ~ DRUG_ASSIGNATION, data = .))) %>%
   ungroup()
 
-levene_results #This means none of the STRAIN × SEX X GROUP groups show evidence that variance
-#differs between vehicle and RTIOXA_47.So diet here is not important.
-#C57BL6/J — F — restricted  Not enough animals to test equality of variances.
-#C57BL6/J — M — restricted  Not enough animals to test equality of variances.
+levene_results #This means none of the STRAIN X GROUP groups have different variance between vehicle and RTIOXA_47.
+#So diet and sex here are not important (I collapsed males and females C57)
 
 pairwise_results <- echoMRI_data_47_chronic_assignation %>%
-  group_by(STRAIN, SEX, GROUP) %>%
+  group_by(STRAIN,GROUP) %>%
   group_modify(~ {
     
     # run Levene test for this subgroup
@@ -117,14 +115,13 @@ pairwise_results <- echoMRI_data_47_chronic_assignation %>%
     broom::tidy(test)
   }) %>%
   ungroup()
-pairwise_results #there is no significant differences in adiposity index 
-#within each group prior to injections, which is good
+pairwise_results #there is no significant differences in adiposity index within each group prior to injections, which is good
 
 #  RTIOXA-47 × 5 weeks -----
 
 echoMRI_data_47_chronic<- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
   filter(COHORT > 1 & COHORT < 6) %>%
-  filter(!ID %in% c(3712, 3715)) %>%
+  filter(!ID %in% c(3712, 3715)) %>% #died over the experiment
   group_by(ID) %>%
   arrange(Date) %>%
   mutate(
@@ -156,16 +153,16 @@ echoMRI_data_47_chronic<- read_csv("~/Documents/GitHub/data/data/echomri.csv") %
   select(ID, Date, Fat, Lean, Weight, adiposity_index, GROUP, DRUG, SEX, STRAIN, STATUS, n_measurement,DIET_FORMULA) %>% 
   group_by(ID, DRUG, SEX, STRAIN, DIET_FORMULA,GROUP) %>% 
   summarise(
-    delta_adiposity_index = adiposity_index[STATUS == "BW regain"] - adiposity_index[STATUS == "BW maintenance"],
-    delta_lean = Lean[STATUS == "BW regain"] - Lean[STATUS == "BW maintenance"],
-    delta_fat = Fat[STATUS == "BW regain"] - Fat[STATUS == "BW maintenance"],
-    delta_bw = Weight[STATUS == "BW regain"] - Weight[STATUS == "BW maintenance"]
-  ) %>%
-  mutate(DRUG = factor(DRUG, levels = c("vehicle", "RTIOXA_47")))
+    delta_adiposity_index = (adiposity_index[STATUS == "BW regain"] - adiposity_index[STATUS == "BW maintenance"])/adiposity_index[STATUS == "BW maintenance"],
+    delta_lean = (Lean[STATUS == "BW regain"] - Lean[STATUS == "BW maintenance"])/Lean[STATUS == "BW maintenance"],
+    delta_fat = (Fat[STATUS == "BW regain"] - Fat[STATUS == "BW maintenance"])/Fat[STATUS == "BW maintenance"],
+    delta_bw = (Weight[STATUS == "BW regain"] - Weight[STATUS == "BW maintenance"])/Weight[STATUS == "BW maintenance"]) %>%
+  mutate(DRUG = factor(DRUG, levels = c("vehicle", "RTIOXA_47"))) %>% 
+  filter(!(STRAIN == "C57BL6/J" & DIET_FORMULA == "D12450Ki"))
 
 echoMRI_data_47_chronic %>%
-  group_by(STRAIN,SEX,DIET_FORMULA,GROUP) %>%
-  summarise(n_ID = n_distinct(ID)) #this is good
+  group_by(STRAIN,GROUP,DRUG,DIET_FORMULA) %>%
+  summarise(n_ID = n_distinct(ID)) #this is good, we collapsed SEX in C57BL6J
 
 #plot bw changes
 
@@ -174,9 +171,9 @@ plot_47_chronic_bw <- ggplot(echoMRI_data_47_chronic, aes(x = DRUG, y = delta_bw
   stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.3) +
   geom_point(alpha = 0.7, size = 2, position = position_jitter(width = 0.15)) +
   theme_minimal() +
-  labs(x = NULL, y = "Δ body weight") +
+  labs(x = NULL, y = "% body weight gain") +
 #  format.plot+
-  facet_wrap(~STRAIN*SEX*GROUP)+
+  facet_wrap(~STRAIN*GROUP)+
   scale_fill_manual(values = c("vehicle" = "white", "RTIOXA_47" = "orange")) +
   theme(legend.position = "none")
 
@@ -189,9 +186,9 @@ plot_47_chronic_ai <- ggplot(echoMRI_data_47_chronic, aes(x = DRUG, y = delta_ad
   stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.3) +
   geom_point(alpha = 0.7, size = 2, position = position_jitter(width = 0.15)) +
   theme_minimal() +
-  labs(x = NULL, y = "Δ adiposity index") +
+  labs(x = NULL, y = "% adiposity index gain") +
  # format.plot+
-  facet_wrap(~STRAIN*SEX*GROUP)+
+  facet_wrap(~STRAIN*GROUP)+
   scale_fill_manual(values = c("vehicle" = "white", "RTIOXA_47" = "orange")) +
   theme(legend.position = "none")
 
@@ -204,9 +201,9 @@ plot_47_chronic_lean <- ggplot(echoMRI_data_47_chronic, aes(x = DRUG, y = delta_
   stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.3) +
   geom_point(alpha = 0.7, size = 2, position = position_jitter(width = 0.15)) +
   theme_minimal() +
-  labs(x = NULL, y = "Δ lean mass") +
+  labs(x = NULL, y = "% lean mass gain") +
   #format.plot+
-  facet_wrap(~STRAIN*SEX*GROUP)+
+  facet_wrap(~STRAIN*GROUP)+
   scale_fill_manual(values = c("vehicle" = "white", "RTIOXA_47" = "orange")) +
   theme(legend.position = "none")
 
@@ -219,9 +216,9 @@ plot_47_chronic_fat <- ggplot(echoMRI_data_47_chronic, aes(x = DRUG, y = delta_f
   stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.3) +
   geom_point(alpha = 0.7, size = 2, position = position_jitter(width = 0.15)) +
   theme_minimal() +
-  labs(x = NULL, y = "Δ fat mass") +
+  labs(x = NULL, y = "% fat mass gain") +
  # format.plot+
-  facet_wrap(~STRAIN*SEX*GROUP)+
+  facet_wrap(~STRAIN*GROUP)+
   scale_fill_manual(values = c("vehicle" = "white", "RTIOXA_47" = "orange")) +
   theme(legend.position = "none")
 
@@ -236,7 +233,7 @@ echoMRI_data_47_chronic <- echoMRI_data_47_chronic %>%
 delta_vars <- c("delta_adiposity_index", "delta_fat", "delta_lean", "delta_bw")
 
 levene_results <- echoMRI_data_47_chronic %>%
-  group_by(STRAIN, SEX, GROUP) %>%
+  group_by(STRAIN, GROUP) %>%
   group_modify(~{
     map_dfr(delta_vars, function(varname) {
       test <- leveneTest(reformulate("DRUG", varname), data = .x)
@@ -248,11 +245,11 @@ levene_results <- echoMRI_data_47_chronic %>%
 
 levene_significant <- levene_results %>%
   filter(p.value < 0.05)
-View(levene_significant)
+View(levene_significant) #good so ANOVA assumptions are met
 
 
 anova_results <- echoMRI_data_47_chronic %>%
-  group_by(STRAIN, SEX, GROUP) %>%
+  group_by(STRAIN, GROUP) %>%
   group_modify(~{
     map_dfr(
       c("delta_bw", "delta_fat", "delta_lean", "delta_adiposity_index"),
@@ -274,4 +271,111 @@ anova_significant
 # or adiposity after 5 weeks of injection in any strain.
 #a trend to increased delta bw, delta fat and delta adiposity index ocurred
 #that goes in opposite direction of what we want.
+
+#food intake analysis ----
+
+BW_data <- read_csv("../data/BW.csv") %>% 
+  filter(COHORT > 1 & COHORT < 6) %>%
+  filter(!ID %in% c(3712, 3715)) %>%
+  group_by(ID) %>%
+  arrange(DATE) %>%
+  mutate(
+    GROUP = case_when(
+      ID %in% c(3706, 3707, 3709, 3711, 3713, 3717, 3716, 3719, 3718, 3726,
+                7860, 7862, 7864, 7867, 7868, 7869, 7870, 7871, 7873, 7875, 7876,
+                7879, 7880, 7881, 7882, 7883) ~ "ad lib",
+      ID %in% c(3708, 3714, 3720, 3721, 3710, 3722, 3723, 3724, 3725, 3727, 3728,
+                3729, 7861, 7863, 7865, 7866, 7872, 7874, 7877, 7878) ~ "restricted"
+    ),
+    DRUG = case_when(
+      ID %in% c(3706, 3707, 3709, 3711, 3713, 3714, 3720, 3724, 3725, 3727, 3728,
+                7861, 7863, 7864, 7878, 7867, 7872, 7875, 7876, 7869, 7870, 7871, 
+                7868, 7880, 7881, 7882, 7883) ~ "vehicle",
+      ID %in% c(3708, 3710, 3716, 3717, 3718, 3719, 3721, 3722, 3723, 3726, 3729,
+                7862, 7865, 7873, 7874, 7877, 7866, 7879, 7860) ~ "RTIOXA_47"
+    )
+  ) %>% 
+  mutate(
+    inj_day = min(DATE[str_detect(COMMENTS, regex("DAY_1_INJECTIONS", ignore_case = TRUE))], na.rm = TRUE)
+  ) %>%
+  # remove IDs that never had DAY_1_INJECTIONS
+  filter(!is.infinite(inj_day)) %>%
+  filter(DATE >= inj_day) %>%
+  ungroup() %>% 
+  filter(!(STRAIN == "C57BL6/J" & DIET_FORMULA == "D12450Ki"))%>%
+  mutate(DRUG = factor(DRUG, levels = c("vehicle", "RTIOXA_47"))) %>% 
+select(ID,BW,DATE,COMMENTS,SEX,STRAIN,DIET_FORMULA,GROUP,DRUG )
+
+BW_data <- BW_data %>%
+  filter(COMMENTS %in% c("DAY_1_INJECTIONS", "DAY_4_SABLE_AND_SAC")) %>% 
+  group_by(ID, DRUG, SEX, STRAIN, DIET_FORMULA,GROUP) %>% 
+  summarise(
+    delta_BW = (BW[COMMENTS == "DAY_4_SABLE_AND_SAC"] - BW[COMMENTS == "DAY_1_INJECTIONS"])/BW[COMMENTS == "DAY_1_INJECTIONS"])
+  
+BW_data %>%
+  group_by(STRAIN,SEX,GROUP,DRUG,DIET_FORMULA) %>%
+  summarise(n_ID = n_distinct(ID)) #this is good
+
+plot_47_chronic_bw2 <- ggplot(BW_data, aes(x = DRUG, y = delta_BW, fill = DRUG)) +
+  stat_summary(fun = mean, geom = "col", color = "black", width = 0.7, alpha = 0.7) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.3) +
+  geom_point(alpha = 0.7, size = 2, position = position_jitter(width = 0.15)) +
+  theme_minimal() +
+  labs(x = NULL, y = "% body weight gain2") +
+  #  format.plot+
+  facet_wrap(~STRAIN*GROUP)+
+  scale_fill_manual(values = c("vehicle" = "white", "RTIOXA_47" = "orange")) +
+  theme(legend.position = "none")
+
+plot_47_chronic_bw2
+
+
+# 
+# 
+# FI_data <- read_csv("../data/FI.csv") %>% 
+#   filter(COHORT ==12) %>% 
+#   group_by(ID) %>% 
+#   arrange(DATE) %>% 
+#   rename(DIET_FORMULA = DIET_FORMULA.x) %>% #There is no differences between columns x and y. 
+#   select(-DIET_FORMULA.y) %>% 
+#   filter(str_detect(COMMENTS, regex("INJECTION_DAY_[1-5]", ignore_case = TRUE))) %>% 
+#   mutate(
+#     DRUG = case_when(
+#       ID %in% c(8075, 8077, 8078) ~ "RTIOXA_47",
+#       ID %in% c(8074, 8076, 8079) ~ "vehicle")) %>%
+#   mutate(DRUG = factor(DRUG, levels = c("vehicle", "RTIOXA_47")))
+# 
+# # left join FI_data with BW_data by ID and COMMENTS
+# FI_BW_joined <- FI_data %>%
+#   left_join(BW_data %>% select(ID, COMMENTS, BW), by = c("ID", "COMMENTS"))
+# 
+# # standarization of daily food intake per daily BW
+# FI_BW_joined <- FI_BW_joined %>%
+#   mutate(kcal_per_gBW = corrected_intake_kcal / BW)
+# 
+# # cumulative sum per id
+# FI_BW_joined_sum <- FI_BW_joined %>%
+#   group_by(ID, DRUG) %>%   # group by ID and DRUG
+#   summarise(
+#     total_kcal = sum(kcal_per_gBW, na.rm = TRUE),
+#     .groups = "drop"
+#   )
+# 
+# plot_47_foodintake <- ggplot(FI_BW_joined_sum, aes(x = DRUG, y = total_kcal, fill = DRUG)) +
+#   stat_summary(fun = mean, geom = "col", color = "black", width = 0.7, alpha = 0.7) +
+#   stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.3) +
+#   geom_point(alpha = 0.7, size = 2, position = position_jitter(width = 0.15)) +
+#   theme_minimal() +
+#   labs(x = NULL, y = "Total kcal per g body weight over 5 days") +
+#   format.plot+
+#   scale_fill_manual(values = c("vehicle" = "white", "RTIOXA_47" = "orange")) +
+#   theme(legend.position = "none")+
+#   geom_text_repel(aes(label = ID)) 
+# plot_47_foodintake
+
+#the animal that seems to be an outlayer in food intake is 8074 and actually 
+#that ID with 8078 both left a lot of spillage accordingly to my lab notes. 
+#so foos intake measurements could not be accurate in that case
+
+
 
