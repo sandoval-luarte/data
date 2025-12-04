@@ -327,15 +327,47 @@ plot_47_chronic_bw2 <- ggplot(BW_data, aes(x = DRUG, y = delta_BW, fill = DRUG))
   scale_fill_manual(values = c("vehicle" = "white", "RTIOXA_47" = "orange")) +
   theme(legend.position = "none")
 
-plot_47_chronic_bw2
+plot_47_chronic_bw2 #both graphs showed the same trend
 
+#FI data ----
 
-# 
-# 
-# FI_data <- read_csv("../data/FI.csv") %>% 
-#   filter(COHORT ==12) %>% 
-#   group_by(ID) %>% 
-#   arrange(DATE) %>% 
+filter(COHORT > 1 & COHORT < 6) %>%
+  filter(!ID %in% c(3712, 3715)) %>% #died over the experiment
+   group_by(ID) %>% 
+   arrange(DATE) %>% 
+  mutate(
+    GROUP = case_when(
+      ID %in% c(3706, 3707, 3709, 3711, 3713, 3717, 3716, 3719, 3718, 3726,
+                7860, 7862, 7864, 7867, 7868, 7869, 7870, 7871, 7873, 7875, 7876,
+                7879, 7880, 7881, 7882, 7883) ~ "ad lib",
+      ID %in% c(3708, 3714, 3720, 3721, 3710, 3722, 3723, 3724, 3725, 3727, 3728,
+                3729, 7861, 7863, 7865, 7866, 7872, 7874, 7877, 7878) ~ "restricted"
+    ),
+    DRUG = case_when(
+      ID %in% c(3706, 3707, 3709, 3711, 3713, 3714, 3720, 3724, 3725, 3727, 3728,
+                7861, 7863, 7864, 7878, 7867, 7872, 7875, 7876, 7869, 7870, 7871, 
+                7868, 7880, 7881, 7882, 7883) ~ "vehicle",
+      ID %in% c(3708, 3710, 3716, 3717, 3718, 3719, 3721, 3722, 3723, 3726, 3729,
+                7862, 7865, 7873, 7874, 7877, 7866, 7879, 7860) ~ "RTIOXA_47"
+    )
+  ) %>% 
+  mutate(
+    inj_day = min(DATE[str_detect(COMMENTS, regex("DAY_1_INJECTIONS", ignore_case = TRUE))], na.rm = TRUE)
+  ) %>%
+  # remove IDs that never had DAY_1_INJECTIONS
+  filter(!is.infinite(inj_day)) %>%
+  filter(DATE >= inj_day) %>%
+  ungroup() %>% 
+  filter(!(STRAIN == "C57BL6/J" & DIET_FORMULA == "D12450Ki"))%>%
+  mutate(DRUG = factor(DRUG, levels = c("vehicle", "RTIOXA_47"))) %>% 
+  select(ID,BW,DATE,COMMENTS,SEX,STRAIN,DIET_FORMULA,GROUP,DRUG )
+
+BW_data <- BW_data %>%
+  filter(COMMENTS %in% c("DAY_1_INJECTIONS", "DAY_4_SABLE_AND_SAC")) %>% 
+  group_by(ID, DRUG, SEX, STRAIN, DIET_FORMULA,GROUP) %>% 
+  summarise(
+    delta_BW = (BW[COMMENTS == "DAY_4_SABLE_AND_SAC"] - BW[COMMENTS == "DAY_1_INJECTIONS"])/BW[COMMENTS == "DAY_1_INJECTIONS"])
+
 #   rename(DIET_FORMULA = DIET_FORMULA.x) %>% #There is no differences between columns x and y. 
 #   select(-DIET_FORMULA.y) %>% 
 #   filter(str_detect(COMMENTS, regex("INJECTION_DAY_[1-5]", ignore_case = TRUE))) %>% 
