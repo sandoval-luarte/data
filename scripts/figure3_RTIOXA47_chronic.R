@@ -17,6 +17,7 @@ library(emmeans)
 library(car)
 library(patchwork)
 library(tidyverse)
+library(ggrepel)
 
 #format plot
 format.plot <- theme_pubr() +
@@ -306,17 +307,17 @@ BW_data <- read_csv("../data/BW.csv") %>%
   mutate(DRUG = factor(DRUG, levels = c("vehicle", "RTIOXA_47"))) %>% 
 select(ID,BW,DATE,COMMENTS,SEX,STRAIN,DIET_FORMULA,GROUP,DRUG )
 
-BW_data <- BW_data %>%
+BW_data2 <- BW_data %>%
   filter(COMMENTS %in% c("DAY_1_INJECTIONS", "DAY_4_SABLE_AND_SAC")) %>% 
   group_by(ID, DRUG, SEX, STRAIN, DIET_FORMULA,GROUP) %>% 
   summarise(
     delta_BW = (BW[COMMENTS == "DAY_4_SABLE_AND_SAC"] - BW[COMMENTS == "DAY_1_INJECTIONS"])/BW[COMMENTS == "DAY_1_INJECTIONS"])
   
-BW_data %>%
+BW_data2 %>%
   group_by(STRAIN,SEX,GROUP,DRUG,DIET_FORMULA) %>%
   summarise(n_ID = n_distinct(ID)) #this is good
 
-plot_47_chronic_bw2 <- ggplot(BW_data, aes(x = DRUG, y = delta_BW, fill = DRUG)) +
+plot_47_chronic_bw2 <- ggplot(BW_data2, aes(x = DRUG, y = delta_BW, fill = DRUG)) +
   stat_summary(fun = mean, geom = "col", color = "black", width = 0.7, alpha = 0.7) +
   stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.3) +
   geom_point(alpha = 0.7, size = 2, position = position_jitter(width = 0.15)) +
@@ -330,7 +331,7 @@ plot_47_chronic_bw2 <- ggplot(BW_data, aes(x = DRUG, y = delta_BW, fill = DRUG))
 plot_47_chronic_bw2 #both graphs showed the same trend
 
 #FI data ----
-
+FI_data <- read_csv("../data/FI.csv") %>% 
 filter(COHORT > 1 & COHORT < 6) %>%
   filter(!ID %in% c(3712, 3715)) %>% #died over the experiment
    group_by(ID) %>% 
@@ -351,6 +352,8 @@ filter(COHORT > 1 & COHORT < 6) %>%
                 7862, 7865, 7873, 7874, 7877, 7866, 7879, 7860) ~ "RTIOXA_47"
     )
   ) %>% 
+  rename(DIET_FORMULA = DIET_FORMULA.x) %>% #There is no differences between columns x and y. 
+  select(-DIET_FORMULA.y) %>%
   mutate(
     inj_day = min(DATE[str_detect(COMMENTS, regex("DAY_1_INJECTIONS", ignore_case = TRUE))], na.rm = TRUE)
   ) %>%
@@ -360,54 +363,54 @@ filter(COHORT > 1 & COHORT < 6) %>%
   ungroup() %>% 
   filter(!(STRAIN == "C57BL6/J" & DIET_FORMULA == "D12450Ki"))%>%
   mutate(DRUG = factor(DRUG, levels = c("vehicle", "RTIOXA_47"))) %>% 
-  select(ID,BW,DATE,COMMENTS,SEX,STRAIN,DIET_FORMULA,GROUP,DRUG )
+  select(ID,DIET_FORMULA,DATE,COMMENTS,SEX,corrected_intake_kcal, STRAIN,GROUP,DRUG )
 
-BW_data <- BW_data %>%
-  filter(COMMENTS %in% c("DAY_1_INJECTIONS", "DAY_4_SABLE_AND_SAC")) %>% 
-  group_by(ID, DRUG, SEX, STRAIN, DIET_FORMULA,GROUP) %>% 
-  summarise(
-    delta_BW = (BW[COMMENTS == "DAY_4_SABLE_AND_SAC"] - BW[COMMENTS == "DAY_1_INJECTIONS"])/BW[COMMENTS == "DAY_1_INJECTIONS"])
+# left join FI_data with BW_data by ID and COMMENTS
+ FI_BW_joined <- FI_data %>%
+   left_join(BW_data %>% select(ID, DATE, BW), by = c("ID", "DATE")) %>% 
+   drop_na(BW) %>% 
+   ungroup()
+   
+ FI_BW_joined %>%
+   count(ID) %>% 
+   print(n = Inf)
+ 
+ FI_BW_joined%>%
+   group_by(STRAIN
+            ) %>%
+   summarise(n_ID = n_distinct(ID)) #this is good
 
-#   rename(DIET_FORMULA = DIET_FORMULA.x) %>% #There is no differences between columns x and y. 
-#   select(-DIET_FORMULA.y) %>% 
-#   filter(str_detect(COMMENTS, regex("INJECTION_DAY_[1-5]", ignore_case = TRUE))) %>% 
-#   mutate(
-#     DRUG = case_when(
-#       ID %in% c(8075, 8077, 8078) ~ "RTIOXA_47",
-#       ID %in% c(8074, 8076, 8079) ~ "vehicle")) %>%
-#   mutate(DRUG = factor(DRUG, levels = c("vehicle", "RTIOXA_47")))
-# 
-# # left join FI_data with BW_data by ID and COMMENTS
-# FI_BW_joined <- FI_data %>%
-#   left_join(BW_data %>% select(ID, COMMENTS, BW), by = c("ID", "COMMENTS"))
-# 
 # # standarization of daily food intake per daily BW
-# FI_BW_joined <- FI_BW_joined %>%
-#   mutate(kcal_per_gBW = corrected_intake_kcal / BW)
-# 
+ FI_BW_joined <- FI_BW_joined %>%
+   group_by(ID) %>% 
+   mutate(kcal_per_gBW = corrected_intake_kcal / BW)
+ 
 # # cumulative sum per id
-# FI_BW_joined_sum <- FI_BW_joined %>%
-#   group_by(ID, DRUG) %>%   # group by ID and DRUG
-#   summarise(
-#     total_kcal = sum(kcal_per_gBW, na.rm = TRUE),
-#     .groups = "drop"
-#   )
-# 
-# plot_47_foodintake <- ggplot(FI_BW_joined_sum, aes(x = DRUG, y = total_kcal, fill = DRUG)) +
-#   stat_summary(fun = mean, geom = "col", color = "black", width = 0.7, alpha = 0.7) +
-#   stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.3) +
-#   geom_point(alpha = 0.7, size = 2, position = position_jitter(width = 0.15)) +
-#   theme_minimal() +
-#   labs(x = NULL, y = "Total kcal per g body weight over 5 days") +
-#   format.plot+
-#   scale_fill_manual(values = c("vehicle" = "white", "RTIOXA_47" = "orange")) +
-#   theme(legend.position = "none")+
-#   geom_text_repel(aes(label = ID)) 
-# plot_47_foodintake
+ FI_BW_joined_sum <- FI_BW_joined %>%
+   group_by(ID, DRUG,STRAIN,GROUP) %>%   # group by ID and DRUG
+   summarise(
+     total_kcal = sum(kcal_per_gBW, na.rm = TRUE),
+     .groups = "drop"
+   )
+ 
+ FI_BW_joined_sum %>%
+   group_by(STRAIN) %>%
+   summarise(n_ID = n_distinct(ID)) #this is good
+ 
+ 
+plot_47_foodintake <- ggplot(FI_BW_joined_sum, aes(x = DRUG, y = total_kcal, fill = DRUG)) +
+   stat_summary(fun = mean, geom = "col", color = "black", width = 0.7, alpha = 0.7) +
+   stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.3) +
+   geom_point(alpha = 0.7, size = 2, position = position_jitter(width = 0.15)) +
+   theme_minimal() +
+   labs(x = NULL, y = "Total kcal per g body weight over 5 weeks") +
+   scale_fill_manual(values = c("vehicle" = "white", "RTIOXA_47" = "orange")) +
+   theme(legend.position = "none")+
+  facet_wrap(~STRAIN)+
+   geom_text_repel(aes(label = ID)) 
+ plot_47_foodintake
 
-#the animal that seems to be an outlayer in food intake is 8074 and actually 
-#that ID with 8078 both left a lot of spillage accordingly to my lab notes. 
-#so foos intake measurements could not be accurate in that case
+#it seems there is no significant effects of RTIOXA 47 in food intake after 4 weeks of treatment
 
 
 
