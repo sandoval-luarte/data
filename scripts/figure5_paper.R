@@ -54,17 +54,21 @@ sable_loc_data <- sable_dwn %>%
     ),
     DRUG = case_when(
       ID %in% c(3706, 3707, 3709, 3711, 3713, 3714, 3720, 3724, 3725, 3727, 3728, 7861, 7863, 7864, 7878, 7867, 7872, 7875, 7876, 7869, 7870, 7871, 7868, 7880, 7881, 7882, 7883) ~ "vehicle",
-      ID %in% c(3708, 3710, 3716, 3717, 3718, 3719, 3721, 3722, 3723, 3726, 3729, 7862, 7865, 7873, 7874, 7877, 7866, 7879, 7860) ~ "RTIOXA_47"
-    )
+      ID %in% c(3708, 3710, 3716, 3717, 3718, 3719, 3721, 3722, 3723, 3726, 3729, 7862, 7865, 7873, 7874, 7877, 7866, 7879, 7860) ~ "RTIOXA_47"),
+      HEALTH = case_when(
+        ID %in% c(3708, 3720, 3721, 3722, 3725, 3728, 3729,7861, 7863, 7872, 7877, 7878) ~ "non responders to food restriction",
+        ID %in% c(3714, 3710, 3723, 3724, 3727, 7865, 7866, 7874) ~ "responders to food restriction",
+        TRUE ~ "ad lib (not restricted)"
+      )
   ) %>%
-  group_by(ID, DRUG,SEX,STRAIN,GROUP,DIET_FORMULA,SABLE) %>% 
+  group_by(ID, DRUG,SEX,STRAIN,GROUP,DIET_FORMULA,SABLE,HEALTH) %>% 
   mutate(
     zt_time = zt_time(hr),
     is_zt_init = replace_na(as.numeric(hr!=lag(hr)), 0),
     complete_days = cumsum(if_else(zt_time==0 & is_zt_init == 1,1,0))
   ) %>% 
   ungroup() %>% 
-  group_by(ID, complete_days,SEX,DRUG,STRAIN,DIET_FORMULA,SABLE) %>% 
+  group_by(ID, complete_days,SEX,DRUG,STRAIN,DIET_FORMULA,SABLE,HEALTH) %>% 
   mutate(is_complete_day = if_else(min(zt_time)==0 & max(zt_time)==23, 1, 0)) %>% 
   filter(!complete_days %in% c(0, 3)) %>% 
  filter( is_complete_day == 1, complete_days %in% c(1,2)) %>% 
@@ -72,12 +76,16 @@ sable_loc_data <- sable_dwn %>%
     SABLE = factor(SABLE,
                    levels = c("baseline", "peak obesity", "BW loss", 
                               "BW maintenance", "BW regain"))) %>% 
-  filter(!(STRAIN == "C57BL6/J" & DIET_FORMULA == "D12450Ki"))
+  filter(!(STRAIN == "C57BL6/J" & DIET_FORMULA == "D12450Ki")) %>% 
+   filter(!ID %in% c(3718, 3719)) #potential diabetic mice
+  
+ # filter(!ID %in% c(3708, 3720, 3721, 3722, 3725, 3728, 3729,7861, 7863, 7872, 7877, 7878)) #NON RESPONDERS TO FOOD RESTRICTION
+  
 
 sable_loc_data_minutes <- sable_loc_data %>%
   filter(SABLE =="BW regain") %>% 
   arrange(ID, complete_days, hr) %>%       # make sure data is ordered
-  group_by(ID, DRUG, complete_days,SEX,STRAIN,GROUP,DIET_FORMULA,SABLE) %>%    # group per animal, drug, and day
+  group_by(ID, DRUG, complete_days,SEX,STRAIN,GROUP,DIET_FORMULA,SABLE,HEALTH) %>%    # group per animal, drug, and day
   mutate(
     locomotion = value - lag(value),       # change in meters
     locomotion = if_else(locomotion < 0, 0, locomotion),  # remove negative jumps
@@ -89,7 +97,7 @@ sable_loc_data_minutes <- sable_loc_data %>%
     total_distance = sum(locomotion),      # total meters per day
     .groups = "drop"
   ) %>%
-  group_by(ID, DRUG,SEX,STRAIN,GROUP,DIET_FORMULA,SABLE) %>%
+  group_by(ID, DRUG,SEX,STRAIN,GROUP,DIET_FORMULA,SABLE,HEALTH) %>%
   summarise(
     avg_moving_hr = mean(total_moving_min/60),  # average across days
     avg_distance = mean(total_distance),
@@ -97,7 +105,7 @@ sable_loc_data_minutes <- sable_loc_data %>%
   ) 
 
 sable_loc_data_minutes%>%
-  group_by(STRAIN,SABLE) %>%
+  group_by(STRAIN,SABLE,HEALTH) %>%
   summarise(n_ID = n_distinct(ID)) #this is good
 
 sable_loc_data_minutes<- sable_loc_data_minutes %>%
@@ -108,7 +116,8 @@ sable_loc_data_minutes<- sable_loc_data_minutes %>%
     GROUP = factor(GROUP),
     DIET_FORMULA = factor(DIET_FORMULA),
     STRAIN = factor(STRAIN),
-    SABLE = factor(SABLE)
+    SABLE = factor(SABLE),
+    HEALTH = factor(HEALTH)
   )
 
 
@@ -119,7 +128,7 @@ ggplot(sable_loc_data_minutes, aes(x = DRUG, y =  avg_distance , fill = DRUG)) +
   stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.3) +
   geom_point(aes(group = ID), alpha = 0.7, size = 2,   # individual points
              position = position_jitter(width = 0.1)) +
-  facet_grid(~ SEX) +
+  facet_grid(~HEALTH) +
   scale_fill_manual(values = c(
     "vehicle" = "white",
     "RTIOXA_47" = "orange"
@@ -136,36 +145,30 @@ ggplot(sable_loc_data_minutes, aes(x = DRUG, y =  avg_distance , fill = DRUG)) +
 
 # Quick sample sizes per cell
 sable_loc_data_minutes %>%
-  group_by(DRUG, GROUP, SEX, STRAIN) %>%
+  group_by(DRUG,HEALTH) %>%
   summarise(n = n(), .groups = "drop") %>%
   print(n = Inf)
 
 # Base model: DRUG effect controlling for GROUP, SEX, STRAIN
 model_base <- lm(
-  avg_distance ~ DRUG + GROUP + SEX + STRAIN,
+  avg_distance ~ DRUG + HEALTH,
   data = sable_loc_data_minutes
 )
 
 # Model with interaction between DRUG and GROUP (test whether drug effect depends on feeding group)
 model_inter <- lm(
-  avg_distance ~ DRUG * GROUP + SEX + STRAIN,
+  avg_distance ~ DRUG + HEALTH,
   data = sable_loc_data_minutes
 )
 
-emm_group <- emmeans(model_inter, ~ DRUG | GROUP)
+emm_group <- emmeans(model_inter, ~ DRUG | HEALTH)
 pairs(emm_group)
 
-emm_sex <- emmeans(model_inter, ~ DRUG | SEX)
-pairs(emm_sex)
-
-emm_strain <- emmeans(model_inter, ~ DRUG | STRAIN)
-pairs(emm_strain)
-
 model_subgroup <- lm(
-  avg_distance ~ DRUG * GROUP * SEX * STRAIN,
+  avg_distance ~ DRUG + HEALTH,
   data = sable_loc_data_minutes
 )
-emm_sub <- emmeans(model_subgroup, ~ DRUG | SEX * STRAIN * GROUP)
+emm_sub <- emmeans(model_subgroup, ~ DRUG | HEALTH)
 pairs(emm_sub) #NO EFFECTS IN TOTAL METERS
 
 
@@ -176,7 +179,7 @@ ggplot(sable_loc_data_minutes, aes(x = DRUG, y =  avg_moving_hr , fill = DRUG)) 
   stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.3) +
   geom_point(aes(group = ID), alpha = 0.7, size = 2,   # individual points
              position = position_jitter(width = 0.1)) +
-  facet_grid(~ GROUP) +
+  facet_grid(~HEALTH) +
   scale_fill_manual(values = c(
     "vehicle" = "white",
     "RTIOXA_47" = "orange"
