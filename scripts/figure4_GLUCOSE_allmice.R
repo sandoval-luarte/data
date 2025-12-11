@@ -1,7 +1,5 @@
-#we aim to evaluate changes in blood glucose levels in NZO and C57 mice during baseline, peak obesity
-#BW loss, BW maintenance and BW regain phases. During BW regain RTIOXA 47 or vehicle was injected
-#for 5 weeks
-
+#we aim to evaluate changes in blood glucose levels in NZO and C57 mice during peak obesity
+#and BW loss
 #libraries
 
 library(dplyr)
@@ -88,8 +86,8 @@ gludata <-gludata %>%
       TRUE ~ "other"  # everything else
     )
   ) %>% 
-  mutate(STATUS= factor(STATUS, levels = c("peak obesity", "BW loss"))) %>% 
-  filter(STATUS != "other")
+  mutate(STATUS= factor(STATUS, levels = c("peak obesity", "BW loss"))) #%>% 
+ # filter(STATUS != "other")
 
 
 gludata <- gludata %>%
@@ -145,6 +143,9 @@ gludata_NZO <- gludata %>%
     )
   )
 
+gludata_NZO %>% 
+  group_by(n_measurement) %>%
+  summarise(n_ID = n_distinct(ID)) 
 
 gludata_NZO <- gludata_NZO %>%
   group_by(ID) %>%
@@ -171,19 +172,78 @@ gludata_NZO_plot <- gludata_NZO %>%
 gludata_NZO_plot_centered <- gludata_NZO_plot %>%
   mutate(x_pos = as.numeric(STATUS))  # convert factor to numeric for exact positions
 
-# Then plot 
+# Then plot of fasted glucose in peak obesity and bw maintenance/loss 
 plot <- ggplot(gludata_NZO_plot, aes(x = STATUS, y = FASTED_GLU_mg_dL, fill = STATUS)) + 
   stat_summary(fun = mean, geom = "col", color = "black", width = 0.7, alpha = 0.7) +
   stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.3) + 
   geom_point(aes(color = highlight), alpha = 0.7, size = 2, position = position_jitter(width = 0.15)) +
   geom_line(aes(group = ID), color = "gray50", alpha = 0.5) + 
-  geom_text(aes(label = ID), size = 3, vjust = -0.5)+
+ # geom_text(aes(label = ID), size = 3, vjust = -0.5)+
 scale_color_manual(values = c( "Restricted Increase" = "red", "Ad lib Decrease" = "blue", "Other" = "black" )) + 
   theme_minimal() + labs(x = NULL, y = "Fasted glucose (mg/dL)") +
   facet_wrap(~GROUP, scales = "free_x") + 
   theme(legend.position = "none") 
 plot
-  
+
+# Ensure numeric columns
+gludata_NZO_plot <- gludata_NZO_plot %>%
+  mutate(
+    BODY_WEIGHT_G = as.numeric(BODY_WEIGHT_G),
+    FASTED_GLU_mg_dL = as.numeric(FASTED_GLU_mg_dL)
+  )
+
+# Plot Body weight
+plot_BW <- ggplot(gludata_NZO_plot, aes(x = STATUS, y = BODY_WEIGHT_G, fill = STATUS)) + 
+  stat_summary(fun = mean, geom = "col", color = "black", width = 0.7, alpha = 0.7) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.3) + 
+  geom_point(aes(color = highlight), alpha = 0.7, size = 2, 
+             position = position_jitter(width = 0.15)) +
+  geom_line(aes(group = ID), color = "gray50", alpha = 0.5) + 
+  scale_color_manual(values = c(
+    "Restricted Increase" = "red", 
+    "Ad lib Decrease" = "blue", 
+    "Other" = "black"
+  )) + 
+  theme_minimal() + 
+  labs(x = NULL, y = "Body weight (grams)") +
+  facet_wrap(~GROUP, scales = "free_x") + 
+  theme(legend.position = "none")
+
+plot_BW
+
+# Select paired data
+adlib_data <- gludata_NZO_plot %>%
+  filter(GROUP == "ad lib", STATUS %in% c("peak obesity", "BW maintenance")) %>%
+  select(ID, STATUS, BODY_WEIGHT_G) %>%
+  pivot_wider(names_from = STATUS, values_from = BODY_WEIGHT_G)
+
+# Paired t-test
+t.test(adlib_data$`BW maintenance`, adlib_data$`peak obesity`, paired = TRUE)
+
+restricted_data <- gludata_NZO_plot %>%
+  filter(GROUP == "restricted", STATUS %in% c("peak obesity", "BW loss")) %>%
+  select(ID, STATUS, BODY_WEIGHT_G) %>%
+  pivot_wider(names_from = STATUS, values_from = BODY_WEIGHT_G)
+
+t.test(restricted_data$`BW loss`, restricted_data$`peak obesity`, paired = TRUE)
+
+
+adlib_glu <- gludata_NZO_plot %>%
+  filter(GROUP == "ad lib", STATUS %in% c("peak obesity", "BW maintenance")) %>%
+  select(ID, STATUS, FASTED_GLU_mg_dL) %>%
+  pivot_wider(names_from = STATUS, values_from = FASTED_GLU_mg_dL)
+
+# Paired t-test
+t.test(adlib_glu$`BW maintenance`, adlib_glu$`peak obesity`, paired = TRUE)
+
+restricted_glu <- gludata_NZO_plot %>%
+  filter(GROUP == "restricted", STATUS %in% c("peak obesity", "BW loss")) %>%
+  select(ID, STATUS, FASTED_GLU_mg_dL) %>%
+  pivot_wider(names_from = STATUS, values_from = FASTED_GLU_mg_dL)
+
+# Paired t-test
+t.test(restricted_glu$`BW loss`, restricted_glu$`peak obesity`, paired = TRUE)
+
 
 #C57 analysis ----
   
@@ -225,7 +285,8 @@ gludata_C57 <- gludata_C57 %>%
       GROUP == "ad lib" & FASTED_GLU_mg_dL - lag(FASTED_GLU_mg_dL) < 0 ~ "Ad lib Decrease",
       TRUE ~ "Other"
     )
-  )
+  ) %>% 
+  filter(!(STRAIN == "C57BL6/J" & DIET_FORMULA == "D12450Ki"))
 
 
 gludata_C57 <- gludata_C57 %>%
@@ -266,6 +327,67 @@ plot <- ggplot(gludata_C57_plot, aes(x = STATUS, y = FASTED_GLU_mg_dL, fill = ST
   theme(legend.position = "none") 
 plot
 
+# Ensure numeric columns
+gludata_C57_plot <- gludata_C57_plot %>%
+  mutate(
+    BODY_WEIGHT_G = as.numeric(BODY_WEIGHT_G),
+    FASTED_GLU_mg_dL = as.numeric(FASTED_GLU_mg_dL)
+  )
+
+# Plot Body weight
+plot_BW <- ggplot(gludata_C57_plot, aes(x = STATUS, y = BODY_WEIGHT_G, fill = STATUS)) + 
+  stat_summary(fun = mean, geom = "col", color = "black", width = 0.7, alpha = 0.7) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.3) + 
+  geom_point(aes(color = highlight), alpha = 0.7, size = 2, 
+             position = position_jitter(width = 0.15)) +
+  geom_line(aes(group = ID), color = "gray50", alpha = 0.5) + 
+  scale_color_manual(values = c(
+    "Restricted Increase" = "red", 
+    "Ad lib Decrease" = "blue", 
+    "Other" = "black"
+  )) + 
+  theme_minimal() + 
+  labs(x = NULL, y = "Body weight (grams)") +
+  facet_wrap(~GROUP, scales = "free_x") + 
+  theme(legend.position = "none")+
+  geom_text(aes(label = ID), size = 3, vjust = -0.5)
+
+plot_BW
+
+# Select paired data
+adlib_data <- gludata_NZO_plot %>%
+  filter(GROUP == "ad lib", STATUS %in% c("peak obesity", "BW maintenance")) %>%
+  select(ID, STATUS, BODY_WEIGHT_G) %>%
+  pivot_wider(names_from = STATUS, values_from = BODY_WEIGHT_G)
+
+# Paired t-test
+t.test(adlib_data$`BW maintenance`, adlib_data$`peak obesity`, paired = TRUE)
+
+restricted_data <- gludata_NZO_plot %>%
+  filter(GROUP == "restricted", STATUS %in% c("peak obesity", "BW loss")) %>%
+  select(ID, STATUS, BODY_WEIGHT_G) %>%
+  pivot_wider(names_from = STATUS, values_from = BODY_WEIGHT_G)
+
+t.test(restricted_data$`BW loss`, restricted_data$`peak obesity`, paired = TRUE)
+
+
+adlib_glu <- gludata_NZO_plot %>%
+  filter(GROUP == "ad lib", STATUS %in% c("peak obesity", "BW maintenance")) %>%
+  select(ID, STATUS, FASTED_GLU_mg_dL) %>%
+  pivot_wider(names_from = STATUS, values_from = FASTED_GLU_mg_dL)
+
+# Paired t-test
+t.test(adlib_glu$`BW maintenance`, adlib_glu$`peak obesity`, paired = TRUE)
+
+restricted_glu <- gludata_NZO_plot %>%
+  filter(GROUP == "restricted", STATUS %in% c("peak obesity", "BW loss")) %>%
+  select(ID, STATUS, FASTED_GLU_mg_dL) %>%
+  pivot_wider(names_from = STATUS, values_from = FASTED_GLU_mg_dL)
+
+# Paired t-test
+t.test(restricted_glu$`BW loss`, restricted_glu$`peak obesity`, paired = TRUE)
+
+
 #conclusion
 #it seems fasted glucose in blood did not stabilizes before animals loss weight
 #this happens in both NZO and C57 mice males and females
@@ -281,4 +403,83 @@ plot
 #which means that probably they are already diabetic, we can also divide the population in 
 
 #ad lib diabetic: 3718, 3719
+
+
+#I would like to know now if there is a correlation between the delta fasted glucose between peak obesity 
+#and bw loss with delta BW between the two stages
+
+gludata_wide <- gludata_NZO %>% 
+  distinct(ID, STATUS, .keep_all = TRUE) %>% 
+  pivot_wider( names_from = STATUS, values_from = c(BODY_WEIGHT_G, FASTED_GLU_mg_dL) ) 
+
+write_csv(gludata_wide, "../data/gludata_wide.csv")
+
+gludata_wide_modified <- read_csv("~/Documents/GitHub/data/data/gludata_wide_modified.csv") %>% 
+  mutate(DATE = lubridate::mdy(DATE)) 
+View(gludata_wide_modified)
+
+gludata_wide_modified <- gludata_wide_modified %>% 
+  mutate(across(starts_with("BODY_WEIGHT_G"), ~ as.numeric(.)))
   
+gludata_wide_modified <- gludata_wide_modified %>% 
+    mutate(across(starts_with("FASTED_GLU_mg_dL"), ~ as.numeric(.)))
+
+sapply(gludata_wide_modified[, grepl("BODY_WEIGHT_G", names(gludata_wide_modified))], class)
+sapply(gludata_wide_modified[, grepl("FASTED_GLU_mg_dL", names(gludata_wide_modified))], class)
+
+gludata_NZO_delta <- gludata_wide_modified %>%
+  mutate(
+    delta_BW = case_when(
+      GROUP == "restricted" ~ `BODY_WEIGHT_G_BW loss` - `BODY_WEIGHT_G_peak obesity`,
+      GROUP == "ad lib"     ~ `BODY_WEIGHT_G_BW maintenance` - `BODY_WEIGHT_G_peak obesity`
+    ),
+    delta_fasted_glu = case_when(
+      GROUP == "restricted" ~ `FASTED_GLU_mg_dL_BW loss` - `FASTED_GLU_mg_dL_peak obesity`,
+      GROUP == "ad lib"     ~ `FASTED_GLU_mg_dL_BW maintenance` - `FASTED_GLU_mg_dL_peak obesity`
+    ),
+    SEX = ifelse(SEX %in% c("FALSE", FALSE), "F", SEX)
+  ) %>% 
+  select(ID,SEX,DATE,DIET_FORMULA,GROUP,highlight, delta_BW,delta_fasted_glu)
+
+#correlation
+
+gludata_NZO_delta %>%
+  group_by(GROUP) %>%
+  summarise(
+    r = cor(delta_fasted_glu, delta_BW, use = "complete.obs")
+  )
+
+
+# Compute R² per group
+r2_per_group <- gludata_NZO_delta %>%
+  group_by(GROUP) %>%
+  summarise(
+    r = cor(delta_fasted_glu, delta_BW, use = "complete.obs"),
+    R2 = r^2,
+    # Determine label position for each group
+    x_pos = max(delta_fasted_glu, na.rm = TRUE) - 5,  # slightly left from max
+    y_pos = max(delta_BW, na.rm = TRUE) - 5           # slightly below max
+  )
+
+# Scatter plot with regression lines and R² labels
+ggplot(gludata_NZO_delta, aes(x = delta_fasted_glu, y = delta_BW, color = GROUP)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", se = TRUE) +
+  geom_text(
+    data = r2_per_group,
+    aes(x = x_pos, y = y_pos, label = paste0("R² = ", round(R2, 2))),
+    inherit.aes = FALSE,
+    color = "black"
+  ) +
+  theme_minimal() +
+  labs(
+    x = "Delta Fasted Glucose (mg/dL)",
+    y = "Delta Body Weight (g)",
+    title = "Relationship between Delta BW and Delta Fasted Glucose by GROUP"
+  )
+
+#In NZO females, BW loss under restriction reduces body weight significantly but does not
+#strongly affect fasting glucose. In contrast, ad lib animals show a stronger BW–glucose
+#link. This suggests that obesity-induced metabolic dysfunction is partially resistant 
+#to weight loss, highlighting the concept of "metabolic memory" in these mice.
+
