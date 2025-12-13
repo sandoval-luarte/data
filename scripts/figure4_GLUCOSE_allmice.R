@@ -483,3 +483,194 @@ ggplot(gludata_NZO_delta, aes(x = delta_fasted_glu, y = delta_BW, color = GROUP)
 #link. This suggests that obesity-induced metabolic dysfunction is partially resistant 
 #to weight loss, highlighting the concept of "metabolic memory" in these mice.
 
+#hormones analysis NZO----
+
+millliplex_2025 <- read_csv("~/Documents/GitHub/data/data/millliplex_2025.csv") 
+
+millliplex_2025_clean  <- millliplex_2025 %>% 
+  select(ID, DATE, GROUP, STATUS, 
+         GIP_pg_mL, 
+         insulin_pg_mL, 
+         leptin_pg_mL,
+         resistin_pg_mL, 
+         amylin_pg_mL, 
+         cpeptide_pg_mL ) %>% #6 analytes in total have completed data
+  group_by(ID, STATUS,GROUP) 
+
+# I did not select all the data from 9 analytes
+
+#GLP_total_pg_mL
+#IL6_pg_mL
+#glucagon_pg_mL
+#MCP_1_pg_mL
+#secretin_pg_mL
+#PP_pg_mL
+#PYY_pg_mL
+#TNFa_pg_mL
+#ghrelin_pg_mL
+
+#because mostly of that data is BLOQ (under limit of detection) or EXT (extrapolated data) so we can not trust in that data and less publish that data.
+#we need to create a subdataframe for those hormones eliminating the BLOQ or EXT rows
+
+millliplex_2025_means <- millliplex_2025_clean %>% 
+  summarise(
+    mean_insulin = mean(insulin_pg_mL, na.rm = TRUE),
+    mean_leptin  = mean(leptin_pg_mL,  na.rm = TRUE),
+    mean_GIP = mean(GIP_pg_mL, na.rm = TRUE),
+    mean_resistin = mean(resistin_pg_mL, na.rm = TRUE),
+    mean_glucagon = mean(glucagon_pg_mL, na.rm = TRUE),
+    mean_amylin = mean(amylin_pg_mL, na.rm = TRUE),
+    mean_cpeptide = mean(cpeptide_pg_mL, na.rm = TRUE),
+    .groups = "drop"
+  ) %>% 
+  mutate(STATUS= factor(STATUS, levels = c("peak obesity", "BW loss", "BW maintenance" ))) %>% 
+  drop_na() 
+
+millliplex_2025_means %>% 
+  group_by(GROUP, STATUS) %>%
+  summarise(n_ID = n_distinct(ID)) 
+
+## GIP plot ----
+plot <- ggplot(millliplex_2025_means , aes(x = STATUS, y = mean_GIP, fill = STATUS)) + 
+  stat_summary(fun = mean, geom = "col", color = "black", width = 0.7, alpha = 0.7) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.3) + 
+  geom_line(aes(group = ID), color = "gray50", alpha = 0.5) + 
+  geom_text(aes(label = ID), size = 3, vjust = -0.5)+
+  theme_minimal() + labs(x = NULL, y = "GIP (pg/mL)") +
+  facet_wrap(~GROUP, scales = "free_x") + 
+  theme(legend.position = "none") 
+plot #Glucose-dependent Insulinotropic Polypeptide hormone
+
+## insulin plot ----
+plot <- ggplot(millliplex_2025_means , aes(x = STATUS, y = mean_insulin, fill = STATUS)) + 
+  stat_summary(fun = mean, geom = "col", color = "black", width = 0.7, alpha = 0.7) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.3) + 
+  geom_line(aes(group = ID), color = "gray50", alpha = 0.5) + 
+   geom_text(aes(label = ID), size = 3, vjust = -0.5)+
+  theme_minimal() + labs(x = NULL, y = "insulin (pg/mL)") +
+  facet_wrap(~GROUP, scales = "free_x") + 
+  theme(legend.position = "none") 
+plot
+
+##leptin plot ----
+plot <- ggplot(millliplex_2025_means , aes(x = STATUS, y = mean_leptin, fill = STATUS)) + 
+  stat_summary(fun = mean, geom = "col", color = "black", width = 0.7, alpha = 0.7) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.3) + 
+  geom_line(aes(group = ID), color = "gray50", alpha = 0.5) + 
+  geom_text(aes(label = ID), size = 3, vjust = -0.5)+
+  theme_minimal() + labs(x = NULL, y = "leptin (pg/mL)") +
+  facet_wrap(~GROUP, scales = "free_x") + 
+  theme(legend.position = "none") 
+plot
+
+
+## resistin plot ----
+plot <- ggplot(millliplex_2025_means , aes(x = STATUS, y = mean_resistin, fill = STATUS)) + 
+  stat_summary(fun = mean, geom = "col", color = "black", width = 0.7, alpha = 0.7) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.3) + 
+  geom_line(aes(group = ID), color = "gray50", alpha = 0.5) + 
+  geom_text(aes(label = ID), size = 3, vjust = -0.5)+
+  theme_minimal() + labs(x = NULL, y = "resistin (pg/mL)") +
+  facet_wrap(~GROUP, scales = "free_x") + 
+  theme(legend.position = "none") 
+plot 
+
+## amylin plot ----
+plot <- ggplot(millliplex_2025_means , aes(x = STATUS, y = mean_amylin, fill = STATUS)) + 
+  stat_summary(fun = mean, geom = "col", color = "black", width = 0.7, alpha = 0.7) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.3) + 
+  geom_line(aes(group = ID), color = "gray50", alpha = 0.5) + 
+  geom_text(aes(label = ID), size = 3, vjust = -0.5)+
+  theme_minimal() + labs(x = NULL, y = "amylin (pg/mL)") +
+  facet_wrap(~GROUP, scales = "free_x") + 
+  theme(legend.position = "none") 
+plot 
+
+## cpeptide plot ----
+plot <- ggplot(millliplex_2025_means , aes(x = STATUS, y = mean_cpeptide, fill = STATUS)) + 
+  stat_summary(fun = mean, geom = "col", color = "black", width = 0.7, alpha = 0.7) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.3) + 
+  geom_line(aes(group = ID), color = "gray50", alpha = 0.5) + 
+  geom_text(aes(label = ID), size = 3, vjust = -0.5)+
+  theme_minimal() + labs(x = NULL, y = "C peptide (pg/mL)") +
+  facet_wrap(~GROUP, scales = "free_x") + 
+  theme(legend.position = "none") 
+plot 
+
+# glucagon exploration ----
+
+millliplex_2025_glucagon  <- millliplex_2025 %>% 
+  select(ID, DATE, GROUP, STATUS, glucagon_pg_mL,message_glucagon) %>% 
+  group_by(ID, STATUS,GROUP) %>% 
+  filter(!message_glucagon %in% c("BLOQ", "EXT")) #I remove IDs in which the reading were under the limit of detection or has extrapolated data
+
+millliplex_2025_glucagon %>% 
+  group_by(GROUP, STATUS) %>%
+  summarise(n_ID = n_distinct(ID)) #These are all the animals without issues in the reading
+
+millliplex_2025_glucagon_means <- millliplex_2025_glucagon %>% 
+  summarise(
+    mean_glucagon = mean(glucagon_pg_mL, na.rm = TRUE),
+    .groups = "drop"
+  ) %>% 
+  mutate(STATUS= factor(STATUS, levels = c("peak obesity", "BW loss", "BW maintenance" ))) %>% 
+  drop_na() %>% 
+  filter(!ID %in% c(3716,3717)) #just have one measurement
+
+millliplex_2025_glucagon_means %>% 
+  group_by(GROUP, STATUS) %>%
+  summarise(n_ID = n_distinct(ID)) 
+
+## glucagon plot ----
+plot <- ggplot(millliplex_2025_glucagon_means , aes(x = STATUS, y = mean_glucagon, fill = STATUS)) + 
+  stat_summary(fun = mean, geom = "col", color = "black", width = 0.7, alpha = 0.7) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.3) + 
+  geom_line(aes(group = ID), color = "gray50", alpha = 0.5) + 
+  geom_text(aes(label = ID), size = 3, vjust = -0.5)+
+  theme_minimal() + labs(x = NULL, y = "glucagon (pg/mL)") +
+  facet_wrap(~GROUP, scales = "free_x") + 
+  theme(legend.position = "none") 
+plot 
+
+# TNFa exploration ----
+
+millliplex_2025_TNFa  <- millliplex_2025 %>% 
+  select(ID, DATE, GROUP, STATUS, TNFa_pg_mL,message_TNFa) %>% 
+  group_by(ID, STATUS,GROUP) %>% 
+  filter(!message_TNFa %in% c("BLOQ", "EXT")) #I remove IDs in which the reading were under the limit of detection or has extrapolated data
+
+millliplex_2025_TNFa %>% 
+  group_by(GROUP, STATUS) %>%
+  summarise(n_ID = n_distinct(ID)) #These are all the animals without issues in the reading
+
+millliplex_2025_TNFa_means <- millliplex_2025_TNFa %>% 
+  summarise(
+    mean_TNFa = mean(TNFa_pg_mL, na.rm = TRUE),
+    .groups = "drop"
+  ) %>% 
+  mutate(STATUS= factor(STATUS, levels = c("peak obesity", "BW loss", "BW maintenance" ))) %>% 
+  drop_na() %>% 
+  filter(!ID %in% c(3708, 3711,3717, 3718, 3721)) #just have one measurement
+  
+
+millliplex_2025_TNFa_means %>% 
+  group_by(GROUP, STATUS) %>%
+  summarise(n_ID = n_distinct(ID)) 
+
+## TNFa plot ----
+plot <- ggplot(millliplex_2025_TNFa_means , aes(x = STATUS, y = mean_TNFa, fill = STATUS)) + 
+  stat_summary(fun = mean, geom = "col", color = "black", width = 0.7, alpha = 0.7) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.3) + 
+  geom_line(aes(group = ID), color = "gray50", alpha = 0.5) + 
+  geom_text(aes(label = ID), size = 3, vjust = -0.5)+
+  theme_minimal() + labs(x = NULL, y = "TNFa (pg/mL)") +
+  facet_wrap(~GROUP, scales = "free_x") + 
+  theme(legend.position = "none") 
+plot 
+
+
+
+
+
+
+
