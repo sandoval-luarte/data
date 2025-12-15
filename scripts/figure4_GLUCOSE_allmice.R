@@ -56,6 +56,7 @@ unique(all_cohorts_fixed$SEX)
 
 gludata <- all_cohorts_fixed %>% 
   mutate(DATE = lubridate::mdy(DATE)) %>% 
+  filter(format(DATE, "%Y") == "2025")
   mutate(FASTED_GLU_mg_dL= as.numeric(FASTED_GLU_mg_dL)) %>% 
   group_by(ID) %>% 
   arrange(DATE) %>% 
@@ -248,22 +249,15 @@ t.test(restricted_glu$`BW loss`, restricted_glu$`peak obesity`, paired = TRUE)
 #C57 analysis ----
   
 gludata_C57 <-gludata %>% 
-  filter(STRAIN == "C57BL/6J")
+  filter(STRAIN == "C57BL/6J") %>% 
+  filter(!ID %in% c(7860, 7868)) # only has 1 measurement
+  
 
 gludata_C57 %>% 
   group_by(n_measurement) %>%
   summarise(n_ID = n_distinct(ID)) 
 
-# Find IDs missing n_measurement == 2
-missing_measurement2 <- gludata_C57 %>%
-  group_by(ID) %>%
-  summarise(has_measure2 = any(n_measurement == 2)) %>%
-  filter(!has_measure2) %>%
-  pull(ID)
-missing_measurement2
-
 gludata_C57 <- gludata_C57 %>%
-  filter(ID != 7860) %>%  # remove animals with only one measurement
   group_by(ID) %>%
   arrange(DATE, .by_group = TRUE) %>%
   mutate(
@@ -286,8 +280,13 @@ gludata_C57 <- gludata_C57 %>%
       TRUE ~ "Other"
     )
   ) %>% 
-  filter(!(STRAIN == "C57BL6/J" & DIET_FORMULA == "D12450Ki"))
+#  filter(!(STRAIN == "C57BL6/J" & DIET_FORMULA == "D12450Ki"))
+ drop_na(STATUS)
 
+gludata_C57 %>% 
+  group_by(STATUS,SEX,DIET_FORMULA,GROUP) %>%
+  summarise(n_ID = n_distinct(ID)) 
+  
 
 gludata_C57 <- gludata_C57 %>%
   group_by(ID) %>%
@@ -353,6 +352,9 @@ plot_BW <- ggplot(gludata_C57_plot, aes(x = STATUS, y = BODY_WEIGHT_G, fill = ST
   geom_text(aes(label = ID), size = 3, vjust = -0.5)
 
 plot_BW
+
+
+#STATISTICAL ANALYSIS ----
 
 # Select paired data
 adlib_data <- gludata_NZO_plot %>%
