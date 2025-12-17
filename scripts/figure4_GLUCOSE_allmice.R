@@ -56,7 +56,7 @@ unique(all_cohorts_fixed$SEX)
 
 gludata <- all_cohorts_fixed %>% 
   mutate(DATE = lubridate::mdy(DATE)) %>% 
-  filter(format(DATE, "%Y") == "2025")
+  filter(format(DATE, "%Y") == "2025") %>% 
   mutate(FASTED_GLU_mg_dL= as.numeric(FASTED_GLU_mg_dL)) %>% 
   group_by(ID) %>% 
   arrange(DATE) %>% 
@@ -142,7 +142,7 @@ gludata_NZO <- gludata %>%
       GROUP == "ad lib" & FASTED_GLU_mg_dL - lag(FASTED_GLU_mg_dL) < 0 ~ "Ad lib Decrease",
       TRUE ~ "Other"
     )
-  )
+  ) 
 
 gludata_NZO %>% 
   group_by(n_measurement) %>%
@@ -171,7 +171,8 @@ gludata_NZO_plot <- gludata_NZO %>%
 
 # Align points in the center
 gludata_NZO_plot_centered <- gludata_NZO_plot %>%
-  mutate(x_pos = as.numeric(STATUS))  # convert factor to numeric for exact positions
+  mutate(x_pos = as.numeric(STATUS)) %>% 
+  drop_na(STATUS)
 
 # Then plot of fasted glucose in peak obesity and bw maintenance/loss 
 plot <- ggplot(gludata_NZO_plot, aes(x = STATUS, y = FASTED_GLU_mg_dL, fill = STATUS)) + 
@@ -284,7 +285,7 @@ gludata_C57 <- gludata_C57 %>%
  drop_na(STATUS)
 
 gludata_C57 %>% 
-  group_by(STATUS,SEX,DIET_FORMULA,GROUP) %>%
+  group_by(SEX,DIET_FORMULA) %>%
   summarise(n_ID = n_distinct(ID)) 
   
 
@@ -319,10 +320,10 @@ plot <- ggplot(gludata_C57_plot, aes(x = STATUS, y = FASTED_GLU_mg_dL, fill = ST
   stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.3) + 
   geom_point(aes(color = highlight), alpha = 0.7, size = 2, position = position_jitter(width = 0.15)) +
   geom_line(aes(group = ID), color = "gray50", alpha = 0.5) + 
-  geom_text(aes(label = ID), size = 3, vjust = -0.5)+
+ # geom_text(aes(label = ID), size = 3, vjust = -0.5)+
   scale_color_manual(values = c( "Restricted Increase" = "red", "Ad lib Decrease" = "blue", "Other" = "black" )) + 
   theme_minimal() + labs(x = NULL, y = "Fasted glucose (mg/dL)") +
-  facet_wrap(~GROUP, scales = "free_x") + 
+  facet_wrap(~GROUP*SEX, scales = "free_x") + 
   theme(legend.position = "none") 
 plot
 
@@ -347,14 +348,14 @@ plot_BW <- ggplot(gludata_C57_plot, aes(x = STATUS, y = BODY_WEIGHT_G, fill = ST
   )) + 
   theme_minimal() + 
   labs(x = NULL, y = "Body weight (grams)") +
-  facet_wrap(~GROUP, scales = "free_x") + 
-  theme(legend.position = "none")+
-  geom_text(aes(label = ID), size = 3, vjust = -0.5)
+  facet_wrap(~GROUP*SEX, scales = "free_x") + 
+  theme(legend.position = "none")#+
+ # geom_text(aes(label = ID), size = 3, vjust = -0.5)
 
 plot_BW
 
 
-#STATISTICAL ANALYSIS ----
+#STATISTICAL ANALYSIS NZO ----
 
 # Select paired data
 adlib_data <- gludata_NZO_plot %>%
@@ -405,6 +406,42 @@ t.test(restricted_glu$`BW loss`, restricted_glu$`peak obesity`, paired = TRUE)
 #which means that probably they are already diabetic, we can also divide the population in 
 
 #ad lib diabetic: 3718, 3719
+
+#STATISTICAL ANALYSIS C57 ----
+
+# Select paired data
+adlib_dataC57 <- gludata_C57_plot %>%
+  filter(GROUP == "ad lib", STATUS %in% c("peak obesity", "BW maintenance")) %>%
+  select(ID, STATUS, BODY_WEIGHT_G) %>%
+  pivot_wider(names_from = STATUS, values_from = BODY_WEIGHT_G)
+
+# Paired t-test
+t.test(adlib_dataC57$`BW maintenance`, adlib_dataC57$`peak obesity`, paired = TRUE)
+
+restricted_dataC57 <- gludata_C57_plot %>%
+  filter(GROUP == "restricted", STATUS %in% c("peak obesity", "BW loss")) %>%
+  select(ID, STATUS, BODY_WEIGHT_G) %>%
+  pivot_wider(names_from = STATUS, values_from = BODY_WEIGHT_G)
+
+t.test(restricted_dataC57$`BW loss`, restricted_dataC57$`peak obesity`, paired = TRUE)
+
+
+
+adlib_gluC57 <- gludata_C57_plot %>%
+  filter(GROUP == "ad lib", STATUS %in% c("peak obesity", "BW maintenance")) %>%
+  select(ID, STATUS, FASTED_GLU_mg_dL) %>%
+  pivot_wider(names_from = STATUS, values_from = FASTED_GLU_mg_dL)
+
+# Paired t-test
+t.test(adlib_gluC57$`BW maintenance`, adlib_gluC57$`peak obesity`, paired = TRUE)
+
+restricted_gluC57 <- gludata_C57_plot %>%
+  filter(GROUP == "restricted", STATUS %in% c("peak obesity", "BW loss")) %>%
+  select(ID, STATUS, FASTED_GLU_mg_dL) %>%
+  pivot_wider(names_from = STATUS, values_from = FASTED_GLU_mg_dL)
+
+# Paired t-test
+t.test(restricted_gluC57$`BW loss`, restricted_gluC57$`peak obesity`, paired = TRUE)
 
 
 #I would like to know now if there is a correlation between the delta fasted glucose between peak obesity 
