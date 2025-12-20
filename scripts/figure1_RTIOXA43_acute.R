@@ -1,6 +1,6 @@
 
 #We aim to explore changes in body composition (bw, fat mass, lean mass and adiposity index)
-#in 3 adult males C57BL6J after 5 days of IP injection of RTIOXA-43
+#in 10 adult males C57BL6J after 5 days of IP injection of RTIOXA-43
 
 #libraries
 
