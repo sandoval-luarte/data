@@ -18,6 +18,8 @@ COHORT 11: C57BL/6 and OREXIN-Cre young - uncertainty project 2409-42368A
 COHORT 12: C57BL/6J young - Eegap project (Pilot White deposit acute IP RTIOXA-47 10 mg/kg for 5 days) 2303-40942A 
 COHORT 13: C57BL/6J - Laurie Eegap project (IP RTIOXA-47) VA
 COHORT 14: C57BL/6J young - Eegap project (second cohort experiment acute IP RTIOXA-43 and RTIOXA-47 10 mg/kg for 5 days) 2303-40942A 
+COHORT 15: CD-1 young - BPA project 2409-42370A
+COHORT 16: CD-1 young - BPA project 2409-42370A
 
 # Raw_data
 
@@ -59,6 +61,9 @@ COHORT 10:CHOW: 2918 and then Bio-Serv F0071
 COHORT 11:CHOW: 2918 and then Bio-Serv F0071
 COHORT 12:CHOW: 2918
 COHORT 13:CHOW: 2918
+COHORT 13:CHOW: 2918
+COHORT 14: HFD: D12451i, LFD: D12450Hi
+COHORT 15: HFD: D12451i, LFD: D12450Hi
 
 #Outcomes
 
