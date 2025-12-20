@@ -43,6 +43,9 @@ COHORT 11: C57BL/6J (n=6 males, n=2 females), DOB: 10/14-19/2024, WEEKS_WITH_FAT
            Orexin-cre (n=12 males, n=4 females), DOB: 10/14-19/2024, WEEKS_WITH_FAT_DIET: NA
 COHORT 12: C57BL/6J (n=6 males), DOB: 2/18/2025, WEEKS_WITH_FAT_DIET: NA
 COHORT 13: C57BL/6J (n=6 males), DOB: 10/31/2024, WEEKS_WITH_FAT_DIET: NA
+COHORT 14: C57BL/6J (n=21 males), DOB: 9/16/2025, WEEKS_WITH_FAT_DIET: NA
+COHORT 15: CD1 (n=12 males, n=12 females), DOB: 4/10/2025, WEEKS_WITH_FAT_DIET: 22
+COHORT 16: CD1 (n= males, n= females), DOB: 7/13/2025, WEEKS_WITH_FAT_DIET: 
 
 #Diet formulas
 general information: HFD and LFD are obtained from research diets. Chow is obtained from teklad diets. Pellets are obtained from Bio-serv diets
@@ -61,9 +64,9 @@ COHORT 10:CHOW: 2918 and then Bio-Serv F0071
 COHORT 11:CHOW: 2918 and then Bio-Serv F0071
 COHORT 12:CHOW: 2918
 COHORT 13:CHOW: 2918
-COHORT 13:CHOW: 2918
-COHORT 14: HFD: D12451i, LFD: D12450Hi
+COHORT 14:CHOW: 2918
 COHORT 15: HFD: D12451i, LFD: D12450Hi
+COHORT 16: HFD: D12451i, LFD: D12450Hi
 
 #Outcomes
 
