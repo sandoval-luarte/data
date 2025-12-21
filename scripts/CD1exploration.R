@@ -14,6 +14,8 @@ library(Hmisc)
 library(lme4)
 library(emmeans)
 library(pracma)
+library(lubridate)
+library(broom)
 
 
  # BW over time data----
@@ -68,6 +70,82 @@ ggplot(BW_summary,
     fill  = "BPA exposure"
   ) +
   theme_classic(base_size = 14)
+
+# BW gain over time data----
+
+BW_gain <- BW_data %>% 
+  select(ID,day_rel,bw_rel,BPA_EXPOSURE,DIET_FORMULA,SEX,COHORT)
+
+BW_gainsummary <- BW_gain  %>%
+  group_by(day_rel,BPA_EXPOSURE,SEX) %>%
+  summarise(
+    mean_BWgain = mean(bw_rel, na.rm = TRUE),
+    sem_BWgain  = sd(bw_rel, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+ggplot(BW_gainsummary,
+       aes(x = day_rel,
+           y = mean_BWgain,
+           color = BPA_EXPOSURE,
+           fill  = BPA_EXPOSURE)) +
+  geom_line(size = 1) +
+  geom_ribbon(aes(ymin = mean_BWgain - sem_BWgain,
+                  ymax = mean_BWgain + sem_BWgain),
+              alpha = 0.25,
+              color = NA) +
+  facet_wrap( ~ SEX) +
+  labs(
+    x = "Days relative to first measurement",
+    y = "Body weight gain",
+    color = "BPA exposure",
+    fill  = "BPA exposure"
+  ) +
+  theme_classic(base_size = 14)
+
+# Speed = rate of change of body weight over time data----
+
+BW_speed <- BW_data %>%
+  group_by(ID, SEX, BPA_EXPOSURE) %>%
+  do(tidy(lm(BW ~ day_rel, data = .))) %>%
+  filter(term == "day_rel") %>%
+  rename(
+    speed_g_per_day = estimate,
+    se = std.error
+  )
+
+ggplot(BW_speed,
+       aes(x = BPA_EXPOSURE,
+           y = speed_g_per_day,
+           fill = BPA_EXPOSURE)) +
+  geom_boxplot(alpha = 0.6, outlier.shape = NA) +
+  geom_jitter(width = 0.15, size = 2, alpha = 0.7) +
+  facet_grid(~ SEX) +
+  labs(
+    y = "BW gain speed (g of BW/day)",
+    x = "BPA exposure"
+  ) +
+  theme_classic(base_size = 14)
+
+## stats speed----
+
+lmer_speed <- lmer(
+  BW ~ day_rel * BPA_EXPOSURE * SEX + (day_rel | ID),
+  data = BW_data
+)
+summary(lmer_speed)
+
+
+#Male mice exhibited a significantly faster rate of body
+#weight gain than females (≈0.08 g/day greater; t = 3.54).
+#BPA exposure did not significantly alter growth rate in 
+#either sex, and no significant BPA × sex interaction on
+#growth speed was observed.
+
+#BPA-exposed females are estimated to gain slightly 
+#faster than BPA-free females. 
+# BUT t = 1.36 so this is not statistically significant.
 
 # OGTT----
 
@@ -245,4 +323,59 @@ ggplot(bodycomp_summary,
 #females exposed to BPA started with higher lean mass 
 #than females non exposed to BPA and the trend is not trending 
 #to normalizing overtime 
+
+# FI over time data----
+
+FI_data <- read_csv("../data/FI.csv") %>% 
+  filter(COHORT==15) %>% # CD1 mice lack DOB
+  mutate(DATE = ymd(DATE)) %>% 
+  arrange(DATE) %>% 
+  group_by(ID) %>% 
+  mutate(
+    day_rel = as.integer(as.Date(DATE) - as.Date(first(DATE)))
+  ) %>% 
+  left_join(METABPA, by= "ID") %>% 
+  select(
+    -SEX.y,
+    -DIET_FORMULA.x
+  ) %>% 
+  rename(
+    SEX = SEX.x
+  ) %>% 
+  mutate(
+   FIcumulative = cumsum(corrected_intake_kcal))
+
+
+FI_summary <- FI_data %>%
+  group_by(day_rel,BPA_EXPOSURE,SEX) %>%
+  summarise(
+    mean_FI = mean(FIcumulative, na.rm = TRUE),
+    sem_FI  = sd(FIcumulative, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+ggplot(FI_summary,
+       aes(x = day_rel,
+           y = mean_FI,
+           color = BPA_EXPOSURE,
+           fill  = BPA_EXPOSURE)) +
+  geom_line(size = 1) +
+  geom_ribbon(aes(ymin = mean_FI - sem_FI,
+                  ymax = mean_FI + sem_FI),
+              alpha = 0.25,
+              color = NA) +
+  facet_wrap( ~ SEX) +
+  labs(
+    x = "Days relative to first measurement",
+    y = "food intake (kcal) over time",
+    color = "BPA exposure",
+    fill  = "BPA exposure"
+  ) +
+  theme_classic(base_size = 14)
+
+#independent of the diet females ate less than males, curious
+
+# indirect calorimetry columbus data ----
+# contextual object recognition test data ----
 
