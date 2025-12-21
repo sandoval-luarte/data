@@ -42,6 +42,10 @@ BW_data <- read_csv("../data/BW.csv") %>%
     DIET_FORMULA = DIET_FORMULA.x
   )
 
+BW_data %>% 
+  group_by(SEX,BPA_EXPOSURE) %>%
+  summarise(n_ID = n_distinct(ID)) 
+
 
 BW_summary <- BW_data %>%
   group_by(day_rel,BPA_EXPOSURE,DIET_FORMULA,SEX) %>%
