@@ -30,7 +30,6 @@ format.plot <- theme_pubr() +
         axis.title = element_text(family = "Helvetica", size = 14))
 
 # group assignation -----
-## Differentiated analysis for RTIOXA 43 obtained from Yanan and from medchem----
 
 # first we used the adiposity index as a criteria to assign the injection groups
 
@@ -174,15 +173,15 @@ combined_plot
 echoMRI_data_43 <- echoMRI_data_43 %>%
   mutate(DRUG = factor(DRUG))
 
-leveneTest(delta_adiposity_index ~ DRUG, data = echoMRI_data_43) #p = 0.75 > 0.05, so variances can be considered equal
-leveneTest(delta_fat ~ DRUG, data = echoMRI_data_43) #p = 0.85 > 0.05, so variances can be considered equal
-leveneTest(delta_lean ~ DRUG, data = echoMRI_data_43) #p = 0.18 > 0.05, so variances can be considered equal
-leveneTest(delta_bw ~ DRUG, data = echoMRI_data_43) #p = 0.46 > 0.05, so variances can be considered equal
+leveneTest(delta_adiposity_index ~ DRUG, data = echoMRI_data_43) #p = 0.72 > 0.05, so variances can be considered equal
+leveneTest(delta_fat ~ DRUG, data = echoMRI_data_43) #p = 0.65 > 0.05, so variances can be considered equal
+leveneTest(delta_lean ~ DRUG, data = echoMRI_data_43) #p = 0.14 > 0.05, so variances can be considered equal
+leveneTest(delta_bw ~ DRUG, data = echoMRI_data_43) #p = 0.42 > 0.05, so variances can be considered equal
 
-summary(aov(delta_bw ~ DRUG, data = echoMRI_data_43))  #p = 0.61
-summary(aov(delta_fat ~ DRUG, data = echoMRI_data_43))  #p = 0.15
-summary(aov(delta_lean ~ DRUG, data = echoMRI_data_43))  #p = 0.15
-summary(aov(delta_adiposity_index ~ DRUG, data = echoMRI_data_43))  #p = 0.22
+summary(aov(delta_bw ~ DRUG, data = echoMRI_data_43))  #p = 0.4
+summary(aov(delta_fat ~ DRUG, data = echoMRI_data_43))  #p = 0.18
+summary(aov(delta_lean ~ DRUG, data = echoMRI_data_43))  #p = 0.59
+summary(aov(delta_adiposity_index ~ DRUG, data = echoMRI_data_43))  #p = 0.16
 
 #conclusion> There is no indication that RTIOXA-43 decreases body weight, fat mass, 
-# or adiposity after 5 days. Probably because data are underpowered (n=3 per group).
+# or adiposity after 5 days. 

@@ -23,7 +23,7 @@ library(broom)
 METABPA <- read_csv("~/Documents/GitHub/data/data/METABPA.csv")
 
 BW_data <- read_csv("../data/BW.csv") %>% 
-  filter(COHORT==15) %>% # CD1 mice lack DOB
+  filter(COHORT %in% c(15, 16)) %>% 
   mutate(DATE = ymd(DATE)) %>% 
   arrange(DATE) %>% 
   group_by(ID) %>% 
@@ -78,7 +78,7 @@ ggplot(BW_summary,
 # BW gain over time data----
 
 BW_gain <- BW_data %>% 
-  select(ID,day_rel,bw_rel,BPA_EXPOSURE,DIET_FORMULA,SEX,COHORT)
+  select(ID,day_rel,bw_rel,BPA_EXPOSURE,DIET_FORMULA,SEX)
 
 BW_gainsummary <- BW_gain  %>%
   group_by(day_rel,BPA_EXPOSURE,SEX) %>%
@@ -173,7 +173,7 @@ ogtt_long <- OGTT  %>%
 
 auc_df <- ogtt_long %>% 
   arrange(ID, time_min) %>% 
-  group_by(ID, BPA_EXPOSURE,SEX,DIET_FORMULA) %>% 
+  group_by(ID, BPA_EXPOSURE,SEX) %>% 
   summarise(
     AUC = trapz(time_min, glucose),
     .groups = "drop"
@@ -183,7 +183,7 @@ ggplot(auc_df, aes(x = BPA_EXPOSURE, y = AUC)) +
   geom_jitter(width = 0.1, alpha = 0.6) +
   stat_summary(fun = mean, geom = "point", size = 3) +
   stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.2) +
- facet_wrap(~ SEX*DIET_FORMULA) +
+ facet_wrap(~ SEX) +
   labs(
     x = "BPA exposure",
     y = "Glucose AUC (0–90 min)"
@@ -228,6 +228,10 @@ echoMRI_data <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
   arrange(Date) %>% 
   select(ID, Date, Fat, Lean, Weight, n_measurement, adiposity_index,COHORT) %>% 
   left_join(METABPA, by= "ID") 
+
+echoMRI_data %>% 
+  group_by(SEX,BPA_EXPOSURE,n_measurement) %>%
+  summarise(n_ID = n_distinct(ID)) 
 
 bodycomp_summary <- echoMRI_data %>%
   group_by(n_measurement, BPA_EXPOSURE,SEX) %>%
@@ -331,7 +335,7 @@ ggplot(bodycomp_summary,
 # FI over time data----
 
 FI_data <- read_csv("../data/FI.csv") %>% 
-  filter(COHORT==15) %>% # CD1 mice lack DOB
+  filter(COHORT %in% c(15,16)) %>% 
   mutate(DATE = ymd(DATE)) %>% 
   arrange(DATE) %>% 
   group_by(ID) %>% 
@@ -381,5 +385,260 @@ ggplot(FI_summary,
 #independent of the diet females ate less than males, curious
 
 # indirect calorimetry columbus data ----
+
+##counts####
+ical_data_counts_coh15 <- read_csv("~/Documents/GitHub/data/data/iCal_Kotz_082425_counts.csv") %>% 
+  rename(ID = Subject) %>% 
+  mutate(ID = as.numeric(paste0("93", ID))) %>% 
+  select(-`8/27/25 11:00`, #we want to keep just 24 hours
+         -`8/27/25 12:00`,
+         -`8/27/25 13:00`,
+         -`8/27/25 14:00`,
+         -`8/27/25 15:00`,
+         -`8/27/25 16:00`,
+         -`8/27/25 17:00`,
+         -`8/27/25 18:00`,
+         -`8/27/25 19:00`,
+         -`8/28/25 20:00`,
+         -`8/28/25 21:00`,
+         -`8/28/25 22:00`,
+         -`8/28/25 23:00`,
+         -`8/29/25 0:00`,
+         -`8/29/25 1:00`,
+         -`8/29/25 2:00`,
+         -`8/29/25 3:00`,
+         -`8/29/25 4:00`,
+         -`8/29/25 5:00`,
+         -`8/29/25 6:00`,
+         -`8/29/25 7:00`,
+         -`8/29/25 8:00`,
+         -`8/29/25 9:00`,
+         -`8/29/25 10:00`)
+
+
+ical_data_counts_coh16 <- read_csv("~/Documents/GitHub/data/data/ical analysis 11262025_counts.csv") %>% 
+  rename(ID = Subject) %>% 
+  mutate(ID = as.numeric(paste0("9", ID))) %>% 
+  select(-`11/24/25 9:00`, #we want to keep just 24 hours
+         -`11/24/25 10:00`,
+         -`11/24/25 11:00`,
+         -`11/24/25 12:00`,
+         -`11/24/25 13:00`,
+         -`11/24/25 14:00`,
+         -`11/24/25 15:00`,
+         -`11/24/25 16:00`,
+         -`11/24/25 17:00`,
+         -`11/24/25 18:00`,
+         -`11/24/25 19:00`,
+         -`11/25/25 20:00`,
+         -`11/25/25 21:00`,
+         -`11/25/25 22:00`,
+         -`11/25/25 23:00`,
+         -`11/26/25 0:00`,
+         -`11/26/25 1:00`,
+         -`11/26/25 2:00`,
+         -`11/26/25 3:00`,
+         -`11/26/25 4:00`,
+         -`11/26/25 5:00`,
+         -`11/26/25 6:00`,
+         -`11/26/25 7:00`,
+         -`11/26/25 8:00`,
+         -`11/26/25 9:00`)
+
+ical_long15 <- ical_data_counts_coh15 %>%
+  pivot_longer(cols = -c(ID, BW), 
+               names_to = "datetime_raw", 
+               values_to = "count") %>% 
+  left_join(METABPA, by = "ID") %>% 
+  mutate(datetime = mdy_hm(datetime_raw))
+
+ical_long15 <- ical_long15 %>% 
+group_by(ID) %>%
+  mutate(
+    day = as.integer(as.Date(datetime) - min(as.Date(datetime))) + 1
+  ) %>%
+  ungroup() %>% 
+  mutate(
+    datetime_day = paste0(
+      "day ", day, " ",
+      format(datetime, "%H:%M")
+    )
+  )
+
+ical_long16 <- ical_data_counts_coh16 %>%
+  pivot_longer(cols = -c(ID, BW), 
+               names_to = "datetime_raw", 
+               values_to = "count") %>% 
+  left_join(METABPA, by = "ID") %>% 
+  mutate(datetime = mdy_hm(datetime_raw))
+
+ical_long16 <- ical_long16 %>% 
+  group_by(ID) %>%
+  mutate(
+    day = as.integer(as.Date(datetime) - min(as.Date(datetime))) + 1
+  ) %>%
+  ungroup() %>% 
+  mutate(
+    datetime_day = paste0(
+      "day ", day, " ",
+      format(datetime, "%H:%M")
+    )
+  )
+
+ical_long15 <- ical_long15 %>%
+  mutate(cohort = 15)
+
+ical_long16 <- ical_long16 %>%
+  mutate(cohort = 16)
+
+common_cols <- intersect(names(ical_long15), names(ical_long16)) 
+
+ical_long15 <- ical_long15 %>% select(all_of(common_cols))
+ical_long16 <- ical_long16 %>% select(all_of(common_cols))
+
+ical_long_all <- bind_rows(ical_long15, ical_long16) #this is key, here we combined
+
+ical_long_all %>% 
+  group_by(datetime_day) %>%
+  summarise(n_ID = n_distinct(ID)) %>% 
+  print(n = Inf) #ok great
+
+ical_long_all  <- ical_long_all %>% 
+  select(ID, BW, count, BPA_EXPOSURE, SEX, DIET_FORMULA, day, datetime_day, cohort) %>% 
+  mutate(datetime_day = str_remove(datetime_day, "^day \\d+\\s+"))
+
+ical_long_all <- ical_long_all %>%
+  mutate(
+    datetime_parsed = as.POSIXct(paste("2000-01-01", datetime_day), format="%Y-%m-%d %H:%M"),
+    hour = as.integer(format(datetime_parsed, "%H")),
+    minute = as.integer(format(datetime_parsed, "%M")),
+    daytime = case_when(
+      (day == 1 & hour >= 20) | (day == 2 & hour < 6) ~ "night",
+      (day == 2 & hour >= 7) ~ "light",
+      TRUE ~ "light"
+    )
+  ) %>%
+  select(-datetime_parsed, -hour, -minute) %>% 
+  ungroup()
+
+library(dplyr)
+library(ggplot2)
+library(forcats)
+
+# Parse daytime_day to proper time
+ical_long_all <- ical_long_all %>%
+  mutate(datetime_parsed = as.POSIXct(paste("2000-01-01", datetime_day), format="%Y-%m-%d %H:%M"))
+
+# Summarize counts per hour and group
+ical_cumsum_summary <- ical_long_all %>%
+  group_by(datetime_day, BPA_EXPOSURE, SEX) %>%
+  summarise(count_hour = sum(count, na.rm = TRUE), .groups = "drop") %>%
+  # Reorder daytime_day to start at 20:00 and go to 19:00
+  mutate(
+    hour_numeric = as.integer(format(as.POSIXct(paste("2000-01-01", datetime_day), format="%Y-%m-%d %H:%M"), "%H")),
+    # Custom order: hours 20-23, then 0-19
+    hour_order = case_when(
+      hour_numeric >= 20 ~ hour_numeric,
+      TRUE ~ hour_numeric + 24
+    )
+  ) %>%
+  arrange(BPA_EXPOSURE, SEX, hour_order) %>%
+  group_by(BPA_EXPOSURE, SEX) %>%
+  mutate(count_cumsum = cumsum(count_hour)) %>%
+  ungroup()
+
+# Optional: factor for proper plotting
+ical_cumsum_summary <- ical_cumsum_summary %>%
+  mutate(datetime_day = fct_reorder(datetime_day, hour_order))
+
+# Plot cumulative counts over “daytime_day” starting at 20:00
+ggplot(ical_cumsum_summary, aes(x = datetime_day, y = count_cumsum, color = BPA_EXPOSURE, group = BPA_EXPOSURE)) +
+  geom_line(size = 1) +
+  facet_wrap(~SEX) +
+  labs(x = "Time of Day", y = "Cumulative Counts", color = "BPA Exposure") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
+
+
+
+##heat####
+ical_data_heat<- read_csv("~/Documents/GitHub/data/data/ical_results_Kotz_083024_heat.csv", skip = 2) 
+colnames(ical_data_heat)[1:2] <- c("ID", "BW")
+
+ical_long_heat <- ical_data_heat %>%
+  pivot_longer(cols = -c(ID, BW), 
+               names_to = "datetime_raw", 
+               values_to = "kcal_hr") %>% 
+  filter(!ID %in% c(7858, 7859)) %>%  #we want to eliminate the ID were used for antibody titration
+  left_join(META, by = "ID")
+
+ical_long_heat <- ical_long_heat %>%
+  mutate(
+    datetime_clean = str_remove(datetime_raw, "^x"),  # remove 'x' prefix
+    datetime_clean = str_replace_all(datetime_clean, "_", "/"), # convert underscores to slashes
+    datetime_parsed = lubridate::mdy_hm(datetime_clean)
+  ) %>%
+  select(ID, BW, kcal_hr, datetime_parsed,DIET_FORMULA) %>%
+  mutate(
+    date = as.Date(datetime_parsed),
+    time = format(datetime_parsed, format = "%H:%M:%S"),
+    hour = lubridate::hour(datetime_parsed),
+    daycycle = ifelse(hour >= 20 | hour < 6, "dark", "light")
+  ) %>%
+  drop_na()
+
+ical_long_heat <- ical_long_heat %>% 
+  group_by(ID,daycycle) %>% 
+  mutate(cumsumkcal_hr = cumsum(kcal_hr)) 
+max_kcal_hr <- ical_long_heat %>%
+  group_by(ID, daycycle,DIET_FORMULA) %>%
+  summarise(max_kcal_hr = max(kcal_hr, na.rm = TRUE), .groups = "drop")
+
+ggplot(max_kcal_hr, aes(x = daycycle, y = max_kcal_hr, group = ID)) +
+  geom_point() +
+  geom_line() +
+  geom_text(aes(label = ID), vjust = -0.5, size = 3) +  # add ID labels above points
+  facet_wrap(~DIET_FORMULA) +
+  theme_minimal()
+
+##RER####
+ical_data_RER<- read_csv("~/Documents/GitHub/data/data/ical_results_Kotz_083024_RER.csv", skip = 1) 
+colnames(ical_data_RER)[1:2] <- c("ID", "BW")
+
+ical_long_RER <- ical_data_RER %>%
+  pivot_longer(cols = -c(ID, BW), 
+               names_to = "datetime_raw", 
+               values_to = "RER") %>% 
+  filter(!ID %in% c(7858, 7859)) %>%   #we want to eliminate the ID were used for antibody titration
+  left_join(META, by = "ID")
+
+
+ical_long_RER <- ical_long_RER %>%
+  mutate(
+    datetime_clean = str_remove(datetime_raw, "^x"),  # remove 'x' prefix
+    datetime_clean = str_replace_all(datetime_clean, "_", "/"), # convert underscores to slashes
+    datetime_parsed = lubridate::mdy_hm(datetime_clean)) %>%
+  select(ID, BW, RER, datetime_parsed,DIET_FORMULA) %>%
+  mutate(
+    date = as.Date(datetime_parsed),
+    time = format(datetime_parsed, format = "%H:%M:%S"),
+    hour = lubridate::hour(datetime_parsed),
+    daycycle = ifelse(hour >= 20 | hour < 6, "dark", "light")
+  ) %>%
+  drop_na()
+
+ical_long_RER <- ical_long_RER %>% 
+  group_by(ID,daycycle) %>% 
+  mutate(meanRER = mean(RER)) 
+
+maxRER <- ical_long_RER %>%
+  group_by(ID, daycycle,DIET_FORMULA) %>%
+  summarise(maxRER = max(RER, na.rm = TRUE), .groups = "drop")
+ggplot(maxRER, aes(daycycle, maxRER,group = ID)) +
+  geom_point() +
+  geom_line() +
+  geom_text(aes(label = ID), vjust = -0.5, size = 3) +  # add ID labels above points
+  facet_wrap(~DIET_FORMULA)+
+  theme_minimal()
 # contextual object recognition test data ----
 

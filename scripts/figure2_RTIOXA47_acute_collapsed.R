@@ -101,7 +101,8 @@ echoMRI_data_47 <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
     delta_bw = (Weight[STATUS == "end_drug"] - Weight[STATUS == "baseline"])/Weight[STATUS == "baseline"],
     .groups = "drop"
   ) %>%
-  mutate(DRUG = factor(DRUG, levels = c("vehicle", "RTIOXA_47")))
+  mutate(DRUG = factor(DRUG, levels = c("vehicle", "RTIOXA_47"))) %>% 
+  drop_na()
 
 #plot bw changes
 
@@ -175,19 +176,18 @@ combined_plot
 echoMRI_data_47 <- echoMRI_data_47 %>%
   mutate(DRUG = factor(DRUG))
 
-leveneTest(delta_adiposity_index ~ DRUG, data = echoMRI_data_47) #p = 0.39 > 0.05, so variances can be considered equal
-leveneTest(delta_fat ~ DRUG, data = echoMRI_data_47) #p = 0.36 > 0.05, so variances can be considered equal
-leveneTest(delta_lean ~ DRUG, data = echoMRI_data_47) #p = 0.79 > 0.05, so variances can be considered equal
-leveneTest(delta_bw ~ DRUG, data = echoMRI_data_47) #p = 0.92 > 0.05, so variances can be considered equal
+leveneTest(delta_adiposity_index ~ DRUG, data = echoMRI_data_47) #p = 0.31 > 0.05, so variances can be considered equal
+leveneTest(delta_fat ~ DRUG, data = echoMRI_data_47) #p = 0.44 > 0.05, so variances can be considered equal
+leveneTest(delta_lean ~ DRUG, data = echoMRI_data_47) #p = 0.02 > 0.05, so variances can be considered equal
+leveneTest(delta_bw ~ DRUG, data = echoMRI_data_47) #p = 0.43 > 0.05, so variances can be considered equal
 
-summary(aov(delta_bw ~ DRUG, data = echoMRI_data_47)) #p = 0.09
-summary(aov(delta_fat ~ DRUG, data = echoMRI_data_47)) #p = 0.95
-summary(aov(delta_lean ~ DRUG, data = echoMRI_data_47)) #p = 0.22
-summary(aov(delta_adiposity_index ~ DRUG, data = echoMRI_data_47)) #p = 0.80
+summary(aov(delta_bw ~ DRUG, data = echoMRI_data_47)) #p = 0.29
+summary(aov(delta_fat ~ DRUG, data = echoMRI_data_47)) #p = 0.63
+summary(aov(delta_lean ~ DRUG, data = echoMRI_data_47)) #p = 0.48
+summary(aov(delta_adiposity_index ~ DRUG, data = echoMRI_data_47)) #p = 0.6
 
-#conclusion> There is no indication that RTIOXA-47 decreases changes in fat mass  or adiposity after 5 days. 
-#Probably because data are underpowered (n=3 per group).
-#there is a trend in decrease % bw change
+#conclusion> There is no indication that RTIOXA-47 decreases changes in fat mass
+#or adiposity after 5 days there is a trend in decrease % bw change
 
 BW_data <- read_csv("../data/BW.csv") %>% 
   filter(COHORT %in% c(12, 14)) %>% 
@@ -200,7 +200,8 @@ BW_data <- read_csv("../data/BW.csv") %>%
                 41009, 41019, 41017, 41013, 41011) ~ "RTIOXA_47",
       ID %in% c(8074, 8076, 8079, 41003, 41005, 
                 41012, 41010, 41016, 41014, 41020) ~ "vehicle")) %>%
-  mutate(DRUG = factor(DRUG, levels = c("vehicle", "RTIOXA_47")))
+  mutate(DRUG = factor(DRUG, levels = c("vehicle", "RTIOXA_47"))) %>% 
+  drop_na()
 
 FI_data <- read_csv("../data/FI.csv") %>% 
   filter(COHORT %in% c(12, 14)) %>% 
@@ -215,7 +216,8 @@ FI_data <- read_csv("../data/FI.csv") %>%
                 41009, 41019, 41017, 41013, 41011) ~ "RTIOXA_47",
       ID %in% c(8074, 8076, 8079, 41003, 41005, 
                 41012, 41010, 41016, 41014, 41020) ~ "vehicle")) %>% 
-  mutate(DRUG = factor(DRUG, levels = c("vehicle", "RTIOXA_47")))
+  mutate(DRUG = factor(DRUG, levels = c("vehicle", "RTIOXA_47"))) %>% 
+  drop_na()
 
 # left join FI_data with BW_data by ID and COMMENTS
 FI_BW_joined <- FI_data %>%
@@ -245,7 +247,5 @@ FI_BW_joined_sum <- FI_BW_joined %>%
     geom_text_repel(aes(label = ID)) 
 plot_47_foodintake
 
-#the animal that seems to be an outlayer in food intake is 8074 and actually 
-#that ID with 8078 both left a lot of spillage accordingly to my lab notes. 
-#so food intake measurements could not be accurate in that case
+#clearlt both groups ate the same, cuek
 
