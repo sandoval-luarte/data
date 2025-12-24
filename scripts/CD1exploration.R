@@ -45,7 +45,7 @@ BW_data <- read_csv("../data/BW.csv") %>%
   )
 
 BW_data %>% 
-  group_by(SEX,BPA_EXPOSURE) %>%
+  group_by(SEX,BPA_EXPOSURE,DIET_FORMULA) %>%
   summarise(n_ID = n_distinct(ID)) 
 
 
@@ -82,14 +82,19 @@ ggplot(BW_summary,
 BW_gain <- BW_data %>% 
   select(ID,day_rel,bw_rel,BPA_EXPOSURE,DIET_FORMULA,SEX)
 
+BW_gain %>% 
+  group_by(SEX,BPA_EXPOSURE,DIET_FORMULA) %>%
+  summarise(n_ID = n_distinct(ID)) 
+
 BW_gainsummary <- BW_gain  %>%
-  group_by(day_rel,BPA_EXPOSURE,SEX) %>%
+  group_by(day_rel,BPA_EXPOSURE,SEX,DIET_FORMULA) %>%
   summarise(
     mean_BWgain = mean(bw_rel, na.rm = TRUE),
     sem_BWgain  = sd(bw_rel, na.rm = TRUE) / sqrt(n()),
     n = n(),
     .groups = "drop"
   )
+
 
 ggplot(BW_gainsummary,
        aes(x = day_rel,
@@ -101,7 +106,7 @@ ggplot(BW_gainsummary,
                   ymax = mean_BWgain + sem_BWgain),
               alpha = 0.25,
               color = NA) +
-  facet_wrap( ~ SEX) +
+  facet_wrap(DIET_FORMULA ~ SEX) +
   labs(
     x = "Days relative to first measurement",
     y = "Body weight gain",
@@ -113,7 +118,7 @@ ggplot(BW_gainsummary,
 # Speed = rate of change of body weight over time data----
 
 BW_speed <- BW_data %>%
-  group_by(ID, SEX, BPA_EXPOSURE) %>%
+  group_by(ID, SEX, BPA_EXPOSURE,DIET_FORMULA) %>%
   do(tidy(lm(BW ~ day_rel, data = .))) %>%
   filter(term == "day_rel") %>%
   rename(
@@ -121,13 +126,17 @@ BW_speed <- BW_data %>%
     se = std.error
   )
 
+BW_speed %>% 
+  group_by(SEX,BPA_EXPOSURE,DIET_FORMULA) %>%
+  summarise(n_ID = n_distinct(ID)) 
+
 ggplot(BW_speed,
        aes(x = BPA_EXPOSURE,
            y = speed_g_per_day,
            fill = BPA_EXPOSURE)) +
   geom_boxplot(alpha = 0.6, outlier.shape = NA) +
   geom_jitter(width = 0.15, size = 2, alpha = 0.7) +
-  facet_grid(~ SEX) +
+  facet_grid(DIET_FORMULA~ SEX) +
   labs(
     y = "BW gain speed (g of BW/day)",
     x = "BPA exposure"
@@ -155,6 +164,8 @@ summary(lmer_speed)
 
 # OGTT----
 
+#OGTT WAS DONE JUST FOR COHORT 15 WHEN ALL ANIMALS WERE 27 WEEK OLD
+
 OGTT <- read_csv("~/Documents/GitHub/data/data/OGTT_CD1.csv") %>% 
   mutate(DATE = mdy(DATE)) %>% 
   arrange(DATE) %>% 
@@ -175,7 +186,7 @@ ogtt_long <- OGTT  %>%
 
 auc_df <- ogtt_long %>% 
   arrange(ID, time_min) %>% 
-  group_by(ID, BPA_EXPOSURE,SEX) %>% 
+  group_by(ID, BPA_EXPOSURE,SEX,DIET_FORMULA) %>% 
   summarise(
     AUC = trapz(time_min, glucose),
     .groups = "drop"
@@ -185,7 +196,7 @@ ggplot(auc_df, aes(x = BPA_EXPOSURE, y = AUC)) +
   geom_jitter(width = 0.1, alpha = 0.6) +
   stat_summary(fun = mean, geom = "point", size = 3) +
   stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.2) +
- facet_wrap(~ SEX) +
+ facet_wrap(DIET_FORMULA~ SEX) +
   labs(
     x = "BPA exposure",
     y = "Glucose AUC (0–90 min)"
@@ -197,45 +208,46 @@ ggplot(auc_df, aes(x = BPA_EXPOSURE, y = AUC)) +
 auc_df$BPA_EXPOSURE <- factor(auc_df$BPA_EXPOSURE)
 auc_df$SEX <- factor(auc_df$SEX)
 
-model <- aov(AUC ~ BPA_EXPOSURE * SEX, data = auc_df)
+model <- aov(AUC ~ BPA_EXPOSURE * SEX *DIET_FORMULA, data = auc_df)
 summary(model)
 
 #Males clearly have higher AUCs than females (F) overall
 #There is no statistically supported difference between
 #BPA-exposed and non-exposed females (p=0.52) non-significant BPA × SEX interaction
-
-## three way anova for AUC (SEX x BPA x DIET_FORMULA)----
-#auc_df <- auc_df %>%
- # mutate(
-  #  BPA_EXPOSURE = factor(BPA_EXPOSURE),
-  #  SEX = factor(SEX),
-   # DIET_FORMULA = factor(DIET_FORMULA)
-  #)
-
-#model3 <- aov(AUC ~ BPA_EXPOSURE * SEX * DIET_FORMULA, data = auc_df)
-#summary(model3)
-
-#A significant main effect of sex was observed (F₁,₁₆ = 6.85, p = 0.019)
-#whereas no main effect of BPA exposure was detected (p = 0.31).
-#Diet showed a trend toward an effect on AUC (F₁,₁₆ = 3.95, p = 0.064). 
-#No significant two- or three-way interactions among BPA exposure, 
-#sex, and diet were observed
-
+#there is a trend (p=0.06) for HFD to increased AUC
 
 # Body comp over time ----
 
 echoMRI_data <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
   filter(COHORT %in% c(15,16)) %>% 
+  filter(!ID %in% c(9354, 9367, 9368, 9372, 9414)) %>%  # 9367 and 9368 have confused data from 8/1/25 echoMRI 
+                                                        # 9354 and 9372 lack of complete schedule of measurements in echoMRI
+                                                        # 9414 lack of complete schedule of measurements (lack of basal) in echoMRI
   group_by(ID) %>%
   arrange(Date) %>% 
-  select(ID, Date, Fat, Lean, Weight, n_measurement, adiposity_index,COHORT) %>% 
-  left_join(METABPA, by= "ID") 
+  select(ID, Date, Fat, Lean, Weight, adiposity_index,COHORT) %>% 
+  left_join(METABPA, by= "ID") %>% 
+  ungroup()
+
+#cohort 15 are 24 animals originally but if I eliminate 4 animals so total animals are 20 per date (9367, 9368, 9354, 9372)
+#cohort 16 are 15 animals originally but if I eliminate 1 animal so total animals are 14 per date (9414)
 
 echoMRI_data %>% 
-  group_by(SEX,BPA_EXPOSURE,n_measurement) %>%
+  group_by(COHORT,SEX,BPA_EXPOSURE) %>%
   summarise(n_ID = n_distinct(ID)) 
 
-bodycomp_summary <- echoMRI_data %>%
+
+echoMRI_data_comparisons <- echoMRI_data %>% 
+  mutate(
+    n_measurement= case_when(
+      COHORT == 15 & Date == "2025-08-01" ~ 1,
+      COHORT == 16 & Date == "2025-11-17" ~ 1,
+      COHORT == 15 & Date == "2025-09-09" ~ 2,
+      COHORT == 16 & Date == "2025-12-18" ~ 2)) %>% 
+  drop_na()
+                                               
+
+bodycomp_summary <- echoMRI_data_comparisons %>%
   group_by(n_measurement, BPA_EXPOSURE,SEX) %>%
   summarise(
     mean_AI = mean(adiposity_index, na.rm = TRUE),
@@ -246,7 +258,8 @@ bodycomp_summary <- echoMRI_data %>%
     sem_lean  = sd(Lean, na.rm = TRUE) / sqrt(n()),
     n = n(),
     .groups = "drop"
-  )
+  ) 
+
 
 ## adiposity index ----
 ggplot(bodycomp_summary,
@@ -266,10 +279,11 @@ ggplot(bodycomp_summary,
     color = "BPA exposure",
     fill  = "BPA exposure"
   ) +
-  theme_classic(base_size = 14)
+  theme_classic(base_size = 14)+
+  scale_x_continuous(breaks = c(1, 2))
 
 #here two weird things: 
-#first males has higher basal adiposity index than females
+#first males has higher basal adiposity index than females (betweeb 16 to 18 week old)
 #females exposed to BPA started with higher adiposity index 
 #than females non exposed to BPA and the trend is 
 #to normalizing adiposity index overtime 
@@ -300,7 +314,8 @@ ggplot(bodycomp_summary,
     color = "BPA exposure",
     fill  = "BPA exposure"
   ) +
-  theme_classic(base_size = 14)
+  theme_classic(base_size = 14)+
+  scale_x_continuous(breaks = c(1, 2))
 
 #here the same trend than for adiposity index: 
 #first males has higher basal fat than females
@@ -327,7 +342,8 @@ ggplot(bodycomp_summary,
     color = "BPA exposure",
     fill  = "BPA exposure"
   ) +
-  theme_classic(base_size = 14)
+  theme_classic(base_size = 14)+
+  scale_x_continuous(breaks = c(1, 2))
 
 #wow this is crazy! 
 #females exposed to BPA started with higher lean mass 
