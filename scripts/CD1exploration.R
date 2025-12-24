@@ -16,6 +16,8 @@ library(emmeans)
 library(pracma)
 library(lubridate)
 library(broom)
+library(stringr)
+library(forcats)
 
 
  # BW over time data----
@@ -203,15 +205,15 @@ summary(model)
 #BPA-exposed and non-exposed females (p=0.52) non-significant BPA × SEX interaction
 
 ## three way anova for AUC (SEX x BPA x DIET_FORMULA)----
-auc_df <- auc_df %>%
-  mutate(
-    BPA_EXPOSURE = factor(BPA_EXPOSURE),
-    SEX = factor(SEX),
-    DIET_FORMULA = factor(DIET_FORMULA)
-  )
+#auc_df <- auc_df %>%
+ # mutate(
+  #  BPA_EXPOSURE = factor(BPA_EXPOSURE),
+  #  SEX = factor(SEX),
+   # DIET_FORMULA = factor(DIET_FORMULA)
+  #)
 
-model3 <- aov(AUC ~ BPA_EXPOSURE * SEX * DIET_FORMULA, data = auc_df)
-summary(model3)
+#model3 <- aov(AUC ~ BPA_EXPOSURE * SEX * DIET_FORMULA, data = auc_df)
+#summary(model3)
 
 #A significant main effect of sex was observed (F₁,₁₆ = 6.85, p = 0.019)
 #whereas no main effect of BPA exposure was detected (p = 0.31).
@@ -521,124 +523,166 @@ ical_long_all <- ical_long_all %>%
   select(-datetime_parsed, -hour, -minute) %>% 
   ungroup()
 
-library(dplyr)
-library(ggplot2)
-library(forcats)
-
 # Parse daytime_day to proper time
 ical_long_all <- ical_long_all %>%
   mutate(datetime_parsed = as.POSIXct(paste("2000-01-01", datetime_day), format="%Y-%m-%d %H:%M"))
 
-# Summarize counts per hour and group
-ical_cumsum_summary <- ical_long_all %>%
-  group_by(datetime_day, BPA_EXPOSURE, SEX) %>%
-  summarise(count_hour = sum(count, na.rm = TRUE), .groups = "drop") %>%
-  # Reorder daytime_day to start at 20:00 and go to 19:00
+
+#  Calculate mean and SEM per hour per group
+ical_hourly_summary <- ical_long_all %>%
+  group_by(SEX, BPA_EXPOSURE, datetime_day,daytime) %>%
+  summarise(
+    mean_count = mean(count, na.rm = TRUE),
+    sem_count = sd(count, na.rm = TRUE) / sqrt(n_distinct(ID)),
+    .groups = "drop"
+  ) %>%
+  # parse hour for proper ordering (20:00 → 19:00 next day)
   mutate(
     hour_numeric = as.integer(format(as.POSIXct(paste("2000-01-01", datetime_day), format="%Y-%m-%d %H:%M"), "%H")),
-    # Custom order: hours 20-23, then 0-19
-    hour_order = case_when(
-      hour_numeric >= 20 ~ hour_numeric,
-      TRUE ~ hour_numeric + 24
-    )
+    hour_order = ifelse(hour_numeric >= 20, hour_numeric, hour_numeric + 24)
   ) %>%
-  arrange(BPA_EXPOSURE, SEX, hour_order) %>%
-  group_by(BPA_EXPOSURE, SEX) %>%
-  mutate(count_cumsum = cumsum(count_hour)) %>%
+  arrange(SEX, BPA_EXPOSURE, hour_order) %>%
+  mutate(datetime_day = forcats::fct_reorder(datetime_day, hour_order))
+
+#  Compute cumulative sum of mean counts over hours
+ical_hourly_summary2 <- ical_hourly_summary %>%
+  group_by(SEX, BPA_EXPOSURE) %>%
+  mutate(cumsum_mean = cumsum(mean_count),
+         cumsum_sem = sqrt(cumsum(sem_count^2))) %>%  # propagate SEM for cumulative sum
   ungroup()
 
-# Optional: factor for proper plotting
-ical_cumsum_summary <- ical_cumsum_summary %>%
-  mutate(datetime_day = fct_reorder(datetime_day, hour_order))
-
-# Plot cumulative counts over “daytime_day” starting at 20:00
-ggplot(ical_cumsum_summary, aes(x = datetime_day, y = count_cumsum, color = BPA_EXPOSURE, group = BPA_EXPOSURE)) +
+#  Plot cumulative mean ± SEM
+ggplot(ical_hourly_summary2, aes(x = datetime_day, y = cumsum_mean, color = BPA_EXPOSURE, group = BPA_EXPOSURE)) +
   geom_line(size = 1) +
+  geom_ribbon(aes(ymin = cumsum_mean - cumsum_sem, ymax = cumsum_mean + cumsum_sem, fill = BPA_EXPOSURE),
+              alpha = 0.2, color = NA) +
   facet_wrap(~SEX) +
-  labs(x = "Time of Day", y = "Cumulative Counts", color = "BPA Exposure") +
+  labs(x = "Time of Day", y = "Cumulative Mean Count ± SEM", color = "BPA Exposure", fill = "BPA Exposure") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
 
-
-
-##heat####
-ical_data_heat<- read_csv("~/Documents/GitHub/data/data/ical_results_Kotz_083024_heat.csv", skip = 2) 
-colnames(ical_data_heat)[1:2] <- c("ID", "BW")
-
-ical_long_heat <- ical_data_heat %>%
-  pivot_longer(cols = -c(ID, BW), 
-               names_to = "datetime_raw", 
-               values_to = "kcal_hr") %>% 
-  filter(!ID %in% c(7858, 7859)) %>%  #we want to eliminate the ID were used for antibody titration
-  left_join(META, by = "ID")
-
-ical_long_heat <- ical_long_heat %>%
+ical_hourly_relative <- ical_hourly_summary2 %>%
+  group_by(SEX, BPA_EXPOSURE) %>%
+  # subtract first hour's cumulative mean to start at 0
   mutate(
-    datetime_clean = str_remove(datetime_raw, "^x"),  # remove 'x' prefix
-    datetime_clean = str_replace_all(datetime_clean, "_", "/"), # convert underscores to slashes
-    datetime_parsed = lubridate::mdy_hm(datetime_clean)
+    rel_cumsum_mean = cumsum_mean - first(cumsum_mean),
+    rel_cumsum_sem  = cumsum_sem  # SEM remains the same, optionally can recalc relative
   ) %>%
-  select(ID, BW, kcal_hr, datetime_parsed,DIET_FORMULA) %>%
+  ungroup()
+
+# Plot relative cumulative mean ± SEM
+ggplot(ical_hourly_relative, aes(x = datetime_day, y = rel_cumsum_mean, color = BPA_EXPOSURE, group = BPA_EXPOSURE)) +
+  geom_line(size = 1) +
+  geom_ribbon(aes(ymin = rel_cumsum_mean - rel_cumsum_sem, ymax = rel_cumsum_mean + rel_cumsum_sem, fill = BPA_EXPOSURE),
+              alpha = 0.2, color = NA) +
+  facet_wrap(~SEX) +
+  labs(x = "Time of Day", y = "Relative Cumulative Mean Count ± SEM", color = "BPA Exposure", fill = "BPA Exposure") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
+
+# Assuming you have your hourly summary:
+# datetime_day, BPA_EXPOSURE, SEX, mean_count, sem_count, daytime
+
+ical_daytime_relcumsum <- ical_hourly_summary %>%
+  group_by(SEX, BPA_EXPOSURE, daytime) %>%
+  arrange(datetime_day) %>%
   mutate(
-    date = as.Date(datetime_parsed),
-    time = format(datetime_parsed, format = "%H:%M:%S"),
-    hour = lubridate::hour(datetime_parsed),
-    daycycle = ifelse(hour >= 20 | hour < 6, "dark", "light")
+    # Cumulative sum relative to the first hour of the daytime period
+    rel_cumsum_mean = cumsum(mean_count) - first(mean_count),
+    rel_cumsum_sem  = sqrt(cumsum(sem_count^2))  # SEM of cumulative sum
   ) %>%
-  drop_na()
+  ungroup()
 
-ical_long_heat <- ical_long_heat %>% 
-  group_by(ID,daycycle) %>% 
-  mutate(cumsumkcal_hr = cumsum(kcal_hr)) 
-max_kcal_hr <- ical_long_heat %>%
-  group_by(ID, daycycle,DIET_FORMULA) %>%
-  summarise(max_kcal_hr = max(kcal_hr, na.rm = TRUE), .groups = "drop")
+ggplot(ical_daytime_relcumsum, aes(x = datetime_day, y = rel_cumsum_mean,
+                                   color = BPA_EXPOSURE, group = BPA_EXPOSURE)) +
+  geom_line(size = 1) +
+  geom_ribbon(aes(ymin = rel_cumsum_mean - rel_cumsum_sem,
+                  ymax = rel_cumsum_mean + rel_cumsum_sem,
+                  fill = BPA_EXPOSURE), alpha = 0.2, color = NA) +
+  facet_wrap(~SEX + daytime, scales = "free_x") +
+  labs(x = "Hour", y = "Relative Cumulative Count ± SEM",
+       color = "BPA Exposure", fill = "BPA Exposure") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
 
-ggplot(max_kcal_hr, aes(x = daycycle, y = max_kcal_hr, group = ID)) +
-  geom_point() +
-  geom_line() +
-  geom_text(aes(label = ID), vjust = -0.5, size = 3) +  # add ID labels above points
-  facet_wrap(~DIET_FORMULA) +
+ical_auc_per_ID <- ical_long_all %>%
+  arrange(ID, daytime, datetime_day) %>%
+  group_by(ID, SEX, BPA_EXPOSURE, daytime) %>%
+  summarise(
+    AUC = trapz(
+      x = as.numeric(factor(datetime_day, levels = unique(datetime_day))),
+      y = count
+    ),
+    .groups = "drop"
+  )
+
+table(ical_auc_per_ID$SEX,
+      ical_auc_per_ID$BPA_EXPOSURE,
+      ical_auc_per_ID$daytime)
+
+anova_night_auc <- aov(
+  AUC ~ SEX * BPA_EXPOSURE,
+  data = filter(ical_auc_per_ID, daytime == "night")
+)
+
+summary(anova_night_auc)
+
+anova_light_auc <- aov(
+  AUC ~ SEX * BPA_EXPOSURE,
+  data = filter(ical_auc_per_ID, daytime == "light")
+)
+
+summary(anova_light_auc)
+
+# Summarize max relative cumulative counts per daytime
+ical_daytime_max <- ical_daytime_relcumsum %>%
+  group_by(SEX, BPA_EXPOSURE, daytime) %>%
+  summarise(
+    max_rel_cumsum = max(rel_cumsum_mean, na.rm = TRUE),
+    sem_at_max = sem_count[which.max(rel_cumsum_mean)], # optional SEM at max
+    .groups = "drop"
+  )
+
+# Column plot
+ggplot(ical_daytime_max, aes(x = daytime, y = max_rel_cumsum,
+                             fill = BPA_EXPOSURE)) +
+  geom_col(position = position_dodge(width = 0.7), width = 0.6) +
+  geom_errorbar(aes(ymin = max_rel_cumsum - sem_at_max,
+                    ymax = max_rel_cumsum + sem_at_max),
+                position = position_dodge(width = 0.7), width = 0.2) +
+  facet_wrap(~SEX) +
+  labs(
+    x = "Daytime",
+    y = "Max Relative Cumulative Count",
+    fill = "BPA Exposure"
+  ) +
   theme_minimal()
 
-##RER####
-ical_data_RER<- read_csv("~/Documents/GitHub/data/data/ical_results_Kotz_083024_RER.csv", skip = 1) 
-colnames(ical_data_RER)[1:2] <- c("ID", "BW")
 
-ical_long_RER <- ical_data_RER %>%
-  pivot_longer(cols = -c(ID, BW), 
-               names_to = "datetime_raw", 
-               values_to = "RER") %>% 
-  filter(!ID %in% c(7858, 7859)) %>%   #we want to eliminate the ID were used for antibody titration
-  left_join(META, by = "ID")
-
-
-ical_long_RER <- ical_long_RER %>%
+# 1. Compute per-animal cumulative relative count per daytime
+ical_daytime_per_ID <- ical_long_all %>%
+  group_by(ID, SEX, BPA_EXPOSURE, daytime) %>%
+  arrange(datetime_day) %>%
   mutate(
-    datetime_clean = str_remove(datetime_raw, "^x"),  # remove 'x' prefix
-    datetime_clean = str_replace_all(datetime_clean, "_", "/"), # convert underscores to slashes
-    datetime_parsed = lubridate::mdy_hm(datetime_clean)) %>%
-  select(ID, BW, RER, datetime_parsed,DIET_FORMULA) %>%
-  mutate(
-    date = as.Date(datetime_parsed),
-    time = format(datetime_parsed, format = "%H:%M:%S"),
-    hour = lubridate::hour(datetime_parsed),
-    daycycle = ifelse(hour >= 20 | hour < 6, "dark", "light")
+    rel_cumsum = cumsum(count) - first(count)
   ) %>%
-  drop_na()
+  summarise(
+    max_rel_cumsum = max(rel_cumsum, na.rm = TRUE),
+    .groups = "drop"
+  )
 
-ical_long_RER <- ical_long_RER %>% 
-  group_by(ID,daycycle) %>% 
-  mutate(meanRER = mean(RER)) 
+# 2. Check the data
+table(ical_daytime_per_ID$SEX, ical_daytime_per_ID$BPA_EXPOSURE)
+# Now you should have multiple IDs per group
 
-maxRER <- ical_long_RER %>%
-  group_by(ID, daycycle,DIET_FORMULA) %>%
-  summarise(maxRER = max(RER, na.rm = TRUE), .groups = "drop")
-ggplot(maxRER, aes(daycycle, maxRER,group = ID)) +
-  geom_point() +
-  geom_line() +
-  geom_text(aes(label = ID), vjust = -0.5, size = 3) +  # add ID labels above points
-  facet_wrap(~DIET_FORMULA)+
-  theme_minimal()
-# contextual object recognition test data ----
+# 3. Run ANOVA
+anova_night <- aov(max_rel_cumsum ~ SEX * BPA_EXPOSURE, 
+                   data = filter(ical_daytime_per_ID, daytime == "night"))
+summary(anova_night)
+
+anova_light <- aov(max_rel_cumsum ~ SEX * BPA_EXPOSURE, 
+                   data = filter(ical_daytime_per_ID, daytime == "light"))
+summary(anova_light)
+
+
 
