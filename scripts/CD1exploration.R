@@ -653,7 +653,15 @@ ical_long_all <- ical_long_all %>%
       levels = 20:43,
       labels = c(20:23, 0:19)
     )
+  ) %>% 
+  mutate(
+    lights = if_else(
+      hour >= 20 | hour < 6,
+      "OFF",
+      "ON"
+    )
   )
+
 
 ggplot(
   ical_long_all,
@@ -675,3 +683,660 @@ ggplot(
     strip.text = element_text(size = 8)
   )
 
+ical_long_allgrouped <- ical_long_all %>% 
+  group_by(hour_label, SEX, BPA_EXPOSURE) %>% 
+  summarise(
+    mean_counts = mean(relative_total_count, na.rm = TRUE),
+    sem_counts  = sd(relative_total_count, na.rm = TRUE) / sqrt(n_distinct(ID)),
+    n_ID = n_distinct(ID),
+    .groups = "drop"
+  )
+
+ggplot(
+  ical_long_allgrouped,
+  aes(
+    x = hour_label,
+    y = mean_counts,
+    group = BPA_EXPOSURE,
+    color = BPA_EXPOSURE,
+    fill  = BPA_EXPOSURE
+  )
+) +
+  geom_ribbon(
+    aes(
+      ymin = mean_counts - sem_counts,
+      ymax = mean_counts + sem_counts
+    ),
+    alpha = 0.25,
+    color = NA
+  ) +
+  geom_line(size = 1) +
+  facet_wrap(~ SEX) +
+  labs(
+    x = "Time (20:00 → 19:00)",
+    y = "Relative cumulative count (mean ± SEM)",
+    color = "BPA exposure",
+    fill  = "BPA exposure"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5),
+    strip.text = element_text(size = 10)
+  )
+
+
+ical_long_all <- ical_long_all %>%
+  group_by(ID, exp_day) %>%
+  mutate(
+    relative_total_counts_lights = case_when(
+      
+      # Lights OFF: 20:00–05:59 → start at 0 at 20:00
+      lights == "OFF" ~
+        relative_total_count - min(relative_total_count[lights == "OFF"], na.rm = TRUE),
+      
+      # Lights ON: 06:00–19:59 → start at 0 at 06:00
+      lights == "ON" ~
+        relative_total_count - min(relative_total_count[lights == "ON"], na.rm = TRUE)
+    )
+  ) %>%
+  ungroup() 
+
+  ical_long_all <- ical_long_all %>%
+  mutate(
+    hour_phase = case_when(
+      lights == "OFF" ~ factor(
+        hour,
+        levels = c(20:23, 0:5)
+      ),
+      lights == "ON" ~ factor(
+        hour,
+        levels = 6:19
+      )
+    )
+  )
+
+
+ical_long_allgroupedlights <- ical_long_all %>% 
+  group_by(hour_label, SEX, BPA_EXPOSURE,lights) %>% 
+  summarise(
+    mean_counts = mean(relative_total_counts_lights, na.rm = TRUE),
+    sem_counts  = sd(relative_total_counts_lights, na.rm = TRUE) / sqrt(n_distinct(ID)),
+    n_ID = n_distinct(ID),
+    .groups = "drop"
+  )
+
+ical_long_allgroupedlights <- ical_long_allgroupedlights %>%
+  mutate(
+    hour_phase = case_when(
+      lights == "OFF" ~ factor(hour_label, levels = c(20:23, 0:5)),
+      lights == "ON"  ~ factor(hour_label, levels = 6:19)
+    )
+  )
+
+ggplot(
+  ical_long_allgroupedlights,
+  aes(
+    x = hour_phase,
+    y = mean_counts,
+    color = BPA_EXPOSURE,
+    fill  = BPA_EXPOSURE,
+    group = BPA_EXPOSURE
+  )
+) +
+  geom_ribbon(
+    aes(
+      ymin = mean_counts - sem_counts,
+      ymax = mean_counts + sem_counts
+    ),
+    alpha = 0.25,
+    color = NA
+  ) +
+  geom_line(size = 1) +
+  facet_grid(SEX ~ lights, scales = "free_x") +
+  labs(
+    x = "Time of day",
+    y = "Relative cumulative count (mean ± SEM)",
+    color = "BPA exposure",
+    fill  = "BPA exposure"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5),
+    strip.text = element_text(size = 11)
+  )
+
+ical_auc_data <- ical_long_all %>%
+  mutate(
+    time_in_phase = case_when(
+      lights == "OFF" ~ match(hour, c(20:23, 0:5)) - 1,
+      lights == "ON"  ~ match(hour, 6:19) - 1
+    )
+  )
+auc_per_ID <- ical_auc_data %>%
+  group_by(ID, SEX, BPA_EXPOSURE, lights) %>%
+  arrange(time_in_phase, .by_group = TRUE) %>%
+  summarise(
+    AUC = trapz(time_in_phase, relative_total_counts_lights),
+    .groups = "drop"
+  )
+
+auc_wide <- auc_per_ID %>%
+  tidyr::pivot_wider(
+    names_from  = lights,
+    values_from = AUC,
+    names_prefix = "AUC_"
+  )
+
+auc_per_ID %>% count(ID, lights)
+
+summary(auc_wide$AUC_OFF)
+summary(auc_wide$AUC_ON)
+
+auc_per_ID$ID <- factor(auc_per_ID$ID)
+
+model_auc <- aov(
+  AUC ~ SEX * BPA_EXPOSURE * lights + Error(ID / lights),
+  data = auc_per_ID
+)
+
+summary(model_auc)
+
+##heat####
+ical_data_heat_coh15 <- read_csv("~/Documents/GitHub/data/data/iCal_Kotz_082425_heat.csv") %>% 
+  rename(ID = Subject) %>% 
+  mutate(ID = as.numeric(paste0("93", ID))) %>% 
+  select(-`8/27/25 11:00`, #we want to keep just 24 hours
+         -`8/27/25 12:00`,
+         -`8/27/25 13:00`,
+         -`8/27/25 14:00`,
+         -`8/27/25 15:00`,
+         -`8/27/25 16:00`,
+         -`8/27/25 17:00`,
+         -`8/27/25 18:00`,
+         -`8/27/25 19:00`,
+         -`8/28/25 20:00`,
+         -`8/28/25 21:00`,
+         -`8/28/25 22:00`,
+         -`8/28/25 23:00`,
+         -`8/29/25 0:00`,
+         -`8/29/25 1:00`,
+         -`8/29/25 2:00`,
+         -`8/29/25 3:00`,
+         -`8/29/25 4:00`,
+         -`8/29/25 5:00`,
+         -`8/29/25 6:00`,
+         -`8/29/25 7:00`,
+         -`8/29/25 8:00`,
+         -`8/29/25 9:00`,
+         -`8/29/25 10:00`)
+
+ical_data_heat_coh16 <- read_csv("~/Documents/GitHub/data/data/ical analysis 11262025_heat.csv") %>% 
+  rename(ID = Subject) %>% 
+  mutate(ID = as.numeric(paste0("9", ID))) %>% 
+  select(-`11/24/25 9:00`, #we want to keep just 24 hours
+         -`11/24/25 10:00`,
+         -`11/24/25 11:00`,
+         -`11/24/25 12:00`,
+         -`11/24/25 13:00`,
+         -`11/24/25 14:00`,
+         -`11/24/25 15:00`,
+         -`11/24/25 16:00`,
+         -`11/24/25 17:00`,
+         -`11/24/25 18:00`,
+         -`11/24/25 19:00`,
+         -`11/25/25 20:00`,
+         -`11/25/25 21:00`,
+         -`11/25/25 22:00`,
+         -`11/25/25 23:00`,
+         -`11/26/25 0:00`,
+         -`11/26/25 1:00`,
+         -`11/26/25 2:00`,
+         -`11/26/25 3:00`,
+         -`11/26/25 4:00`,
+         -`11/26/25 5:00`,
+         -`11/26/25 6:00`,
+         -`11/26/25 7:00`,
+         -`11/26/25 8:00`,
+         -`11/26/25 9:00`)
+
+ical_long15heat <- ical_data_heat_coh15 %>%
+  pivot_longer(cols = -c(ID, BW), 
+               names_to = "datetime_raw", 
+               values_to = "kcal_hr") %>% 
+  left_join(METABPA, by = "ID") %>% 
+  mutate(datetime = mdy_hm(datetime_raw))
+
+ical_long16heat <- ical_data_heat_coh16 %>%
+  pivot_longer(cols = -c(ID, BW), 
+               names_to = "datetime_raw", 
+               values_to = "kcal_hr") %>% 
+  left_join(METABPA, by = "ID") %>% 
+  mutate(datetime = mdy_hm(datetime_raw))
+
+ical_long16heat <- ical_long16heat %>% 
+  group_by(ID) %>%
+  mutate(
+    day = as.integer(as.Date(datetime) - min(as.Date(datetime))) + 1
+  ) %>%
+  ungroup() %>% 
+  mutate(
+    datetime_day = paste0(
+      "day ", day, " ",
+      format(datetime, "%H:%M")
+    )
+  )
+
+ical_long15heat <- ical_long15heat %>%
+  mutate(cohort = 15)
+
+ical_long16heat <- ical_long16heat %>%
+  mutate(cohort = 16)
+
+common_cols <- intersect(names(ical_long15heat), names(ical_long16heat)) 
+
+ical_long15heat <- ical_long15heat %>% select(all_of(common_cols))
+ical_long16heat <- ical_long16heat %>% select(all_of(common_cols))
+
+ical_long_allheat <- bind_rows(ical_long15heat, ical_long16heat) #this is key, here we combined
+
+ical_long_allheat %>% 
+  group_by(cohort) %>%
+  summarise(n_ID = n_distinct(ID)) %>% 
+  print(n = Inf) #ok great we have 24 animals for cohort 15 and 15 animals for cohort 16
+#so in total 39 animals
+
+ical_long_allheat <- ical_long_allheat %>%
+  mutate(
+    # shift so experimental day starts at 20:00
+    datetime_shifted = datetime - hours(20),
+    
+    # experimental day (20:00 → 19:59)
+    exp_day = as.integer(
+      as.Date(datetime_shifted) -
+        min(as.Date(datetime_shifted))
+    ) + 1,
+    
+    # clock hour
+    hour = hour(datetime),
+    
+    # ordering variable: 20 → 43 (20–23, then 0–19)
+    hour_ordered = if_else(hour < 20, hour + 24, hour)
+  ) %>%
+  arrange(ID, exp_day, hour_ordered) %>%
+  group_by(ID, exp_day) %>%
+  mutate(kcal_hr_total = cumsum(kcal_hr)) %>%
+  ungroup() %>% 
+  #filter(!ID == 9406) %>% #9406 has a very weird pattern
+  group_by(ID, exp_day) %>%
+  mutate(
+    relative_total_kcal_hr = kcal_hr_total - first(kcal_hr_total))
+
+ical_long_allheat %>%
+  filter(ID == min(ID)) %>%
+  select(datetime, exp_day, hour, hour_ordered, relative_total_kcal_hr, kcal_hr_total) %>%
+  arrange(datetime)
+
+ical_long_allheat <- ical_long_allheat %>%
+  mutate(
+    hour_label = factor(
+      hour_ordered,
+      levels = 20:43,
+      labels = c(20:23, 0:19)
+    )
+  ) %>% 
+  mutate(
+    lights = if_else(
+      hour >= 20 | hour < 6,
+      "OFF",
+      "ON"
+    )
+  )
+
+
+ggplot(
+  ical_long_allheat,
+  aes(
+    x = hour_label,
+    y = relative_total_kcal_hr,
+    group = interaction(ID, exp_day)
+  )
+) +
+  geom_line(size = 1) +
+  facet_wrap(~ ID) +
+  labs(
+    x = "Time (20:00 → 19:00)",
+    y = "relative cumulative TEE (kcal_hr)"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5),
+    strip.text = element_text(size = 8)
+  )
+
+ical_long_allgroupedheat <- ical_long_allheat %>% 
+  group_by(hour_label, SEX, BPA_EXPOSURE) %>% 
+  summarise(
+    mean_kcal_hr = mean(relative_total_kcal_hr, na.rm = TRUE),
+    sem_kcal_hr  = sd(relative_total_kcal_hr, na.rm = TRUE) / sqrt(n_distinct(ID)),
+    n_ID = n_distinct(ID),
+    .groups = "drop"
+  )
+
+ggplot(
+  ical_long_allgroupedheat,
+  aes(
+    x = hour_label,
+    y = mean_kcal_hr,
+    group = BPA_EXPOSURE,
+    color = BPA_EXPOSURE,
+    fill  = BPA_EXPOSURE
+  )
+) +
+  geom_ribbon(
+    aes(
+      ymin = mean_kcal_hr - sem_kcal_hr,
+      ymax = mean_kcal_hr + sem_kcal_hr
+    ),
+    alpha = 0.25,
+    color = NA
+  ) +
+  geom_line(size = 1) +
+  facet_wrap(~ SEX) +
+  labs(
+    x = "Time (20:00 → 19:00)",
+    y = "Relative cumulative TEE (kcal per h mean ± SEM)",
+    color = "BPA exposure",
+    fill  = "BPA exposure"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5),
+    strip.text = element_text(size = 10)
+  )
+
+
+ical_long_allheat <- ical_long_allheat %>%
+  group_by(ID, exp_day) %>%
+  mutate(
+    relative_total_kcal_hr_lights = case_when(
+      
+      # Lights OFF: 20:00–05:59 → start at 0 at 20:00
+      lights == "OFF" ~
+        relative_total_kcal_hr - min(relative_total_kcal_hr[lights == "OFF"], na.rm = TRUE),
+      
+      # Lights ON: 06:00–19:59 → start at 0 at 06:00
+      lights == "ON" ~
+        relative_total_kcal_hr - min(relative_total_kcal_hr[lights == "ON"], na.rm = TRUE)
+    )
+  ) %>%
+  ungroup() 
+
+ical_long_allheat <- ical_long_allheat %>%
+  mutate(
+    hour_phase = case_when(
+      lights == "OFF" ~ factor(
+        hour,
+        levels = c(20:23, 0:5)
+      ),
+      lights == "ON" ~ factor(
+        hour,
+        levels = 6:19
+      )
+    )
+  )
+
+
+ical_long_allgroupedlightsheat <- ical_long_allheat %>% 
+  group_by(hour_label, SEX, BPA_EXPOSURE,lights) %>% 
+  summarise(
+    mean_kcal_hr = mean(relative_total_kcal_hr_lights, na.rm = TRUE),
+    sem_kcal_hr  = sd(relative_total_kcal_hr_lights, na.rm = TRUE) / sqrt(n_distinct(ID)),
+    n_ID = n_distinct(ID),
+    .groups = "drop"
+  )
+
+ical_long_allgroupedlightsheat <- ical_long_allgroupedlightsheat %>%
+  mutate(
+    hour_phase = case_when(
+      lights == "OFF" ~ factor(hour_label, levels = c(20:23, 0:5)),
+      lights == "ON"  ~ factor(hour_label, levels = 6:19)
+    )
+  )
+
+ggplot(
+  ical_long_allgroupedlightsheat,
+  aes(
+    x = hour_phase,
+    y = mean_kcal_hr,
+    color = BPA_EXPOSURE,
+    fill  = BPA_EXPOSURE,
+    group = BPA_EXPOSURE
+  )
+) +
+  geom_ribbon(
+    aes(
+      ymin = mean_kcal_hr - sem_kcal_hr,
+      ymax = mean_kcal_hr + sem_kcal_hr
+    ),
+    alpha = 0.25,
+    color = NA
+  ) +
+  geom_line(size = 1) +
+  facet_grid(SEX ~ lights, scales = "free_x") +
+  labs(
+    x = "Time of day",
+    y = "Relative TEE (kcal per hr mean ± SEM)",
+    color = "BPA exposure",
+    fill  = "BPA exposure"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5),
+    strip.text = element_text(size = 11)
+  )
+
+##RER####
+ical_data_RER_coh15 <- read_csv("~/Documents/GitHub/data/data/iCal_Kotz_082425_RER.csv") %>% 
+  rename(ID = Subject) %>% 
+  mutate(ID = as.numeric(paste0("93", ID))) %>% 
+  select(-`8/27/25 11:00`, #we want to keep just 24 hours
+         -`8/27/25 12:00`,
+         -`8/27/25 13:00`,
+         -`8/27/25 14:00`,
+         -`8/27/25 15:00`,
+         -`8/27/25 16:00`,
+         -`8/27/25 17:00`,
+         -`8/27/25 18:00`,
+         -`8/27/25 19:00`,
+         -`8/28/25 20:00`,
+         -`8/28/25 21:00`,
+         -`8/28/25 22:00`,
+         -`8/28/25 23:00`,
+         -`8/29/25 0:00`,
+         -`8/29/25 1:00`,
+         -`8/29/25 2:00`,
+         -`8/29/25 3:00`,
+         -`8/29/25 4:00`,
+         -`8/29/25 5:00`,
+         -`8/29/25 6:00`,
+         -`8/29/25 7:00`,
+         -`8/29/25 8:00`,
+         -`8/29/25 9:00`,
+         -`8/29/25 10:00`)
+
+ical_data_RER_coh16 <- read_csv("~/Documents/GitHub/data/data/ical analysis 11262025_RER.csv") %>% 
+  rename(ID = Subject) %>% 
+  mutate(ID = as.numeric(paste0("9", ID))) %>% 
+  select(-`11/24/25 9:00`, #we want to keep just 24 hours
+         -`11/24/25 10:00`,
+         -`11/24/25 11:00`,
+         -`11/24/25 12:00`,
+         -`11/24/25 13:00`,
+         -`11/24/25 14:00`,
+         -`11/24/25 15:00`,
+         -`11/24/25 16:00`,
+         -`11/24/25 17:00`,
+         -`11/24/25 18:00`,
+         -`11/24/25 19:00`,
+         -`11/25/25 20:00`,
+         -`11/25/25 21:00`,
+         -`11/25/25 22:00`,
+         -`11/25/25 23:00`,
+         -`11/26/25 0:00`,
+         -`11/26/25 1:00`,
+         -`11/26/25 2:00`,
+         -`11/26/25 3:00`,
+         -`11/26/25 4:00`,
+         -`11/26/25 5:00`,
+         -`11/26/25 6:00`,
+         -`11/26/25 7:00`,
+         -`11/26/25 8:00`,
+         -`11/26/25 9:00`)
+
+ical_long15RER <- ical_data_RER_coh15 %>%
+  pivot_longer(cols = -c(ID, BW), 
+               names_to = "datetime_raw", 
+               values_to = "RER") %>% 
+  left_join(METABPA, by = "ID") %>% 
+  mutate(datetime = mdy_hm(datetime_raw))
+
+ical_long16RER <- ical_data_RER_coh16 %>%
+  pivot_longer(cols = -c(ID, BW), 
+               names_to = "datetime_raw", 
+               values_to = "RER") %>% 
+  left_join(METABPA, by = "ID") %>% 
+  mutate(datetime = mdy_hm(datetime_raw))
+
+ical_long16RER <- ical_long16RER %>% 
+  group_by(ID) %>%
+  mutate(
+    day = as.integer(as.Date(datetime) - min(as.Date(datetime))) + 1
+  ) %>%
+  ungroup() %>% 
+  mutate(
+    datetime_day = paste0(
+      "day ", day, " ",
+      format(datetime, "%H:%M")
+    )
+  )
+
+ical_long15RER <- ical_long15RER %>%
+  mutate(cohort = 15)
+
+ical_long16RER <- ical_long16RER %>%
+  mutate(cohort = 16)
+
+common_cols <- intersect(names(ical_long15RER), names(ical_long16RER)) 
+
+ical_long15RER <- ical_long15RER %>% select(all_of(common_cols))
+ical_long16RER <- ical_long16RER %>% select(all_of(common_cols))
+
+ical_long_allRER <- bind_rows(ical_long15RER, ical_long16RER) #this is key, here we combined
+
+ical_long_allRER %>% 
+  group_by(cohort) %>%
+  summarise(n_ID = n_distinct(ID)) %>% 
+  print(n = Inf) #ok great we have 24 animals for cohort 15 and 15 animals for cohort 16
+#so in total 39 animals
+
+ical_long_allRER <- ical_long_allRER %>%
+  mutate(
+    # shift so experimental day starts at 20:00
+    datetime_shifted = datetime - hours(20),
+    
+    # experimental day (20:00 → 19:59)
+    exp_day = as.integer(
+      as.Date(datetime_shifted) -
+        min(as.Date(datetime_shifted))
+    ) + 1,
+    
+    # clock hour
+    hour = hour(datetime),
+    
+    # ordering variable: 20 → 43 (20–23, then 0–19)
+    hour_ordered = if_else(hour < 20, hour + 24, hour)
+  ) %>%
+  arrange(ID, exp_day, hour_ordered) %>%
+  group_by(ID, exp_day)
+
+ical_long_allRER <- ical_long_allRER %>%
+  mutate(
+    hour_label = factor(
+      hour_ordered,
+      levels = 20:43,
+      labels = c(20:23, 0:19)
+    )
+  ) %>% 
+  mutate(
+    lights = if_else(
+      hour >= 20 | hour < 6,
+      "OFF",
+      "ON"
+    )
+  )
+
+
+ggplot(
+  ical_long_allRER,
+  aes(
+    x = hour_label,
+    y = RER,
+    group = interaction(ID, exp_day)
+  )
+) +
+  geom_line(size = 1) +
+  facet_wrap(~ ID) +
+  labs(
+    x = "Time (20:00 → 19:00)",
+    y = "RER (VCO2/VO2)"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5),
+    strip.text = element_text(size = 8)
+  )
+
+ical_long_allgroupedRER <- ical_long_allRER %>% 
+  group_by(hour_label, SEX, BPA_EXPOSURE) %>% 
+  summarise(
+    mean_RER = mean(RER, na.rm = TRUE),
+    sem_RER  = sd(RER, na.rm = TRUE) / sqrt(n_distinct(ID)),
+    n_ID = n_distinct(ID),
+    .groups = "drop"
+  )
+
+ggplot(
+  ical_long_allgroupedRER,
+  aes(
+    x = hour_label,
+    y = mean_RER,
+    group = BPA_EXPOSURE,
+    color = BPA_EXPOSURE,
+    fill  = BPA_EXPOSURE
+  )
+) +
+  geom_ribbon(
+    aes(
+      ymin = mean_RER - sem_RER,
+      ymax = mean_RER + sem_RER
+    ),
+    alpha = 0.25,
+    color = NA
+  ) +
+  geom_line(size = 1) +
+  facet_wrap(~ SEX) +
+  labs(
+    x = "Time (20:00 → 19:00)",
+    y = "RER (VCO2/VO2 mean ± SEM)",
+    color = "BPA exposure",
+    fill  = "BPA exposure"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5),
+    strip.text = element_text(size = 10)
+  )
+
+#RER ≈ 0.7: Mostly fat oxidation
+#RER ≈ 0.85: Mix of fat and carbohydrate oxidation
+#RER ≈ 1.0: Mostly carbohydrate oxidation
