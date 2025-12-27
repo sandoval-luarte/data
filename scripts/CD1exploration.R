@@ -12,12 +12,14 @@ library(purrr)
 library(broom)
 library(Hmisc)
 library(lme4)
+library(lmerTest)
 library(emmeans)
 library(pracma)
 library(lubridate)
 library(broom)
 library(stringr)
 library(forcats)
+library(patchwork)
 
 
  # BW over time data----
@@ -45,12 +47,12 @@ BW_data <- read_csv("../data/BW.csv") %>%
   )
 
 BW_data %>% 
-  group_by(SEX,BPA_EXPOSURE,DIET_FORMULA) %>%
+  group_by(SEX,BPA_EXPOSURE, DIET_FORMULA) %>%
   summarise(n_ID = n_distinct(ID)) 
 
 
 BW_summary <- BW_data %>%
-  group_by(day_rel,BPA_EXPOSURE,DIET_FORMULA,SEX) %>%
+  group_by(day_rel,BPA_EXPOSURE,SEX) %>%
   summarise(
     mean_BW = mean(BW, na.rm = TRUE),
     sem_BW  = sd(BW, na.rm = TRUE) / sqrt(n()),
@@ -58,17 +60,23 @@ BW_summary <- BW_data %>%
     .groups = "drop"
   )
 
-ggplot(BW_summary,
-       aes(x = day_rel,
-           y = mean_BW,
-           color = BPA_EXPOSURE,
-           fill  = BPA_EXPOSURE)) +
-  geom_line(size = 1) +
-  geom_ribbon(aes(ymin = mean_BW - sem_BW,
-                  ymax = mean_BW + sem_BW),
-              alpha = 0.25,
-              color = NA) +
-  facet_wrap(DIET_FORMULA ~ SEX) +
+#plot 1
+
+plot_bw_sex <- ggplot(
+  BW_summary,
+  aes(x = day_rel,
+      y = mean_BW,
+      color = BPA_EXPOSURE,
+      fill  = BPA_EXPOSURE)
+) +
+  geom_line(linewidth = 1) +
+  geom_ribbon(
+    aes(ymin = mean_BW - sem_BW,
+        ymax = mean_BW + sem_BW),
+    alpha = 0.25,
+    color = NA
+  ) +
+  facet_wrap(~ SEX) +
   labs(
     x = "Days relative to first measurement",
     y = "Body weight (g)",
@@ -76,6 +84,222 @@ ggplot(BW_summary,
     fill  = "BPA exposure"
   ) +
   theme_classic(base_size = 14)
+
+plot_bw_sex
+
+#stats LME----
+# Females
+female_data <- BW_data %>% filter(SEX == "F")
+lme_female <- lmer(BW ~ BPA_EXPOSURE * day_rel + (1|ID), data = female_data)
+
+# Males
+male_data <- BW_data %>% filter(SEX == "M")
+lme_male <- lmer(BW ~ BPA_EXPOSURE * day_rel + (1|ID), data = male_data)
+
+# Females
+# Round day_rel to nearest measured day
+emmeans_f <- emmeans(lme_female, ~ BPA_EXPOSURE | day_rel, at = list(day_rel = unique(female_data$day_rel)))
+# Males
+# Round day_rel to nearest measured day
+emmeans_m <- emmeans(lme_male, ~ BPA_EXPOSURE | day_rel, at = list(day_rel = unique(male_data$day_rel)))
+
+contrast_f <- contrast(emmeans_f, method = "pairwise") %>% as.data.frame()
+contrast_m <- contrast(emmeans_m, method = "pairwise") %>% as.data.frame()
+
+# Make sure all contrasts are YES - NO females
+contrast_f <- contrast_f %>%
+  mutate(
+    estimate = ifelse(contrast == "NO - YES", -estimate, estimate),
+    t.ratio = ifelse(contrast == "NO - YES", -t.ratio, t.ratio),
+    contrast = "YES - NO"
+  )
+sig_daysf <- contrast_f %>% filter(p.value < 0.05)
+
+# Make sure all contrasts are YES - NO males
+contrast_m <- contrast_m %>%
+  mutate(
+    estimate = ifelse(contrast == "NO - YES", -estimate, estimate),
+    t.ratio = ifelse(contrast == "NO - YES", -t.ratio, t.ratio),
+    contrast = "YES - NO"
+  )
+sig_daysm <- contrast_m %>% filter(p.value < 0.05)
+
+
+first_sig_dayf <- sig_daysf %>% slice_min(day_rel)
+first_sig_dayf$day_rel
+
+first_sig_daym <- sig_daysm %>% slice_min(day_rel)
+first_sig_daym$day_rel
+
+
+# Define first significant day for females only
+first_sig_day_f <- tibble(
+  SEX = "F",
+  day_sig = 56
+)
+
+# Compute ymin and ymax for females only, keeping SEX
+sig_rect <- first_sig_day_f %>%
+  left_join(
+    BW_summary %>%
+      filter(SEX == "F") %>%
+      group_by(SEX) %>%
+      summarise(ymin = min(mean_BW - sem_BW),
+                ymax = max(mean_BW + sem_BW),
+                .groups = "drop"),   # keep SEX
+    by = "SEX"
+  ) %>%
+  mutate(
+    xmin = day_sig,
+    xmax = max(BW_summary$day_rel)
+  )
+
+# Plot 2----
+plot_bw_sig_sex <- ggplot(
+  BW_summary,
+  aes(x = day_rel, y = mean_BW, color = BPA_EXPOSURE, fill = BPA_EXPOSURE)
+) +
+  geom_rect(
+    data = sig_rect,
+    aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax),
+    inherit.aes = FALSE,
+    fill = "red", alpha = 0.1
+  ) +
+  geom_line(linewidth = 1) +
+  geom_ribbon(
+    aes(ymin = mean_BW - sem_BW, ymax = mean_BW + sem_BW),
+    alpha = 0.25, color = NA
+  ) +
+  facet_wrap(~ SEX) +
+  labs(
+    x = "Days relative to first measurement",
+    y = "Body weight (g)",
+    color = "BPA exposure",
+    fill  = "BPA exposure"
+  ) +
+  theme_classic(base_size = 14)
+plot_bw_sig_sex 
+
+##-- BW over time with diet formula just for F ----
+
+BW_summary_diet <- BW_data %>%
+  filter(SEX=="F") %>% 
+  group_by(day_rel,BPA_EXPOSURE,SEX,DIET_FORMULA) %>%
+  summarise(
+    mean_BW = mean(BW, na.rm = TRUE),
+    sem_BW  = sd(BW, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+#stats LME----
+# Females
+female_data <- BW_data %>% filter(SEX == "F")
+lme_femalediet <- lmer(BW ~ BPA_EXPOSURE * DIET_FORMULA * day_rel + (1|ID), data = female_data)
+# Females
+# Round day_rel to nearest measured day
+emmeans_fdiet <- emmeans(lme_femalediet, ~ BPA_EXPOSURE | day_rel * DIET_FORMULA)
+contrast_fdiet <- contrast(emmeans_fdiet, method = "pairwise") %>% as.data.frame()
+
+# Make sure all contrasts are YES - NO females
+contrast_fdiet <- contrast_fdiet %>%
+  mutate(
+    estimate = ifelse(contrast == "NO - YES", -estimate, estimate),
+    t.ratio = ifelse(contrast == "NO - YES", -t.ratio, t.ratio),
+    contrast = "YES - NO"
+  )
+sig_daysfdiet <- contrast_fdiet %>% filter(p.value < 0.05)
+
+
+# BW over time summary for females by diet
+BW_summary_diet <- BW_data %>%
+  filter(SEX=="F") %>% 
+  group_by(day_rel, BPA_EXPOSURE, DIET_FORMULA) %>%
+  summarise(
+    mean_BW = mean(BW, na.rm = TRUE),
+    sem_BW  = sd(BW, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+# First significant day per diet from your LME contrasts
+first_sig_dayf_diet <- sig_daysfdiet %>%
+  group_by(DIET_FORMULA) %>%
+  slice_min(day_rel) %>%
+  ungroup()
+
+# Create shaded rectangle data per diet
+sig_rectdiet <- BW_summary_diet %>%
+  group_by(DIET_FORMULA) %>%
+  summarise(
+    ymin = min(mean_BW - sem_BW),
+    ymax = max(mean_BW + sem_BW),
+    .groups = "drop"
+  ) %>%
+  left_join(first_sig_dayf_diet %>% select(DIET_FORMULA, day_sig = day_rel),
+            by = "DIET_FORMULA") %>%
+  mutate(
+    xmin = day_sig,
+    xmax = max(BW_summary_diet$day_rel)
+  )
+
+# Plot 3----
+plot_bw_female_diet <- ggplot(
+  BW_summary_diet,
+  aes(x = day_rel, y = mean_BW, color = BPA_EXPOSURE, fill = BPA_EXPOSURE)
+) +
+  geom_rect(
+    data = sig_rectdiet,
+    aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax),
+    inherit.aes = FALSE,
+    fill = "red", alpha = 0.1
+  ) +
+  geom_line(linewidth = 1) +
+  geom_ribbon(
+    aes(ymin = mean_BW - sem_BW, ymax = mean_BW + sem_BW),
+    alpha = 0.25, color = NA
+  ) +
+  facet_wrap(~ DIET_FORMULA) +
+  labs(
+    title = "                Females",
+    x = "Days relative to first measurement",
+    y = "Body weight (g)",
+    color = "BPA exposure",
+    fill = "BPA exposure"
+  ) +
+  theme_classic(base_size = 14) 
+
+plot_bw_female_diet 
+
+# combined plots----
+combined_plot_bw <- (plot_bw_sig_sex / plot_bw_female_diet) +
+  plot_layout(heights = c(1, 1)) +
+  plot_annotation(tag_levels = "A")
+
+combined_plot_bw
+
+
+# check if BW of the four groups females with or without HFD and with or without BPA exposure had the same BW at day 0
+
+bw_day0_female <- BW_data %>%
+  filter(
+    SEX == "F",
+    day_rel == 0
+  )
+
+bw_day0_female %>%
+  group_by(DIET_FORMULA, BPA_EXPOSURE) %>%
+  summarise(n = n(), .groups = "drop")
+
+lm_day0 <- lm(
+  BW ~ BPA_EXPOSURE * DIET_FORMULA,
+  data = bw_day0_female
+)
+
+anova(lm_day0)
+
+emmeans_day0 <- emmeans(lm_day0, ~ BPA_EXPOSURE | DIET_FORMULA)
+contrast(emmeans_day0, method = "pairwise")
 
 # BW gain over time data----
 
