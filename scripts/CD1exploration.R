@@ -360,7 +360,7 @@ first_sig_dayfgain$day_rel #there is no day in which BW gain of BPA females are 
 # Speed = rate of change of body weight over time data----
 
 BW_speed <- BW_data %>%
-  group_by(ID, SEX, BPA_EXPOSURE,DIET_FORMULA) %>%
+  group_by(ID, SEX, BPA_EXPOSURE) %>%
   do(tidy(lm(BW ~ day_rel, data = .))) %>%
   filter(term == "day_rel") %>%
   rename(
@@ -369,21 +369,23 @@ BW_speed <- BW_data %>%
   )
 
 BW_speed %>% 
-  group_by(SEX,BPA_EXPOSURE,DIET_FORMULA) %>%
+  group_by(SEX,BPA_EXPOSURE) %>%
   summarise(n_ID = n_distinct(ID)) 
 
-ggplot(BW_speed,
-       aes(x = BPA_EXPOSURE,
-           y = speed_g_per_day,
-           fill = BPA_EXPOSURE)) +
+# plot 1 BPA within sex ----
+p1 <- ggplot(BW_speed,
+             aes(x = BPA_EXPOSURE,
+                 y = speed_g_per_day,
+                 fill = BPA_EXPOSURE)) +
   geom_boxplot(alpha = 0.6, outlier.shape = NA) +
   geom_jitter(width = 0.15, size = 2, alpha = 0.7) +
-  facet_grid(DIET_FORMULA~ SEX) +
+  facet_grid(~ SEX) +
   labs(
-    y = "BW gain speed (g of BW/day)",
+    y = "BW gain speed (g/day)",
     x = "BPA exposure"
   ) +
-  theme_classic(base_size = 14)
+  theme_classic(base_size = 14) +
+  theme(legend.position = "none")
 
 ## stats speed----
 
@@ -402,7 +404,294 @@ summary(lmer_speed)
 
 #BPA-exposed females are estimated to gain slightly 
 #faster than BPA-free females. 
-# BUT t = 1.36 so this is not statistically significant.
+# BUT t = 1.36 so this is not statistically significant
+
+
+# ---- Plot 2: Sex difference ----
+p2 <- ggplot(BW_speed,
+             aes(x = SEX,
+                 y = speed_g_per_day)) +
+  geom_boxplot(alpha = 0.6, outlier.shape = NA) +
+  geom_jitter(aes(color = BPA_EXPOSURE),
+              width = 0.15, size = 2, alpha = 0.7) +
+  stat_compare_means(
+    method = "t.test",
+    comparisons = list(c("F", "M")),
+    label = "p.format"
+  ) +
+  labs(
+    y = "BW gain speed (g/day)",
+    x = "Sex",
+    color = "BPA exposure"
+  ) +
+  theme_classic(base_size = 14)
+
+
+combined_plot <- p1 | p2
+combined_plot
+
+# Body comp over time ----
+
+echoMRI_data <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
+  filter(COHORT %in% c(15,16)) %>% 
+  filter(!ID %in% c(9354, 9367, 9368, 9372, 9414)) %>%  # 9367 and 9368 have confused data from 8/1/25 echoMRI 
+  # 9354 and 9372 lack of complete schedule of measurements in echoMRI
+  # 9414 lack of complete schedule of measurements (lack of basal) in echoMRI
+  group_by(ID) %>%
+  arrange(Date) %>% 
+  select(ID, Date, Fat, Lean, Weight, adiposity_index,COHORT,DIET_FORMULA) %>% 
+  left_join(METABPA, by= "ID") %>% 
+  ungroup() %>% 
+  select(
+    -DIET_FORMULA.y) %>% 
+  rename(
+    DIET_FORMULA = DIET_FORMULA.x)
+  
+
+#cohort 15 are 24 animals originally but if I eliminate 4 animals so total animals are 20 per date (9367, 9368, 9354, 9372)
+#cohort 16 are 15 animals originally but if I eliminate 1 animal so total animals are 14 per date (9414)
+
+echoMRI_data %>% 
+  group_by(SEX) %>%
+  summarise(n_ID = n_distinct(ID)) 
+
+
+echoMRI_data_comparisons <- echoMRI_data %>% 
+  mutate(
+    n_measurement= case_when(
+      COHORT == 16 & Date == "2025-08-04" ~ "0 days with O.D",
+      COHORT == 16 & Date == "2025-09-09" ~ "35 days with O.D",
+      COHORT == 16 & Date == "2025-10-07" ~ "63 days with O.D",
+      COHORT == 15 & Date == "2025-08-01" ~ "98 days with O.D",
+      COHORT == 16 & Date == "2025-11-17" ~ "98 days with O.D",
+      COHORT == 15 & Date == "2025-09-09" ~ "133 days with O.D",
+      COHORT == 16 & Date == "2025-12-18" ~ "133 days with O.D",
+      COHORT == 15 & Date == "2025-10-07" ~ "150 days with O.D"))
+
+bodycomp_summary <- echoMRI_data_comparisons %>%
+  group_by(n_measurement, BPA_EXPOSURE,SEX) %>%
+  summarise(
+    mean_AI = mean(adiposity_index, na.rm = TRUE),
+    sem_AI  = sd(adiposity_index, na.rm = TRUE) / sqrt(n()),
+    mean_fat = mean(Fat, na.rm = TRUE),
+    sem_fat  = sd(Fat, na.rm = TRUE) / sqrt(n()),
+    mean_lean = mean(Lean, na.rm = TRUE),
+    sem_lean  = sd(Lean, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  ) %>% 
+  mutate(n_measurement = factor(n_measurement, levels = c("0 days with O.D",
+                                                          "35 days with O.D",
+                                                          "63 days with O.D",
+                                                          "98 days with O.D",
+                                                          "133 days with O.D",
+                                                          "150 days with O.D"))) %>% 
+  ungroup()
+
+
+## plot 1 males and females ----
+p1 <- ggplot(bodycomp_summary,
+             aes(x = n_measurement,
+                 y = mean_AI,
+                 color = BPA_EXPOSURE,
+                 fill  = BPA_EXPOSURE,
+                 group = BPA_EXPOSURE)) +
+  geom_line(size = 1) +
+  geom_ribbon(aes(ymin = mean_AI - sem_AI,
+                  ymax = mean_AI + sem_AI),
+              alpha = 0.25,
+              color = NA) +
+  facet_wrap(~ SEX) +
+  labs(
+    x = "Days of measurement",
+    y = "adiposity index (fat/lean mass)",
+    color = "BPA exposure",
+    fill  = "BPA exposure"
+  ) +
+  theme_classic(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+p1
+
+# LME model: AI ~ time * BPA_EXPOSURE * SEX + random intercept for ID
+lmer_AI <- lmer(adiposity_index ~ n_measurement * BPA_EXPOSURE * SEX +
+                  (1 | ID),
+                data = echoMRI_data_comparisons)
+emm_AI <- emmeans(lmer_AI, ~ BPA_EXPOSURE | SEX * n_measurement)
+AI_contrasts <- contrast(emm_AI, method = "pairwise", adjust = "bonferroni") %>%
+  summary(infer = TRUE) %>%
+  as.data.frame() %>%
+  select(SEX, n_measurement, contrast, estimate, SE, df, t.ratio, p.value)
+AI_first_sig <- AI_contrasts %>%
+  filter(p.value < 0.05) %>%
+  group_by(SEX) %>%
+  slice_min(n_measurement)  # first day with significant difference
+AI_contrasts
+
+## AI with diet_formula FEMALES----
+
+bodycomp_summarydiet <- echoMRI_data_comparisons %>%
+  filter(SEX=="F") %>% 
+  group_by(n_measurement, BPA_EXPOSURE,DIET_FORMULA) %>%
+  summarise(
+    mean_AI = mean(adiposity_index, na.rm = TRUE),
+    sem_AI  = sd(adiposity_index, na.rm = TRUE) / sqrt(n()),
+    mean_fat = mean(Fat, na.rm = TRUE),
+    sem_fat  = sd(Fat, na.rm = TRUE) / sqrt(n()),
+    mean_lean = mean(Lean, na.rm = TRUE),
+    sem_lean  = sd(Lean, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  ) %>% 
+  mutate(n_measurement = factor(n_measurement, levels = c("0 days with O.D",
+                                                          "35 days with O.D",
+                                                          "63 days with O.D",
+                                                          "98 days with O.D",
+                                                          "133 days with O.D",
+                                                          "150 days with O.D"))) %>% 
+  filter(n_measurement %in% c("98 days with O.D",
+                              "133 days with O.D",
+                              "150 days with O.D")) %>% 
+  ungroup()
+
+## plot 2 females per diet formula ----
+p2 <- ggplot(bodycomp_summarydiet,
+             aes(x = n_measurement,
+                 y = mean_AI,
+                 color = BPA_EXPOSURE,
+                 fill  = BPA_EXPOSURE,
+                 group = BPA_EXPOSURE)) +
+  geom_line(size = 1) +
+  geom_ribbon(aes(ymin = mean_AI - sem_AI,
+                  ymax = mean_AI + sem_AI),
+              alpha = 0.25,
+              color = NA) +
+  facet_wrap(~ DIET_FORMULA) +
+  labs(
+    title = "                      Females",
+    x = "Days of measurement",
+    y = "adiposity index (fat/lean mass)",
+    color = "BPA exposure",
+    fill  = "BPA exposure"
+  ) +
+  theme_classic(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Combine plots vertically
+combined_plot <- p1 / p2
+combined_plot
+
+## LMER females AI from day 98----
+
+# Filter for females and days >= 98
+
+echoMRI_females_post98 <- echoMRI_data_comparisons %>%
+  filter(SEX == "F") %>%
+  mutate(n_measurement_days = case_when(
+    n_measurement == "0 days with O.D"   ~ 0,
+    n_measurement == "35 days with O.D"  ~ 35,
+    n_measurement == "63 days with O.D"  ~ 63,
+    n_measurement == "98 days with O.D"  ~ 98,
+    n_measurement == "133 days with O.D" ~ 133,
+    n_measurement == "150 days with O.D" ~ 150
+  )) %>%
+  filter(n_measurement_days >= 98)
+
+# Fit LME model including diet
+lmer_AI_females_post98 <- lmer(adiposity_index ~ n_measurement * BPA_EXPOSURE + DIET_FORMULA + (1 | ID),
+                               data = echoMRI_females_post98)
+
+emm_AI_females_post98 <- emmeans(lmer_AI_females_post98, ~ BPA_EXPOSURE | n_measurement * DIET_FORMULA)
+AI_contrasts_females_post98 <- contrast(emm_AI_females_post98, method = "pairwise", adjust = "none") %>%
+  summary(infer = TRUE) %>%
+  as.data.frame() %>%
+  select(n_measurement, DIET_FORMULA, contrast, estimate, SE, df, t.ratio, p.value)
+AI_contrasts_females_post98
+
+## fat mass ----
+## plot 1 males and females ----
+p1fat <- ggplot(bodycomp_summary,
+             aes(x = n_measurement,
+                 y = mean_fat,
+                 color = BPA_EXPOSURE,
+                 fill  = BPA_EXPOSURE,
+                 group = BPA_EXPOSURE)) +
+  geom_line(size = 1) +
+  geom_ribbon(aes(ymin = mean_fat - sem_fat,
+                  ymax = mean_fat + sem_fat),
+              alpha = 0.25,
+              color = NA) +
+  facet_wrap(~ SEX) +
+  labs(
+    x = "Days of measurement",
+    y = "fat mass (g)",
+    color = "BPA exposure",
+    fill  = "BPA exposure"
+  ) +
+  theme_classic(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+p1fat
+
+# LME model: AI ~ time * BPA_EXPOSURE * SEX + random intercept for ID
+lmer_fat <- lmer(Fat ~ n_measurement * BPA_EXPOSURE * SEX +
+                  (1 | ID),
+                data = echoMRI_data_comparisons)
+emm_fat <- emmeans(lmer_fat, ~ BPA_EXPOSURE | SEX * n_measurement)
+fat_contrasts <- contrast(emm_fat, method = "pairwise", adjust = "bonferroni") %>%
+  summary(infer = TRUE) %>%
+  as.data.frame() %>%
+  select(SEX, n_measurement, contrast, estimate, SE, df, t.ratio, p.value)
+fat_first_sig <- fat_contrasts %>%
+  filter(p.value < 0.05) %>%
+  group_by(SEX) %>%
+  slice_min(n_measurement)  # first day with significant difference
+fat_contrasts
+
+## lean mass ----
+## plot 1 males and females ----
+p1lean <- ggplot(bodycomp_summary,
+             aes(x = n_measurement,
+                 y = mean_lean,
+                 color = BPA_EXPOSURE,
+                 fill  = BPA_EXPOSURE,
+                 group = BPA_EXPOSURE)) +
+  geom_line(size = 1) +
+  geom_ribbon(aes(ymin = mean_lean - sem_lean,
+                  ymax = mean_lean + sem_lean),
+              alpha = 0.25,
+              color = NA) +
+  facet_wrap(~ SEX) +
+  labs(
+    x = "Days of measurement",
+    y = "lean mass (g)",
+    color = "BPA exposure",
+    fill  = "BPA exposure"
+  ) +
+  theme_classic(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+p1lean
+
+# fat and lean plot combined----
+
+# Combine plots vertically
+combined_plot <- p1fat / p1lean
+combined_plot
+
+
+# LME model: AI ~ time * BPA_EXPOSURE * SEX + random intercept for ID
+lmer_lean <- lmer(Lean ~ n_measurement * BPA_EXPOSURE * SEX +
+                   (1 | ID),
+                 data = echoMRI_data_comparisons)
+emm_lean <- emmeans(lmer_lean, ~ BPA_EXPOSURE | SEX * n_measurement)
+lean_contrasts <- contrast(emm_lean, method = "pairwise", adjust = "bonferroni") %>%
+  summary(infer = TRUE) %>%
+  as.data.frame() %>%
+  select(SEX, n_measurement, contrast, estimate, SE, df, t.ratio, p.value)
+lean_first_sig <- lean_contrasts %>%
+  filter(p.value < 0.05) %>%
+  group_by(SEX) %>%
+  slice_min(n_measurement)  # first day with significant difference
+lean_contrasts
+
 
 # OGTT----
 
@@ -425,10 +714,14 @@ ogtt_long <- OGTT  %>%
     time_min = as.numeric(time_min)           # convert to numeric
   )
 
+ogtt_long %>% 
+  group_by(SEX,BPA_EXPOSURE) %>%
+  summarise(n_ID = n_distinct(ID)) 
+
 
 auc_df <- ogtt_long %>% 
   arrange(ID, time_min) %>% 
-  group_by(ID, BPA_EXPOSURE,SEX,DIET_FORMULA) %>% 
+  group_by(ID, BPA_EXPOSURE,SEX) %>% 
   summarise(
     AUC = trapz(time_min, glucose),
     .groups = "drop"
@@ -438,7 +731,7 @@ ggplot(auc_df, aes(x = BPA_EXPOSURE, y = AUC)) +
   geom_jitter(width = 0.1, alpha = 0.6) +
   stat_summary(fun = mean, geom = "point", size = 3) +
   stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.2) +
- facet_wrap(DIET_FORMULA~ SEX) +
+ facet_wrap(~ SEX) +
   labs(
     x = "BPA exposure",
     y = "Glucose AUC (0–90 min)"
@@ -450,7 +743,7 @@ ggplot(auc_df, aes(x = BPA_EXPOSURE, y = AUC)) +
 auc_df$BPA_EXPOSURE <- factor(auc_df$BPA_EXPOSURE)
 auc_df$SEX <- factor(auc_df$SEX)
 
-model <- aov(AUC ~ BPA_EXPOSURE * SEX *DIET_FORMULA, data = auc_df)
+model <- aov(AUC ~ BPA_EXPOSURE * SEX , data = auc_df)
 summary(model)
 
 #Males clearly have higher AUCs than females (F) overall
@@ -458,245 +751,6 @@ summary(model)
 #BPA-exposed and non-exposed females (p=0.52) non-significant BPA × SEX interaction
 #there is a trend (p=0.06) for HFD to increased AUC
 
-# Body comp over time ----
-
-echoMRI_data <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
-  filter(COHORT %in% c(15,16)) %>% 
-  filter(!ID %in% c(9354, 9367, 9368, 9372, 9414)) %>%  # 9367 and 9368 have confused data from 8/1/25 echoMRI 
-                                                        # 9354 and 9372 lack of complete schedule of measurements in echoMRI
-                                                        # 9414 lack of complete schedule of measurements (lack of basal) in echoMRI
-  group_by(ID) %>%
-  arrange(Date) %>% 
-  select(ID, Date, Fat, Lean, Weight, adiposity_index,COHORT) %>% 
-  left_join(METABPA, by= "ID") %>% 
-  ungroup()
-
-#cohort 15 are 24 animals originally but if I eliminate 4 animals so total animals are 20 per date (9367, 9368, 9354, 9372)
-#cohort 16 are 15 animals originally but if I eliminate 1 animal so total animals are 14 per date (9414)
-
-echoMRI_data %>% 
-  group_by(COHORT,SEX,BPA_EXPOSURE) %>%
-  summarise(n_ID = n_distinct(ID)) 
-
-
-echoMRI_data_comparisons <- echoMRI_data %>% 
-  mutate(
-    n_measurement= case_when(
-      COHORT == 15 & Date == "2025-08-01" ~ 1,
-      COHORT == 16 & Date == "2025-11-17" ~ 1,
-      COHORT == 15 & Date == "2025-09-09" ~ 2,
-      COHORT == 16 & Date == "2025-12-18" ~ 2)) %>% 
-  drop_na()
-                                               
-
-bodycomp_summary <- echoMRI_data_comparisons %>%
-  group_by(n_measurement, BPA_EXPOSURE,SEX) %>%
-  summarise(
-    mean_AI = mean(adiposity_index, na.rm = TRUE),
-    sem_AI  = sd(adiposity_index, na.rm = TRUE) / sqrt(n()),
-    mean_fat = mean(Fat, na.rm = TRUE),
-    sem_fat  = sd(Fat, na.rm = TRUE) / sqrt(n()),
-    mean_lean = mean(Lean, na.rm = TRUE),
-    sem_lean  = sd(Lean, na.rm = TRUE) / sqrt(n()),
-    n = n(),
-    .groups = "drop"
-  ) 
-
-
-## adiposity index ----
-ggplot(bodycomp_summary,
-       aes(x = n_measurement,
-           y = mean_AI,
-           color = BPA_EXPOSURE,
-           fill  = BPA_EXPOSURE)) +
-  geom_line(size = 1) +
-  geom_ribbon(aes(ymin = mean_AI - sem_AI,
-                  ymax = mean_AI + sem_AI),
-              alpha = 0.25,
-              color = NA) +
-  facet_wrap(~ SEX) +
-  labs(
-    x = "Days relative to first measurement",
-    y = "adiposity index (fat/lean mass)",
-    color = "BPA exposure",
-    fill  = "BPA exposure"
-  ) +
-  theme_classic(base_size = 14)+
-  scale_x_continuous(breaks = c(1, 2))
-
-#here two weird things: 
-#first males has higher basal adiposity index than females (betweeb 16 to 18 week old)
-#females exposed to BPA started with higher adiposity index 
-#than females non exposed to BPA and the trend is 
-#to normalizing adiposity index overtime 
-
-#now the question is, after how many weeks of HFD or LFD 
-#the first measured were done?
-
-#is these effects dependent of DIET_FORMULA? YES, IS HIGHER IN FEMALES
-#what if we collapsed by SEX and split by DIET_FORMULA? THE EFFECT IS HIGHER IN HFD
-#is these effects dependent of COHORT? YES, IT SEEMS FOR COHORT 16 THIS IS NOT TRUE BUT I BELIEVE IS BECAUSE LACK OF STAT POWER
-
-## fat mass ----
-
-ggplot(bodycomp_summary,
-       aes(x = n_measurement,
-           y = mean_fat,
-           color = BPA_EXPOSURE,
-           fill  = BPA_EXPOSURE)) +
-  geom_line(size = 1) +
-  geom_ribbon(aes(ymin = mean_fat - sem_fat,
-                  ymax = mean_fat + sem_fat),
-              alpha = 0.25,
-              color = NA) +
-  facet_wrap(~ SEX) +
-  labs(
-    x = "Days relative to first measurement",
-    y = "fat mass (g)",
-    color = "BPA exposure",
-    fill  = "BPA exposure"
-  ) +
-  theme_classic(base_size = 14)+
-  scale_x_continuous(breaks = c(1, 2))
-
-#here the same trend than for adiposity index: 
-#first males has higher basal fat than females
-#females exposed to BPA started with higher fat mass 
-#than females non exposed to BPA and the trend is 
-#to normalizing fat mass overtime 
-
-## lean mass ----
-
-ggplot(bodycomp_summary,
-       aes(x = n_measurement,
-           y = mean_lean,
-           color = BPA_EXPOSURE,
-           fill  = BPA_EXPOSURE)) +
-  geom_line(size = 1) +
-  geom_ribbon(aes(ymin = mean_lean - sem_lean,
-                  ymax = mean_lean + sem_lean),
-              alpha = 0.25,
-              color = NA) +
-  facet_wrap(~ SEX) +
-  labs(
-    x = "Days relative to first measurement",
-    y = "lean mass (g)",
-    color = "BPA exposure",
-    fill  = "BPA exposure"
-  ) +
-  theme_classic(base_size = 14)+
-  scale_x_continuous(breaks = c(1, 2))
-
-#wow this is crazy! 
-#females exposed to BPA started with higher lean mass 
-#than females non exposed to BPA and the trend is not trending 
-#to normalizing overtime 
-
-# Body comp just cohort 2 exploration ----
-
-echoMRI_data <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
-  filter(COHORT %in% c(15,16)) %>% 
-  filter(!ID %in% c(9354, 9367, 9368, 9372, 9414)) %>%  # 9367 and 9368 have confused data from 8/1/25 echoMRI 
-  # 9354 and 9372 lack of complete schedule of measurements in echoMRI
-  # 9414 lack of complete schedule of measurements (lack of basal) in echoMRI
-  group_by(ID) %>%
-  arrange(Date) %>% 
-  select(ID, Date, Fat, Lean, Weight, adiposity_index,COHORT,n_measurement) %>% 
-  left_join(METABPA, by= "ID") %>% 
-  ungroup() %>% 
-  filter(COHORT==16)
-
-echoMRI_data %>% 
-  group_by(SEX,BPA_EXPOSURE) %>%
-  summarise(n_ID = n_distinct(ID)) 
-
-bodycomp_summary <- echoMRI_data %>%
-  group_by(n_measurement, BPA_EXPOSURE,SEX) %>%
-  summarise(
-    mean_AI = mean(adiposity_index, na.rm = TRUE),
-    sem_AI  = sd(adiposity_index, na.rm = TRUE) / sqrt(n()),
-    mean_fat = mean(Fat, na.rm = TRUE),
-    sem_fat  = sd(Fat, na.rm = TRUE) / sqrt(n()),
-    mean_lean = mean(Lean, na.rm = TRUE),
-    sem_lean  = sd(Lean, na.rm = TRUE) / sqrt(n()),
-    n = n(),
-    .groups = "drop"
-  ) 
-
-
-## adiposity index ----
-ggplot(bodycomp_summary,
-       aes(x = n_measurement,
-           y = mean_AI,
-           color = BPA_EXPOSURE,
-           fill  = BPA_EXPOSURE)) +
-  geom_line(size = 1) +
-  geom_ribbon(aes(ymin = mean_AI - sem_AI,
-                  ymax = mean_AI + sem_AI),
-              alpha = 0.25,
-              color = NA) +
-  facet_wrap(~ SEX) +
-  labs(
-    x = "Days relative to first measurement",
-    y = "adiposity index (fat/lean mass)",
-    color = "BPA exposure",
-    fill  = "BPA exposure"
-  ) +
-  theme_classic(base_size = 14)+
-  scale_x_continuous(breaks = c(1, 2,3,4,5))
-
-# it seems females and males started with the same AI before obesogenic diet exposure
-
-## fat mass ----
-
-ggplot(bodycomp_summary,
-       aes(x = n_measurement,
-           y = mean_fat,
-           color = BPA_EXPOSURE,
-           fill  = BPA_EXPOSURE)) +
-  geom_line(size = 1) +
-  geom_ribbon(aes(ymin = mean_fat - sem_fat,
-                  ymax = mean_fat + sem_fat),
-              alpha = 0.25,
-              color = NA) +
-  facet_wrap(~ SEX) +
-  labs(
-    x = "Days relative to first measurement",
-    y = "fat mass (g)",
-    color = "BPA exposure",
-    fill  = "BPA exposure"
-  ) +
-  theme_classic(base_size = 14)+
-  scale_x_continuous(breaks = c(1, 2,3,4,5))
-
-# it seems females and males started with the same fat mass before obesogenic diet exposure
-
-## lean mass ----
-
-ggplot(bodycomp_summary,
-       aes(x = n_measurement,
-           y = mean_lean,
-           color = BPA_EXPOSURE,
-           fill  = BPA_EXPOSURE)) +
-  geom_line(size = 1) +
-  geom_ribbon(aes(ymin = mean_lean - sem_lean,
-                  ymax = mean_lean + sem_lean),
-              alpha = 0.25,
-              color = NA) +
-  facet_wrap(~ SEX) +
-  labs(
-    x = "Days relative to first measurement",
-    y = "lean mass (g)",
-    color = "BPA exposure",
-    fill  = "BPA exposure"
-  ) +
-  theme_classic(base_size = 14)+
-  scale_x_continuous(breaks = c(1, 2,3,4,5))
-
-#wow this is crazy! 
-#females exposed to BPA started develop higher lean mass after measurement 2
-#than females non exposed to BPA and the trend is not trending 
-#to normalizing overtime 
 
 # FI over time data----
 
@@ -711,42 +765,54 @@ FI_data <- read_csv("../data/FI.csv") %>%
   left_join(METABPA, by= "ID") %>% 
   select(
     -SEX.y,
-    -DIET_FORMULA.x
+    -DIET_FORMULA.x,
+    -DIET_FORMULA.y
   ) %>% 
   rename(
     SEX = SEX.x
   ) %>% 
   mutate(
-   FIcumulative = cumsum(corrected_intake_kcal))
+   FIcumulative = cumsum(corrected_intake_kcal)) %>% 
+  ungroup()
 
+FI_data  %>% 
+  group_by(SEX,BPA_EXPOSURE,DIET_FORMULA) %>%
+  summarise(n_ID = n_distinct(ID))
 
 FI_summary <- FI_data %>%
-  group_by(day_rel,BPA_EXPOSURE,SEX) %>%
+  group_by(ID, day_rel, SEX, BPA_EXPOSURE, DIET_FORMULA) %>%
+  summarise(FIcum = max(FIcumulative, na.rm = TRUE), .groups = "drop") %>%  # one cumulative per animal per day
+  group_by(day_rel, SEX, BPA_EXPOSURE, DIET_FORMULA) %>%
   summarise(
-    mean_FI = mean(FIcumulative, na.rm = TRUE),
-    sem_FI  = sd(FIcumulative, na.rm = TRUE) / sqrt(n()),
+    mean_FI = mean(FIcum, na.rm = TRUE),
+    sem_FI  = sd(FIcum, na.rm = TRUE) / sqrt(n()),
     n = n(),
     .groups = "drop"
   )
 
-ggplot(FI_summary,
-       aes(x = day_rel,
-           y = mean_FI,
-           color = BPA_EXPOSURE,
-           fill  = BPA_EXPOSURE)) +
+ggplot(FI_summary, aes(x = day_rel, y = mean_FI, color = BPA_EXPOSURE, fill = BPA_EXPOSURE)) +
   geom_line(size = 1) +
-  geom_ribbon(aes(ymin = mean_FI - sem_FI,
-                  ymax = mean_FI + sem_FI),
-              alpha = 0.25,
-              color = NA) +
-  facet_wrap( ~ SEX) +
-  labs(
-    x = "Days relative to first measurement",
-    y = "food intake (kcal) over time",
-    color = "BPA exposure",
-    fill  = "BPA exposure"
-  ) +
+  geom_ribbon(aes(ymin = mean_FI - sem_FI, ymax = mean_FI + sem_FI), alpha = 0.25, color = NA) +
+  facet_wrap(~ SEX*DIET_FORMULA) +
+  labs(x = "Days", y = "Cumulative food intake (kcal)", color = "BPA exposure", fill = "BPA exposure") +
   theme_classic(base_size = 14)
+
+# Check for negative or NA intake values
+FI_data %>%
+  filter(day_rel >= 115 & day_rel <= 149) %>%
+  summarise(
+    min_intake = min(corrected_intake_kcal, na.rm = TRUE),
+    any_NA = sum(is.na(corrected_intake_kcal))
+  )
+
+# Check individual cumulative sums
+FI_data %>%
+  filter(day_rel >= 115 & day_rel <= 149) %>%
+  ggplot(aes(x = day_rel, y = FIcumulative, color = ID)) +
+  geom_line()
+FI_data
+
+
 
 #independent of the diet females ate less than males, curious
 
