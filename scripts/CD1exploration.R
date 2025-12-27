@@ -124,7 +124,6 @@ contrast_m <- contrast_m %>%
   )
 sig_daysm <- contrast_m %>% filter(p.value < 0.05)
 
-
 first_sig_dayf <- sig_daysf %>% slice_min(day_rel)
 first_sig_dayf$day_rel
 
@@ -192,7 +191,7 @@ BW_summary_diet <- BW_data %>%
     .groups = "drop"
   )
 
-#stats LME----
+#stats LMER for BW----
 # Females
 female_data <- BW_data %>% filter(SEX == "F")
 lme_femalediet <- lmer(BW ~ BPA_EXPOSURE * DIET_FORMULA * day_rel + (1|ID), data = female_data)
@@ -276,8 +275,7 @@ combined_plot_bw <- (plot_bw_sig_sex / plot_bw_female_diet) +
   plot_layout(heights = c(1, 1)) +
   plot_annotation(tag_levels = "A")
 
-combined_plot_bw
-
+combined_plot_bw #figure 2
 
 # check if BW of the four groups females with or without HFD and with or without BPA exposure had the same BW at day 0
 
@@ -304,21 +302,21 @@ contrast(emmeans_day0, method = "pairwise")
 # BW gain over time data----
 
 BW_gain <- BW_data %>% 
+  filter(SEX =="F") %>% 
   select(ID,day_rel,bw_rel,BPA_EXPOSURE,DIET_FORMULA,SEX)
 
 BW_gain %>% 
-  group_by(SEX,BPA_EXPOSURE,DIET_FORMULA) %>%
+  group_by(BPA_EXPOSURE,DIET_FORMULA) %>%
   summarise(n_ID = n_distinct(ID)) 
 
 BW_gainsummary <- BW_gain  %>%
-  group_by(day_rel,BPA_EXPOSURE,SEX,DIET_FORMULA) %>%
+  group_by(day_rel,BPA_EXPOSURE,DIET_FORMULA) %>%
   summarise(
     mean_BWgain = mean(bw_rel, na.rm = TRUE),
     sem_BWgain  = sd(bw_rel, na.rm = TRUE) / sqrt(n()),
     n = n(),
     .groups = "drop"
   )
-
 
 ggplot(BW_gainsummary,
        aes(x = day_rel,
@@ -330,7 +328,7 @@ ggplot(BW_gainsummary,
                   ymax = mean_BWgain + sem_BWgain),
               alpha = 0.25,
               color = NA) +
-  facet_wrap(DIET_FORMULA ~ SEX) +
+  facet_wrap(~DIET_FORMULA) +
   labs(
     x = "Days relative to first measurement",
     y = "Body weight gain",
@@ -338,6 +336,26 @@ ggplot(BW_gainsummary,
     fill  = "BPA exposure"
   ) +
   theme_classic(base_size = 14)
+
+#stats LME----
+# Females
+lme_femalegain <- lmer(bw_rel ~ BPA_EXPOSURE * day_rel + (1|ID), data = BW_gain)
+# Females
+# Round day_rel to nearest measured day
+emmeans_fgain <- emmeans(lme_femalegain, ~ BPA_EXPOSURE | day_rel, at = list(day_rel = unique(BW_gain$day_rel)))
+contrast_fgain <- contrast(emmeans_fgain, method = "pairwise") %>% as.data.frame()
+
+# Make sure all contrasts are YES - NO females
+contrast_fgain <- contrast_fgain %>%
+  mutate(
+    estimate = ifelse(contrast == "NO - YES", -estimate, estimate),
+    t.ratio = ifelse(contrast == "NO - YES", -t.ratio, t.ratio),
+    contrast = "YES - NO"
+  )
+sig_daysfgain <- contrast_fgain %>% filter(p.value < 0.05)
+
+first_sig_dayfgain <- sig_daysfgain %>% slice_min(day_rel)
+first_sig_dayfgain$day_rel #there is no day in which BW gain of BPA females are significant higher than non BPA female in both diets
 
 # Speed = rate of change of body weight over time data----
 
