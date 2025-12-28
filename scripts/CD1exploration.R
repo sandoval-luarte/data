@@ -780,41 +780,194 @@ FI_data  %>%
   summarise(n_ID = n_distinct(ID))
 
 FI_summary <- FI_data %>%
-  group_by(ID, day_rel, SEX, BPA_EXPOSURE, DIET_FORMULA) %>%
-  summarise(FIcum = max(FIcumulative, na.rm = TRUE), .groups = "drop") %>%  # one cumulative per animal per day
-  group_by(day_rel, SEX, BPA_EXPOSURE, DIET_FORMULA) %>%
+  group_by(day_rel, SEX, BPA_EXPOSURE) %>%
   summarise(
-    mean_FI = mean(FIcum, na.rm = TRUE),
-    sem_FI  = sd(FIcum, na.rm = TRUE) / sqrt(n()),
+    mean_FI = mean(FIcumulative, na.rm = TRUE),
+    sem_FI  = sd(FIcumulative, na.rm = TRUE) / sqrt(n()),
     n = n(),
     .groups = "drop"
   )
 
-ggplot(FI_summary, aes(x = day_rel, y = mean_FI, color = BPA_EXPOSURE, fill = BPA_EXPOSURE)) +
+# cumulative food intake plot----
+
+FI_plot <- ggplot(FI_summary, aes(x = day_rel, y = mean_FI, color = BPA_EXPOSURE, fill = BPA_EXPOSURE)) +
   geom_line(size = 1) +
   geom_ribbon(aes(ymin = mean_FI - sem_FI, ymax = mean_FI + sem_FI), alpha = 0.25, color = NA) +
-  facet_wrap(~ SEX*DIET_FORMULA) +
+  facet_wrap(~ SEX) +
   labs(x = "Days", y = "Cumulative food intake (kcal)", color = "BPA exposure", fill = "BPA exposure") +
   theme_classic(base_size = 14)
+FI_plot
 
-# Check for negative or NA intake values
-FI_data %>%
-  filter(day_rel >= 115 & day_rel <= 149) %>%
-  summarise(
-    min_intake = min(corrected_intake_kcal, na.rm = TRUE),
-    any_NA = sum(is.na(corrected_intake_kcal))
+mod_FI <- lmer(
+  FIcumulative ~ day_rel * BPA_EXPOSURE * SEX +
+    (1 | ID),
+  data = FI_data
+)
+summary(mod_FI)
+anova(mod_FI)
+
+lmer(FIcumulative ~ day_rel * BPA_EXPOSURE + (1|ID),
+     data = filter(FI_data, SEX == "F"))
+
+lmer(FIcumulative ~ day_rel * BPA_EXPOSURE + (1|ID),
+     data = filter(FI_data, SEX == "M"))
+
+summary(lmer(FIcumulative ~ day_rel * BPA_EXPOSURE + (1|ID),
+             data = filter(FI_data, SEX == "F")))
+
+summary(lmer(FIcumulative ~ day_rel * BPA_EXPOSURE + (1|ID),
+             data = filter(FI_data, SEX == "M")))
+
+mod_F_F <- lmer(
+  FIcumulative ~ day_rel * BPA_EXPOSURE + (1 | ID),
+  data = filter(FI_data, SEX == "F")
+)
+
+emm_F <- emmeans(
+  mod_F_F,
+  ~ BPA_EXPOSURE | day_rel,
+  at = list(day_rel = c(30, 60, 90))
+)
+
+contrast(emm_F, method = "pairwise")
+
+mod_F_M <- lmer(
+  FIcumulative ~ day_rel * BPA_EXPOSURE + (1 | ID),
+  data = filter(FI_data, SEX == "M")
+)
+
+emm_M <- emmeans(
+  mod_F_M,
+  ~ BPA_EXPOSURE | day_rel,
+  at = list(day_rel = c(30, 60, 90))
+)
+
+contrast(emm_M, method = "pairwise")
+
+
+emm_F_56 <- emmeans(
+  mod_F_F,
+  ~ BPA_EXPOSURE | day_rel,
+  at = list(day_rel = 56)
+)
+
+contrast(emm_F_56, method = "pairwise")
+
+emm_M_56 <- emmeans(
+  mod_F_M,
+  ~ BPA_EXPOSURE | day_rel,
+  at = list(day_rel = 56)
+)
+
+contrast(emm_M_56, method = "pairwise")
+
+# energy eficiency analysis ----
+EE_data <- BW_data %>%
+  select(ID, SEX, BPA_EXPOSURE, day_rel, BW) %>%
+  left_join(FI_data %>% select(ID, day_rel, FIcumulative), by = c("ID", "day_rel"))
+
+# Check that IDs are still valid
+unique(EE_data$ID)
+
+intervals <- c(0, 30, 60, 90, 120, 150)  # days
+
+library(dplyr)
+library(purrr)
+library(tibble)
+
+EE_per_interval <- EE_data %>%
+  group_by(ID) %>%
+  group_split() %>%  # split into list by ID
+  map_dfr(function(df) {
+    res <- tibble()
+    intervals <- c(0, 30, 60, 90, 120, 150)
+    
+    for(i in 2:length(intervals)){
+      start_day <- intervals[i-1]
+      end_day   <- intervals[i]
+      
+      # Closest rows
+      row_start <- df[which.min(abs(df$day_rel - start_day)), ]
+      row_end   <- df[which.min(abs(df$day_rel - end_day)), ]
+      
+      delta_BW <- row_end$BW - row_start$BW
+      delta_FI <- row_end$FIcumulative - row_start$FIcumulative
+      EE_val   <- delta_BW / delta_FI
+      
+      res <- bind_rows(res, tibble(
+        ID = df$ID[1],
+        SEX = as.character(df$SEX[1]),
+        BPA_EXPOSURE = as.character(df$BPA_EXPOSURE[1]),
+        interval = paste0(start_day, "-", end_day),
+        delta_BW = delta_BW,
+        delta_FI = delta_FI,
+        EE = EE_val
+      ))
+    }
+    res
+  })
+
+unique(EE_per_interval$ID)
+nrow(EE_per_interval)
+head(EE_per_interval)
+
+EE_per_interval <- EE_per_interval %>%
+  mutate(
+    SEX = factor(SEX, levels = c("F","M")),
+    BPA_EXPOSURE = factor(BPA_EXPOSURE, levels = c("NO","YES")),
+    interval = factor(interval, levels = c("0-30","30-60","60-90","90-120","120-150"))
   )
 
-# Check individual cumulative sums
-FI_data %>%
-  filter(day_rel >= 115 & day_rel <= 149) %>%
-  ggplot(aes(x = day_rel, y = FIcumulative, color = ID)) +
-  geom_line()
-FI_data
+EE_summary <- EE_per_interval %>%
+  group_by(interval, SEX, BPA_EXPOSURE) %>%
+  summarise(
+    mean_EE = mean(EE, na.rm = TRUE),
+    sem_EE  = sd(EE, na.rm = TRUE)/sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+EE_summary
+
+library(lme4)
+library(emmeans)
+
+EE_lme <- lmer(EE ~ BPA_EXPOSURE * SEX + interval + (1|ID), data = EE_per_interval)
+summary(EE_lme)
+
+# Post-hoc comparisons (optional)
+EE_emm <- emmeans(EE_lme, ~ BPA_EXPOSURE | SEX * interval)
+pairs(EE_emm)
+
+
+# Energy Efficiency plot ----
+EE_plot <- ggplot(EE_summary, aes(x = interval, y = mean_EE, group = BPA_EXPOSURE, color = BPA_EXPOSURE)) +
+  geom_line(size = 1) +
+  geom_point(size = 2) +
+  geom_errorbar(aes(ymin = mean_EE - sem_EE, ymax = mean_EE + sem_EE), width = 0.2) +
+  facet_wrap(~SEX) +
+  labs(
+    x = "Interval (days)",
+    y = "Energy Efficiency (g BW gain / kcal food)",
+    color = "BPA exposure"  ) +
+  theme_classic(base_size = 14) +
+  theme(
+    legend.position = "right",
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+EE_plot
+
+
+# Combine vertically
+combined_plot <- FI_plot / EE_plot + plot_layout(heights = c(1, 1))
+
+# Display
+combined_plot
 
 
 
-#independent of the diet females ate less than males, curious
+
 
 # indirect calorimetry columbus data ----
 
