@@ -91,20 +91,23 @@ plot_bw_sex
 # Females
 female_data <- BW_data %>% filter(SEX == "F")
 lme_female <- lmer(BW ~ BPA_EXPOSURE * day_rel + (1|ID), data = female_data)
-
+lme_female
 # Males
 male_data <- BW_data %>% filter(SEX == "M")
 lme_male <- lmer(BW ~ BPA_EXPOSURE * day_rel + (1|ID), data = male_data)
-
+lme_male
 # Females
 # Round day_rel to nearest measured day
 emmeans_f <- emmeans(lme_female, ~ BPA_EXPOSURE | day_rel, at = list(day_rel = unique(female_data$day_rel)))
+emmeans_f
 # Males
 # Round day_rel to nearest measured day
 emmeans_m <- emmeans(lme_male, ~ BPA_EXPOSURE | day_rel, at = list(day_rel = unique(male_data$day_rel)))
-
+emmeans_f
 contrast_f <- contrast(emmeans_f, method = "pairwise") %>% as.data.frame()
 contrast_m <- contrast(emmeans_m, method = "pairwise") %>% as.data.frame()
+contrast_f
+contrast_m
 
 # Make sure all contrasts are YES - NO females
 contrast_f <- contrast_f %>%
@@ -113,7 +116,9 @@ contrast_f <- contrast_f %>%
     t.ratio = ifelse(contrast == "NO - YES", -t.ratio, t.ratio),
     contrast = "YES - NO"
   )
+contrast_f
 sig_daysf <- contrast_f %>% filter(p.value < 0.05)
+sig_daysf
 
 # Make sure all contrasts are YES - NO males
 contrast_m <- contrast_m %>%
@@ -122,7 +127,9 @@ contrast_m <- contrast_m %>%
     t.ratio = ifelse(contrast == "NO - YES", -t.ratio, t.ratio),
     contrast = "YES - NO"
   )
+contrast_m
 sig_daysm <- contrast_m %>% filter(p.value < 0.05)
+sig_daysm 
 
 first_sig_dayf <- sig_daysf %>% slice_min(day_rel)
 first_sig_dayf$day_rel
@@ -434,8 +441,8 @@ combined_plot
 
 echoMRI_data <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
   filter(COHORT %in% c(15,16)) %>% 
-  filter(!ID %in% c(9354, 9367, 9368, 9372, 9414)) %>%  # 9367 and 9368 have confused data from 8/1/25 echoMRI 
-  # 9354 and 9372 lack of complete schedule of measurements in echoMRI
+  filter(!ID %in% c(9354, 9367, 9368, 9414)) %>%  # 9367 and 9368 have confused data from 8/1/25 echoMRI 
+  # 9354 lack of complete schedule of measurements in echoMRI
   # 9414 lack of complete schedule of measurements (lack of basal) in echoMRI
   group_by(ID) %>%
   arrange(Date) %>% 
@@ -448,7 +455,7 @@ echoMRI_data <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
     DIET_FORMULA = DIET_FORMULA.x)
   
 
-#cohort 15 are 24 animals originally but if I eliminate 4 animals so total animals are 20 per date (9367, 9368, 9354, 9372)
+#cohort 15 are 24 animals originally but if I eliminate 3 animals so total animals are 21 per date (9367, 9368, 9354)
 #cohort 16 are 15 animals originally but if I eliminate 1 animal so total animals are 14 per date (9414)
 
 echoMRI_data %>% 

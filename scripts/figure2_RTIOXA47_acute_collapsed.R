@@ -178,12 +178,12 @@ echoMRI_data_47 <- echoMRI_data_47 %>%
 
 leveneTest(delta_adiposity_index ~ DRUG, data = echoMRI_data_47) #p = 0.31 > 0.05, so variances can be considered equal
 leveneTest(delta_fat ~ DRUG, data = echoMRI_data_47) #p = 0.44 > 0.05, so variances can be considered equal
-leveneTest(delta_lean ~ DRUG, data = echoMRI_data_47) #p = 0.02 > 0.05, so variances can be considered equal
+leveneTest(delta_lean ~ DRUG, data = echoMRI_data_47) #p = 0.02 < 0.05, so variances can not be considered equal
 leveneTest(delta_bw ~ DRUG, data = echoMRI_data_47) #p = 0.43 > 0.05, so variances can be considered equal
 
 summary(aov(delta_bw ~ DRUG, data = echoMRI_data_47)) #p = 0.29
 summary(aov(delta_fat ~ DRUG, data = echoMRI_data_47)) #p = 0.63
-summary(aov(delta_lean ~ DRUG, data = echoMRI_data_47)) #p = 0.48
+oneway.test(delta_lean ~ DRUG, data = echoMRI_data_47, var.equal = FALSE)
 summary(aov(delta_adiposity_index ~ DRUG, data = echoMRI_data_47)) #p = 0.6
 
 #conclusion> There is no indication that RTIOXA-47 decreases changes in fat mass

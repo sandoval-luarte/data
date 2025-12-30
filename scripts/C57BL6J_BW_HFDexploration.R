@@ -1,5 +1,6 @@
 # This script aims to explore changes in body weight (BW) and adiposity index 
-# (AI, fat/lean mass) in females and males C57BL6J fed with HFD (D12451i, research diets)
+# (AI, fat/lean mass) in females and males C57BL6J, NZO and CD1 fed with HFD 
+#(D12451i, research diets) or LFDs (D12450Hi or D12450Ki, research diets)
 
 #libraries
 library(dplyr) #to use pipe
@@ -17,8 +18,7 @@ library(emmeans)
  # BW over time data----
 
 BW_data <- read_csv("../data/BW.csv") %>% 
-  filter(STRAIN=="C57BL/6J") %>% #JUST C57BL6J %>% 
-  filter(DIET_FORMULA =="D12451i") %>% 
+  filter(COHORT %in% c(0, 1, 2, 3, 4, 5, 7, 8, 15,16)) %>% 
   group_by(ID) %>% 
   arrange(DATE) %>% 
   mutate(
@@ -26,29 +26,54 @@ BW_data <- read_csv("../data/BW.csv") %>%
     body_lag = (lag(BW) - BW),
     day_rel = as.integer(as.Date(DATE) - as.Date(first(DATE)))
   ) %>% 
-  filter(day_rel <=100) %>% 
   mutate(
     age = factor(
       ifelse(COHORT == 7, "old-72 week old", "young-8 week old"),
       levels = c("young-8 week old", "old-72 week old")
     )
   ) %>% 
-  ungroup() 
+  ungroup() %>% 
+  filter(!ID %in% c(9359, #all cd1 non exposed to BPA perinatally, we will keep just non exposed animals
+                    9360,
+                    9361,
+                    9362,
+                    9363,
+                    9364,
+                    9372,
+                    9373,
+                    9374,
+                    9375,
+                    9376,
+                    9377,
+                    9378,
+                    9402,
+                    9403,
+                    9405,
+                    9407,
+                    9400,
+                    9401,
+                    9404,
+                    9406)) 
+  
+
+BW_data %>% 
+  group_by(SEX,STRAIN, DIET_FORMULA,age) %>%
+  summarise(n_ID = n_distinct(ID)) %>% 
+  print(n = Inf)
 
 ## summary ----
 
-BW_binned <- BW_data %>%
-  mutate(day_bin = floor(day_rel / 10) * 10) #showing data weekly 
 
-BW_summary <- BW_binned %>%
-  group_by(SEX, age, day_bin) %>%
+BW_summary <- BW_data %>%
+  group_by(SEX, age, day_rel,STRAIN,DIET_FORMULA) %>%
   summarise(
     mean_BW_gain = mean(bw_rel),
     sem_BW_gain  = sd(bw_rel) / sqrt(n_distinct(ID)),
     mean_BW = mean(BW),
     sem_BW  = sd(BW) / sqrt(n_distinct(ID)),
     .groups = "drop"
-  )
+  ) %>% 
+  filter(SEX=="M")
 
  # BW raw plot----
 
@@ -62,7 +87,7 @@ ggplot() +
   geom_ribbon(
     data = BW_summary,
     aes(
-      x = day_bin,
+      x = day_rel,
       ymin = mean_BW - sem_BW,
       ymax = mean_BW + sem_BW,
       fill = age
@@ -71,10 +96,10 @@ ggplot() +
   ) +
   geom_line(
     data = BW_summary,
-    aes(x = day_bin, y = mean_BW, color = age),
+    aes(x = day_rel, y = mean_BW, color = age),
     linewidth = 1.2
   ) +
-  facet_wrap(~ SEX * age) +
+  facet_wrap(~ STRAIN *DIET_FORMULA*age) +
   theme_classic() +
   labs(
     x = "Days relative to first measurement",
@@ -82,7 +107,7 @@ ggplot() +
     color = "Age",
     fill = "Age"
   )+
-  scale_x_continuous(limits = c(0, 80))
+  scale_x_continuous(limits = c(0, 50))
 
 
 # BW % gain plot ----
