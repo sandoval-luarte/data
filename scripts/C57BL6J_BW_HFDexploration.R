@@ -19,11 +19,11 @@ library(emmeans)
 
 BW_data <- read_csv("../data/BW.csv") %>% 
   filter(COHORT %in% c(0, 1, 2, 3, 4, 5, 7, 8, 15,16)) %>% 
+  filter(!(COHORT == 2 & DATE == as.Date("2024-09-03"))) %>% 
   group_by(ID) %>% 
   arrange(DATE) %>% 
   mutate(
     bw_rel = 100 * (BW - first(BW)) / first(BW),
-    body_lag = (lag(BW) - BW),
     day_rel = as.integer(as.Date(DATE) - as.Date(first(DATE)))
   ) %>% 
   mutate(
@@ -53,27 +53,29 @@ BW_data <- read_csv("../data/BW.csv") %>%
                     9400,
                     9401,
                     9404,
-                    9406)) 
+                    9406)) %>% 
+  filter(STRAIN=="C57BL/6J") %>% 
+  filter(age =="young-8 week old") %>% 
+  filter(DIET_FORMULA %in% c( "D12451i"))
   
 
 BW_data %>% 
-  group_by(SEX,STRAIN, DIET_FORMULA,age) %>%
+  group_by(SEX,STRAIN, DIET_FORMULA,age,COHORT) %>%
   summarise(n_ID = n_distinct(ID)) %>% 
   print(n = Inf)
 
 ## summary ----
-
-
 BW_summary <- BW_data %>%
-  group_by(SEX, age, day_rel,STRAIN,DIET_FORMULA) %>%
+  group_by(SEX, day_rel) %>%
   summarise(
-    mean_BW_gain = mean(bw_rel),
-    sem_BW_gain  = sd(bw_rel) / sqrt(n_distinct(ID)),
-    mean_BW = mean(BW),
-    sem_BW  = sd(BW) / sqrt(n_distinct(ID)),
+    N = n_distinct(ID),
+    mean_BW_gain = mean(bw_rel, na.rm = TRUE),
+    sem_BW_gain  = sd(bw_rel, na.rm = TRUE) / sqrt(N),
+    mean_BW      = mean(BW, na.rm = TRUE),
+    sem_BW       = sd(BW, na.rm = TRUE) / sqrt(N),
     .groups = "drop"
-  ) %>% 
-  filter(SEX=="M")
+  )
+
 
  # BW raw plot----
 
@@ -99,15 +101,14 @@ ggplot() +
     aes(x = day_rel, y = mean_BW, color = age),
     linewidth = 1.2
   ) +
-  facet_wrap(~ STRAIN *DIET_FORMULA*age) +
+  facet_wrap(~ SEX*DIET_FORMULA) +
   theme_classic() +
   labs(
     x = "Days relative to first measurement",
     y = "Body weight (g)",
     color = "Age",
     fill = "Age"
-  )+
-  scale_x_continuous(limits = c(0, 50))
+  )+ scale_x_continuous(limits = c(0, 70))
 
 
 # BW % gain plot ----
@@ -147,11 +148,10 @@ ggplot() +
 # adiposity index over time ----
 
 echoMRI_data <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
-  filter(STRAIN=="C57BL/6J") %>% #JUST C57BL6J %>% 
-  filter(DIET_FORMULA =="D12451i") %>% 
+  filter(COHORT %in% c(0, 1, 2, 3, 4, 5, 7, 8, 15,16)) %>% 
   group_by(ID) %>%
   arrange(Date) %>%
-  select(ID, Date, Fat, Lean, Weight, n_measurement, adiposity_index,COHORT,SEX) %>%
+  select(ID, Date, Fat, Lean, Weight, n_measurement, adiposity_index,COHORT,SEX,STRAIN,DIET_FORMULA) %>%
   mutate(
     day_rel = Date - first(Date),
       ai_rel = 100 * (adiposity_index - first(adiposity_index)) / first(adiposity_index),
@@ -163,7 +163,10 @@ echoMRI_data <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
       levels = c("young-8 week old", "old-72 week old")
     )
   ) %>% 
-  ungroup() 
+  ungroup() %>% 
+  filter(STRAIN=="C57BL/6J") %>% 
+  filter(age =="young-8 week old") %>% 
+  filter(DIET_FORMULA %in% c( "D12451i"))
 
 ## summary ----
 
