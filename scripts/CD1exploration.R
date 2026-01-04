@@ -20,6 +20,7 @@ library(broom)
 library(stringr)
 library(forcats)
 library(patchwork)
+library(ggpattern)
 
 
  # BW over time data----
@@ -1808,3 +1809,159 @@ ggplot(
 #RER ≈ 0.7: Mostly fat oxidation
 #RER ≈ 0.85: Mix of fat and carbohydrate oxidation
 #RER ≈ 1.0: Mostly carbohydrate oxidation
+
+# BPA effects on dams----
+  dams_data <- read_csv("../data/DAMSBPAINFO.csv") %>% 
+  mutate(SEX = ifelse(SEX == FALSE, "F",
+                      ifelse(SEX == TRUE, "M", as.character(SEX)))) %>% 
+  group_by(ID) %>% 
+  mutate(F_M_sexratio = female_pups_number / male_pups_number) %>% 
+  ungroup()
+
+# Add female/male sex ratio
+dams_data <- dams_data %>%
+  mutate(F_M_sexratio = female_pups_number / male_pups_number)
+
+summary_stats <- dams_data %>%
+  group_by(BPA_EXPOSURE) %>%
+  summarise(
+    mean_Liter_size = mean(Liter_size, na.rm = TRUE),
+    sem_Liter_size  = sd(Liter_size, na.rm = TRUE) / sqrt(n()),
+    n_Liter_size    = n(),
+    
+    mean_gestation_days = mean(gestation_lenght_days, na.rm = TRUE),
+    sem_gestation_days  = sd(gestation_lenght_days, na.rm = TRUE) / sqrt(n()),
+    n_gestation_days    = n(),
+    
+    mean_female_pups = mean(female_pups_number, na.rm = TRUE),
+    sem_female_pups  = sd(female_pups_number, na.rm = TRUE) / sqrt(n()),
+    n_female_pups    = n(),
+    
+    mean_male_pups = mean(male_pups_number, na.rm = TRUE),
+    sem_male_pups  = sd(male_pups_number, na.rm = TRUE) / sqrt(n()),
+    n_male_pups    = n(),
+    
+    mean_F_M_sexratio = mean(F_M_sexratio, na.rm = TRUE),
+    sem_F_M_sexratio  = sd(F_M_sexratio, na.rm = TRUE) / sqrt(n()),
+    n_F_M_sexratio    = n()
+  )
+
+
+# First, define fill manually: YES -> grey pattern, NO -> white
+summary_stats <- summary_stats %>%
+  mutate(fill_color = ifelse(BPA_EXPOSURE == "YES", "pattern", "white"))
+
+# Panel A example
+pA <- ggplot(summary_stats, aes(x = BPA_EXPOSURE, y = mean_gestation_days)) +
+  # draw NO and YES bars separately
+  geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="NO"),
+           aes(y = mean_gestation_days),
+           fill = "white", color = "black", width = 0.6) +
+  geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="YES"),
+           aes(y = mean_gestation_days),
+           fill = "gray", color = "black", width = 0.6) +
+  geom_errorbar(aes(ymin = mean_gestation_days - sem_gestation_days,
+                    ymax = mean_gestation_days + sem_gestation_days),
+                width = 0.2, color = "black", size = 0.8) +
+  labs(y = "Gestational days", x = "") +
+  theme_classic(base_size = 14)
+
+pA
+
+# Panel B: Liter size
+pB <- ggplot(summary_stats, aes(x = BPA_EXPOSURE, y = mean_Liter_size)) +
+  geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="NO"),
+           fill = "white", color = "black", width = 0.6) +
+  geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="YES"),
+           fill = "gray", color = "black", width = 0.6) +
+  geom_errorbar(aes(ymin = mean_Liter_size - sem_Liter_size,
+                    ymax = mean_Liter_size + sem_Liter_size),
+                width = 0.2, color = "black", size = 0.8) +
+  labs(y = "Liter size", x = "") +
+  theme_classic(base_size = 14)
+
+# Panel C: Female pups
+pC <- ggplot(summary_stats, aes(x = BPA_EXPOSURE, y = mean_female_pups)) +
+  geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="NO"),
+           fill = "white", color = "black", width = 0.6) +
+  geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="YES"),
+           fill = "gray", color = "black", width = 0.6) +
+  geom_errorbar(aes(ymin = mean_female_pups - sem_female_pups,
+                    ymax = mean_female_pups + sem_female_pups),
+                width = 0.2, color = "black", size = 0.8) +
+  labs(y = "Female pups", x = "") +
+  theme_classic(base_size = 14)
+
+# Panel D: Male pups
+pD <- ggplot(summary_stats, aes(x = BPA_EXPOSURE, y = mean_male_pups)) +
+  geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="NO"),
+           fill = "white", color = "black", width = 0.6) +
+  geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="YES"),
+           fill = "gray", color = "black", width = 0.6) +
+  geom_errorbar(aes(ymin = mean_male_pups - sem_male_pups,
+                    ymax = mean_male_pups + sem_male_pups),
+                width = 0.2, color = "black", size = 0.8) +
+  labs(y = "Male pups", x = "") +
+  theme_classic(base_size = 14)
+
+# Panel E: Female/male sex ratio
+pE <- ggplot(summary_stats, aes(x = BPA_EXPOSURE, y = mean_F_M_sexratio)) +
+  geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="NO"),
+           fill = "white", color = "black", width = 0.6) +
+  geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="YES"),
+           fill = "gray", color = "black", width = 0.6) +
+  geom_errorbar(aes(ymin = mean_F_M_sexratio - sem_F_M_sexratio,
+                    ymax = mean_F_M_sexratio + sem_F_M_sexratio),
+                width = 0.2, color = "black", size = 0.8) +
+  labs(y = "Female/male sex ratio", x = "BPA EXPOSURE") +
+  theme_classic(base_size = 14)
+
+
+(pA | pB) /
+  (pC | pD) /
+  pE +
+  plot_annotation(tag_levels = 'A')
+
+##-- stats of BPA on dams----
+# List of parameters
+parameters <- c("gestation_lenght_days", "Liter_size",
+                "female_pups_number", "male_pups_number", "F_M_sexratio")
+
+# Function to run appropriate test comparing YES vs NO
+run_comparison <- function(param) {
+  
+  # Check normality per group
+  normality <- dams_data %>%
+    group_by(BPA_EXPOSURE) %>%
+    summarise(
+      shapiro_p = if(length(unique(get(param))) > 1) {
+        shapiro.test(get(param))$p.value
+      } else {
+        NA  # cannot test if all identical
+      },
+      .groups = "drop"
+    )
+  
+  # Decide which test to use
+  use_wilcox <- any(normality$shapiro_p < 0.05, na.rm = TRUE) | any(is.na(normality$shapiro_p))
+  
+  if (use_wilcox) {
+    test_res <- wilcox.test(get(param) ~ BPA_EXPOSURE, data = dams_data)
+    test_name <- "Wilcoxon"
+  } else {
+    test_res <- t.test(get(param) ~ BPA_EXPOSURE, data = dams_data)
+    test_name <- "t-test"
+  }
+  
+  data.frame(
+    parameter = param,
+    test = test_name,
+    p_value = test_res$p.value
+  )
+}
+
+# Run for all parameters and combine results
+comparison_results <- lapply(parameters, run_comparison) %>% bind_rows()
+
+comparison_results
+

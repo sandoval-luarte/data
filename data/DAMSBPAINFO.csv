@@ -3,5 +3,5 @@ ID,BPA_EXPOSURE,COHORT,SEX,Liter_size,gestation_lenght_days,female_pups_number,m
 9549,YES,1,F,13,21,3,10
 9547,NO,1,F,10,21,4,6
 9548,NO,1,F,11,21,3,8
-No ID,YES,2,F,9,21,3,6
-No ID,NO,2,F,10,21,5,5
+9397,YES,2,F,9,21,3,6
+9396,NO,2,F,10,21,5,5
