@@ -979,6 +979,8 @@ combined_plot
 
 # indirect calorimetry columbus data ----
 
+METABPA <- read_csv("~/Documents/GitHub/data/data/METABPA.csv")
+
 ##counts####
 ical_data_counts_coh15 <- read_csv("~/Documents/GitHub/data/data/iCal_Kotz_082425_counts.csv") %>% 
   rename(ID = Subject) %>% 
@@ -1105,7 +1107,7 @@ ical_long_all <- ical_long_all %>%
   group_by(ID, exp_day) %>%
   mutate(count_total = cumsum(count)) %>%
   ungroup() %>% 
-  filter(!ID == 9406) %>% #9406 has a very weird pattern
+  filter(!ID %in% c(9367, 9406)) %>% #check health of these animals during this stage
   group_by(ID, exp_day) %>%
    mutate(
     relative_total_count = count_total - first(count_total))
@@ -1132,7 +1134,7 @@ ical_long_all <- ical_long_all %>%
   )
 
 
-ggplot(
+ggplot( 
   ical_long_all,
   aes(
     x = hour_label,
@@ -1153,6 +1155,7 @@ ggplot(
   )
 
 ical_long_allgrouped <- ical_long_all %>% 
+  filter(!ID %in% c(9367, 9406)) %>% #check if something weird happended with these animals during the data collection, check with ZR
   group_by(hour_label, SEX, BPA_EXPOSURE) %>% 
   summarise(
     mean_counts = mean(relative_total_count, na.rm = TRUE),
@@ -1193,6 +1196,56 @@ ggplot(
     strip.text = element_text(size = 10)
   )
 
+dark_phase <- data.frame(
+  xmin = 1,
+  xmax = 11,
+  ymin = -Inf,
+  ymax = Inf
+)
+
+ggplot(
+  ical_long_allgrouped,
+  aes(
+    x = as.numeric(hour_label),
+    y = mean_counts,
+    group = BPA_EXPOSURE,
+    color = BPA_EXPOSURE,
+    fill  = BPA_EXPOSURE
+  )
+) +
+  # DARK PHASE BACKGROUND
+  geom_rect(
+    data = dark_phase,
+    aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax),
+    inherit.aes = FALSE,
+    fill = "grey85",
+    alpha = 0.5
+  ) +
+  geom_ribbon(
+    aes(
+      ymin = mean_counts - sem_counts,
+      ymax = mean_counts + sem_counts
+    ),
+    alpha = 0.25,
+    color = NA
+  ) +
+  geom_line(size = 1) +
+  facet_wrap(~ SEX) +
+  scale_x_continuous(
+    breaks = 1:24,
+    labels = levels(ical_long_allgrouped$hour_label)
+  ) +
+  labs(
+    x = "Time (20:00 → 19:00)",
+    y = "Relative cumulative count (mean ± SEM)",
+    color = "BPA exposure",
+    fill  = "BPA exposure"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5),
+    strip.text = element_text(size = 10)
+  )
 
 ical_long_all <- ical_long_all %>%
   group_by(ID, exp_day) %>%
