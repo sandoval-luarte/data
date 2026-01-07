@@ -21,6 +21,8 @@ library(stringr)
 library(forcats)
 library(patchwork)
 library(ggpattern)
+library(broom)  # for tidy()
+
 
 
  # BW over time data----
@@ -442,9 +444,10 @@ combined_plot
 
 echoMRI_data <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
   filter(COHORT %in% c(15,16)) %>% 
-  filter(!ID %in% c(9354, 9367, 9368, 9414)) %>%  # 9367 and 9368 have confused data from 8/1/25 echoMRI 
+  filter(!ID %in% c(9354, 9367, 9368, 9414,9406)) %>%  # 9367 and 9368 have confused data from 8/1/25 echoMRI 
   # 9354 lack of complete schedule of measurements in echoMRI
   # 9414 lack of complete schedule of measurements (lack of basal) in echoMRI
+  # 9406 weird pattern in locomotion
   group_by(ID) %>%
   arrange(Date) %>% 
   select(ID, Date, Fat, Lean, Weight, adiposity_index,COHORT,DIET_FORMULA) %>% 
@@ -457,10 +460,11 @@ echoMRI_data <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
   
 
 #cohort 15 are 24 animals originally but if I eliminate 3 animals so total animals are 21 per date (9367, 9368, 9354)
-#cohort 16 are 15 animals originally but if I eliminate 1 animal so total animals are 14 per date (9414)
+#cohort 16 are 15 animals originally but if I eliminate 2 animal so total animals are 13 per date (9406, 9414)
+#so in total we have 34 animals
 
 echoMRI_data %>% 
-  group_by(SEX) %>%
+  group_by(SEX,BPA_EXPOSURE) %>%
   summarise(n_ID = n_distinct(ID)) 
 
 
@@ -1081,7 +1085,11 @@ ical_long16 <- ical_long16 %>% select(all_of(common_cols))
 ical_long_all <- bind_rows(ical_long15, ical_long16) #this is key, here we combined
 
 ical_long_all %>% 
-  group_by(cohort) %>%
+  filter(!ID %in% c(9354, 9367, 9368, 9414,9406)) %>%  # 9367 and 9368 have confused data from 8/1/25 echoMRI 
+  # 9354 lack of complete schedule of measurements in echoMRI
+  # 9414 lack of complete schedule of measurements (lack of basal) in echoMRI
+  # 9406 weird pattern in locomotion
+  group_by(BPA_EXPOSURE,SEX) %>%
   summarise(n_ID = n_distinct(ID)) %>% 
   print(n = Inf) #ok great we have 24 animals for cohort 15 and 15 animals for cohort 16
 #so in total 39 animals
@@ -1107,7 +1115,10 @@ ical_long_all <- ical_long_all %>%
   group_by(ID, exp_day) %>%
   mutate(count_total = cumsum(count)) %>%
   ungroup() %>% 
-  filter(!ID %in% c(9367, 9406)) %>% #check health of these animals during this stage
+  filter(!ID %in% c(9354, 9367, 9368, 9414,9406)) %>%  # 9367 and 9368 have confused data from 8/1/25 echoMRI 
+  # 9354 lack of complete schedule of measurements in echoMRI
+  # 9414 lack of complete schedule of measurements (lack of basal) in echoMRI
+  # 9406 weird pattern in locomotion
   group_by(ID, exp_day) %>%
    mutate(
     relative_total_count = count_total - first(count_total))
@@ -1155,45 +1166,13 @@ ggplot(
   )
 
 ical_long_allgrouped <- ical_long_all %>% 
-  filter(!ID %in% c(9367, 9406)) %>% #check if something weird happended with these animals during the data collection, check with ZR
+  filter(!ID %in% c(9367, 9406)) %>% #check if something weird happened with these animals during the data collection, check with ZR
   group_by(hour_label, SEX, BPA_EXPOSURE) %>% 
   summarise(
     mean_counts = mean(relative_total_count, na.rm = TRUE),
     sem_counts  = sd(relative_total_count, na.rm = TRUE) / sqrt(n_distinct(ID)),
     n_ID = n_distinct(ID),
     .groups = "drop"
-  )
-
-ggplot(
-  ical_long_allgrouped,
-  aes(
-    x = hour_label,
-    y = mean_counts,
-    group = BPA_EXPOSURE,
-    color = BPA_EXPOSURE,
-    fill  = BPA_EXPOSURE
-  )
-) +
-  geom_ribbon(
-    aes(
-      ymin = mean_counts - sem_counts,
-      ymax = mean_counts + sem_counts
-    ),
-    alpha = 0.25,
-    color = NA
-  ) +
-  geom_line(size = 1) +
-  facet_wrap(~ SEX) +
-  labs(
-    x = "Time (20:00 → 19:00)",
-    y = "Relative cumulative count (mean ± SEM)",
-    color = "BPA exposure",
-    fill  = "BPA exposure"
-  ) +
-  theme_minimal() +
-  theme(
-    axis.text.x = element_text(angle = 90, vjust = 0.5),
-    strip.text = element_text(size = 10)
   )
 
 dark_phase <- data.frame(
@@ -1247,121 +1226,471 @@ ggplot(
     strip.text = element_text(size = 10)
   )
 
-ical_long_all <- ical_long_all %>%
-  group_by(ID, exp_day) %>%
-  mutate(
-    relative_total_counts_lights = case_when(
-      
-      # Lights OFF: 20:00–05:59 → start at 0 at 20:00
-      lights == "OFF" ~
-        relative_total_count - min(relative_total_count[lights == "OFF"], na.rm = TRUE),
-      
-      # Lights ON: 06:00–19:59 → start at 0 at 06:00
-      lights == "ON" ~
-        relative_total_count - min(relative_total_count[lights == "ON"], na.rm = TRUE)
-    )
-  ) %>%
-  ungroup() 
+# Summarize relative_total_count at hour == 19 including SEX and BPA_EXPOSURE
+relative_count_at_19 <- ical_long_all %>%
+  filter(hour == 19) %>%                # keep only rows at hour 19
+  group_by(ID) %>%
+  summarise(
+    relative_total_count_19 = first(relative_total_count),  # value at 19:00
+    cohort = first(cohort),
+    SEX = first(SEX),
+    BPA_EXPOSURE = first(BPA_EXPOSURE),
+    .groups = "drop"
+  )
 
-  ical_long_all <- ical_long_all %>%
-  mutate(
-    hour_phase = case_when(
-      lights == "OFF" ~ factor(
-        hour,
-        levels = c(20:23, 0:5)
-      ),
-      lights == "ON" ~ factor(
-        hour,
-        levels = 6:19
+# Run unpaired t-test within each sex
+
+# Check variance within each sex
+variance_check <- relative_count_at_19 %>%
+  group_by(SEX) %>%
+  summarise(
+    var_test = list(
+      var.test(
+        relative_total_count_19 ~ BPA_EXPOSURE, 
+        data = cur_data()
       )
+    ),
+    .groups = "drop"
+  ) %>%
+  rowwise() %>%
+  mutate(
+    f_statistic = var_test$statistic,
+    df1 = var_test$parameter[1],
+    df2 = var_test$parameter[2],
+    p_value = var_test$p.value
+  ) %>%
+  select(SEX, f_statistic, df1, df2, p_value)
+
+variance_check #so because the assumption of equal variance is violated, so Welch’s t-test is justified.
+
+t_test_results <- relative_count_at_19 %>%
+  group_by(SEX) %>%
+  summarise(
+    t_test = list(t.test(
+      relative_total_count_19 ~ BPA_EXPOSURE,  # formula: group comparison
+      data = cur_data(),
+      var.equal = FALSE                        # Welch's t-test (does not assume equal variance)
+    )),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    t_statistic = map_dbl(t_test, ~ .x$statistic),
+    df = map_dbl(t_test, ~ .x$parameter),
+    p_value = map_dbl(t_test, ~ .x$p.value),
+    mean_NO = map_dbl(t_test, ~ .x$estimate[1]),   # mean for BPA_EXPOSURE == NO
+    mean_YES = map_dbl(t_test, ~ .x$estimate[2])   # mean for BPA_EXPOSURE == YES
+  ) %>%
+  select(SEX, mean_NO, mean_YES, t_statistic, df, p_value)
+
+t_test_results
+
+
+# Compute mean and SEM per SEX × BPA_EXPOSURE
+summary_19 <- relative_count_at_19 %>%
+  group_by(SEX, BPA_EXPOSURE) %>%
+  summarise(
+    mean_count = mean(relative_total_count_19),
+    sem_count = sd(relative_total_count_19) / sqrt(n()),
+    .groups = "drop"
+  )
+
+# T-test results
+t_test_summary <- relative_count_at_19 %>%
+  group_by(SEX) %>%
+  do(tidy(t.test(relative_total_count_19 ~ BPA_EXPOSURE, data = .))) %>%
+  ungroup() %>%
+  mutate(
+    # Positions to display p-values on plot
+    y_position = max(relative_count_at_19$relative_total_count_19) * 1.05
+  ) %>%
+  select(SEX, estimate1, estimate2, statistic, p.value, y_position)
+
+t_test_summary
+
+
+ggplot(summary_19, aes(x = BPA_EXPOSURE, y = mean_count, fill = BPA_EXPOSURE)) +
+  geom_col(alpha = 0.7, width = 0.6) +  # bars
+  geom_errorbar(aes(ymin = mean_count - sem_count, ymax = mean_count + sem_count),
+                width = 0.2) +           # SEM
+  geom_jitter(
+    data = relative_count_at_19,
+    aes(x = BPA_EXPOSURE, y = relative_total_count_19, color = BPA_EXPOSURE),
+    width = 0.15,
+    size = 2,
+    alpha = 0.7,
+    inherit.aes = FALSE
+  ) +
+  facet_wrap(~ SEX) +
+  scale_fill_manual(values = c("NO" = "black", "YES" = "gray")) +
+  scale_color_manual(values = c("NO" = "black", "YES" = "gray")) +
+  # Add p-values from t-test
+  geom_text(
+    data = t_test_summary,
+    aes(x = 1.5,  # midpoint between NO (1) and YES (2)
+        y = y_position,
+        label = paste0("p = ", signif(p.value, 3))),
+    inherit.aes = FALSE
+  ) +
+  labs(
+    x = "BPA Exposure",
+    y = "Total Counts over 24h",
+    fill = "BPA Exposure",
+    color = "BPA Exposure"
+  ) +
+  theme_minimal() +
+  theme(
+    strip.text = element_text(size = 12),
+    axis.text = element_text(size = 11),
+    axis.title = element_text(size = 12),
+    legend.position = "top"
+  )
+
+## stats ----
+
+fem_data <- ical_long_all %>%
+  filter(
+    SEX == "F",
+  !ID %in% c(9354, 9367, 9368, 9414,9406)) %>%  # 9367 and 9368 have confused data from 8/1/25 echoMRI 
+      # 9354 lack of complete schedule of measurements in echoMRI
+      # 9414 lack of complete schedule of measurements (lack of basal) in echoMRI
+      # 9406 weird pattern in locomotion
+  mutate(
+    hour_ordered = factor(hour_ordered))  # treat hour as categorical
+
+lmm_fem <- lmer(
+  relative_total_count ~ BPA_EXPOSURE * hour_ordered + (1 | ID),
+  data = fem_data
+)
+
+summary(lmm_fem)
+anova(lmm_fem)
+
+emm <- emmeans(
+  lmm_fem,
+  ~ BPA_EXPOSURE | hour_ordered
+)
+
+## lights split ----
+
+ical_phase <- ical_long_all %>%
+  filter(!ID %in% c(9354, 9367, 9368, 9414,9406)) %>%  # 9367 and 9368 have confused data from 8/1/25 echoMRI 
+  # 9354 lack of complete schedule of measurements in echoMRI
+  # 9414 lack of complete schedule of measurements (lack of basal) in echoMRI
+  # 9406 weird pattern in locomotion
+  mutate(
+    phase = case_when(
+      hour >= 20 | hour < 6  ~ "dark",   # 20:00–05:59
+      hour >= 6  & hour < 20 ~ "light"   # 06:00–19:59
     )
   )
 
+ical_phase <- ical_phase %>%
+  mutate(
+    phase_hour_order = case_when(
+      phase == "dark"  & hour >= 20 ~ hour,
+      phase == "dark"  & hour < 6   ~ hour + 24,
+      phase == "light"              ~ hour
+    )
+  ) %>%
+  arrange(ID, exp_day, phase, phase_hour_order)
 
-ical_long_allgroupedlights <- ical_long_all %>% 
-  group_by(hour_label, SEX, BPA_EXPOSURE,lights) %>% 
+ical_phase <- ical_phase %>%
+  group_by(ID, exp_day, phase) %>%
+  mutate(
+    phase_cumsum = cumsum(count),
+    relative_phase_cumsum = phase_cumsum - first(phase_cumsum)
+  ) %>%
+  ungroup()
+
+ical_phase <- ical_phase %>%
+  mutate(
+    lights_phase = if_else(phase == "dark", "lights_off", "lights_on")
+  )
+
+phase_summary <- ical_phase %>%
+  group_by(ID, SEX, BPA_EXPOSURE, lights_phase) %>%
   summarise(
-    mean_counts = mean(relative_total_counts_lights, na.rm = TRUE),
-    sem_counts  = sd(relative_total_counts_lights, na.rm = TRUE) / sqrt(n_distinct(ID)),
+    total_relative_counts = max(relative_phase_cumsum, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+dark_fem <- phase_summary %>%
+  filter(
+    SEX == "F",
+    lights_phase == "lights_off"
+  )
+
+t.test(
+  total_relative_counts ~ BPA_EXPOSURE,
+  data = dark_fem
+)
+
+light_fem <- phase_summary %>%
+  filter(
+    SEX == "F",
+    lights_phase == "lights_on"
+  )
+
+t.test(
+  total_relative_counts ~ BPA_EXPOSURE,
+  data = light_fem
+)
+
+dark_male <- phase_summary %>%
+  filter(
+    SEX == "M",
+    lights_phase == "lights_off"
+  )
+
+t.test(
+  total_relative_counts ~ BPA_EXPOSURE,
+  data = dark_male
+)
+
+light_male <- phase_summary %>%
+  filter(
+    SEX == "M",
+    lights_phase == "lights_on"
+  )
+
+t.test(
+  total_relative_counts ~ BPA_EXPOSURE,
+  data = light_male
+)
+
+
+deltaf <- phase_summary %>%
+  filter(SEX == "F") %>%
+  pivot_wider(
+    names_from = lights_phase,
+    values_from = total_relative_counts
+  ) %>%
+  mutate(delta_light_dark = lights_on - lights_off)
+
+t.test(
+  delta_light_dark ~ BPA_EXPOSURE,
+  data = deltaf
+)
+
+deltam <- phase_summary %>%
+  filter(SEX == "M") %>%
+  pivot_wider(
+    names_from = lights_phase,
+    values_from = total_relative_counts
+  ) %>%
+  mutate(delta_light_dark = lights_on - lights_off)
+
+t.test(
+  delta_light_dark ~ BPA_EXPOSURE,
+  data = deltam
+)
+
+delta_all <- phase_summary %>%
+  pivot_wider(
+    names_from = lights_phase,
+    values_from = total_relative_counts
+  ) %>%
+  mutate(delta_light_dark = lights_on - lights_off)
+
+delta_summary <- delta_all %>%
+  group_by(SEX, BPA_EXPOSURE) %>%
+  summarise(
+    mean_delta = mean(delta_light_dark, na.rm = TRUE),
+    sem_delta  = sd(delta_light_dark, na.rm = TRUE) / sqrt(n()),
+    n_ID = n(),
+    .groups = "drop"
+  )
+
+ggplot(delta_summary, aes(x = BPA_EXPOSURE, y = mean_delta, fill = BPA_EXPOSURE)) +
+  geom_col(alpha = 0.7, width = 0.6) +  # bars
+  geom_errorbar(
+    aes(ymin = mean_delta - sem_delta, ymax = mean_delta + sem_delta),
+    width = 0.2
+  ) +
+  geom_jitter(
+    data = delta_all,
+    aes(x = BPA_EXPOSURE, y = delta_light_dark, color = BPA_EXPOSURE),
+    width = 0.15,
+    size = 2,
+    alpha = 0.7,
+    inherit.aes = FALSE
+  ) +
+  facet_wrap(~ SEX) +
+  scale_fill_manual(values = c("NO" = "black", "YES" = "gray")) +
+  scale_color_manual(values = c("NO" = "black", "YES" = "gray")) +
+  labs(
+    x = "BPA Exposure",
+    y = "Delta (Lights ON – Lights OFF)",
+    fill = "BPA Exposure",
+    color = "BPA Exposure"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text = element_text(size = 11),
+    axis.title = element_text(size = 12),
+    strip.text = element_text(size = 12),
+    legend.position = "top"
+  )
+
+phase_plot_df <- phase_summary %>%
+  group_by(SEX, lights_phase, BPA_EXPOSURE) %>%
+  summarise(
+    mean_counts = mean(total_relative_counts, na.rm = TRUE),
+    sem_counts  = sd(total_relative_counts, na.rm = TRUE) / sqrt(n_distinct(ID)),
     n_ID = n_distinct(ID),
     .groups = "drop"
   )
 
-ical_long_allgroupedlights <- ical_long_allgroupedlights %>%
+phase_plot_df <- phase_plot_df %>%
   mutate(
-    hour_phase = case_when(
-      lights == "OFF" ~ factor(hour_label, levels = c(20:23, 0:5)),
-      lights == "ON"  ~ factor(hour_label, levels = 6:19)
+    lights_phase = factor(
+      lights_phase,
+      levels = c("lights_off", "lights_on"),
+      labels = c("Lights OFF", "Lights ON")
+    )
+  )
+
+phase_summary <- phase_summary %>%
+  mutate(
+    lights_phase = factor(
+      lights_phase,
+      levels = c("lights_off", "lights_on"),
+      labels = c("Lights OFF", "Lights ON")
     )
   )
 
 ggplot(
-  ical_long_allgroupedlights,
+  phase_plot_df,
   aes(
-    x = hour_phase,
+    x = lights_phase,
     y = mean_counts,
-    color = BPA_EXPOSURE,
-    fill  = BPA_EXPOSURE,
-    group = BPA_EXPOSURE
+    fill = BPA_EXPOSURE
   )
 ) +
-  geom_ribbon(
+  # Bars (means)
+  geom_col(
+    position = position_dodge(width = 0.75),
+    width = 0.65,
+    alpha = 0.7
+  ) +
+  # SEM error bars
+  geom_errorbar(
     aes(
       ymin = mean_counts - sem_counts,
       ymax = mean_counts + sem_counts
     ),
-    alpha = 0.25,
-    color = NA
+    width = 0.2,
+    position = position_dodge(width = 0.75)
   ) +
-  geom_line(size = 1) +
-  facet_grid(SEX ~ lights, scales = "free_x") +
+  # Individual animal points
+  geom_jitter(
+    data = phase_summary,
+    aes(
+      x = lights_phase,
+      y = total_relative_counts,
+      color = BPA_EXPOSURE
+    ),
+    position = position_jitterdodge(
+      jitter.width = 0.15,
+      dodge.width = 0.75
+    ),
+    size = 2,
+    alpha = 0.6,
+    inherit.aes = FALSE
+  ) +
+  facet_wrap(~ SEX) +
   labs(
-    x = "Time of day",
-    y = "Relative cumulative count (mean ± SEM)",
-    color = "BPA exposure",
-    fill  = "BPA exposure"
+    x = "Light cycle",
+    y = "Counts",
+    fill = "BPA exposure",
+    color = "BPA exposure"
   ) +
   theme_minimal() +
   theme(
-    axis.text.x = element_text(angle = 90, vjust = 0.5),
-    strip.text = element_text(size = 11)
-  )
+    strip.text = element_text(size = 12),
+    axis.text = element_text(size = 11),
+    axis.title = element_text(size = 12),
+    legend.position = "top"
+  ) +
+  # Set BPA_EXPOSURE colors manually
+  scale_fill_manual(values = c("NO" = "black", "YES" = "gray")) +
+  scale_color_manual(values = c("NO" = "black", "YES" = "gray"))
 
-ical_auc_data <- ical_long_all %>%
+#CORRELATION ----
+
+echoMRI_data_cor <- echoMRI_data_comparisons %>%
+  filter(n_measurement %in% c("0 days with O.D", "133 days with O.D")) %>%
+  select(ID, SEX, BPA_EXPOSURE, n_measurement, adiposity_index,COHORT) %>%
+  pivot_wider(
+    names_from  = n_measurement,
+    values_from = adiposity_index
+  ) %>%
   mutate(
-    time_in_phase = case_when(
-      lights == "OFF" ~ match(hour, c(20:23, 0:5)) - 1,
-      lights == "ON"  ~ match(hour, 6:19) - 1
-    )
-  )
-auc_per_ID <- ical_auc_data %>%
-  group_by(ID, SEX, BPA_EXPOSURE, lights) %>%
-  arrange(time_in_phase, .by_group = TRUE) %>%
+    delta_ai = `133 days with O.D` - `0 days with O.D`
+  ) %>% 
+  drop_na()
+
+
+delta_loco <- delta_all %>%
+  select(ID, SEX, BPA_EXPOSURE, delta_light_dark) %>%
+  drop_na(delta_light_dark)
+
+delta_loco %>% count(SEX, BPA_EXPOSURE)
+
+cor_df <- delta_loco %>%
+  left_join(
+    echoMRI_data_cor %>%
+      select(ID, delta_ai),
+    by = "ID"
+  ) %>%
+  drop_na(delta_ai)
+
+cor_df %>%
   summarise(
-    AUC = trapz(time_in_phase, relative_total_counts_lights),
-    .groups = "drop"
+    n_ID = n(),
+    missing_ai = sum(is.na(delta_ai)),
+    missing_loco = sum(is.na(delta_light_dark))
   )
 
-auc_wide <- auc_per_ID %>%
-  tidyr::pivot_wider(
-    names_from  = lights,
-    values_from = AUC,
-    names_prefix = "AUC_"
-  )
+cor_fem <- cor_df %>%
+  filter(SEX == "F")
 
-auc_per_ID %>% count(ID, lights)
-
-summary(auc_wide$AUC_OFF)
-summary(auc_wide$AUC_ON)
-
-auc_per_ID$ID <- factor(auc_per_ID$ID)
-
-model_auc <- aov(
-  AUC ~ SEX * BPA_EXPOSURE * lights + Error(ID / lights),
-  data = auc_per_ID
+cor.test(
+  cor_fem$delta_light_dark,
+  cor_fem$delta_ai,
+  method = "pearson"
 )
 
-summary(model_auc)
+# Compute correlation stats once
+cor_res <- cor.test(
+  cor_fem$delta_light_dark,
+  cor_fem$delta_ai,
+  method = "pearson"
+)
+
+label_text <- paste0(
+  "Pearson r = ", round(cor_res$estimate, 2), "\n",
+  "p = ", signif(cor_res$p.value, 2), "\n",
+  "n = ", nrow(cor_fem)
+)
+
+ggplot(cor_fem, aes(x = delta_light_dark, y = delta_ai, color = BPA_EXPOSURE)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", se = FALSE, color = "black") +
+  annotate(
+    "text",
+    x = Inf, y = Inf,
+    label = label_text,
+    hjust = 1.1, vjust = 1.1,
+    size = 4
+  ) +
+  scale_color_manual(values = c("NO" = "black", "YES" = "gray")) +
+  labs(
+    x = "Δ locomotion (Lights ON – Lights OFF)",
+    y = "Δ adiposity index",
+    color = "BPA exposure"
+  ) +
+  theme_minimal()
 
 ##heat####
 ical_data_heat_coh15 <- read_csv("~/Documents/GitHub/data/data/iCal_Kotz_082425_heat.csv") %>% 
@@ -1902,14 +2231,14 @@ summary_stats <- dams_data %>%
 
 # First, define fill manually: YES -> grey pattern, NO -> white
 summary_stats <- summary_stats %>%
-  mutate(fill_color = ifelse(BPA_EXPOSURE == "YES", "pattern", "white"))
+  mutate(fill_color = ifelse(BPA_EXPOSURE == "YES", "pattern", "black"))
 
 # Panel A example
 pA <- ggplot(summary_stats, aes(x = BPA_EXPOSURE, y = mean_gestation_days)) +
   # draw NO and YES bars separately
   geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="NO"),
            aes(y = mean_gestation_days),
-           fill = "white", color = "black", width = 0.6) +
+           fill = "black", color = "black", width = 0.6) +
   geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="YES"),
            aes(y = mean_gestation_days),
            fill = "gray", color = "black", width = 0.6) +
@@ -1924,7 +2253,7 @@ pA
 # Panel B: Liter size
 pB <- ggplot(summary_stats, aes(x = BPA_EXPOSURE, y = mean_Liter_size)) +
   geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="NO"),
-           fill = "white", color = "black", width = 0.6) +
+           fill = "black", color = "black", width = 0.6) +
   geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="YES"),
            fill = "gray", color = "black", width = 0.6) +
   geom_errorbar(aes(ymin = mean_Liter_size - sem_Liter_size,
@@ -1936,7 +2265,7 @@ pB <- ggplot(summary_stats, aes(x = BPA_EXPOSURE, y = mean_Liter_size)) +
 # Panel C: Female pups
 pC <- ggplot(summary_stats, aes(x = BPA_EXPOSURE, y = mean_female_pups)) +
   geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="NO"),
-           fill = "white", color = "black", width = 0.6) +
+           fill = "black", color = "black", width = 0.6) +
   geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="YES"),
            fill = "gray", color = "black", width = 0.6) +
   geom_errorbar(aes(ymin = mean_female_pups - sem_female_pups,
@@ -1948,7 +2277,7 @@ pC <- ggplot(summary_stats, aes(x = BPA_EXPOSURE, y = mean_female_pups)) +
 # Panel D: Male pups
 pD <- ggplot(summary_stats, aes(x = BPA_EXPOSURE, y = mean_male_pups)) +
   geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="NO"),
-           fill = "white", color = "black", width = 0.6) +
+           fill = "black", color = "black", width = 0.6) +
   geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="YES"),
            fill = "gray", color = "black", width = 0.6) +
   geom_errorbar(aes(ymin = mean_male_pups - sem_male_pups,
@@ -1960,7 +2289,7 @@ pD <- ggplot(summary_stats, aes(x = BPA_EXPOSURE, y = mean_male_pups)) +
 # Panel E: Female/male sex ratio
 pE <- ggplot(summary_stats, aes(x = BPA_EXPOSURE, y = mean_F_M_sexratio)) +
   geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="NO"),
-           fill = "white", color = "black", width = 0.6) +
+           fill = "black", color = "black", width = 0.6) +
   geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="YES"),
            fill = "gray", color = "black", width = 0.6) +
   geom_errorbar(aes(ymin = mean_F_M_sexratio - sem_F_M_sexratio,
