@@ -21,9 +21,6 @@ library(stringr)
 library(forcats)
 library(patchwork)
 library(ggpattern)
-library(broom)  # for tidy()
-
-
 
  # BW over time data----
 
@@ -31,6 +28,8 @@ METABPA <- read_csv("~/Documents/GitHub/data/data/METABPA.csv")
 
 BW_data <- read_csv("../data/BW.csv") %>% 
   filter(COHORT %in% c(15, 16)) %>% 
+  filter(!ID ==9367) %>%  # 9367 
+   filter(!ID %in% c(9367,9406)) %>%  # 9367 has confused data from basal measurements and 9406 has a  weird pattern in locomotion
   mutate(DATE = ymd(DATE)) %>% 
   arrange(DATE) %>% 
   group_by(ID) %>% 
@@ -67,19 +66,31 @@ BW_summary <- BW_data %>%
 
 plot_bw_sex <- ggplot(
   BW_summary,
-  aes(x = day_rel,
-      y = mean_BW,
-      color = BPA_EXPOSURE,
-      fill  = BPA_EXPOSURE)
+  aes(
+    x = day_rel,
+    y = mean_BW,
+    color = BPA_EXPOSURE,
+    fill  = BPA_EXPOSURE
+  )
 ) +
   geom_line(linewidth = 1) +
   geom_ribbon(
-    aes(ymin = mean_BW - sem_BW,
-        ymax = mean_BW + sem_BW),
+    aes(
+      ymin = mean_BW - sem_BW,
+      ymax = mean_BW + sem_BW
+    ),
     alpha = 0.25,
     color = NA
   ) +
-  facet_wrap(~ SEX*DIET_FORMULA) +
+  facet_wrap(
+    ~ SEX * DIET_FORMULA,
+    labeller = labeller(
+      DIET_FORMULA = c(
+        "D12450Hi" = "HCD",
+        "D12451i"  = "HFD"
+      )
+    )
+  ) +
   labs(
     x = "Days relative to first measurement",
     y = "Body weight (g)",
@@ -90,28 +101,47 @@ plot_bw_sex <- ggplot(
 
 plot_bw_sex
 
-#stats LME----
-# Females
-female_data <- BW_data %>%
-  filter(SEX == "F") %>%
-  mutate(day_rel_sc = scale(day_rel, center = TRUE, scale = TRUE))
-lme_female <- lmer(BW ~ BPA_EXPOSURE * DIET_FORMULA * day_rel_sc + (1|ID),
-                   data = female_data,
-                   control = lmerControl(optimizer = "bobyqa"))
-summary(lme_female)
-# scale day_rel the same way as in the model
-days_scaled <- scale(days_seq, center = TRUE, scale = TRUE)
+##STATS----
 
-# emmeans with day_rel_sc
-emm <- emmeans(lme_female, ~ BPA_EXPOSURE | day_rel_sc * DIET_FORMULA,
-               at = list(day_rel_sc = days_scaled))
+bw_fem_hcd <- BW_data %>%
+  filter(
+    SEX == "F",
+    DIET_FORMULA == "D12450Hi",
+    BPA_EXPOSURE %in% c("YES", "NO")
+  )
 
-# pairwise contrasts BPA YES vs NO
-pairwise <- contrast(emm, method = "pairwise", adjust = "bonferroni")
-pw_summary <- summary(pairwise)
+nrow(bw_fem_hcd)   # should be > 0
+table(bw_fem_hcd$BPA_EXPOSURE)
 
-# view first few rows
-head(pw_summary)
+m_bw <- lmer(
+  BW ~ day_rel * BPA_EXPOSURE + (1 | ID),
+  data = bw_fem_hcd
+)
+
+anova(m_bw)
+
+emm_day <- emmeans(
+  m_bw,
+  ~ BPA_EXPOSURE | day_rel,
+  at = list(day_rel = sort(unique(bw_fem_hcd$day_rel)))
+)
+
+day_contrasts <- contrast(
+  emm_day,
+  method = "pairwise",
+  adjust = "fdr"   # multiple testing correction
+)
+
+day_stats <- as.data.frame(day_contrasts)
+
+# first significant day
+sig_days <- day_stats %>%
+  filter(p.value < 0.05) %>%
+  arrange(day_rel)
+
+first_sig_day <- sig_days %>% slice(1)
+first_sig_day
+
 
 
 # check if BW of the four groups females with or without HFD and with or without BPA exposure had the same BW at day 0
@@ -303,14 +333,15 @@ echoMRI_data_comparisons <- echoMRI_data %>%
       COHORT == 15 & Date == "2025-04-29" ~ "0 wks",
       COHORT == 16 & Date == "2025-08-04" ~ "0 wks",
       COHORT == 15 & Date == "2025-05-28" ~ "3 wks",
-      COHORT == 16 & Date == "2025-09-09" ~ "3 wks", #really this is 5wks
+      COHORT == 16 & Date == "2025-09-09" ~ "3 wks", #really this is 5 wks
       COHORT == 15 & Date == "2025-07-07" ~ "9 wks",
       COHORT == 16 & Date == "2025-10-07" ~ "9 wks",
       COHORT == 15 & Date == "2025-08-01" ~ "12 wks",
       COHORT == 16 & Date == "2025-11-17" ~ "12 wks", #really this is 15 wks
       COHORT == 15 & Date == "2025-09-09" ~ "18 wks",
       COHORT == 16 & Date == "2025-12-18" ~ "18 wks",#really this is 19 wks
-      COHORT == 15 & Date == "2025-10-07" ~ "22 wks"
+      COHORT == 15 & Date == "2025-10-07" ~ "22 wks",
+      COHORT == 16 & Date == "2026-01-09" ~ "22 wks"
      ))
 
 bodycomp_summary <- echoMRI_data_comparisons %>%
