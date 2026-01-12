@@ -48,8 +48,8 @@ BW_data <- read_csv("../data/BW.csv") %>%
     DIET_FORMULA = DIET_FORMULA.x
   )
 
-BW_data %>% 
-  group_by(SEX,BPA_EXPOSURE, DIET_FORMULA) %>%
+BW_data  %>% 
+  group_by(SEX,BPA_EXPOSURE,DIET_FORMULA) %>%
   summarise(n_ID = n_distinct(ID)) 
 
 
@@ -103,6 +103,7 @@ plot_bw_sex
 
 ##STATS----
 
+## females in HCD----
 bw_fem_hcd <- BW_data %>%
   filter(
     SEX == "F",
@@ -113,36 +114,129 @@ bw_fem_hcd <- BW_data %>%
 nrow(bw_fem_hcd)   # should be > 0
 table(bw_fem_hcd$BPA_EXPOSURE)
 
-m_bw <- lmer(
+fem_bw_hcd <- lmer(
   BW ~ day_rel * BPA_EXPOSURE + (1 | ID),
   data = bw_fem_hcd
 )
 
-anova(m_bw)
+anova(fem_bw_hcd)
 
-emm_day <- emmeans(
-  m_bw,
+emm_day_fem_hcd <- emmeans(
+  fem_bw_hcd,
   ~ BPA_EXPOSURE | day_rel,
   at = list(day_rel = sort(unique(bw_fem_hcd$day_rel)))
 )
 
-day_contrasts <- contrast(
-  emm_day,
+day_contrasts_fem_hcd <- contrast(
+  emm_day_fem_hcd,
   method = "pairwise",
   adjust = "fdr"   # multiple testing correction
 )
 
-day_stats <- as.data.frame(day_contrasts)
+day_stats_fem_hcd <- as.data.frame(day_contrasts_fem_hcd) 
+#so for females in HCD after day 49 BPA females are heavier than non BPA females
 
-# first significant day
-sig_days <- day_stats %>%
-  filter(p.value < 0.05) %>%
-  arrange(day_rel)
+## females in HFD----
 
-first_sig_day <- sig_days %>% slice(1)
-first_sig_day
+bw_fem_hfd <- BW_data %>%
+  filter(
+    SEX == "F",
+    DIET_FORMULA == "D12451i",
+    BPA_EXPOSURE %in% c("YES", "NO")
+  )
 
+nrow(bw_fem_hfd)   # should be > 0
+table(bw_fem_hfd$BPA_EXPOSURE)
 
+fem_bw_hfd <- lmer(
+  BW ~ day_rel * BPA_EXPOSURE + (1 | ID),
+  data = bw_fem_hfd
+)
+
+anova(fem_bw_hfd)
+
+emm_day_fem_hfd <- emmeans(
+  fem_bw_hfd,
+  ~ BPA_EXPOSURE | day_rel,
+  at = list(day_rel = sort(unique(bw_fem_hfd$day_rel)))
+)
+
+day_contrasts_fem_hfd <- contrast(
+  emm_day_fem_hfd,
+  method = "pairwise",
+  adjust = "fdr"   # multiple testing correction
+)
+
+day_stats_fem_hfd <- as.data.frame(day_contrasts_fem_hfd) 
+#so for females in HFD after day 35 BPA females are heavier than non BPA females
+
+## males in HCD----
+
+bw_male_hcd <- BW_data %>%
+  filter(
+    SEX == "M",
+    DIET_FORMULA == "D12450Hi",
+    BPA_EXPOSURE %in% c("YES", "NO")
+  )
+
+nrow(bw_male_hcd)   # should be > 0
+table(bw_male_hcd$BPA_EXPOSURE)
+
+male_bw_hcd <- lmer(
+  BW ~ day_rel * BPA_EXPOSURE + (1 | ID),
+  data = bw_male_hcd
+)
+
+anova(male_bw_hcd)
+
+emm_day_male_hcd <- emmeans(
+  male_bw_hcd,
+  ~ BPA_EXPOSURE | day_rel,
+  at = list(day_rel = sort(unique(bw_male_hcd$day_rel)))
+)
+
+day_contrasts_male_hcd <- contrast(
+  emm_day_male_hcd,
+  method = "pairwise",
+  adjust = "fdr"   # multiple testing correction
+)
+
+day_stats_male_hcd <- as.data.frame(day_contrasts_male_hcd) 
+#so for there is no days in which BPA males are heavier than non-BPA males
+
+## males in HFD----
+
+bw_male_hfd <- BW_data %>%
+  filter(
+    SEX == "M",
+    DIET_FORMULA == "D12451i",
+    BPA_EXPOSURE %in% c("YES", "NO")
+  )
+
+nrow(bw_male_hfd)   # should be > 0
+table(bw_male_hfd$BPA_EXPOSURE)
+
+male_bw_hfd <- lmer(
+  BW ~ day_rel * BPA_EXPOSURE + (1 | ID),
+  data = bw_male_hfd
+)
+
+anova(male_bw_hfd)
+
+emm_day_male_hfd <- emmeans(
+  male_bw_hfd,
+  ~ BPA_EXPOSURE | day_rel,
+  at = list(day_rel = sort(unique(bw_male_hfd$day_rel)))
+)
+
+day_contrasts_male_hfd <- contrast(
+  emm_day_male_hfd,
+  method = "pairwise",
+  adjust = "fdr"   # multiple testing correction
+)
+
+day_stats_male_hfd <- as.data.frame(day_contrasts_male_hfd) 
+#so for there is no days in which BPA males are heavier than non-BPA males
 
 # check if BW of the four groups females with or without HFD and with or without BPA exposure had the same BW at day 0
 
