@@ -260,6 +260,138 @@ anova(lm_day0)
 emmeans_day0 <- emmeans(lm_day0, ~ BPA_EXPOSURE | DIET_FORMULA)
 contrast(emmeans_day0, method = "pairwise") #the animals have not differences in BW at day 0 within each diet
 
+#paper plot
+
+shade_df <- tibble(
+  SEX = c("F", "F"),
+  DIET_FORMULA = c("D12450Hi", "D12451i"),
+  xmin = c(49, 35),
+  xmax = Inf,
+  ymin = -Inf,
+  ymax = Inf
+)
+
+plot_bw_sex <- ggplot(
+  BW_summary,
+  aes(
+    x = day_rel,
+    y = mean_BW,
+    color = BPA_EXPOSURE,
+    fill  = BPA_EXPOSURE
+  )
+) +
+  geom_rect(
+    data = shade_df,
+    aes(
+      xmin = xmin,
+      xmax = xmax,
+      ymin = ymin,
+      ymax = ymax
+    ),
+    inherit.aes = FALSE,
+    fill = "grey70",
+    alpha = 0.35
+  ) +
+  geom_line(linewidth = 1) +
+  geom_ribbon(
+    aes(
+      ymin = mean_BW - sem_BW,
+      ymax = mean_BW + sem_BW
+    ),
+    alpha = 0.25,
+    color = NA
+  ) +
+  facet_wrap(
+    ~ SEX * DIET_FORMULA,
+    labeller = labeller(
+      DIET_FORMULA = c(
+        "D12450Hi" = "HCD",
+        "D12451i"  = "HFD"
+      )
+    )
+  ) +
+  labs(
+    x = "Days relative to first measurement",
+    y = "Body weight (g)",
+    color = "BPA exposure",
+    fill  = "BPA exposure"
+  ) +
+  theme_classic(base_size = 14)
+
+plot_bw_sex
+
+BW_data <- BW_data %>%
+  mutate(
+    week_rel = day_rel / 7
+  )
+BW_data <- BW_data %>%
+  mutate(
+    week_rel = floor(day_rel / 7)
+  )
+BW_summary <- BW_data %>%
+  group_by(week_rel, BPA_EXPOSURE, SEX, DIET_FORMULA) %>%
+  summarise(
+    mean_BW = mean(BW, na.rm = TRUE),
+    sem_BW  = sd(BW, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+shade_df <- tibble(
+  SEX = c("F", "F"),
+  DIET_FORMULA = c("D12450Hi", "D12451i"),
+  xmin = c(7, 5),
+  xmax = Inf,
+  ymin = -Inf,
+  ymax = Inf
+)
+
+plot_bw_sex <- ggplot(
+  BW_summary,
+  aes(
+    x = week_rel,
+    y = mean_BW,
+    color = BPA_EXPOSURE,
+    fill  = BPA_EXPOSURE
+  )
+) +
+  geom_rect(
+    data = shade_df,
+    aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax),
+    inherit.aes = FALSE,
+    fill = "grey70",
+    alpha = 0.35
+  ) +
+  geom_line(linewidth = 1) +
+  geom_ribbon(
+    aes(
+      ymin = mean_BW - sem_BW,
+      ymax = mean_BW + sem_BW
+    ),
+    alpha = 0.25,
+    color = NA
+  ) +
+  facet_wrap(
+    ~ SEX * DIET_FORMULA,
+    labeller = labeller(
+      DIET_FORMULA = c(
+        "D12450Hi" = "HCD",
+        "D12451i"  = "HFD"
+      )
+    )
+  ) +
+  labs(
+    x = "Weeks",
+    y = "Body weight (g)",
+    color = "BPA exposure",
+    fill  = "BPA exposure"
+  ) +
+  theme_classic(base_size = 14)
+
+plot_bw_sex
+
+
+
+
 # BW gain over time data----
 
 BW_gain <- BW_data %>% 
