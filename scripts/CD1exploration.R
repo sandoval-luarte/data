@@ -528,11 +528,12 @@ combined_plot
 
 echoMRI_data <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
   filter(COHORT %in% c(15,16)) %>% 
-   filter(!ID ==9367) %>%  # 9367 and 9368 have confused data from 8/1/25 echoMRI 
+  # filter(!ID ==9367) %>%  # 9367 and 9368 have confused data from 8/1/25 echoMRI 
  # filter(!ID %in% c(9354, 9367, 9368, 9414,9406)) %>%  # 9367 and 9368 have confused data from 8/1/25 echoMRI 
   # 9354 lack of complete schedule of measurements in echoMRI
   # 9414 lack of complete schedule of measurements (lack of basal) in echoMRI
   # 9406 weird pattern in locomotion
+  filter(!ID %in% c(9367,9406)) %>%  # 9367 has confused data from basal measurements and 9406 has a  weird pattern in locomotion
   group_by(ID) %>%
   arrange(Date) %>% 
   select(ID, Date, Fat, Lean, Weight, adiposity_index,COHORT,DIET_FORMULA) %>% 
@@ -594,7 +595,7 @@ bodycomp_summary <- echoMRI_data_comparisons %>%
   ungroup()
 
 
-## plot 1 males and females ----
+## plot 1 ADIPOSITY INDEX males and females ----
 p1 <- ggplot(bodycomp_summary,
              aes(x = n_measurement,
                  y = mean_AI,
@@ -617,104 +618,78 @@ p1 <- ggplot(bodycomp_summary,
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 p1
 
-# LME model: AI ~ time * BPA_EXPOSURE * SEX + random intercept for ID
-lmer_AI <- lmer(adiposity_index ~ n_measurement * BPA_EXPOSURE * SEX +
-                  (1 | ID),
-                data = echoMRI_data_comparisons)
-emm_AI <- emmeans(lmer_AI, ~ BPA_EXPOSURE | SEX * n_measurement)
-AI_contrasts <- contrast(emm_AI, method = "pairwise", adjust = "bonferroni") %>%
-  summary(infer = TRUE) %>%
-  as.data.frame() %>%
-  select(SEX, n_measurement, contrast, estimate, SE, df, t.ratio, p.value)
-AI_first_sig <- AI_contrasts %>%
-  filter(p.value < 0.05) %>%
-  group_by(SEX) %>%
-  slice_min(n_measurement)  # first day with significant difference
-AI_contrasts
+echoMRI_data_comparisons <- echoMRI_data_comparisons %>%
+  mutate(
+    n_measurement = factor(
+      n_measurement,
+      levels = c("0 wks", "3 wks", "9 wks", "12 wks", "18 wks", "22 wks")
+    )
+  )
 
-## AI with diet_formula FEMALES----
 
-bodycomp_summarydiet <- echoMRI_data_comparisons %>%
-  filter(SEX=="F") %>% 
-  group_by(n_measurement, BPA_EXPOSURE,DIET_FORMULA) %>%
-  summarise(
-    mean_AI = mean(adiposity_index, na.rm = TRUE),
-    sem_AI  = sd(adiposity_index, na.rm = TRUE) / sqrt(n()),
-    mean_fat = mean(Fat, na.rm = TRUE),
-    sem_fat  = sd(Fat, na.rm = TRUE) / sqrt(n()),
-    mean_lean = mean(Lean, na.rm = TRUE),
-    sem_lean  = sd(Lean, na.rm = TRUE) / sqrt(n()),
-    n = n(),
-    .groups = "drop"
-  ) %>% 
-  mutate(n_measurement = factor(n_measurement, levels = c("0 days with O.D",
-                                                          "35 days with O.D",
-                                                          "63 days with O.D",
-                                                          "98 days with O.D",
-                                                          "133 days with O.D",
-                                                          "150 days with O.D"))) %>% 
-  filter(n_measurement %in% c("98 days with O.D",
-                              "133 days with O.D",
-                              "150 days with O.D")) %>% 
-  ungroup()
+ai_fem_hcd <- echoMRI_data_comparisons %>%
+  filter(
+    SEX == "F",
+    DIET_FORMULA == "D12450Hi",
+    BPA_EXPOSURE %in% c("YES", "NO")
+  )
 
-## plot 2 females per diet formula ----
-p2 <- ggplot(bodycomp_summarydiet,
-             aes(x = n_measurement,
-                 y = mean_AI,
-                 color = BPA_EXPOSURE,
-                 fill  = BPA_EXPOSURE,
-                 group = BPA_EXPOSURE)) +
-  geom_line(size = 1) +
-  geom_ribbon(aes(ymin = mean_AI - sem_AI,
-                  ymax = mean_AI + sem_AI),
-              alpha = 0.25,
-              color = NA) +
-  facet_wrap(~ DIET_FORMULA) +
-  labs(
-    title = "                      Females",
-    x = "Days of measurement",
-    y = "adiposity index (fat/lean mass)",
-    color = "BPA exposure",
-    fill  = "BPA exposure"
-  ) +
-  theme_classic(base_size = 14) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+table(ai_fem_hcd$BPA_EXPOSURE)
 
-# Combine plots vertically
-combined_plot <- p1 / p2
-combined_plot
+fem_ai_hcd <- lmer(
+  adiposity_index ~ n_measurement * BPA_EXPOSURE + (1 | ID),
+  data = ai_fem_hcd
+)
 
-## LMER females AI from day 98----
+anova(fem_ai_hcd)
 
-# Filter for females and days >= 98
+emm_fem_ai_hcd <- emmeans(
+  fem_ai_hcd,
+  ~ BPA_EXPOSURE | n_measurement
+)
 
-echoMRI_females_post98 <- echoMRI_data_comparisons %>%
-  filter(SEX == "F") %>%
-  mutate(n_measurement_days = case_when(
-    n_measurement == "0 days with O.D"   ~ 0,
-    n_measurement == "35 days with O.D"  ~ 35,
-    n_measurement == "63 days with O.D"  ~ 63,
-    n_measurement == "98 days with O.D"  ~ 98,
-    n_measurement == "133 days with O.D" ~ 133,
-    n_measurement == "150 days with O.D" ~ 150
-  )) %>%
-  filter(n_measurement_days >= 98)
+contr_fem_ai_hcd <- contrast(
+  emm_fem_ai_hcd,
+  method = "pairwise",
+  adjust = "fdr"
+)
 
-# Fit LME model including diet
-lmer_AI_females_post98 <- lmer(adiposity_index ~ n_measurement * BPA_EXPOSURE + DIET_FORMULA + (1 | ID),
-                               data = echoMRI_females_post98)
+ai_stats_fem_hcd <- as.data.frame(contr_fem_ai_hcd)
+ai_stats_fem_hcd
 
-emm_AI_females_post98 <- emmeans(lmer_AI_females_post98, ~ BPA_EXPOSURE | n_measurement * DIET_FORMULA)
-AI_contrasts_females_post98 <- contrast(emm_AI_females_post98, method = "pairwise", adjust = "none") %>%
-  summary(infer = TRUE) %>%
-  as.data.frame() %>%
-  select(n_measurement, DIET_FORMULA, contrast, estimate, SE, df, t.ratio, p.value)
-AI_contrasts_females_post98
+ai_fem_hfd <- echoMRI_data_comparisons %>%
+  filter(
+    SEX == "F",
+    DIET_FORMULA == "D12451i",
+    BPA_EXPOSURE %in% c("YES", "NO")
+  )
 
-## fat mass ----
-## plot 1 males and females ----
-p1fat <- ggplot(bodycomp_summary,
+table(ai_fem_hfd$BPA_EXPOSURE)
+
+fem_ai_hfd <- lmer(
+  adiposity_index ~ n_measurement * BPA_EXPOSURE + (1 | ID),
+  data = ai_fem_hfd
+)
+
+anova(fem_ai_hfd)
+
+emm_fem_ai_hfd <- emmeans(
+  fem_ai_hfd,
+  ~ BPA_EXPOSURE | n_measurement
+)
+
+contr_fem_ai_hfd <- contrast(
+  emm_fem_ai_hfd,
+  method = "pairwise",
+  adjust = "fdr"
+)
+
+ai_stats_fem_hfd <- as.data.frame(contr_fem_ai_hfd)
+ai_stats_fem_hfd
+
+
+## plot 2 FAT MASS males and females ----
+p2 <- ggplot(bodycomp_summary,
              aes(x = n_measurement,
                  y = mean_fat,
                  color = BPA_EXPOSURE,
@@ -725,35 +700,79 @@ p1fat <- ggplot(bodycomp_summary,
                   ymax = mean_fat + sem_fat),
               alpha = 0.25,
               color = NA) +
-  facet_wrap(~ SEX) +
+  facet_wrap(~ SEX*DIET_FORMULA) +
   labs(
     x = "Days of measurement",
-    y = "fat mass (g)",
+    y = "Fat mass (g)",
     color = "BPA exposure",
     fill  = "BPA exposure"
   ) +
   theme_classic(base_size = 14) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
-p1fat
+p2
 
-# LME model: AI ~ time * BPA_EXPOSURE * SEX + random intercept for ID
-lmer_fat <- lmer(Fat ~ n_measurement * BPA_EXPOSURE * SEX +
-                  (1 | ID),
-                data = echoMRI_data_comparisons)
-emm_fat <- emmeans(lmer_fat, ~ BPA_EXPOSURE | SEX * n_measurement)
-fat_contrasts <- contrast(emm_fat, method = "pairwise", adjust = "bonferroni") %>%
-  summary(infer = TRUE) %>%
-  as.data.frame() %>%
-  select(SEX, n_measurement, contrast, estimate, SE, df, t.ratio, p.value)
-fat_first_sig <- fat_contrasts %>%
-  filter(p.value < 0.05) %>%
-  group_by(SEX) %>%
-  slice_min(n_measurement)  # first day with significant difference
-fat_contrasts
+fat_fem_hcd <- echoMRI_data_comparisons %>%
+  filter(
+    SEX == "F",
+    DIET_FORMULA == "D12450Hi",
+    BPA_EXPOSURE %in% c("YES", "NO")
+  )
 
-## lean mass ----
-## plot 1 males and females ----
-p1lean <- ggplot(bodycomp_summary,
+table(fat_fem_hcd$BPA_EXPOSURE)
+
+fem_fat_hcd <- lmer(
+  Fat ~ n_measurement * BPA_EXPOSURE + (1 | ID),
+  data = fat_fem_hcd
+)
+
+anova(fem_fat_hcd)
+
+emm_fem_fat_hcd <- emmeans(
+  fem_fat_hcd,
+  ~ BPA_EXPOSURE | n_measurement
+)
+
+contr_fem_fat_hcd <- contrast(
+  emm_fem_fat_hcd,
+  method = "pairwise",
+  adjust = "fdr"
+)
+
+fat_stats_fem_hcd <- as.data.frame(contr_fem_fat_hcd)
+fat_stats_fem_hcd
+
+fat_fem_hfd <- echoMRI_data_comparisons %>%
+  filter(
+    SEX == "F",
+    DIET_FORMULA == "D12451i",
+    BPA_EXPOSURE %in% c("YES", "NO")
+  )
+
+table(fat_fem_hfd$BPA_EXPOSURE)
+
+fem_fat_hfd <- lmer(
+  Fat ~ n_measurement * BPA_EXPOSURE + (1 | ID),
+  data = fat_fem_hfd
+)
+
+anova(fem_fat_hfd)
+
+emm_fem_fat_hfd <- emmeans(
+  fem_fat_hfd,
+  ~ BPA_EXPOSURE | n_measurement
+)
+
+contr_fem_fat_hfd <- contrast(
+  emm_fem_fat_hfd,
+  method = "pairwise",
+  adjust = "fdr"
+)
+
+fat_stats_fem_hfd <- as.data.frame(contr_fem_fat_hfd)
+fat_stats_fem_hfd
+
+## plot 3 LEAN MASS males and females ----
+p3 <- ggplot(bodycomp_summary,
              aes(x = n_measurement,
                  y = mean_lean,
                  color = BPA_EXPOSURE,
@@ -764,38 +783,77 @@ p1lean <- ggplot(bodycomp_summary,
                   ymax = mean_lean + sem_lean),
               alpha = 0.25,
               color = NA) +
-  facet_wrap(~ SEX) +
+  facet_wrap(~ SEX*DIET_FORMULA) +
   labs(
     x = "Days of measurement",
-    y = "lean mass (g)",
+    y = "Lean mass (g)",
     color = "BPA exposure",
     fill  = "BPA exposure"
   ) +
   theme_classic(base_size = 14) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
-p1lean
+p3
 
-# fat and lean plot combined----
+lean_fem_hcd <- echoMRI_data_comparisons %>%
+  filter(
+    SEX == "F",
+    DIET_FORMULA == "D12450Hi",
+    BPA_EXPOSURE %in% c("YES", "NO")
+  )
 
-# Combine plots vertically
-combined_plot <- p1fat / p1lean
-combined_plot
+table(lean_fem_hcd$BPA_EXPOSURE)
 
+fem_lean_hcd <- lmer(
+  Lean ~ n_measurement * BPA_EXPOSURE + (1 | ID),
+  data = lean_fem_hcd
+)
 
-# LME model: AI ~ time * BPA_EXPOSURE * SEX + random intercept for ID
-lmer_lean <- lmer(Lean ~ n_measurement * BPA_EXPOSURE * SEX +
-                   (1 | ID),
-                 data = echoMRI_data_comparisons)
-emm_lean <- emmeans(lmer_lean, ~ BPA_EXPOSURE | SEX * n_measurement)
-lean_contrasts <- contrast(emm_lean, method = "pairwise", adjust = "bonferroni") %>%
-  summary(infer = TRUE) %>%
-  as.data.frame() %>%
-  select(SEX, n_measurement, contrast, estimate, SE, df, t.ratio, p.value)
-lean_first_sig <- lean_contrasts %>%
-  filter(p.value < 0.05) %>%
-  group_by(SEX) %>%
-  slice_min(n_measurement)  # first day with significant difference
-lean_contrasts
+anova(fem_lean_hcd)
+
+emm_fem_lean_hcd <- emmeans(
+  fem_lean_hcd,
+  ~ BPA_EXPOSURE | n_measurement
+)
+
+contr_fem_lean_hcd <- contrast(
+  emm_fem_lean_hcd,
+  method = "pairwise",
+  adjust = "fdr"
+)
+
+lean_stats_fem_hcd <- as.data.frame(contr_fem_lean_hcd)
+lean_stats_fem_hcd
+
+lean_fem_hfd <- echoMRI_data_comparisons %>%
+  filter(
+    SEX == "F",
+    DIET_FORMULA == "D12451i",
+    BPA_EXPOSURE %in% c("YES", "NO")
+  )
+
+table(lean_fem_hfd$BPA_EXPOSURE)
+
+fem_lean_hfd <- lmer(
+  Lean ~ n_measurement * BPA_EXPOSURE + (1 | ID),
+  data = lean_fem_hfd
+)
+
+anova(fem_lean_hfd)
+
+emm_fem_lean_hfd <- emmeans(
+  fem_lean_hfd,
+  ~ BPA_EXPOSURE | n_measurement
+)
+
+contr_fem_lean_hfd <- contrast(
+  emm_fem_lean_hfd,
+  method = "pairwise",
+  adjust = "fdr"
+)
+
+lean_stats_fem_hfd <- as.data.frame(contr_fem_lean_hfd)
+lean_stats_fem_hfd
+
 
 
 # OGTT----
