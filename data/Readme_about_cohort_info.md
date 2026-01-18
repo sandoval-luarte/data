@@ -20,6 +20,8 @@ COHORT 13: C57BL/6J - Laurie Eegap project (IP RTIOXA-47) VA
 COHORT 14: C57BL/6J young - Eegap project (second cohort experiment acute IP RTIOXA-43 and RTIOXA-47 10 mg/kg for 5 days) 2303-40942A 
 COHORT 15: CD-1 young - BPA project 2409-42370A
 COHORT 16: CD-1 young - BPA project 2409-42370A
+COHORT 17: OREXIN-Cre young - uncertainty project 2409-42368A 
+
 
 # Raw_data
 
