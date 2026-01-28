@@ -21,6 +21,7 @@ library(stringr)
 library(forcats)
 library(patchwork)
 library(ggpattern)
+library(car)
 
  # BW over time data----
 
@@ -858,7 +859,9 @@ lean_stats_fem_hfd
 
 # OGTT----
 
-#OGTT WAS DONE JUST FOR COHORT 15 WHEN ALL ANIMALS WERE 27 WEEK OLD
+#OGTT WAS DONE FOR COHORT 15 AND 16 WHEN ALL ANIMALS WERE 27 WEEK OLD
+
+METABPA <- read_csv("~/Documents/GitHub/data/data/METABPA.csv")
 
 OGTT <- read_csv("~/Documents/GitHub/data/data/OGTT_CD1.csv") %>% 
   mutate(DATE = mdy(DATE)) %>% 
@@ -884,7 +887,7 @@ ogtt_long %>%
 
 auc_df <- ogtt_long %>% 
   arrange(ID, time_min) %>% 
-  group_by(ID, BPA_EXPOSURE,SEX) %>% 
+  group_by(ID, BPA_EXPOSURE,SEX,DIET_FORMULA) %>% 
   summarise(
     AUC = trapz(time_min, glucose),
     .groups = "drop"
@@ -894,25 +897,132 @@ ggplot(auc_df, aes(x = BPA_EXPOSURE, y = AUC)) +
   geom_jitter(width = 0.1, alpha = 0.6) +
   stat_summary(fun = mean, geom = "point", size = 3) +
   stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.2) +
- facet_wrap(~ SEX) +
+ facet_wrap(~ SEX*DIET_FORMULA) +
   labs(
     x = "BPA exposure",
     y = "Glucose AUC (0–90 min)"
   ) +
   theme_classic()
 
-## two way anova for AUC (SEX x BPA)----
+## STATS----
+###females in HCD----
 
-auc_df$BPA_EXPOSURE <- factor(auc_df$BPA_EXPOSURE)
-auc_df$SEX <- factor(auc_df$SEX)
+ogtt_fem_hcd <- auc_df %>%
+  filter(
+    SEX == "F",
+    DIET_FORMULA == "D12450Hi",
+    BPA_EXPOSURE %in% c("YES", "NO")
+  )
 
-model <- aov(AUC ~ BPA_EXPOSURE * SEX , data = auc_df)
+nrow(ogtt_fem_hcd)   # should be > 0
+table(ogtt_fem_hcd$BPA_EXPOSURE)
+
+by(
+  ogtt_fem_hcd$AUC,
+  ogtt_fem_hcd$BPA_EXPOSURE,
+  shapiro.test
+)
+
+leveneTest(AUC ~ BPA_EXPOSURE, data = ogtt_fem_hcd)
+
+t.test(
+  AUC ~ BPA_EXPOSURE,
+  data = ogtt_fem_hcd
+)
+
+###females in HFD----
+
+ogtt_fem_hfd <- auc_df %>%
+  filter(
+    SEX == "F",
+    DIET_FORMULA == "D12451i",
+    BPA_EXPOSURE %in% c("YES", "NO")
+  )
+
+nrow(ogtt_fem_hfd)   # should be > 0
+table(ogtt_fem_hfd$BPA_EXPOSURE)
+
+by(
+  ogtt_fem_hfd$AUC,
+  ogtt_fem_hfd$BPA_EXPOSURE,
+  shapiro.test
+)
+
+
+leveneTest(AUC ~ BPA_EXPOSURE, data = ogtt_fem_hfd)
+
+t.test(
+  AUC ~ BPA_EXPOSURE,
+  data = ogtt_fem_hfd
+)
+
+###males in HCD----
+
+ogtt_m_hcd <- auc_df %>%
+  filter(
+    SEX == "M",
+    DIET_FORMULA == "D12450Hi",
+    BPA_EXPOSURE %in% c("YES", "NO")
+  )
+
+nrow(ogtt_m_hcd)   # should be > 0
+table(ogtt_m_hcd$BPA_EXPOSURE)
+
+by(
+  ogtt_m_hcd$AUC,
+  ogtt_m_hcd$BPA_EXPOSURE,
+  shapiro.test
+)
+
+leveneTest(AUC ~ BPA_EXPOSURE, data = ogtt_m_hcd)
+
+t.test(
+  AUC ~ BPA_EXPOSURE,
+  data = ogtt_m_hcd
+)
+
+###males in HFD----
+
+ogtt_m_hfd <- auc_df %>%
+  filter(
+    SEX == "M",
+    DIET_FORMULA == "D12451i",
+    BPA_EXPOSURE %in% c("YES", "NO")
+  )
+
+nrow(ogtt_m_hfd)   # should be > 0
+table(ogtt_m_hfd$BPA_EXPOSURE)
+
+by(
+  ogtt_m_hfd$AUC,
+  ogtt_m_hfd$BPA_EXPOSURE,
+  shapiro.test
+)
+
+
+leveneTest(AUC ~ BPA_EXPOSURE, data = ogtt_m_hfd)
+
+t.test(
+  AUC ~ BPA_EXPOSURE,
+  data = ogtt_m_hfd
+)
+
+### Does BPA exposure affect OGTT AUC differently in females vs males, regardless of diet?----
+
+auc_sex_bpa <- auc_df %>%
+  filter(BPA_EXPOSURE %in% c("YES", "NO"))
+
+auc_sex_bpa %>%
+  group_by(SEX, BPA_EXPOSURE) %>%
+  summarise(n = n(), .groups = "drop")
+
+model <- lm(AUC ~ SEX * BPA_EXPOSURE, data = auc_sex_bpa)
+
 summary(model)
+anova(model)
 
-#Males clearly have higher AUCs than females (F) overall
-#There is no statistically supported difference between
-#BPA-exposed and non-exposed females (p=0.52) non-significant BPA × SEX interaction
-#there is a trend (p=0.06) for HFD to increased AUC
+#A significant main effect of sex was observed, with males exhibiting higher AUC values than females
+#independent of BPA exposure
 
 
 # FI over time data----
