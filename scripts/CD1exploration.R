@@ -260,7 +260,6 @@ anova(lm_day0)
 emmeans_day0 <- emmeans(lm_day0, ~ BPA_EXPOSURE | DIET_FORMULA)
 contrast(emmeans_day0, method = "pairwise") #the animals have not differences in BW at day 0 within each diet
 
-#paper plot
 
 shade_df <- tibble(
   SEX = c("F", "F"),
@@ -319,6 +318,8 @@ plot_bw_sex <- ggplot(
   theme_classic(base_size = 14)
 
 plot_bw_sex
+
+# paper figure 1 plot----
 
 BW_data <- BW_data %>%
   mutate(
@@ -409,6 +410,145 @@ BW_gainsummary <- BW_gain %>%
     .groups = "drop"
   )
 
+## STATS----
+#### females in HCD----
+bw_gain_fem_hcd <- BW_gain %>%
+  filter(
+    SEX == "F",
+    DIET_FORMULA == "D12450Hi",
+    BPA_EXPOSURE %in% c("YES", "NO")
+  )
+
+nrow(bw_gain_fem_hcd)
+table(bw_gain_fem_hcd$BPA_EXPOSURE)
+
+fem_gain_hcd <- lmer(
+  bw_rel ~ week_rel * BPA_EXPOSURE + (1 | ID),
+  data = bw_gain_fem_hcd
+)
+
+anova(fem_gain_hcd)
+
+emm_week_fem_hcd <- emmeans(
+  fem_gain_hcd,
+  ~ BPA_EXPOSURE | week_rel,
+  at = list(week_rel = sort(unique(bw_gain_fem_hcd$week_rel)))
+)
+
+week_contrasts_fem_hcd <- contrast(
+  emm_week_fem_hcd,
+  method = "pairwise",
+  adjust = "fdr"
+)
+
+week_stats_fem_hcd <- as.data.frame(week_contrasts_fem_hcd)
+#There were no weeks in which BPA-exposed females fed HCD exhibited a greater 
+#percentage body-weight gain than non-BPA females
+
+#### females in HFD----
+bw_gain_fem_hfd <- BW_gain %>%
+  filter(
+    SEX == "F",
+    DIET_FORMULA == "D12451i",
+    BPA_EXPOSURE %in% c("YES", "NO")
+  )
+
+nrow(bw_gain_fem_hfd)
+table(bw_gain_fem_hfd$BPA_EXPOSURE)
+
+fem_gain_hfd <- lmer(
+  bw_rel ~ week_rel * BPA_EXPOSURE + (1 | ID),
+  data = bw_gain_fem_hfd
+)
+
+anova(fem_gain_hfd)
+
+emm_week_fem_hfd <- emmeans(
+  fem_gain_hfd,
+  ~ BPA_EXPOSURE | week_rel,
+  at = list(week_rel = sort(unique(bw_gain_fem_hfd$week_rel)))
+)
+
+week_contrasts_fem_hfd <- contrast(
+  emm_week_fem_hfd,
+  method = "pairwise",
+  adjust = "fdr"
+)
+
+week_stats_fem_hfd <- as.data.frame(week_contrasts_fem_hfd)
+#There were no weeks in which BPA-exposed females fed HFD exhibited a greater 
+#percentage body-weight gain than non-BPA females
+
+#### males in HCD----
+bw_gain_m_hcd <- BW_gain %>%
+  filter(
+    SEX == "M",
+    DIET_FORMULA == "D12450Hi",
+    BPA_EXPOSURE %in% c("YES", "NO")
+  )
+
+nrow(bw_gain_m_hcd)
+table(bw_gain_m_hcd$BPA_EXPOSURE)
+
+m_gain_hcd <- lmer(
+  bw_rel ~ week_rel * BPA_EXPOSURE + (1 | ID),
+  data = bw_gain_m_hcd
+)
+
+anova(m_gain_hcd)
+
+emm_week_m_hcd <- emmeans(
+  m_gain_hcd,
+  ~ BPA_EXPOSURE | week_rel,
+  at = list(week_rel = sort(unique(bw_gain_m_hcd$week_rel)))
+)
+
+week_contrasts_m_hcd <- contrast(
+  emm_week_m_hcd,
+  method = "pairwise",
+  adjust = "fdr"
+)
+
+week_stats_m_hcd <- as.data.frame(week_contrasts_m_hcd)
+#There were no weeks in which BPA-exposed males fed HCD exhibited a greater 
+#percentage body-weight gain than non-BPA males
+
+#### males in HFD----
+bw_gain_m_hfd <- BW_gain %>%
+  filter(
+    SEX == "M",
+    DIET_FORMULA == "D12451i",
+    BPA_EXPOSURE %in% c("YES", "NO")
+  )
+
+nrow(bw_gain_m_hfd)
+table(bw_gain_m_hfd$BPA_EXPOSURE)
+
+m_gain_hfd <- lmer(
+  bw_rel ~ week_rel * BPA_EXPOSURE + (1 | ID),
+  data = bw_gain_m_hfd
+)
+
+anova(m_gain_hfd)
+
+emm_week_m_hfd <- emmeans(
+  m_gain_hfd,
+  ~ BPA_EXPOSURE | week_rel,
+  at = list(week_rel = sort(unique(bw_gain_m_hfd$week_rel)))
+)
+
+week_contrasts_m_hfd <- contrast(
+  emm_week_m_hfd,
+  method = "pairwise",
+  adjust = "fdr"
+)
+
+week_stats_m_hfd <- as.data.frame(week_contrasts_m_hfd)
+#There were no weeks in which BPA-exposed males fed HFD exhibited a greater 
+#percentage body-weight gain than non-BPA males
+
+# paper supp figure 1 plot----
+
 plot_bw_gain <- ggplot(
   BW_gainsummary,
   aes(
@@ -446,42 +586,6 @@ plot_bw_gain <- ggplot(
 
 plot_bw_gain
 
-## STATS----
-#### females in HCD----
-bw_gain_fem_hcd <- BW_gain %>%
-  filter(
-    SEX == "F",
-    DIET_FORMULA == "D12450Hi",
-    BPA_EXPOSURE %in% c("YES", "NO")
-  )
-
-nrow(bw_gain_fem_hcd)
-table(bw_gain_fem_hcd$BPA_EXPOSURE)
-
-fem_gain_hcd <- lmer(
-  bw_rel ~ week_rel * BPA_EXPOSURE + (1 | ID),
-  data = bw_gain_fem_hcd
-)
-
-anova(fem_gain_hcd)
-
-emm_week_fem_hcd <- emmeans(
-  fem_gain_hcd,
-  ~ BPA_EXPOSURE | week_rel,
-  at = list(week_rel = sort(unique(bw_gain_fem_hcd$week_rel)))
-)
-
-week_contrasts_fem_hcd <- contrast(
-  emm_week_fem_hcd,
-  method = "pairwise",
-  adjust = "fdr"
-)
-
-week_stats_fem_hcd <- as.data.frame(week_contrasts_fem_hcd)
-#There were no weeks in which BPA-exposed females fed HCD exhibited a greater 
-#percentage body-weight gain than non-BPA females
-
-
 # Speed = rate of change of body weight over time data----
 
 BW_speed <- BW_data %>%
@@ -497,14 +601,22 @@ BW_speed %>%
   group_by(SEX,BPA_EXPOSURE,DIET_FORMULA) %>%
   summarise(n_ID = n_distinct(ID)) 
 
-# plot 1 BPA within sex ----
+# plot 1 BPA within sex 
 p1 <- ggplot(BW_speed,
              aes(x = BPA_EXPOSURE,
                  y = speed_g_per_day,
                  fill = BPA_EXPOSURE)) +
   geom_boxplot(alpha = 0.6, outlier.shape = NA) +
   geom_jitter(width = 0.15, size = 2, alpha = 0.7) +
-  facet_grid(~ SEX*DIET_FORMULA) +
+  facet_grid(
+    ~ SEX * DIET_FORMULA,
+    labeller = labeller(
+      DIET_FORMULA = c(
+        "D12450Hi" = "HCD",
+        "D12451i"  = "HFD"
+      )
+    )
+  )+
   labs(
     y = "BW gain speed (g/day)",
     x = "BPA exposure"
@@ -513,7 +625,7 @@ p1 <- ggplot(BW_speed,
   theme(legend.position = "none")
 
 p1
-## stats speed----
+## STATS----
 
 lmer_speed <- lmer(
   BW ~ day_rel * BPA_EXPOSURE * SEX + (day_rel | ID),
@@ -528,12 +640,20 @@ summary(lmer_speed)
 #either sex, and no significant BPA × sex interaction on
 #growth speed was observed.
 
-#BPA-exposed females are estimated to gain slightly 
-#faster than BPA-free females. 
-# BUT t = 1.36 so this is not statistically significant
+#Although the estimated growth rate was slightly higher in BPA-exposed females,
+#this difference did not reach statistical significance (t = 1.36).
 
+## Could BPA affect growth speed only later in life?----
 
-# ---- Plot 2: Sex difference ----
+lmer(
+  BW ~ day_rel * BPA_EXPOSURE * SEX + (day_rel | ID),
+  data = BW_data %>% filter(day_rel >= 35) #the day in which we saw differences in females HFD
+)
+
+#Even when restricting the analysis to the post-divergence period (day ≥ 35)
+#BPA exposure did not significantly alter the rate of body-weight gain in either sex.
+
+# Plot 2: BPA effects collapsed by sex 
 p2 <- ggplot(BW_speed,
              aes(x = SEX,
                  y = speed_g_per_day)) +
@@ -550,11 +670,33 @@ p2 <- ggplot(BW_speed,
     x = "Sex",
     color = "BPA exposure"
   ) +
+  facet_wrap(
+    ~  DIET_FORMULA,
+    labeller = labeller(
+      DIET_FORMULA = c(
+        "D12450Hi" = "HCD",
+        "D12451i"  = "HFD"
+      )
+    )
+  )+
   theme_classic(base_size = 14)
 
+p2
 
-combined_plot <- p1 | p2
+# paper supp figure 2 plot----
+combined_plot <- p2 | p1
 combined_plot
+
+#so Sex was the primary determinant of growth rate
+#with females growing more slowly than males, regardless of BPA exposure.
+#However, BPA exposure was associated with higher BW in females, specially after HFD exposure
+#without a corresponding increase in growth rate.
+
+#CONCLUSIONS (within each sex BPA exposed vs non BPA exposed)
+# Same starting BW
+# Same % BW gain
+# Same growth rate
+# Higher final BW in BPA females in HCD and HFD but stronger in HFD
 
 # Body comp over time ----
 
@@ -1377,7 +1519,7 @@ ical_long16 <- ical_long16 %>% select(all_of(common_cols))
 ical_long_all <- bind_rows(ical_long15, ical_long16) #this is key, here we combined
 
 ical_long_all %>% 
-  filter(!ID %in% c(9354, 9367, 9368, 9414,9406)) %>%  # 9367 and 9368 have confused data from 8/1/25 echoMRI 
+  filter(!ID %in% c(9354, 9414,9406)) %>%  # 9367 and 9368 have confused data from 8/1/25 echoMRI 
   # 9354 lack of complete schedule of measurements in echoMRI
   # 9414 lack of complete schedule of measurements (lack of basal) in echoMRI
   # 9406 weird pattern in locomotion
