@@ -29,8 +29,7 @@ METABPA <- read_csv("~/Documents/GitHub/data/data/METABPA.csv")
 
 BW_data <- read_csv("../data/BW.csv") %>% 
   filter(COHORT %in% c(15, 16)) %>% 
-  filter(!ID ==9367) %>%  # 9367 
-   filter(!ID %in% c(9367,9406)) %>%  # 9367 has confused data from basal measurements and 9406 has a  weird pattern in locomotion
+  filter(!ID ==9406) %>%  #9406 has a  weird pattern in locomotion
   mutate(DATE = ymd(DATE)) %>% 
   arrange(DATE) %>% 
   group_by(ID) %>% 
@@ -135,7 +134,7 @@ day_contrasts_fem_hcd <- contrast(
 )
 
 day_stats_fem_hcd <- as.data.frame(day_contrasts_fem_hcd) 
-#so for females in HCD after day 49 BPA females are heavier than non BPA females
+#so for females in HCD after day 119 BPA females are heavier than non BPA females
 
 ## females in HFD----
 
@@ -266,7 +265,7 @@ contrast(emmeans_day0, method = "pairwise") #the animals have not differences in
 shade_df <- tibble(
   SEX = c("F", "F"),
   DIET_FORMULA = c("D12450Hi", "D12451i"),
-  xmin = c(49, 35),
+  xmin = c(119, 35),
   xmax = Inf,
   ymin = -Inf,
   ymax = Inf
@@ -340,7 +339,7 @@ BW_summary <- BW_data %>%
 shade_df <- tibble(
   SEX = c("F", "F"),
   DIET_FORMULA = c("D12450Hi", "D12451i"),
-  xmin = c(7, 5),
+  xmin = c(17, 5),
   xmax = Inf,
   ymin = -Inf,
   ymax = Inf
@@ -390,21 +389,19 @@ plot_bw_sex <- ggplot(
 
 plot_bw_sex
 
-
-
-
 # BW gain over time data----
 
 BW_gain <- BW_data %>% 
-  filter(SEX =="F") %>% 
-  select(ID,day_rel,bw_rel,BPA_EXPOSURE,DIET_FORMULA,SEX)
+ # filter(SEX =="F") %>% 
+  select(ID,day_rel,bw_rel,BPA_EXPOSURE,DIET_FORMULA,SEX) %>% 
+  mutate(week_rel = floor(day_rel / 7))
 
 BW_gain %>% 
-  group_by(BPA_EXPOSURE,DIET_FORMULA) %>%
+  group_by(BPA_EXPOSURE,DIET_FORMULA,SEX) %>%
   summarise(n_ID = n_distinct(ID)) 
 
-BW_gainsummary <- BW_gain  %>%
-  group_by(day_rel,BPA_EXPOSURE,DIET_FORMULA) %>%
+BW_gainsummary <- BW_gain %>%
+  group_by(week_rel, BPA_EXPOSURE, DIET_FORMULA,SEX) %>%
   summarise(
     mean_BWgain = mean(bw_rel, na.rm = TRUE),
     sem_BWgain  = sd(bw_rel, na.rm = TRUE) / sqrt(n()),
@@ -412,44 +409,78 @@ BW_gainsummary <- BW_gain  %>%
     .groups = "drop"
   )
 
-ggplot(BW_gainsummary,
-       aes(x = day_rel,
-           y = mean_BWgain,
-           color = BPA_EXPOSURE,
-           fill  = BPA_EXPOSURE)) +
-  geom_line(size = 1) +
-  geom_ribbon(aes(ymin = mean_BWgain - sem_BWgain,
-                  ymax = mean_BWgain + sem_BWgain),
-              alpha = 0.25,
-              color = NA) +
-  facet_wrap(~DIET_FORMULA) +
+plot_bw_gain <- ggplot(
+  BW_gainsummary,
+  aes(
+    x = week_rel,
+    y = mean_BWgain,
+    color = BPA_EXPOSURE,
+    fill  = BPA_EXPOSURE
+  )
+) +
+  geom_line(linewidth = 1) +
+  geom_ribbon(
+    aes(
+      ymin = mean_BWgain - sem_BWgain,
+      ymax = mean_BWgain + sem_BWgain
+    ),
+    alpha = 0.25,
+    color = NA
+  ) +
+  facet_wrap(
+    ~ SEX*DIET_FORMULA,
+    labeller = labeller(
+      DIET_FORMULA = c(
+        "D12450Hi" = "HCD",
+        "D12451i"  = "HFD"
+      )
+    )
+  ) +
   labs(
-    x = "Days relative to first measurement",
-    y = "Body weight gain",
+    x = "Weeks",
+    y = "Body weight gain (%)",
     color = "BPA exposure",
     fill  = "BPA exposure"
   ) +
   theme_classic(base_size = 14)
 
-#stats LME----
-# Females
-lme_femalegain <- lmer(bw_rel ~ BPA_EXPOSURE * day_rel + (1|ID), data = BW_gain)
-# Females
-# Round day_rel to nearest measured day
-emmeans_fgain <- emmeans(lme_femalegain, ~ BPA_EXPOSURE | day_rel, at = list(day_rel = unique(BW_gain$day_rel)))
-contrast_fgain <- contrast(emmeans_fgain, method = "pairwise") %>% as.data.frame()
+plot_bw_gain
 
-# Make sure all contrasts are YES - NO females
-contrast_fgain <- contrast_fgain %>%
-  mutate(
-    estimate = ifelse(contrast == "NO - YES", -estimate, estimate),
-    t.ratio = ifelse(contrast == "NO - YES", -t.ratio, t.ratio),
-    contrast = "YES - NO"
+## STATS----
+#### females in HCD----
+bw_gain_fem_hcd <- BW_gain %>%
+  filter(
+    SEX == "F",
+    DIET_FORMULA == "D12450Hi",
+    BPA_EXPOSURE %in% c("YES", "NO")
   )
-sig_daysfgain <- contrast_fgain %>% filter(p.value < 0.05)
 
-first_sig_dayfgain <- sig_daysfgain %>% slice_min(day_rel)
-first_sig_dayfgain$day_rel #there is no day in which BW gain of BPA females are significant higher than non BPA female in both diets
+nrow(bw_gain_fem_hcd)
+table(bw_gain_fem_hcd$BPA_EXPOSURE)
+
+fem_gain_hcd <- lmer(
+  bw_rel ~ week_rel * BPA_EXPOSURE + (1 | ID),
+  data = bw_gain_fem_hcd
+)
+
+anova(fem_gain_hcd)
+
+emm_week_fem_hcd <- emmeans(
+  fem_gain_hcd,
+  ~ BPA_EXPOSURE | week_rel,
+  at = list(week_rel = sort(unique(bw_gain_fem_hcd$week_rel)))
+)
+
+week_contrasts_fem_hcd <- contrast(
+  emm_week_fem_hcd,
+  method = "pairwise",
+  adjust = "fdr"
+)
+
+week_stats_fem_hcd <- as.data.frame(week_contrasts_fem_hcd)
+#There were no weeks in which BPA-exposed females fed HCD exhibited a greater 
+#percentage body-weight gain than non-BPA females
+
 
 # Speed = rate of change of body weight over time data----
 
@@ -1350,7 +1381,7 @@ ical_long_all %>%
   # 9354 lack of complete schedule of measurements in echoMRI
   # 9414 lack of complete schedule of measurements (lack of basal) in echoMRI
   # 9406 weird pattern in locomotion
-  group_by(BPA_EXPOSURE,SEX) %>%
+  group_by(BPA_EXPOSURE,SEX,DIET_FORMULA) %>%
   summarise(n_ID = n_distinct(ID)) %>% 
   print(n = Inf) #ok great we have 24 animals for cohort 15 and 15 animals for cohort 16
 #so in total 39 animals
@@ -1428,7 +1459,7 @@ ggplot(
 
 ical_long_allgrouped <- ical_long_all %>% 
   filter(!ID %in% c(9367, 9406)) %>% #check if something weird happened with these animals during the data collection, check with ZR
-  group_by(hour_label, SEX, BPA_EXPOSURE) %>% 
+  group_by(hour_label, SEX, BPA_EXPOSURE,DIET_FORMULA) %>% 
   summarise(
     mean_counts = mean(relative_total_count, na.rm = TRUE),
     sem_counts  = sd(relative_total_count, na.rm = TRUE) / sqrt(n_distinct(ID)),
@@ -1470,7 +1501,7 @@ ggplot(
     color = NA
   ) +
   geom_line(size = 1) +
-  facet_wrap(~ SEX) +
+  facet_wrap(~ SEX*DIET_FORMULA) +
   scale_x_continuous(
     breaks = 1:24,
     labels = levels(ical_long_allgrouped$hour_label)
@@ -1611,7 +1642,7 @@ ggplot(summary_19, aes(x = BPA_EXPOSURE, y = mean_count, fill = BPA_EXPOSURE)) +
 fem_data <- ical_long_all %>%
   filter(
     SEX == "F",
-  !ID %in% c(9354, 9367, 9368, 9414,9406)) %>%  # 9367 and 9368 have confused data from 8/1/25 echoMRI 
+  !ID %in% c(9354, 9414,9406)) %>%
       # 9354 lack of complete schedule of measurements in echoMRI
       # 9414 lack of complete schedule of measurements (lack of basal) in echoMRI
       # 9406 weird pattern in locomotion
