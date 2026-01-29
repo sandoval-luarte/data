@@ -1,5 +1,5 @@
-#This script aim to explore changes in BW after DREADD injection in orexin-cre
-#we aim split the orexin cre males into three groups:
+#This script aim to explore changes in BW after DREADD injection in orexin-cre mice
+#we aim to split the orexin cre males into three groups:
 #n=2 Males orexin - cre with inhibitory DREADD - uncertainty
 #n=2 Males orexin - cre with control DREADD - uncertainty
 #n=2 Males orexin - cre with control DREADD - no uncertainty
