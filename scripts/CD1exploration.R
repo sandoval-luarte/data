@@ -240,25 +240,6 @@ day_stats_male_hfd <- as.data.frame(day_contrasts_male_hfd)
 
 # check if BW of the four groups females with or without HFD and with or without BPA exposure had the same BW at day 0
 
-bw_day0_female <- BW_data %>%
-  filter(
-    SEX == "F",
-    day_rel == 0
-  )
-
-bw_day0_female %>%
-  group_by(DIET_FORMULA, BPA_EXPOSURE) %>%
-  summarise(n = n(), .groups = "drop")
-
-lm_day0 <- lm(
-  BW ~ BPA_EXPOSURE * DIET_FORMULA,
-  data = bw_day0_female
-)
-
-anova(lm_day0)
-
-emmeans_day0 <- emmeans(lm_day0, ~ BPA_EXPOSURE | DIET_FORMULA)
-contrast(emmeans_day0, method = "pairwise") #the animals have not differences in BW at day 0 within each diet
 
 
 shade_df <- tibble(
@@ -389,6 +370,76 @@ plot_bw_sex <- ggplot(
   theme_classic(base_size = 14)
 
 plot_bw_sex
+
+# BW at day 0 with HCD or HFD----
+
+BW_day0_raw <- BW_data %>% 
+  filter(bw_rel == 0)
+
+BW_day0_sum <- BW_data %>% 
+  filter(bw_rel == 0) %>% 
+  group_by(BPA_EXPOSURE, SEX, DIET_FORMULA) %>% 
+  summarise(
+    mean_BW = mean(BW, na.rm = TRUE),
+    sem_BW  = sd(BW, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+ggplot(BW_day0_sum,
+       aes(x = BPA_EXPOSURE, y = mean_BW, fill = BPA_EXPOSURE)) +
+  
+  # Bars (means)
+  geom_col(width = 0.6, color = "black", alpha = 0.7) +
+  
+  # SEM error bars
+  geom_errorbar(
+    aes(ymin = mean_BW - sem_BW,
+        ymax = mean_BW + sem_BW),
+    width = 0.2,
+    linewidth = 0.8
+  ) +
+  
+  # Individual points
+  geom_jitter(
+    data = BW_day0_raw,
+    aes(x = BPA_EXPOSURE, y = BW),
+    width = 0.15,
+    size = 2,
+    shape = 21,
+    fill = "white",
+    color = "black",
+    inherit.aes = FALSE
+  ) +
+  facet_wrap(
+    ~ SEX * DIET_FORMULA,
+    labeller = labeller(
+      DIET_FORMULA = c(
+        "D12450Hi" = "HCD",
+        "D12451i"  = "HFD"
+      )
+    )
+  ) +
+  
+  labs(
+    y = "Body weight (g)",
+    x = "BPA exposure"
+  ) +
+  
+  theme_classic(base_size = 14) +
+  theme(legend.position = "none")
+
+### STATS----
+bw_day0 <- BW_data %>% 
+  filter(bw_rel == 0)
+
+lm_bw_day0 <- lm(
+  BW ~ SEX * BPA_EXPOSURE * DIET_FORMULA,
+  data = bw_day0
+)
+anova(lm_bw_day0)
+
+
 
 # BW gain over time data----
 
@@ -702,15 +753,10 @@ combined_plot
 
 echoMRI_data <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
   filter(COHORT %in% c(15,16)) %>% 
-  # filter(!ID ==9367) %>%  # 9367 and 9368 have confused data from 8/1/25 echoMRI 
- # filter(!ID %in% c(9354, 9367, 9368, 9414,9406)) %>%  # 9367 and 9368 have confused data from 8/1/25 echoMRI 
-  # 9354 lack of complete schedule of measurements in echoMRI
-  # 9414 lack of complete schedule of measurements (lack of basal) in echoMRI
-  # 9406 weird pattern in locomotion
-  filter(!ID %in% c(9367,9406)) %>%  # 9367 has confused data from basal measurements and 9406 has a  weird pattern in locomotion
+  filter(!ID ==9406) %>%  # 9406 has a  weird pattern in locomotion
   group_by(ID) %>%
   arrange(Date) %>% 
-  select(ID, Date, Fat, Lean, Weight, adiposity_index,COHORT,DIET_FORMULA) %>% 
+  select(ID, Date, Fat, Lean, Weight, adiposity_index,COHORT,DIET_FORMULA,n_measurement) %>% 
   left_join(METABPA, by= "ID") %>% 
   ungroup() %>% 
   select(
@@ -719,13 +765,11 @@ echoMRI_data <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
     DIET_FORMULA = DIET_FORMULA.x)
   
 
-#cohort 15 are 24 animals originally but if I eliminate 3 animals so total animals are 21 per date (9367, 9368, 9354)
-#cohort 16 are 15 animals originally but if I eliminate 2 animal so total animals are 13 per date (9406, 9414)
-#so in total we have 34 animals
-
 echoMRI_data %>% 
-  group_by(SEX,BPA_EXPOSURE,DIET_FORMULA) %>%
-  summarise(n_ID = n_distinct(ID)) 
+  group_by(SEX,BPA_EXPOSURE,DIET_FORMULA,n_measurement) %>%
+  summarise(n_ID = n_distinct(ID)) %>% 
+  print(n = Inf) #ok great we have 24 animals for cohort 15 and 15 animals for cohort 16
+
 
 
 echoMRI_data_comparisons <- echoMRI_data %>% 
