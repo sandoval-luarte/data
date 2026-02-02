@@ -1,5 +1,5 @@
 # This script aims to explore changes in body weight (BW) in females and males CD1 offspring
-#exposed to perinatal BPA 5 ug/kg and fed with HFD (D12451i, research diets)
+#exposed to perinatal BPA 50 ug/kg and fed with HFD (D12451i, research diets)
 #or HCD (D12451Hi, research diets)
 
 #libraries
@@ -23,8 +23,174 @@ library(patchwork)
 library(ggpattern)
 library(car)
 
- # BW over time data----
+# BW diet collapsed----
 
+METABPA <- read_csv("~/Documents/GitHub/data/data/METABPA.csv")
+
+BW_data_collapsed <- read_csv("../data/BW.csv") %>% 
+  filter(COHORT %in% c(15, 16)) %>% 
+  filter(!ID ==9406) %>%  #9406 has a  weird pattern in locomotion
+  mutate(DATE = ymd(DATE)) %>% 
+  arrange(DATE) %>% 
+  group_by(ID) %>% 
+  mutate(
+    bw_rel = 100 * (BW - first(BW)) / first(BW),
+    body_lag = (lag(BW) - BW),
+    day_rel = as.integer(as.Date(DATE) - as.Date(first(DATE)))
+  ) %>% 
+  left_join(METABPA, by= "ID") %>% 
+  select(
+    -SEX.y,
+    -DIET_FORMULA.y
+  ) %>% 
+  rename(
+    SEX = SEX.x,
+    DIET_FORMULA = DIET_FORMULA.x
+  )
+
+BW_data_collapsed  %>% 
+  group_by(SEX,BPA_EXPOSURE) %>%
+  summarise(n_ID = n_distinct(ID)) 
+
+
+BW_summary_collapsed <- BW_data_collapsed %>%
+  group_by(day_rel,BPA_EXPOSURE,SEX) %>%
+  summarise(
+    mean_BW = mean(BW, na.rm = TRUE),
+    sem_BW  = sd(BW, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+## STATS----
+## females in OD (HCD+HFD) ----
+bw_fem_collapsed <- BW_data_collapsed %>%
+  filter(
+    SEX == "F",
+    BPA_EXPOSURE %in% c("YES", "NO")
+  )
+
+nrow(bw_fem_collapsed)   # should be > 0
+table(bw_fem_collapsed$BPA_EXPOSURE)
+
+fem_bw_collapsed <- lmer(
+  BW ~ day_rel * BPA_EXPOSURE + (1 | ID),
+  data = bw_fem_collapsed
+)
+
+anova(fem_bw_collapsed)
+
+emm_day_fem_collapsed <- emmeans(
+  fem_bw_collapsed,
+  ~ BPA_EXPOSURE | day_rel,
+  at = list(day_rel = sort(unique(bw_fem_collapsed$day_rel)))
+)
+
+day_contrasts_fem_collapsed <- contrast(
+  emm_day_fem_collapsed,
+  method = "pairwise",
+  adjust = "fdr"   # multiple testing correction
+)
+
+day_stats_fem_collapsed <- as.data.frame(day_contrasts_fem_collapsed) 
+#so for females in OD diets (HCD + HFD) after day 77 BPA females are heavier than non BPA females
+
+## males in OD (HCD+HFD)----
+bw_m_collapsed <- BW_data_collapsed %>%
+  filter(
+    SEX == "M",
+    BPA_EXPOSURE %in% c("YES", "NO")
+  )
+
+nrow(bw_m_collapsed)   # should be > 0
+table(bw_m_collapsed$BPA_EXPOSURE)
+
+m_bw_collapsed <- lmer(
+  BW ~ day_rel * BPA_EXPOSURE + (1 | ID),
+  data = bw_m_collapsed
+)
+
+anova(m_bw_collapsed)
+
+emm_day_m_collapsed <- emmeans(
+  m_bw_collapsed,
+  ~ BPA_EXPOSURE | day_rel,
+  at = list(day_rel = sort(unique(bw_m_collapsed$day_rel)))
+)
+
+day_contrasts_m_collapsed <- contrast(
+  emm_day_m_collapsed,
+  method = "pairwise",
+  adjust = "fdr"   # multiple testing correction
+)
+
+day_stats_m_collapsed <- as.data.frame(day_contrasts_m_collapsed) 
+#so for males in OD diets (HCD + HFD) there is none day in which BPA exposed males are heavier than non BPA males
+
+# paper figure 1 plot collapsed by diet----
+
+BW_data_collapsed <- BW_data_collapsed %>%
+  mutate(
+    week_rel = day_rel / 7
+  )
+BW_data_collapsed <- BW_data_collapsed %>%
+  mutate(
+    week_rel = floor(day_rel / 7)
+  )
+BW_summary_collapsed <- BW_data_collapsed %>%
+  group_by(week_rel, BPA_EXPOSURE, SEX) %>%
+  summarise(
+    mean_BW = mean(BW, na.rm = TRUE),
+    sem_BW  = sd(BW, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+shade_df <- tibble(
+  SEX = c("F"),
+  xmin = c(11),
+  xmax = Inf,
+  ymin = -Inf,
+  ymax = Inf
+)
+
+plot_bw_sex_collapsed <- ggplot(
+  BW_summary_collapsed,
+  aes(
+    x = week_rel,
+    y = mean_BW,
+    color = BPA_EXPOSURE,
+    fill  = BPA_EXPOSURE
+  )
+) +
+  geom_rect(
+    data = shade_df,
+    aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax),
+    inherit.aes = FALSE,
+    fill = "grey70",
+    alpha = 0.35
+  ) +
+  geom_line(linewidth = 1) +
+  geom_ribbon(
+    aes(
+      ymin = mean_BW - sem_BW,
+      ymax = mean_BW + sem_BW
+    ),
+    alpha = 0.25,
+    color = NA
+  ) +
+  facet_wrap(
+    ~ SEX) +
+  labs(
+    x = "Weeks",
+    y = "Body weight (g)",
+    color = "BPA exposure",
+    fill  = "BPA exposure"
+  ) +
+  theme_classic(base_size = 14)
+
+plot_bw_sex_collapsed
+
+# BW over time data by diet ----
 METABPA <- read_csv("~/Documents/GitHub/data/data/METABPA.csv")
 
 BW_data <- read_csv("../data/BW.csv") %>% 
@@ -61,46 +227,6 @@ BW_summary <- BW_data %>%
     n = n(),
     .groups = "drop"
   )
-
-#plot 1
-
-plot_bw_sex <- ggplot(
-  BW_summary,
-  aes(
-    x = day_rel,
-    y = mean_BW,
-    color = BPA_EXPOSURE,
-    fill  = BPA_EXPOSURE
-  )
-) +
-  geom_line(linewidth = 1) +
-  geom_ribbon(
-    aes(
-      ymin = mean_BW - sem_BW,
-      ymax = mean_BW + sem_BW
-    ),
-    alpha = 0.25,
-    color = NA
-  ) +
-  facet_wrap(
-    ~ SEX * DIET_FORMULA,
-    labeller = labeller(
-      DIET_FORMULA = c(
-        "D12450Hi" = "HCD",
-        "D12451i"  = "HFD"
-      )
-    )
-  ) +
-  labs(
-    x = "Days relative to first measurement",
-    y = "Body weight (g)",
-    color = "BPA exposure",
-    fill  = "BPA exposure"
-  ) +
-  theme_classic(base_size = 14)
-
-plot_bw_sex
-
 ##STATS----
 
 ## females in HCD----
@@ -238,68 +364,6 @@ day_contrasts_male_hfd <- contrast(
 day_stats_male_hfd <- as.data.frame(day_contrasts_male_hfd) 
 #so for there is no days in which BPA males are heavier than non-BPA males
 
-# check if BW of the four groups females with or without HFD and with or without BPA exposure had the same BW at day 0
-
-
-
-shade_df <- tibble(
-  SEX = c("F", "F"),
-  DIET_FORMULA = c("D12450Hi", "D12451i"),
-  xmin = c(119, 35),
-  xmax = Inf,
-  ymin = -Inf,
-  ymax = Inf
-)
-
-plot_bw_sex <- ggplot(
-  BW_summary,
-  aes(
-    x = day_rel,
-    y = mean_BW,
-    color = BPA_EXPOSURE,
-    fill  = BPA_EXPOSURE
-  )
-) +
-  geom_rect(
-    data = shade_df,
-    aes(
-      xmin = xmin,
-      xmax = xmax,
-      ymin = ymin,
-      ymax = ymax
-    ),
-    inherit.aes = FALSE,
-    fill = "grey70",
-    alpha = 0.35
-  ) +
-  geom_line(linewidth = 1) +
-  geom_ribbon(
-    aes(
-      ymin = mean_BW - sem_BW,
-      ymax = mean_BW + sem_BW
-    ),
-    alpha = 0.25,
-    color = NA
-  ) +
-  facet_wrap(
-    ~ SEX * DIET_FORMULA,
-    labeller = labeller(
-      DIET_FORMULA = c(
-        "D12450Hi" = "HCD",
-        "D12451i"  = "HFD"
-      )
-    )
-  ) +
-  labs(
-    x = "Days relative to first measurement",
-    y = "Body weight (g)",
-    color = "BPA exposure",
-    fill  = "BPA exposure"
-  ) +
-  theme_classic(base_size = 14)
-
-plot_bw_sex
-
 # paper figure 1 plot----
 
 BW_data <- BW_data %>%
@@ -370,6 +434,13 @@ plot_bw_sex <- ggplot(
   theme_classic(base_size = 14)
 
 plot_bw_sex
+
+# figure 1 paper final----
+combined_plot <- plot_bw_sex_collapsed  | plot_bw_sex +
+  plot_annotation(tag_levels = "A")
+
+combined_plot
+
 
 # BW at day 0 with HCD or HFD----
 
