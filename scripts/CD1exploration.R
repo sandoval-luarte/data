@@ -436,10 +436,12 @@ plot_bw_sex <- ggplot(
 plot_bw_sex
 
 # figure 1 paper final----
-combined_plot <- plot_bw_sex_collapsed  | plot_bw_sex +
-  plot_annotation(tag_levels = "A")
+plot_bw_sex_collapsed <- plot_bw_sex_collapsed + labs(tag = "A")
+plot_bw_sex <- plot_bw_sex + labs(tag = "B")
 
+combined_plot <- plot_bw_sex_collapsed | plot_bw_sex
 combined_plot
+
 
 
 # BW at day 0 with HCD or HFD----
@@ -449,7 +451,7 @@ BW_day0_raw <- BW_data %>%
 
 BW_day0_sum <- BW_data %>% 
   filter(bw_rel == 0) %>% 
-  group_by(BPA_EXPOSURE, SEX, DIET_FORMULA) %>% 
+  group_by(BPA_EXPOSURE, SEX) %>% 
   summarise(
     mean_BW = mean(BW, na.rm = TRUE),
     sem_BW  = sd(BW, na.rm = TRUE) / sqrt(n()),
@@ -510,6 +512,24 @@ lm_bw_day0 <- lm(
 )
 anova(lm_bw_day0)
 
+bw_day0 <- BW_data %>% 
+  filter(bw_rel == 0) %>% 
+  distinct(ID, .keep_all = TRUE)
+
+# Females
+t_female <- t.test(
+  BW ~ BPA_EXPOSURE,
+  data = bw_day0 %>% filter(SEX == "F")
+)
+
+# Males
+t_male <- t.test(
+  BW ~ BPA_EXPOSURE,
+  data = bw_day0 %>% filter(SEX == "M")
+)
+
+t_female
+t_male
 
 
 # BW gain over time data----
@@ -757,7 +777,7 @@ summary(lmer_speed)
 
 
 #Male mice exhibited a significantly faster rate of body
-#weight gain than females (≈0.08 g/day greater; t = 3.54).
+#weight gain than females (≈0.08 g/day greater; t = 4.77).
 #BPA exposure did not significantly alter growth rate in 
 #either sex, and no significant BPA × sex interaction on
 #growth speed was observed.
