@@ -442,8 +442,6 @@ plot_bw_sex <- plot_bw_sex + labs(tag = "B")
 combined_plot <- plot_bw_sex_collapsed | plot_bw_sex
 combined_plot
 
-
-
 # BW at day 0 with HCD or HFD----
 
 BW_day0_raw <- BW_data %>% 
@@ -530,7 +528,6 @@ t_male <- t.test(
 
 t_female
 t_male
-
 
 # BW gain over time data----
 
@@ -767,6 +764,8 @@ p1 <- ggplot(BW_speed,
   theme(legend.position = "none")
 
 p1
+
+
 ## STATS----
 
 lmer_speed <- lmer(
@@ -826,6 +825,10 @@ p2 <- ggplot(BW_speed,
 p2
 
 # paper supp figure 2 plot----
+
+p1 <- p1 + labs(tag = "B")
+p2 <- p2 + labs(tag = "A")
+
 combined_plot <- p2 | p1
 combined_plot
 
@@ -842,12 +845,14 @@ combined_plot
 
 # Body comp over time ----
 
+METABPA <- read_csv("~/Documents/GitHub/data/data/METABPA.csv")
+
 echoMRI_data <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
   filter(COHORT %in% c(15,16)) %>% 
-  filter(!ID ==9406) %>%  # 9406 has a  weird pattern in locomotion
-  group_by(ID) %>%
+  filter(!ID %in% c("9406", "9354")) %>%  #9406 has a  weird pattern in locomotion and 9354 lack body comp measurements for 18 weeks
+group_by(ID) %>%
   arrange(Date) %>% 
-  select(ID, Date, Fat, Lean, Weight, adiposity_index,COHORT,DIET_FORMULA,n_measurement) %>% 
+  select(ID, Date, Fat, Lean, Weight, adiposity_index,COHORT,DIET_FORMULA) %>% 
   left_join(METABPA, by= "ID") %>% 
   ungroup() %>% 
   select(
@@ -857,11 +862,9 @@ echoMRI_data <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
   
 
 echoMRI_data %>% 
-  group_by(SEX,BPA_EXPOSURE,DIET_FORMULA,n_measurement) %>%
+  group_by(SEX,BPA_EXPOSURE) %>%
   summarise(n_ID = n_distinct(ID)) %>% 
-  print(n = Inf) #ok great we have 24 animals for cohort 15 and 15 animals for cohort 16
-
-
+  print(n = Inf) #ok great we have the same amount of data than for BW (i.e 18 F and 20 M)
 
 echoMRI_data_comparisons <- echoMRI_data %>% 
   mutate(
@@ -878,7 +881,19 @@ echoMRI_data_comparisons <- echoMRI_data %>%
       COHORT == 16 & Date == "2025-12-18" ~ "18 wks",#really this is 19 wks
       COHORT == 15 & Date == "2025-10-07" ~ "22 wks",
       COHORT == 16 & Date == "2026-01-09" ~ "22 wks"
-     ))
+     )) %>% 
+  mutate(
+    n_measurement = factor(
+      n_measurement,
+      levels = c("0 wks", "3 wks", "9 wks", "12 wks", "18 wks", "22 wks")
+    )
+  )
+
+
+echoMRI_data_comparisons  %>% 
+  group_by(SEX,n_measurement) %>%
+  summarise(n_ID = n_distinct(ID)) %>% 
+  print(n = Inf) #ok great we have the same amount of data than for BW (i.e 17 F and 20 M) we removed ID 9406 and 9354 
 
 bodycomp_summary <- echoMRI_data_comparisons %>%
   group_by(n_measurement, BPA_EXPOSURE,SEX,DIET_FORMULA) %>%
@@ -916,7 +931,11 @@ p1 <- ggplot(bodycomp_summary,
                   ymax = mean_AI + sem_AI),
               alpha = 0.25,
               color = NA) +
-  facet_wrap(~ SEX*DIET_FORMULA) +
+  facet_wrap( ~ SEX*DIET_FORMULA,
+    labeller = labeller(
+      DIET_FORMULA = c(
+        "D12450Hi" = "HCD",
+        "D12451i"  = "HFD" ))) +
   labs(
     x = "Days of measurement",
     y = "adiposity index (fat/lean mass)",
@@ -926,15 +945,6 @@ p1 <- ggplot(bodycomp_summary,
   theme_classic(base_size = 14) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 p1
-
-echoMRI_data_comparisons <- echoMRI_data_comparisons %>%
-  mutate(
-    n_measurement = factor(
-      n_measurement,
-      levels = c("0 wks", "3 wks", "9 wks", "12 wks", "18 wks", "22 wks")
-    )
-  )
-
 
 ai_fem_hcd <- echoMRI_data_comparisons %>%
   filter(
@@ -1009,7 +1019,11 @@ p2 <- ggplot(bodycomp_summary,
                   ymax = mean_fat + sem_fat),
               alpha = 0.25,
               color = NA) +
-  facet_wrap(~ SEX*DIET_FORMULA) +
+  facet_wrap( ~ SEX*DIET_FORMULA,
+              labeller = labeller(
+                DIET_FORMULA = c(
+                  "D12450Hi" = "HCD",
+                  "D12451i"  = "HFD" ))) +
   labs(
     x = "Days of measurement",
     y = "Fat mass (g)",
@@ -1092,7 +1106,11 @@ p3 <- ggplot(bodycomp_summary,
                   ymax = mean_lean + sem_lean),
               alpha = 0.25,
               color = NA) +
-  facet_wrap(~ SEX*DIET_FORMULA) +
+  facet_wrap( ~ SEX*DIET_FORMULA,
+              labeller = labeller(
+                DIET_FORMULA = c(
+                  "D12450Hi" = "HCD",
+                  "D12451i"  = "HFD" ))) +
   labs(
     x = "Days of measurement",
     y = "Lean mass (g)",
