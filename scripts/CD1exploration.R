@@ -1,6 +1,5 @@
-# This script aims to explore changes in body weight (BW) in females and males CD1 offspring
-#exposed to perinatal BPA 50 ug/kg and fed with HFD (D12451i, research diets)
-#or HCD (D12451Hi, research diets)
+# This script aims to explore changes in body weight (BW), body composition and behavior in females and males CD1 offspring
+#exposed to perinatal BPA 50 ug/kg and fed with HFD (D12451i, research diets) or HCD (D12451Hi, research diets)
 
 #libraries
 library(dplyr) #to use pipe
@@ -49,7 +48,7 @@ BW_data_collapsed <- read_csv("../data/BW.csv") %>%
   )
 
 BW_data_collapsed  %>% 
-  group_by(SEX,BPA_EXPOSURE) %>%
+  group_by(SEX,BPA_EXPOSURE,DIET_FORMULA) %>%
   summarise(n_ID = n_distinct(ID)) 
 
 
