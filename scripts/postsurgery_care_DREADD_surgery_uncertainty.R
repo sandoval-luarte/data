@@ -1,8 +1,5 @@
 #This script aim to explore changes in BW after DREADD injection in orexin-cre mice
 #we aim to split the orexin cre males into three groups:
-#n=2 Males orexin - cre with inhibitory DREADD - uncertainty
-#n=2 Males orexin - cre with control DREADD - uncertainty
-#n=2 Males orexin - cre with control DREADD - no uncertainty
 
 #libraries####
 library(ggplot2)
@@ -17,9 +14,10 @@ BW_data <- BW_data %>%
   filter(COHORT %in% c(11, 17)) %>% 
   arrange(DATE) %>% 
   mutate(GROUP = case_when(
-    ID %in% c(305, 306, 307, 314, 316, 319, 322, 519,524) ~ "CONTROL_NO_UNCERT",
+    ID %in% c(307, 314, 316, 319, 519,524) ~ "CONTROL_CERT",
     ID %in% c(297, 313, 318, 320,520,523) ~ "INH_DREADD_UNCERT",
     ID %in% c(321, 323, 325, 522,525) ~ "CONTROL_UNCERT",
+    ID %in% c(299,305, 306, 308, 317, 322, 324, 327) ~ "WT"
     )) %>% 
   group_by(ID) %>% 
   mutate(
@@ -33,8 +31,8 @@ BW_data <- BW_data %>%
   ) %>% 
   filter(DATE >= surgery_date) %>% 
   drop_na(GROUP) %>% 
-  filter(!(COHORT == 11 & DATE >= as.Date("2025-05-09"))) %>%
   mutate(day_rel = as.integer(as.Date(DATE) - as.Date(first(DATE)))) 
+  
 
 #plot####
 plot <- ggplot(BW_data, aes(x = day_rel, y = BW)) +
