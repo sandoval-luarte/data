@@ -1318,10 +1318,9 @@ fat_stats_m
 
 #there is no days in which males exposed to BPA have higher fat mass than control ones
 
-
-----
+## supplementary plot 6? FM splitted by diet ----
   
-  p2 <- ggplot(bodycomp_summary_collapsed,
+p2 <- ggplot(bodycomp_summary,
                aes(x = n_measurement,
                    y = mean_fat,
                    color = BPA_EXPOSURE,
@@ -1347,14 +1346,235 @@ fat_stats_m
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 p2
 
+###STATS for females HCD----
 
-## plot 3 LEAN MASS males and females ----
-p3 <- ggplot(bodycomp_summary,
+fat_fem_hcd <- echoMRI_data_comparisons %>%
+  filter(
+    SEX == "F",
+    DIET_FORMULA == "D12450Hi",
+    BPA_EXPOSURE %in% c("YES", "NO")
+  )
+
+table(fat_fem_hcd$BPA_EXPOSURE)
+
+fem_fat_hcd <- lmer(
+  Fat ~ n_measurement * BPA_EXPOSURE + (1 | ID),
+  data = fat_fem_hcd
+)
+
+anova(fem_fat_hcd)
+
+emm_fem_fat_hcd <- emmeans(
+  fem_fat_hcd,
+  ~ BPA_EXPOSURE | n_measurement
+)
+
+contr_fem_fat_hcd <- contrast(
+  emm_fem_fat_hcd,
+  method = "pairwise",
+  adjust = "fdr"
+)
+
+fat_stats_fem_hcd <- as.data.frame(contr_fem_fat_hcd)
+fat_stats_fem_hcd
+
+#there is no days in which females in HCD exposed to BPA have higher fat mass than control ones
+
+###STATS for females HFD----
+
+fat_fem_hfd <- echoMRI_data_comparisons %>%
+  filter(
+    SEX == "F",
+    DIET_FORMULA == "D12451i",
+    BPA_EXPOSURE %in% c("YES", "NO")
+  )
+
+table(fat_fem_hfd$BPA_EXPOSURE)
+
+fem_fat_hfd <- lmer(
+  Fat ~ n_measurement * BPA_EXPOSURE + (1 | ID),
+  data = fat_fem_hfd
+)
+
+anova(fem_fat_hfd)
+
+emm_fem_fat_hfd <- emmeans(
+  fem_fat_hfd,
+  ~ BPA_EXPOSURE | n_measurement
+)
+
+contr_fem_fat_hfd <- contrast(
+  emm_fem_fat_hfd,
+  method = "pairwise",
+  adjust = "fdr"
+)
+
+fat_stats_fem_hfd <- as.data.frame(contr_fem_fat_hfd)
+fat_stats_fem_hfd
+
+#there is no days in which females in HFD exposed to BPA have higher fat mass than control ones
+
+###STATS for males HCD----
+
+fat_m_hcd <- echoMRI_data_comparisons %>%
+  filter(
+    SEX == "M",
+    DIET_FORMULA == "D12450Hi",
+    BPA_EXPOSURE %in% c("YES", "NO")
+  )
+
+table(fat_m_hcd$BPA_EXPOSURE)
+
+m_fat_hcd <- lmer(
+  Fat ~ n_measurement * BPA_EXPOSURE + (1 | ID),
+  data = fat_m_hcd
+)
+
+anova(m_fat_hcd)
+
+emm_m_fat_hcd <- emmeans(
+  m_fat_hcd,
+  ~ BPA_EXPOSURE | n_measurement
+)
+
+contr_m_fat_hcd <- contrast(
+  emm_m_fat_hcd,
+  method = "pairwise",
+  adjust = "fdr"
+)
+
+fat_stats_m_hcd <- as.data.frame(contr_m_fat_hcd)
+fat_stats_m_hcd
+
+#there is no days in which females in HCD exposed to BPA have higher fat mass than control ones
+
+###STATS for males HFD----
+
+fat_m_hfd <- echoMRI_data_comparisons %>%
+  filter(
+    SEX == "M",
+    DIET_FORMULA == "D12451i",
+    BPA_EXPOSURE %in% c("YES", "NO")
+  )
+
+table(fat_m_hfd$BPA_EXPOSURE)
+
+m_fat_hfd <- lmer(
+  Fat ~ n_measurement * BPA_EXPOSURE + (1 | ID),
+  data = fat_m_hfd
+)
+
+anova(m_fat_hfd)
+
+emm_m_fat_hfd <- emmeans(
+  m_fat_hfd,
+  ~ BPA_EXPOSURE | n_measurement
+)
+
+contr_m_fat_hfd <- contrast(
+  emm_m_fat_hfd,
+  method = "pairwise",
+  adjust = "fdr"
+)
+
+fat_stats_m_hfd <- as.data.frame(contr_m_fat_hfd)
+fat_stats_m_hfd
+
+#there is no days in which males in HFD exposed to BPA have higher fat mass than control ones
+
+## plot 3 LM collapsed by diet ----
+p3 <- ggplot(bodycomp_summary_collapsed,
              aes(x = n_measurement,
                  y = mean_lean,
                  color = BPA_EXPOSURE,
                  fill  = BPA_EXPOSURE,
                  group = BPA_EXPOSURE)) +
+  geom_line(size = 1) +
+  geom_ribbon(aes(ymin = mean_lean - sem_lean,
+                  ymax = mean_lean + sem_lean),
+              alpha = 0.25,
+              color = NA) +
+  facet_wrap( ~ SEX) +
+  labs(
+    x = "Days of measurement",
+    y = "Lean mass (g)",
+    color = "BPA exposure",
+    fill  = "BPA exposure"
+  ) +
+  theme_classic(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+p3
+
+####STATS for females----
+
+lean_fem<- echoMRI_data_comparisons_collapsed %>%
+  filter(
+    SEX == "F",
+    BPA_EXPOSURE %in% c("YES", "NO")
+  )
+
+table(lean_fem$BPA_EXPOSURE)
+
+fem_lean<- lmer(
+  Lean ~ n_measurement * BPA_EXPOSURE + (1 | ID),
+  data = lean_fem
+)
+
+anova(fem_lean)
+
+emm_fem_lean<- emmeans(
+  fem_lean,
+  ~ BPA_EXPOSURE | n_measurement
+)
+
+contr_fem_lean <- contrast(
+  emm_fem_lean,
+  method = "pairwise",
+  adjust = "fdr"
+)
+
+lean_stats_fem<- as.data.frame(contr_fem_lean)
+lean_stats_fem
+
+####STATS for males----
+
+lean_m<- echoMRI_data_comparisons_collapsed %>%
+  filter(
+    SEX == "M",
+    BPA_EXPOSURE %in% c("YES", "NO")
+  )
+
+table(lean_m$BPA_EXPOSURE)
+
+m_lean<- lmer(
+  Lean ~ n_measurement * BPA_EXPOSURE + (1 | ID),
+  data = lean_m
+)
+
+anova(m_lean)
+
+emm_m_lean<- emmeans(
+  m_lean,
+  ~ BPA_EXPOSURE | n_measurement
+)
+
+contr_m_lean <- contrast(
+  emm_m_lean,
+  method = "pairwise",
+  adjust = "fdr"
+)
+
+lean_stats_m<- as.data.frame(contr_m_lean)
+lean_stats_m
+
+## plot 4 LM splitted by diet ----
+  
+  p3 <- ggplot(bodycomp_summary,
+               aes(x = n_measurement,
+                   y = mean_lean,
+                   color = BPA_EXPOSURE,
+                   fill  = BPA_EXPOSURE,
+                   group = BPA_EXPOSURE)) +
   geom_line(size = 1) +
   geom_ribbon(aes(ymin = mean_lean - sem_lean,
                   ymax = mean_lean + sem_lean),
@@ -1374,6 +1594,8 @@ p3 <- ggplot(bodycomp_summary,
   theme_classic(base_size = 14) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 p3
+
+###STATS for females HCD----
 
 lean_fem_hcd <- echoMRI_data_comparisons %>%
   filter(
@@ -1405,6 +1627,11 @@ contr_fem_lean_hcd <- contrast(
 lean_stats_fem_hcd <- as.data.frame(contr_fem_lean_hcd)
 lean_stats_fem_hcd
 
+#after 18 weeks of HCD onwards BPA exposed females have more lean mass than control ones
+
+
+###STATS for females HFD----
+
 lean_fem_hfd <- echoMRI_data_comparisons %>%
   filter(
     SEX == "F",
@@ -1435,7 +1662,75 @@ contr_fem_lean_hfd <- contrast(
 lean_stats_fem_hfd <- as.data.frame(contr_fem_lean_hfd)
 lean_stats_fem_hfd
 
+#after 12 weeks of HFD onwards BPA exposed females have more lean mass than control ones
 
+###STATS for males HCD----
+
+lean_m_hcd <- echoMRI_data_comparisons %>%
+  filter(
+    SEX == "M",
+    DIET_FORMULA == "D12450Hi",
+    BPA_EXPOSURE %in% c("YES", "NO")
+  )
+
+table(lean_m_hcd$BPA_EXPOSURE)
+
+m_lean_hcd <- lmer(
+  Lean ~ n_measurement * BPA_EXPOSURE + (1 | ID),
+  data = lean_m_hcd
+)
+
+anova(m_lean_hcd)
+
+emm_m_lean_hcd <- emmeans(
+  m_lean_hcd,
+  ~ BPA_EXPOSURE | n_measurement
+)
+
+contr_m_lean_hcd <- contrast(
+  emm_m_lean_hcd,
+  method = "pairwise",
+  adjust = "fdr"
+)
+
+lean_stats_m_hcd <- as.data.frame(contr_m_lean_hcd)
+lean_stats_m_hcd
+
+#there is no weeks in which BPA exposed males have more lean mass than non exposed one after being fed with HCD
+
+###STATS for males HFD----
+
+lean_m_hfd <- echoMRI_data_comparisons %>%
+  filter(
+    SEX == "M",
+    DIET_FORMULA == "D12451i",
+    BPA_EXPOSURE %in% c("YES", "NO")
+  )
+
+table(lean_m_hfd$BPA_EXPOSURE)
+
+m_lean_hfd <- lmer(
+  Lean ~ n_measurement * BPA_EXPOSURE + (1 | ID),
+  data = lean_m_hfd
+)
+
+anova(m_lean_hfd)
+
+emm_m_lean_hfd <- emmeans(
+  m_lean_hfd,
+  ~ BPA_EXPOSURE | n_measurement
+)
+
+contr_m_lean_hfd <- contrast(
+  emm_m_lean_hfd,
+  method = "pairwise",
+  adjust = "fdr"
+)
+
+lean_stats_m_hfd <- as.data.frame(contr_m_lean_hfd)
+lean_stats_m_hfd
+
+#there is no weeks in which BPA exposed males have more lean mass than non exposed one after being fed with HFD
 
 # OGTT----
 
@@ -1447,7 +1742,9 @@ OGTT <- read_csv("~/Documents/GitHub/data/data/OGTT_CD1.csv") %>%
   mutate(DATE = mdy(DATE)) %>% 
   arrange(DATE) %>% 
   group_by(ID)%>% 
-  left_join(METABPA, by= "ID")
+  left_join(METABPA, by= "ID") %>% 
+  filter(!ID ==9406)  #9406 has a  weird pattern in locomotion
+  
 
 ogtt_long <- OGTT  %>% 
   pivot_longer(
@@ -1460,8 +1757,131 @@ ogtt_long <- OGTT  %>%
     time_min = as.numeric(time_min)           # convert to numeric
   )
 
+####OGTT collapsed by diet----
+
 ogtt_long %>% 
   group_by(SEX,BPA_EXPOSURE) %>%
+  summarise(n_ID = n_distinct(ID)) 
+
+
+auc_df <- ogtt_long %>% 
+  arrange(ID, time_min) %>% 
+  group_by(ID, BPA_EXPOSURE,SEX) %>% 
+  summarise(
+    AUC = trapz(time_min, glucose),
+    .groups = "drop"
+  )
+
+ggplot(auc_df, aes(x = BPA_EXPOSURE, y = AUC)) +
+  geom_jitter(width = 0.1, alpha = 0.6) +
+  stat_summary(fun = mean, geom = "point", size = 3) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.2) +
+ facet_wrap(~ SEX) +
+  labs(
+    x = "BPA exposure",
+    y = "Glucose AUC (0–90 min)"
+  ) +
+  theme_classic()
+
+##### STATS for females----
+
+ogtt_fem<- auc_df %>%
+  filter(
+    SEX == "F",
+    BPA_EXPOSURE %in% c("YES", "NO")
+  )
+
+nrow(ogtt_fem)
+table(ogtt_fem$BPA_EXPOSURE)
+
+by(
+  ogtt_fem$AUC,
+  ogtt_fem$BPA_EXPOSURE,
+  shapiro.test
+)
+
+leveneTest(AUC ~ BPA_EXPOSURE, data = ogtt_fem)
+
+t.test(
+  AUC ~ BPA_EXPOSURE,
+  data = ogtt_fem
+)
+
+
+##### STATS for males----
+
+ogtt_m<- auc_df %>%
+  filter(
+    SEX == "M",
+    BPA_EXPOSURE %in% c("YES", "NO")
+  )
+
+nrow(ogtt_m)
+table(ogtt_m$BPA_EXPOSURE)
+
+by(
+  ogtt_m$AUC,
+  ogtt_m$BPA_EXPOSURE,
+  shapiro.test
+)
+
+leveneTest(AUC ~ BPA_EXPOSURE, data = ogtt_m)
+
+t.test(
+  AUC ~ BPA_EXPOSURE,
+  data = ogtt_m
+)
+
+####OGTT collapsed by BPA exposure----
+
+ogtt_long %>% 
+  group_by(SEX) %>%
+  summarise(n_ID = n_distinct(ID)) 
+
+
+auc_df <- ogtt_long %>% 
+  arrange(ID, time_min) %>% 
+  group_by(ID,SEX) %>% 
+  summarise(
+    AUC = trapz(time_min, glucose),
+    .groups = "drop"
+  )
+
+ggplot(auc_df, aes(x = SEX, y = AUC)) +
+  geom_jitter(width = 0.1, alpha = 0.6) +
+  stat_summary(fun = mean, geom = "point", size = 3) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.2) +
+  labs(
+    x = "SEX",
+    y = "Glucose AUC (0–90 min)"
+  ) +
+  theme_classic()
+
+##### STATS females vs males----
+
+ogtt<- auc_df 
+nrow(ogtt)
+table(ogtt$SEX)
+
+by(
+  ogtt$AUC,
+  ogtt$SEX,
+  shapiro.test
+)
+
+leveneTest(AUC ~ SEX, data = ogtt)
+
+t.test(
+  AUC ~ SEX,
+  data = ogtt
+)
+
+#this means that females manage better the glucose captation than males independent of BPA exposure
+  
+####OGTT collapsed by diet----
+
+ogtt_long %>% 
+  group_by(SEX,BPA_EXPOSURE,DIET_FORMULA) %>%
   summarise(n_ID = n_distinct(ID)) 
 
 
@@ -1477,15 +1897,18 @@ ggplot(auc_df, aes(x = BPA_EXPOSURE, y = AUC)) +
   geom_jitter(width = 0.1, alpha = 0.6) +
   stat_summary(fun = mean, geom = "point", size = 3) +
   stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.2) +
- facet_wrap(~ SEX*DIET_FORMULA) +
+  facet_wrap(~ SEX*DIET_FORMULA,
+             labeller = labeller(
+               DIET_FORMULA = c(
+                 "D12450Hi" = "HCD",
+                 "D12451i"  = "HFD" ))) +
   labs(
     x = "BPA exposure",
     y = "Glucose AUC (0–90 min)"
   ) +
   theme_classic()
 
-## STATS----
-###females in HCD----
+#####STATS for females in HCD----
 
 ogtt_fem_hcd <- auc_df %>%
   filter(
@@ -1510,7 +1933,7 @@ t.test(
   data = ogtt_fem_hcd
 )
 
-###females in HFD----
+##### STATS for females in HFD----
 
 ogtt_fem_hfd <- auc_df %>%
   filter(
@@ -1536,7 +1959,7 @@ t.test(
   data = ogtt_fem_hfd
 )
 
-###males in HCD----
+#####STATS for males in HCD----
 
 ogtt_m_hcd <- auc_df %>%
   filter(
@@ -1561,7 +1984,7 @@ t.test(
   data = ogtt_m_hcd
 )
 
-###males in HFD----
+##### STATS for males in HFD----
 
 ogtt_m_hfd <- auc_df %>%
   filter(
@@ -1586,24 +2009,6 @@ t.test(
   AUC ~ BPA_EXPOSURE,
   data = ogtt_m_hfd
 )
-
-### Does BPA exposure affect OGTT AUC differently in females vs males, regardless of diet?----
-
-auc_sex_bpa <- auc_df %>%
-  filter(BPA_EXPOSURE %in% c("YES", "NO"))
-
-auc_sex_bpa %>%
-  group_by(SEX, BPA_EXPOSURE) %>%
-  summarise(n = n(), .groups = "drop")
-
-model <- lm(AUC ~ SEX * BPA_EXPOSURE, data = auc_sex_bpa)
-
-summary(model)
-anova(model)
-
-#A significant main effect of sex was observed, with males exhibiting higher AUC values than females
-#independent of BPA exposure
-
 
 # FI over time data----
 
