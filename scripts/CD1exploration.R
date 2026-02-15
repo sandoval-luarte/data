@@ -1,4 +1,4 @@
-# This script aims to explore changes in body weight (BW), body composition and behavior in females and males CD1 offspring
+# This script aims to explore changes in body composition and behavior in females and males CD1 offspring
 #exposed to perinatal BPA 50 ug/kg and fed with HFD (D12451i, research diets) or HCD (D12451Hi, research diets)
 
 #libraries
@@ -2031,10 +2031,67 @@ FI_data <- read_csv("../data/FI.csv") %>%
   ) %>% 
   mutate(
    FIcumulative = cumsum(corrected_intake_kcal)) %>% 
-  ungroup()
+  ungroup() %>% 
+  filter(!ID ==9406)  #9406 has a  weird pattern in locomotion
+  
+####FI collapsed by diet----
+
+FI_summary <- FI_data %>%
+  group_by(day_rel, SEX, BPA_EXPOSURE) %>%
+  summarise(
+    mean_FI = mean(FIcumulative, na.rm = TRUE),
+    sem_FI  = sd(FIcumulative, na.rm = TRUE) / sqrt(n_distinct(ID)),
+    n = n_distinct(ID),
+    .groups = "drop"
+  ) %>% 
+  filter(day_rel == 138)
+
+FI_plot <- ggplot(FI_summary, aes(x = BPA_EXPOSURE, y = mean_FI, fill = BPA_EXPOSURE)) +
+  geom_col(width = 0.7) +
+  geom_errorbar(
+    aes(ymin = mean_FI - sem_FI, ymax = mean_FI + sem_FI),
+    width = 0.2
+  ) +
+  facet_wrap(~ SEX) +
+  labs(
+    y = "Cumulative food intake (kcal)",
+    x = "BPA exposure",
+    fill = "BPA exposure"
+  ) +
+  theme_classic(base_size = 14)
+
+FI_plot
+
+### STATS -----
+
+FI_day138 <- FI_data %>%
+  filter(day_rel == 138) %>%
+  group_by(ID, SEX, BPA_EXPOSURE) %>%
+  summarise(
+    FIcumulative = mean(FIcumulative, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+###### STATS for females----
+
+
+# females
+leveneTest(
+  FIcumulative ~ BPA_EXPOSURE,
+  data = FI_day138 %>% filter(SEX == "F")
+)
+
+# males
+leveneTest(
+  FIcumulative ~ BPA_EXPOSURE,
+  data = FI_day138 %>% filter(SEX == "M")
+)
+
+  
+  ####FI collapsed by diet----
 
 FI_data  %>% 
-  group_by(SEX,BPA_EXPOSURE,DIET_FORMULA) %>%
+  group_by(SEX,BPA_EXPOSURE) %>%
   summarise(n_ID = n_distinct(ID))
 
 FI_summary <- FI_data %>%
