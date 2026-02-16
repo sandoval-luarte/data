@@ -27,6 +27,7 @@ FI_data <- FI_data %>%
               aes(label = ID), 
               hjust = -0.2, vjust = 0.5, 
               size = 3, show.legend = FALSE) #so check the FI for 315, 318, 314
+  plot
 #BW####
   
   BW_data <-read_csv("~/Documents/GitHub/data/data/BW.csv") #data import
@@ -45,6 +46,7 @@ FI_data <- FI_data %>%
               aes(label = ID), 
               hjust = -0.2, vjust = 0.5, 
               size = 3, show.legend = FALSE) #so check the FI for 315, 318, 314
+  plot
 
 
   mixed_model_result <- lmer(BW ~ STRAIN * SEX + (1 | ID), data = BW_data)

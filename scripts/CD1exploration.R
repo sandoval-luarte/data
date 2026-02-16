@@ -22,7 +22,9 @@ library(patchwork)
 library(ggpattern)
 library(car)
 
-# BW diet collapsed----
+#BODY WEIGHT (BW) ANALYSIS----
+
+## BW diet collapsed by diet----
 
 METABPA <- read_csv("~/Documents/GitHub/data/data/METABPA.csv")
 
@@ -61,8 +63,7 @@ BW_summary_collapsed <- BW_data_collapsed %>%
     .groups = "drop"
   )
 
-## STATS----
-## females in OD (HCD+HFD) ----
+## STATS females in OD (HCD+HFD) ----
 bw_fem_collapsed <- BW_data_collapsed %>%
   filter(
     SEX == "F",
@@ -94,7 +95,7 @@ day_contrasts_fem_collapsed <- contrast(
 day_stats_fem_collapsed <- as.data.frame(day_contrasts_fem_collapsed) 
 #so for females in OD diets (HCD + HFD) after day 77 BPA females are heavier than non BPA females
 
-## males in OD (HCD+HFD)----
+## STATS males in OD (HCD+HFD)----
 bw_m_collapsed <- BW_data_collapsed %>%
   filter(
     SEX == "M",
@@ -126,7 +127,7 @@ day_contrasts_m_collapsed <- contrast(
 day_stats_m_collapsed <- as.data.frame(day_contrasts_m_collapsed) 
 #so for males in OD diets (HCD + HFD) there is none day in which BPA exposed males are heavier than non BPA males
 
-# paper figure 1 plot collapsed by diet----
+## Figure 1A BW collapsed by diet----
 
 BW_data_collapsed <- BW_data_collapsed %>%
   mutate(
@@ -189,7 +190,7 @@ plot_bw_sex_collapsed <- ggplot(
 
 plot_bw_sex_collapsed
 
-# BW over time data by diet ----
+## BW separated by diet ----
 METABPA <- read_csv("~/Documents/GitHub/data/data/METABPA.csv")
 
 BW_data <- read_csv("../data/BW.csv") %>% 
@@ -226,9 +227,8 @@ BW_summary <- BW_data %>%
     n = n(),
     .groups = "drop"
   )
-##STATS----
 
-## females in HCD----
+## STATS females in HCD----
 bw_fem_hcd <- BW_data %>%
   filter(
     SEX == "F",
@@ -261,7 +261,7 @@ day_contrasts_fem_hcd <- contrast(
 day_stats_fem_hcd <- as.data.frame(day_contrasts_fem_hcd) 
 #so for females in HCD after day 119 BPA females are heavier than non BPA females
 
-## females in HFD----
+## STATS females in HFD----
 
 bw_fem_hfd <- BW_data %>%
   filter(
@@ -295,7 +295,7 @@ day_contrasts_fem_hfd <- contrast(
 day_stats_fem_hfd <- as.data.frame(day_contrasts_fem_hfd) 
 #so for females in HFD after day 35 BPA females are heavier than non BPA females
 
-## males in HCD----
+## STATS males in HCD----
 
 bw_male_hcd <- BW_data %>%
   filter(
@@ -329,7 +329,7 @@ day_contrasts_male_hcd <- contrast(
 day_stats_male_hcd <- as.data.frame(day_contrasts_male_hcd) 
 #so for there is no days in which BPA males are heavier than non-BPA males
 
-## males in HFD----
+## STATS males in HFD----
 
 bw_male_hfd <- BW_data %>%
   filter(
@@ -363,7 +363,7 @@ day_contrasts_male_hfd <- contrast(
 day_stats_male_hfd <- as.data.frame(day_contrasts_male_hfd) 
 #so for there is no days in which BPA males are heavier than non-BPA males
 
-# paper figure 1 plot----
+## Figure 1B BW separated by diet----
 
 BW_data <- BW_data %>%
   mutate(
@@ -434,14 +434,14 @@ plot_bw_sex <- ggplot(
 
 plot_bw_sex
 
-# figure 1 paper final----
+# Figure 1 (Figure 1A+ Figure 1B) ----
 plot_bw_sex_collapsed <- plot_bw_sex_collapsed + labs(tag = "A")
 plot_bw_sex <- plot_bw_sex + labs(tag = "B")
 
 combined_plot <- plot_bw_sex_collapsed | plot_bw_sex
 combined_plot
 
-# BW at day 0 with HCD or HFD----
+## BW at day 0 with HCD or HFD----
 
 BW_day0_raw <- BW_data %>% 
   filter(bw_rel == 0)
@@ -455,6 +455,8 @@ BW_day0_sum <- BW_data %>%
     n = n(),
     .groups = "drop"
   )
+
+#### supplementary figure 1----
 
 ggplot(BW_day0_sum,
        aes(x = BPA_EXPOSURE, y = mean_BW, fill = BPA_EXPOSURE)) +
@@ -528,7 +530,7 @@ t_male <- t.test(
 t_female
 t_male
 
-# BW gain over time data----
+## BW gain over time data----
 
 BW_gain <- BW_data %>% 
  # filter(SEX =="F") %>% 
@@ -685,7 +687,7 @@ week_stats_m_hfd <- as.data.frame(week_contrasts_m_hfd)
 #There were no weeks in which BPA-exposed males fed HFD exhibited a greater 
 #percentage body-weight gain than non-BPA males
 
-# paper supp figure 1 plot----
+### supplementary figure 2 ----
 
 plot_bw_gain <- ggplot(
   BW_gainsummary,
@@ -724,7 +726,7 @@ plot_bw_gain <- ggplot(
 
 plot_bw_gain
 
-# Speed = rate of change of body weight over time data----
+## Speed = rate of change of BW over time----
 
 BW_speed <- BW_data %>%
   group_by(ID, SEX, BPA_EXPOSURE,DIET_FORMULA) %>%
@@ -765,7 +767,7 @@ p1 <- ggplot(BW_speed,
 p1
 
 
-## STATS----
+### STATS----
 
 lmer_speed <- lmer(
   BW ~ day_rel * BPA_EXPOSURE * SEX + (day_rel | ID),
@@ -783,7 +785,7 @@ summary(lmer_speed)
 #Although the estimated growth rate was slightly higher in BPA-exposed females,
 #this difference did not reach statistical significance (t = 1.36).
 
-## Could BPA affect growth speed only later in life?----
+### Could BPA affect growth speed only later in life?----
 
 lmer(
   BW ~ day_rel * BPA_EXPOSURE * SEX + (day_rel | ID),
@@ -823,7 +825,7 @@ p2 <- ggplot(BW_speed,
 
 p2
 
-# paper supp figure 2 plot----
+###supplementary figure 3----
 
 p1 <- p1 + labs(tag = "B")
 p2 <- p2 + labs(tag = "A")
@@ -842,7 +844,7 @@ combined_plot
 # Same growth rate
 # Higher final BW in BPA females in HCD and HFD but stronger in HFD
 
-# Body comp over time ----
+# BODY COMPOSITION ANALYSIS----
 
 METABPA <- read_csv("~/Documents/GitHub/data/data/METABPA.csv")
 
@@ -859,7 +861,7 @@ group_by(ID) %>%
   rename(
     DIET_FORMULA = DIET_FORMULA.x)
 
-## AI diet collapsed ----
+## Adiposity index collapsed by diet ----
 
 echoMRI_data %>% 
   group_by(SEX,BPA_EXPOSURE) %>%
@@ -918,8 +920,8 @@ bodycomp_summary_collapsed <- echoMRI_data_comparisons_collapsed %>%
                                                           "22 wks"))) %>% 
   ungroup()
 
-## supplementary plot 3 AI collapsed by diet ----
-sp3 <- ggplot(bodycomp_summary_collapsed,
+### supplementary figure 4A (SF4A) adiposity index collapsed by diet ----
+sf4a <- ggplot(bodycomp_summary_collapsed,
              aes(x = n_measurement,
                  y = mean_AI,
                  color = BPA_EXPOSURE,
@@ -932,14 +934,14 @@ sp3 <- ggplot(bodycomp_summary_collapsed,
               color = NA) +
   facet_wrap( ~ SEX)+
   labs(
-    x = "Days of measurement",
+    x = "weeks (wks)",
     y = "adiposity index (fat/lean mass)",
     color = "BPA exposure",
     fill  = "BPA exposure"
   ) +
   theme_classic(base_size = 14) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
-sp3
+sf4a
 
 ####STATS for females----
 
@@ -1007,7 +1009,7 @@ ai_stats_m
 
 #there is no days in which males exposed to BPA have higher AI than control ones
 
-## AI separated by diet ---- 
+## Adiposity index separated by diet ---- 
 
 echoMRI_data %>% 
   group_by(SEX,BPA_EXPOSURE,DIET_FORMULA) %>%
@@ -1067,8 +1069,8 @@ bodycomp_summary <- echoMRI_data_comparisons %>%
   ungroup()
 
 
-## supplementary plot 4? AI splitted by diet ----
-sp4 <- ggplot(bodycomp_summary,
+## supplementary figure 4B (SF4B) adiposity index separated by diet ----
+sf4b <- ggplot(bodycomp_summary,
              aes(x = n_measurement,
                  y = mean_AI,
                  color = BPA_EXPOSURE,
@@ -1085,14 +1087,14 @@ sp4 <- ggplot(bodycomp_summary,
         "D12450Hi" = "HCD",
         "D12451i"  = "HFD" ))) +
   labs(
-    x = "Days of measurement",
+    x = "weeks (wks)",
     y = "adiposity index (fat/lean mass)",
     color = "BPA exposure",
     fill  = "BPA exposure"
   ) +
   theme_classic(base_size = 14) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
-sp4
+sf4b
 
 ###STATS for females HCD----
 
@@ -1230,8 +1232,16 @@ ai_stats_m_hfd
 
 #there is no days in which males in HFD exposed to BPA have higher AI than control ones
 
-## supplementary plot 5? FM collapsed by diet ----
-sp5 <- ggplot(bodycomp_summary_collapsed,
+
+# supplementary figure 4 (SF4A+ SF4B)----
+sf4a <- sf4a + labs(tag = "A")
+sf4b <- sf4b + labs(tag = "B")
+
+combined_plot_ai <- sf4a  | sf4b 
+combined_plot_ai
+
+## supplementary figure 5A (SF5A) fat mass collapsed by diet ----
+sf5a <- ggplot(bodycomp_summary_collapsed,
              aes(x = n_measurement,
                  y = mean_fat,
                  color = BPA_EXPOSURE,
@@ -1244,14 +1254,14 @@ sp5 <- ggplot(bodycomp_summary_collapsed,
               color = NA) +
   facet_wrap( ~ SEX) +
   labs(
-    x = "Days of measurement",
+    x = "weeks (wks)",
     y = "Fat mass (g)",
     color = "BPA exposure",
     fill  = "BPA exposure"
   ) +
   theme_classic(base_size = 14) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
-sp5
+sf5a
 
 ###STATS for females----
 
@@ -1318,9 +1328,9 @@ fat_stats_m
 
 #there is no days in which males exposed to BPA have higher fat mass than control ones
 
-## supplementary plot 6? FM splitted by diet ----
+## supplementary figure 5B (SF5B) fat mass splitted by diet ----
   
-p2 <- ggplot(bodycomp_summary,
+sf5b <- ggplot(bodycomp_summary,
                aes(x = n_measurement,
                    y = mean_fat,
                    color = BPA_EXPOSURE,
@@ -1337,14 +1347,14 @@ p2 <- ggplot(bodycomp_summary,
                   "D12450Hi" = "HCD",
                   "D12451i"  = "HFD" ))) +
   labs(
-    x = "Days of measurement",
+    x = "weeks (wks)",
     y = "Fat mass (g)",
     color = "BPA exposure",
     fill  = "BPA exposure"
   ) +
   theme_classic(base_size = 14) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
-p2
+sf5b 
 
 ###STATS for females HCD----
 
@@ -1482,8 +1492,15 @@ fat_stats_m_hfd
 
 #there is no days in which males in HFD exposed to BPA have higher fat mass than control ones
 
-## plot 3 LM collapsed by diet ----
-p3 <- ggplot(bodycomp_summary_collapsed,
+# supplementary figure 5 (SF4A+ SF4B)----
+sf5a <- sf5a + labs(tag = "A")
+sf5b <- sf5b + labs(tag = "B")
+
+combined_plot_fm <- sf5a  | sf5b 
+combined_plot_fm
+
+## Figure 2A (F2A) lean mass collapsed by diet ----
+f2a <- ggplot(bodycomp_summary_collapsed,
              aes(x = n_measurement,
                  y = mean_lean,
                  color = BPA_EXPOSURE,
@@ -1503,7 +1520,7 @@ p3 <- ggplot(bodycomp_summary_collapsed,
   ) +
   theme_classic(base_size = 14) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
-p3
+f2a
 
 ####STATS for females----
 
@@ -1536,6 +1553,8 @@ contr_fem_lean <- contrast(
 lean_stats_fem<- as.data.frame(contr_fem_lean)
 lean_stats_fem
 
+# so after week 12 female mice exposed to BPA have more lean mass than non exposed one independent of the obesogenic diet
+
 ####STATS for males----
 
 lean_m<- echoMRI_data_comparisons_collapsed %>%
@@ -1567,9 +1586,10 @@ contr_m_lean <- contrast(
 lean_stats_m<- as.data.frame(contr_m_lean)
 lean_stats_m
 
-## plot 4 LM splitted by diet ----
-  
-  p3 <- ggplot(bodycomp_summary,
+#there is no weeks in which males exposed to BPA have more lean mass than non exposed ones
+
+## Figure 2B (F2B) lean mass by diet ----
+f2b <- ggplot(bodycomp_summary,
                aes(x = n_measurement,
                    y = mean_lean,
                    color = BPA_EXPOSURE,
@@ -1593,7 +1613,7 @@ lean_stats_m
   ) +
   theme_classic(base_size = 14) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
-p3
+f2b
 
 ###STATS for females HCD----
 
@@ -1732,6 +1752,183 @@ lean_stats_m_hfd
 
 #there is no weeks in which BPA exposed males have more lean mass than non exposed one after being fed with HFD
 
+# Figure 2 (F2A+ F2B)----
+f2a <- f2a + labs(tag = "A")
+f2b <- f2b + labs(tag = "B")
+
+combined_plot_lm <- f2a  | f2b 
+combined_plot_lm
+
+
+# FOOD INTAKE ANALYSIS----
+
+FI_data <- read_csv("../data/FI.csv") %>% 
+  filter(COHORT %in% c(15,16)) %>% 
+  mutate(DATE = ymd(DATE)) %>% 
+  arrange(DATE) %>% 
+  group_by(ID) %>% 
+  mutate(
+    day_rel = as.integer(as.Date(DATE) - as.Date(first(DATE)))
+  ) %>% 
+  left_join(METABPA, by= "ID") %>% 
+  select(
+    -SEX.y,
+    -DIET_FORMULA.x,
+    -DIET_FORMULA.y
+  ) %>% 
+  rename(
+    SEX = SEX.x
+  ) %>% 
+  mutate(
+    FIcumulative = cumsum(corrected_intake_kcal)) %>% 
+  ungroup() %>% 
+  filter(!ID ==9406)  #9406 has a  weird pattern in locomotion
+
+####FI collapsed by diet----
+
+FI_summary <- FI_data %>%
+  group_by(day_rel, SEX, BPA_EXPOSURE) %>%
+  summarise(
+    mean_FI = mean(FIcumulative, na.rm = TRUE),
+    sem_FI  = sd(FIcumulative, na.rm = TRUE) / sqrt(n_distinct(ID)),
+    n = n_distinct(ID),
+    .groups = "drop"
+  ) %>% 
+  filter(day_rel == 138)
+
+FI_plotA <- ggplot(FI_summary, aes(x = BPA_EXPOSURE, y = mean_FI, fill = BPA_EXPOSURE)) +
+  geom_col(width = 0.7) +
+  geom_errorbar(
+    aes(ymin = mean_FI - sem_FI, ymax = mean_FI + sem_FI),
+    width = 0.2
+  ) +
+  facet_wrap(~ SEX) +
+  labs(
+    y = "Cumulative food intake (kcal)",
+    x = "BPA exposure",
+    fill = "BPA exposure"
+  ) +
+  theme_classic(base_size = 14)
+
+FI_plotA
+
+### STATS -----
+
+FI_day138 <- FI_data %>%
+  filter(day_rel == 138) %>%
+  group_by(ID, SEX, BPA_EXPOSURE) %>%
+  summarise(
+    FIcumulative = mean(FIcumulative, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+###### STATS for females----
+leveneTest(
+  FIcumulative ~ BPA_EXPOSURE,
+  data = FI_day138 %>% filter(SEX == "F")
+) #p> 0.05, no evidence that variances differ between BPA vs control
+
+t_female <- t.test(
+  FIcumulative ~ BPA_EXPOSURE,
+  data = FI_day138 %>% filter(SEX == "F"),
+  var.equal = TRUE
+)
+t_female
+
+###### STATS for males----
+leveneTest(
+  FIcumulative ~ BPA_EXPOSURE,
+  data = FI_day138 %>% filter(SEX == "M")
+) #p> 0.05, no evidence that variances differ between BPA vs control
+
+t_male <- t.test(
+  FIcumulative ~ BPA_EXPOSURE,
+  data = FI_day138 %>% filter(SEX == "M"),
+  var.equal = TRUE
+)
+t_male
+
+####FI separated by diet----
+
+FI_data  %>% 
+  group_by(SEX,BPA_EXPOSURE,DIET_FORMULA) %>%
+  summarise(n_ID = n_distinct(ID))
+
+FI_summary <- FI_data %>%
+  group_by(day_rel, SEX, BPA_EXPOSURE,DIET_FORMULA) %>%
+  summarise(
+    mean_FI = mean(FIcumulative, na.rm = TRUE),
+    sem_FI  = sd(FIcumulative, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  ) %>% 
+  filter(day_rel == 138)
+
+FI_plotB <- ggplot(FI_summary, aes(x = BPA_EXPOSURE, y = mean_FI, fill = BPA_EXPOSURE)) +
+  geom_col(width = 0.7) +
+  geom_errorbar(
+    aes(ymin = mean_FI - sem_FI, ymax = mean_FI + sem_FI),
+    width = 0.2
+  ) +
+  facet_wrap(
+    ~ SEX * DIET_FORMULA,
+    labeller = labeller(
+      DIET_FORMULA = c(
+        "D12450Hi" = "HCD",
+        "D12451i"  = "HFD"
+      )
+    )
+  ) +
+  labs(
+    y = "Cumulative food intake (kcal)",
+    x = "BPA exposure",
+    fill = "BPA exposure"
+  ) +
+  theme_classic(base_size = 14)
+
+FI_plotB
+
+
+####FI separated sex and collapsed by diet----
+##### just to see if males ate more than females
+
+FI_data  %>% 
+  group_by(SEX) %>%
+  summarise(n_ID = n_distinct(ID))
+
+FI_summary <- FI_data %>%
+  group_by(day_rel, SEX) %>%
+  summarise(
+    mean_FI = mean(FIcumulative, na.rm = TRUE),
+    sem_FI  = sd(FIcumulative, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  ) %>% 
+  filter(day_rel == 138)
+
+FI_plotC <- ggplot(FI_summary, aes(x = SEX, y = mean_FI)) +
+  geom_col(width = 0.7) +
+  geom_errorbar(
+    aes(ymin = mean_FI - sem_FI, ymax = mean_FI + sem_FI),
+    width = 0.2
+  ) +
+  labs(
+    y = "Cumulative food intake (kcal)",
+    x = "SEX"
+  ) +
+  theme_classic(base_size = 14)
+
+FI_plotC
+
+# supplementary figure 6 (FIplotA + FIplotB + FIplotC)----
+sf6a <- FI_plotC + labs(tag = "A")
+sf6b <- FI_plotA  + labs(tag = "B")
+sf6c <- FI_plotB  + labs(tag = "C")
+
+combined_plot_fi <- sf6a  | sf6b | sf6c 
+combined_plot_fi
+
+
 # OGTT----
 
 #OGTT WAS DONE FOR COHORT 15 AND 16 WHEN ALL ANIMALS WERE 27 WEEK OLD
@@ -1772,7 +1969,7 @@ auc_df <- ogtt_long %>%
     .groups = "drop"
   )
 
-ggplot(auc_df, aes(x = BPA_EXPOSURE, y = AUC)) +
+ogtta <- ggplot(auc_df, aes(x = BPA_EXPOSURE, y = AUC)) +
   geom_jitter(width = 0.1, alpha = 0.6) +
   stat_summary(fun = mean, geom = "point", size = 3) +
   stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.2) +
@@ -1782,6 +1979,7 @@ ggplot(auc_df, aes(x = BPA_EXPOSURE, y = AUC)) +
     y = "Glucose AUC (0–90 min)"
   ) +
   theme_classic()
+ogtta
 
 ##### STATS for females----
 
@@ -1847,7 +2045,7 @@ auc_df <- ogtt_long %>%
     .groups = "drop"
   )
 
-ggplot(auc_df, aes(x = SEX, y = AUC)) +
+ogttb <- ggplot(auc_df, aes(x = SEX, y = AUC)) +
   geom_jitter(width = 0.1, alpha = 0.6) +
   stat_summary(fun = mean, geom = "point", size = 3) +
   stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.2) +
@@ -1856,6 +2054,7 @@ ggplot(auc_df, aes(x = SEX, y = AUC)) +
     y = "Glucose AUC (0–90 min)"
   ) +
   theme_classic()
+ogttb 
 
 ##### STATS females vs males----
 
@@ -1893,7 +2092,7 @@ auc_df <- ogtt_long %>%
     .groups = "drop"
   )
 
-ggplot(auc_df, aes(x = BPA_EXPOSURE, y = AUC)) +
+ogttc <- ggplot(auc_df, aes(x = BPA_EXPOSURE, y = AUC)) +
   geom_jitter(width = 0.1, alpha = 0.6) +
   stat_summary(fun = mean, geom = "point", size = 3) +
   stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.2) +
@@ -1907,6 +2106,7 @@ ggplot(auc_df, aes(x = BPA_EXPOSURE, y = AUC)) +
     y = "Glucose AUC (0–90 min)"
   ) +
   theme_classic()
+ogttc
 
 #####STATS for females in HCD----
 
@@ -2010,279 +2210,14 @@ t.test(
   data = ogtt_m_hfd
 )
 
-# FI over time data----
+# supplementary figure 7 (ogtta + ogttb + ogttc)----
 
-FI_data <- read_csv("../data/FI.csv") %>% 
-  filter(COHORT %in% c(15,16)) %>% 
-  mutate(DATE = ymd(DATE)) %>% 
-  arrange(DATE) %>% 
-  group_by(ID) %>% 
-  mutate(
-    day_rel = as.integer(as.Date(DATE) - as.Date(first(DATE)))
-  ) %>% 
-  left_join(METABPA, by= "ID") %>% 
-  select(
-    -SEX.y,
-    -DIET_FORMULA.x,
-    -DIET_FORMULA.y
-  ) %>% 
-  rename(
-    SEX = SEX.x
-  ) %>% 
-  mutate(
-   FIcumulative = cumsum(corrected_intake_kcal)) %>% 
-  ungroup() %>% 
-  filter(!ID ==9406)  #9406 has a  weird pattern in locomotion
-  
-####FI collapsed by diet----
+sf7a <- ogtta + labs(tag = "A")
+sf7b <- ogttc + labs(tag = "B")
+sf7c <- ogttb + labs(tag = "C")
 
-FI_summary <- FI_data %>%
-  group_by(day_rel, SEX, BPA_EXPOSURE) %>%
-  summarise(
-    mean_FI = mean(FIcumulative, na.rm = TRUE),
-    sem_FI  = sd(FIcumulative, na.rm = TRUE) / sqrt(n_distinct(ID)),
-    n = n_distinct(ID),
-    .groups = "drop"
-  ) %>% 
-  filter(day_rel == 138)
-
-FI_plot <- ggplot(FI_summary, aes(x = BPA_EXPOSURE, y = mean_FI, fill = BPA_EXPOSURE)) +
-  geom_col(width = 0.7) +
-  geom_errorbar(
-    aes(ymin = mean_FI - sem_FI, ymax = mean_FI + sem_FI),
-    width = 0.2
-  ) +
-  facet_wrap(~ SEX) +
-  labs(
-    y = "Cumulative food intake (kcal)",
-    x = "BPA exposure",
-    fill = "BPA exposure"
-  ) +
-  theme_classic(base_size = 14)
-
-FI_plot
-
-### STATS -----
-
-FI_day138 <- FI_data %>%
-  filter(day_rel == 138) %>%
-  group_by(ID, SEX, BPA_EXPOSURE) %>%
-  summarise(
-    FIcumulative = mean(FIcumulative, na.rm = TRUE),
-    .groups = "drop"
-  )
-
-###### STATS for females----
-
-
-# females
-leveneTest(
-  FIcumulative ~ BPA_EXPOSURE,
-  data = FI_day138 %>% filter(SEX == "F")
-)
-
-# males
-leveneTest(
-  FIcumulative ~ BPA_EXPOSURE,
-  data = FI_day138 %>% filter(SEX == "M")
-)
-
-  
-  ####FI collapsed by diet----
-
-FI_data  %>% 
-  group_by(SEX,BPA_EXPOSURE) %>%
-  summarise(n_ID = n_distinct(ID))
-
-FI_summary <- FI_data %>%
-  group_by(day_rel, SEX, BPA_EXPOSURE) %>%
-  summarise(
-    mean_FI = mean(FIcumulative, na.rm = TRUE),
-    sem_FI  = sd(FIcumulative, na.rm = TRUE) / sqrt(n()),
-    n = n(),
-    .groups = "drop"
-  )
-
-# cumulative food intake plot----
-
-FI_plot <- ggplot(FI_summary, aes(x = day_rel, y = mean_FI, color = BPA_EXPOSURE, fill = BPA_EXPOSURE)) +
-  geom_line(size = 1) +
-  geom_ribbon(aes(ymin = mean_FI - sem_FI, ymax = mean_FI + sem_FI), alpha = 0.25, color = NA) +
-  facet_wrap(~ SEX) +
-  labs(x = "Days", y = "Cumulative food intake (kcal)", color = "BPA exposure", fill = "BPA exposure") +
-  theme_classic(base_size = 14)
-FI_plot
-
-mod_FI <- lmer(
-  FIcumulative ~ day_rel * BPA_EXPOSURE * SEX +
-    (1 | ID),
-  data = FI_data
-)
-summary(mod_FI)
-anova(mod_FI)
-
-lmer(FIcumulative ~ day_rel * BPA_EXPOSURE + (1|ID),
-     data = filter(FI_data, SEX == "F"))
-
-lmer(FIcumulative ~ day_rel * BPA_EXPOSURE + (1|ID),
-     data = filter(FI_data, SEX == "M"))
-
-summary(lmer(FIcumulative ~ day_rel * BPA_EXPOSURE + (1|ID),
-             data = filter(FI_data, SEX == "F")))
-
-summary(lmer(FIcumulative ~ day_rel * BPA_EXPOSURE + (1|ID),
-             data = filter(FI_data, SEX == "M")))
-
-mod_F_F <- lmer(
-  FIcumulative ~ day_rel * BPA_EXPOSURE + (1 | ID),
-  data = filter(FI_data, SEX == "F")
-)
-
-emm_F <- emmeans(
-  mod_F_F,
-  ~ BPA_EXPOSURE | day_rel,
-  at = list(day_rel = c(30, 60, 90))
-)
-
-contrast(emm_F, method = "pairwise")
-
-mod_F_M <- lmer(
-  FIcumulative ~ day_rel * BPA_EXPOSURE + (1 | ID),
-  data = filter(FI_data, SEX == "M")
-)
-
-emm_M <- emmeans(
-  mod_F_M,
-  ~ BPA_EXPOSURE | day_rel,
-  at = list(day_rel = c(30, 60, 90))
-)
-
-contrast(emm_M, method = "pairwise")
-
-
-emm_F_56 <- emmeans(
-  mod_F_F,
-  ~ BPA_EXPOSURE | day_rel,
-  at = list(day_rel = 56)
-)
-
-contrast(emm_F_56, method = "pairwise")
-
-emm_M_56 <- emmeans(
-  mod_F_M,
-  ~ BPA_EXPOSURE | day_rel,
-  at = list(day_rel = 56)
-)
-
-contrast(emm_M_56, method = "pairwise")
-
-# energy eficiency analysis ----
-EE_data <- BW_data %>%
-  select(ID, SEX, BPA_EXPOSURE, day_rel, BW) %>%
-  left_join(FI_data %>% select(ID, day_rel, FIcumulative), by = c("ID", "day_rel"))
-
-# Check that IDs are still valid
-unique(EE_data$ID)
-
-intervals <- c(0, 30, 60, 90, 120, 150)  # days
-
-library(dplyr)
-library(purrr)
-library(tibble)
-
-EE_per_interval <- EE_data %>%
-  group_by(ID) %>%
-  group_split() %>%  # split into list by ID
-  map_dfr(function(df) {
-    res <- tibble()
-    intervals <- c(0, 30, 60, 90, 120, 150)
-    
-    for(i in 2:length(intervals)){
-      start_day <- intervals[i-1]
-      end_day   <- intervals[i]
-      
-      # Closest rows
-      row_start <- df[which.min(abs(df$day_rel - start_day)), ]
-      row_end   <- df[which.min(abs(df$day_rel - end_day)), ]
-      
-      delta_BW <- row_end$BW - row_start$BW
-      delta_FI <- row_end$FIcumulative - row_start$FIcumulative
-      EE_val   <- delta_BW / delta_FI
-      
-      res <- bind_rows(res, tibble(
-        ID = df$ID[1],
-        SEX = as.character(df$SEX[1]),
-        BPA_EXPOSURE = as.character(df$BPA_EXPOSURE[1]),
-        interval = paste0(start_day, "-", end_day),
-        delta_BW = delta_BW,
-        delta_FI = delta_FI,
-        EE = EE_val
-      ))
-    }
-    res
-  })
-
-unique(EE_per_interval$ID)
-nrow(EE_per_interval)
-head(EE_per_interval)
-
-EE_per_interval <- EE_per_interval %>%
-  mutate(
-    SEX = factor(SEX, levels = c("F","M")),
-    BPA_EXPOSURE = factor(BPA_EXPOSURE, levels = c("NO","YES")),
-    interval = factor(interval, levels = c("0-30","30-60","60-90","90-120","120-150"))
-  )
-
-EE_summary <- EE_per_interval %>%
-  group_by(interval, SEX, BPA_EXPOSURE) %>%
-  summarise(
-    mean_EE = mean(EE, na.rm = TRUE),
-    sem_EE  = sd(EE, na.rm = TRUE)/sqrt(n()),
-    n = n(),
-    .groups = "drop"
-  )
-
-EE_summary
-
-library(lme4)
-library(emmeans)
-
-EE_lme <- lmer(EE ~ BPA_EXPOSURE * SEX + interval + (1|ID), data = EE_per_interval)
-summary(EE_lme)
-
-# Post-hoc comparisons (optional)
-EE_emm <- emmeans(EE_lme, ~ BPA_EXPOSURE | SEX * interval)
-pairs(EE_emm)
-
-
-# Energy Efficiency plot ----
-EE_plot <- ggplot(EE_summary, aes(x = interval, y = mean_EE, group = BPA_EXPOSURE, color = BPA_EXPOSURE)) +
-  geom_line(size = 1) +
-  geom_point(size = 2) +
-  geom_errorbar(aes(ymin = mean_EE - sem_EE, ymax = mean_EE + sem_EE), width = 0.2) +
-  facet_wrap(~SEX) +
-  labs(
-    x = "Interval (days)",
-    y = "Energy Efficiency (g BW gain / kcal food)",
-    color = "BPA exposure"  ) +
-  theme_classic(base_size = 14) +
-  theme(
-    legend.position = "right",
-    axis.text.x = element_text(angle = 45, hjust = 1)
-  )
-
-EE_plot
-
-
-# Combine vertically
-combined_plot <- FI_plot / EE_plot + plot_layout(heights = c(1, 1))
-
-# Display
-combined_plot
-
-
-
-
+combined_plot_ogtt <- sf7a  | sf7b | sf7c 
+combined_plot_ogtt
 
 # indirect calorimetry columbus data ----
 
