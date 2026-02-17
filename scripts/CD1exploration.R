@@ -22,6 +22,162 @@ library(patchwork)
 library(ggpattern)
 library(car)
 
+
+# BPA effects on dams----
+dams_data <- read_csv("../data/DAMSBPAINFO.csv") %>% 
+  mutate(SEX = ifelse(SEX == FALSE, "F",
+                      ifelse(SEX == TRUE, "M", as.character(SEX)))) %>% 
+  group_by(ID) %>% 
+  mutate(F_M_sexratio = female_pups_number / male_pups_number) %>% 
+  ungroup()
+
+# Add female/male sex ratio
+dams_data <- dams_data %>%
+  mutate(F_M_sexratio = female_pups_number / male_pups_number)
+
+summary_stats <- dams_data %>%
+  group_by(BPA_EXPOSURE) %>%
+  summarise(
+    mean_Liter_size = mean(Liter_size, na.rm = TRUE),
+    sem_Liter_size  = sd(Liter_size, na.rm = TRUE) / sqrt(n()),
+    n_Liter_size    = n(),
+    
+    mean_gestation_days = mean(gestation_lenght_days, na.rm = TRUE),
+    sem_gestation_days  = sd(gestation_lenght_days, na.rm = TRUE) / sqrt(n()),
+    n_gestation_days    = n(),
+    
+    mean_female_pups = mean(female_pups_number, na.rm = TRUE),
+    sem_female_pups  = sd(female_pups_number, na.rm = TRUE) / sqrt(n()),
+    n_female_pups    = n(),
+    
+    mean_male_pups = mean(male_pups_number, na.rm = TRUE),
+    sem_male_pups  = sd(male_pups_number, na.rm = TRUE) / sqrt(n()),
+    n_male_pups    = n(),
+    
+    mean_F_M_sexratio = mean(F_M_sexratio, na.rm = TRUE),
+    sem_F_M_sexratio  = sd(F_M_sexratio, na.rm = TRUE) / sqrt(n()),
+    n_F_M_sexratio    = n()
+  )
+
+
+# First, define fill manually: YES -> grey pattern, NO -> white
+summary_stats <- summary_stats %>%
+  mutate(fill_color = ifelse(BPA_EXPOSURE == "YES", "pattern", "black"))
+
+# Panel A example
+pA <- ggplot(summary_stats, aes(x = BPA_EXPOSURE, y = mean_gestation_days)) +
+  # draw NO and YES bars separately
+  geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="NO"),
+           aes(y = mean_gestation_days),
+           fill = "black", color = "black", width = 0.6) +
+  geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="YES"),
+           aes(y = mean_gestation_days),
+           fill = "gray", color = "black", width = 0.6) +
+  geom_errorbar(aes(ymin = mean_gestation_days - sem_gestation_days,
+                    ymax = mean_gestation_days + sem_gestation_days),
+                width = 0.2, color = "black", size = 0.8) +
+  labs(y = "Gestational days", x = "") +
+  theme_classic(base_size = 14)
+
+pA
+
+# Panel B: Liter size
+pB <- ggplot(summary_stats, aes(x = BPA_EXPOSURE, y = mean_Liter_size)) +
+  geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="NO"),
+           fill = "black", color = "black", width = 0.6) +
+  geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="YES"),
+           fill = "gray", color = "black", width = 0.6) +
+  geom_errorbar(aes(ymin = mean_Liter_size - sem_Liter_size,
+                    ymax = mean_Liter_size + sem_Liter_size),
+                width = 0.2, color = "black", size = 0.8) +
+  labs(y = "Liter size", x = "") +
+  theme_classic(base_size = 14)
+
+# Panel C: Female pups
+pC <- ggplot(summary_stats, aes(x = BPA_EXPOSURE, y = mean_female_pups)) +
+  geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="NO"),
+           fill = "black", color = "black", width = 0.6) +
+  geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="YES"),
+           fill = "gray", color = "black", width = 0.6) +
+  geom_errorbar(aes(ymin = mean_female_pups - sem_female_pups,
+                    ymax = mean_female_pups + sem_female_pups),
+                width = 0.2, color = "black", size = 0.8) +
+  labs(y = "Female pups", x = "") +
+  theme_classic(base_size = 14)
+
+# Panel D: Male pups
+pD <- ggplot(summary_stats, aes(x = BPA_EXPOSURE, y = mean_male_pups)) +
+  geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="NO"),
+           fill = "black", color = "black", width = 0.6) +
+  geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="YES"),
+           fill = "gray", color = "black", width = 0.6) +
+  geom_errorbar(aes(ymin = mean_male_pups - sem_male_pups,
+                    ymax = mean_male_pups + sem_male_pups),
+                width = 0.2, color = "black", size = 0.8) +
+  labs(y = "Male pups", x = "") +
+  theme_classic(base_size = 14)
+
+# Panel E: Female/male sex ratio
+pE <- ggplot(summary_stats, aes(x = BPA_EXPOSURE, y = mean_F_M_sexratio)) +
+  geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="NO"),
+           fill = "black", color = "black", width = 0.6) +
+  geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="YES"),
+           fill = "gray", color = "black", width = 0.6) +
+  geom_errorbar(aes(ymin = mean_F_M_sexratio - sem_F_M_sexratio,
+                    ymax = mean_F_M_sexratio + sem_F_M_sexratio),
+                width = 0.2, color = "black", size = 0.8) +
+  labs(y = "Female/male sex ratio", x = "BPA EXPOSURE") +
+  theme_classic(base_size = 14)
+
+##plot---- 
+(pA | pB) /
+  (pC | pD) /
+  pE +
+  plot_annotation(tag_levels = 'A')
+
+##-- stats of BPA on dams----
+# List of parameters
+parameters <- c("gestation_lenght_days", "Liter_size",
+                "female_pups_number", "male_pups_number", "F_M_sexratio")
+
+# Function to run appropriate test comparing YES vs NO
+run_comparison <- function(param) {
+  
+  # Check normality per group
+  normality <- dams_data %>%
+    group_by(BPA_EXPOSURE) %>%
+    summarise(
+      shapiro_p = if(length(unique(get(param))) > 1) {
+        shapiro.test(get(param))$p.value
+      } else {
+        NA  # cannot test if all identical
+      },
+      .groups = "drop"
+    )
+  
+  # Decide which test to use
+  use_wilcox <- any(normality$shapiro_p < 0.05, na.rm = TRUE) | any(is.na(normality$shapiro_p))
+  
+  if (use_wilcox) {
+    test_res <- wilcox.test(get(param) ~ BPA_EXPOSURE, data = dams_data)
+    test_name <- "Wilcoxon"
+  } else {
+    test_res <- t.test(get(param) ~ BPA_EXPOSURE, data = dams_data)
+    test_name <- "t-test"
+  }
+  
+  data.frame(
+    parameter = param,
+    test = test_name,
+    p_value = test_res$p.value
+  )
+}
+
+# Run for all parameters and combine results
+comparison_results <- lapply(parameters, run_comparison) %>% bind_rows()
+
+comparison_results
+
 #BODY WEIGHT (BW) ANALYSIS----
 
 ## BW diet collapsed by diet----
@@ -50,7 +206,7 @@ BW_data_collapsed <- read_csv("../data/BW.csv") %>%
   )
 
 BW_data_collapsed  %>% 
-  group_by(SEX,BPA_EXPOSURE,DIET_FORMULA) %>%
+  group_by(SEX,BPA_EXPOSURE) %>%
   summarise(n_ID = n_distinct(ID)) 
 
 
@@ -93,7 +249,8 @@ day_contrasts_fem_collapsed <- contrast(
 )
 
 day_stats_fem_collapsed <- as.data.frame(day_contrasts_fem_collapsed) 
-#so for females in OD diets (HCD + HFD) after day 77 BPA females are heavier than non BPA females
+day_stats_fem_collapsed 
+#so for females in OD diets (HCD + HFD) after day 77 BPA females are heavier than non BPA females (week 11)
 
 ## STATS males in OD (HCD+HFD)----
 bw_m_collapsed <- BW_data_collapsed %>%
@@ -125,6 +282,7 @@ day_contrasts_m_collapsed <- contrast(
 )
 
 day_stats_m_collapsed <- as.data.frame(day_contrasts_m_collapsed) 
+day_stats_m_collapsed
 #so for males in OD diets (HCD + HFD) there is none day in which BPA exposed males are heavier than non BPA males
 
 ## Figure 1A BW collapsed by diet----
@@ -259,7 +417,8 @@ day_contrasts_fem_hcd <- contrast(
 )
 
 day_stats_fem_hcd <- as.data.frame(day_contrasts_fem_hcd) 
-#so for females in HCD after day 119 BPA females are heavier than non BPA females
+day_stats_fem_hcd
+#so for females in HCD after day 119 (week 17) BPA females are heavier than non BPA females
 
 ## STATS females in HFD----
 
@@ -293,7 +452,8 @@ day_contrasts_fem_hfd <- contrast(
 )
 
 day_stats_fem_hfd <- as.data.frame(day_contrasts_fem_hfd) 
-#so for females in HFD after day 35 BPA females are heavier than non BPA females
+day_stats_fem_hfd 
+#so for females in HFD after day 35 (week 5) BPA females are heavier than non BPA females
 
 ## STATS males in HCD----
 
@@ -327,6 +487,7 @@ day_contrasts_male_hcd <- contrast(
 )
 
 day_stats_male_hcd <- as.data.frame(day_contrasts_male_hcd) 
+day_stats_male_hcd
 #so for there is no days in which BPA males are heavier than non-BPA males
 
 ## STATS males in HFD----
@@ -361,6 +522,7 @@ day_contrasts_male_hfd <- contrast(
 )
 
 day_stats_male_hfd <- as.data.frame(day_contrasts_male_hfd) 
+day_stats_male_hfd 
 #so for there is no days in which BPA males are heavier than non-BPA males
 
 ## Figure 1B BW separated by diet----
@@ -582,6 +744,7 @@ week_contrasts_fem_hcd <- contrast(
 )
 
 week_stats_fem_hcd <- as.data.frame(week_contrasts_fem_hcd)
+week_stats_fem_hcd 
 #There were no weeks in which BPA-exposed females fed HCD exhibited a greater 
 #percentage body-weight gain than non-BPA females
 
@@ -616,6 +779,7 @@ week_contrasts_fem_hfd <- contrast(
 )
 
 week_stats_fem_hfd <- as.data.frame(week_contrasts_fem_hfd)
+week_stats_fem_hfd 
 #There were no weeks in which BPA-exposed females fed HFD exhibited a greater 
 #percentage body-weight gain than non-BPA females
 
@@ -650,6 +814,7 @@ week_contrasts_m_hcd <- contrast(
 )
 
 week_stats_m_hcd <- as.data.frame(week_contrasts_m_hcd)
+week_stats_m_hcd 
 #There were no weeks in which BPA-exposed males fed HCD exhibited a greater 
 #percentage body-weight gain than non-BPA males
 
@@ -684,6 +849,7 @@ week_contrasts_m_hfd <- contrast(
 )
 
 week_stats_m_hfd <- as.data.frame(week_contrasts_m_hfd)
+week_stats_m_hfd 
 #There were no weeks in which BPA-exposed males fed HFD exhibited a greater 
 #percentage body-weight gain than non-BPA males
 
@@ -827,10 +993,10 @@ p2
 
 ###supplementary figure 3----
 
-p1 <- p1 + labs(tag = "B")
-p2 <- p2 + labs(tag = "A")
+p1 <- p1 + labs(tag = "A")
+p2 <- p2 + labs(tag = "B")
 
-combined_plot <- p2 | p1
+combined_plot <- p1 | p2
 combined_plot
 
 #so Sex was the primary determinant of growth rate
@@ -1908,6 +2074,29 @@ FI_summary <- FI_data %>%
     .groups = "drop"
   ) %>% 
   filter(day_rel == 138)
+FI_summary
+
+# Filter data for day 138 and keep SEX column
+FI_day138 <- FI_data %>%
+  filter(day_rel == 138) %>%
+  group_by(ID, SEX) %>%
+  summarise(FIcumulative = mean(FIcumulative, na.rm = TRUE), .groups = "drop")
+
+# Check group sizes
+table(FI_day138$SEX)
+
+# Levene's test for equality of variances (optional but recommended)
+
+leveneTest(FIcumulative ~ SEX, data = FI_day138)
+
+# Run unpaired t-test (assume equal variances if Levene p > 0.05)
+t_test_sex <- t.test(FIcumulative ~ SEX,
+                     data = FI_day138,
+                     var.equal = TRUE)  # set FALSE if variances unequal
+
+# View results
+t_test_sex
+
 
 FI_plotC <- ggplot(FI_summary, aes(x = SEX, y = mean_FI)) +
   geom_col(width = 0.7) +
@@ -3332,13 +3521,293 @@ sf9a <- ggplot(summary_19heat, aes(x = BPA_EXPOSURE, y = mean_kcal_hr, fill = BP
 sf9a
 
 
+# Summarize relative_total_kcal_hr at hour == 19 including SEX and BPA_EXPOSURE and DIET so this means kcal spend over 24h
+relative_kcal_hr_at_19_diet <- ical_long_allheat %>%
+  filter(hour == 19) %>%
+  group_by(ID) %>%
+  summarise(
+    relative_total_kcal_hr_19 = first(relative_total_kcal_hr),
+    cohort = first(cohort),
+    SEX = first(SEX),
+    BPA_EXPOSURE = first(BPA_EXPOSURE),
+    DIET_FORMULA = first(DIET_FORMULA),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    DIET_FORMULA = dplyr::recode(DIET_FORMULA,
+                                 "D12450Hi" = "HCD",
+                                 "D12451i"  = "HFD")
+  )
 
 
+# females
+model_fheat <- lm(relative_total_kcal_hr_19 ~ BPA_EXPOSURE * DIET_FORMULA,
+              data = relative_kcal_hr_at_19_diet %>% filter(SEX == "F"))
+
+anova(model_fheat)
+summary(model_fheat)
+
+# males
+model_mheat <- lm(relative_total_kcal_hr_19 ~ BPA_EXPOSURE * DIET_FORMULA,
+              data = relative_kcal_hr_at_19_diet %>% filter(SEX == "M"))
+
+anova(model_mheat)
+summary(model_mheat)
 
 
+# females
+emmeans(model_fheat, pairwise ~ BPA_EXPOSURE | DIET_FORMULA)
+
+# males
+emmeans(model_mheat, pairwise ~ BPA_EXPOSURE | DIET_FORMULA)
+
+## supplementary figure 9B (SF9B) kcal over 24h separated by diet ----
+# Mean and SEM per SEX × BPA × DIET
+summary_19_dietheat <- relative_kcal_hr_at_19_diet %>%
+  group_by(SEX, DIET_FORMULA, BPA_EXPOSURE) %>%
+  summarise(
+    mean_kcal_hr = mean(relative_total_kcal_hr_19),
+    sem_kcal_hr = sd(relative_total_kcal_hr_19) / sqrt(n()),
+    .groups = "drop"
+  )
+
+sf9b <- ggplot(summary_19_dietheat,
+               aes(x = DIET_FORMULA,
+                   y = mean_kcal_hr,
+                   fill = BPA_EXPOSURE)) +
+  
+  geom_col(position = position_dodge(width = 0.7),
+           alpha = 0.7,
+           width = 0.6) +
+  
+  geom_errorbar(
+    aes(ymin = mean_kcal_hr - sem_kcal_hr,
+        ymax = mean_kcal_hr + sem_kcal_hr),
+    position = position_dodge(width = 0.7),
+    width = 0.2
+  ) +
+  
+  geom_jitter(
+    data = relative_kcal_hr_at_19_diet,
+    aes(x = DIET_FORMULA,
+        y = relative_total_kcal_hr_19,
+        color = BPA_EXPOSURE),
+    position = position_jitterdodge(jitter.width = 0.15,
+                                    dodge.width = 0.7),
+    size = 2,
+    alpha = 0.7,
+    inherit.aes = FALSE
+  ) +
+  
+  facet_wrap(~ SEX) +
+  
+  scale_fill_manual(values = c("NO" = "black", "YES" = "gray")) +
+  scale_color_manual(values = c("NO" = "black", "YES" = "gray")) +
+  
+  labs(
+    x = "Diet",
+    y = "kcal over 24h",
+    fill = "BPA Exposure",
+    color = "BPA Exposure"
+  ) +
+  
+  theme_minimal() +
+  theme(
+    strip.text = element_text(size = 12),
+    axis.text = element_text(size = 11),
+    axis.title = element_text(size = 12),
+    legend.position = "top"
+  )
+
+sf9b
+
+## kcal analysis separated by light period ----
+
+ical_phaseheat <- ical_long_allheat %>%
+  filter(!ID ==9406) %>%   #9406 has a  weird pattern in locomotion
+  mutate(
+    phase = case_when(
+      hour >= 20 | hour < 6  ~ "dark",   # 20:00–05:59
+      hour >= 6  & hour < 20 ~ "light"   # 06:00–19:59
+    )
+  )
+
+ical_phaseheat <- ical_phaseheat %>%
+  mutate(
+    phase_hour_order = case_when(
+      phase == "dark"  & hour >= 20 ~ hour,
+      phase == "dark"  & hour < 6   ~ hour + 24,
+      phase == "light"              ~ hour
+    )
+  ) %>%
+  arrange(ID, exp_day, phase, phase_hour_order)
+
+ical_phaseheat <- ical_phaseheat %>%
+  group_by(ID, exp_day, phase) %>%
+  mutate(
+    phase_cumsum = cumsum(kcal_hr),
+    relative_phase_cumsum = phase_cumsum - first(phase_cumsum)
+  ) %>%
+  ungroup()
+
+ical_phaseheat <- ical_phaseheat %>%
+  mutate(
+    lights_phase = if_else(phase == "dark", "lights_off", "lights_on")
+  )
+
+phase_summaryheat <- ical_phaseheat %>%
+  group_by(ID, SEX, BPA_EXPOSURE, lights_phase) %>%
+  summarise(
+    total_relative_kcal_hr = max(relative_phase_cumsum, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+##### STATS for females in lights off----
+dark_femheat <- phase_summaryheat %>%
+  filter(
+    SEX == "F",
+    lights_phase == "lights_off"
+  )
+
+t.test(
+  total_relative_kcal_hr ~ BPA_EXPOSURE,
+  data = dark_femheat
+)
+
+##### STATS for females in lights on ----
+light_femheat <- phase_summaryheat %>%
+  filter(
+    SEX == "F",
+    lights_phase == "lights_on"
+  )
+
+t.test(
+  total_relative_kcal_hr ~ BPA_EXPOSURE,
+  data = light_femheat
+)
+
+##### STATS for males in lights off----
+dark_maleheat <- phase_summaryheat %>%
+  filter(
+    SEX == "M",
+    lights_phase == "lights_off"
+  )
+
+t.test(
+  total_relative_kcal_hr ~ BPA_EXPOSURE,
+  data = dark_maleheat
+)
+
+##### STATS for males in lights on----
+light_maleheat <- phase_summaryheat %>%
+  filter(
+    SEX == "M",
+    lights_phase == "lights_on"
+  )
+
+t.test(
+  total_relative_kcal_hr ~ BPA_EXPOSURE,
+  data = light_maleheat
+)
+
+phase_plot_dfheat <- phase_summaryheat %>%
+  group_by(SEX, lights_phase, BPA_EXPOSURE) %>%
+  summarise(
+    mean_kcal_hr = mean(total_relative_kcal_hr, na.rm = TRUE),
+    sem_kcal_hr  = sd(total_relative_kcal_hr, na.rm = TRUE) / sqrt(n_distinct(ID)),
+    n_ID = n_distinct(ID),
+    .groups = "drop"
+  )
+
+phase_plot_dfheat <- phase_plot_dfheat %>%
+  mutate(
+    lights_phase = factor(
+      lights_phase,
+      levels = c("lights_off", "lights_on"),
+      labels = c("Lights OFF", "Lights ON")
+    )
+  )
+
+phase_summaryheat <- phase_summaryheat %>%
+  mutate(
+    lights_phase = factor(
+      lights_phase,
+      levels = c("lights_off", "lights_on"),
+      labels = c("Lights OFF", "Lights ON")
+    )
+  )
+
+## supplementary figure 9C (SF9C) kcal separated by light and not for diet ----
+sf9c <- ggplot(
+  phase_plot_dfheat,
+  aes(
+    x = lights_phase,
+    y = mean_kcal_hr,
+    fill = BPA_EXPOSURE
+  )
+) +
+  # Bars (means)
+  geom_col(
+    position = position_dodge(width = 0.75),
+    width = 0.65,
+    alpha = 0.7
+  ) +
+  # SEM error bars
+  geom_errorbar(
+    aes(
+      ymin = mean_kcal_hr - sem_kcal_hr,
+      ymax = mean_kcal_hr + sem_kcal_hr
+    ),
+    width = 0.2,
+    position = position_dodge(width = 0.75)
+  ) +
+  # Individual animal points
+  geom_jitter(
+    data = phase_summaryheat,
+    aes(
+      x = lights_phase,
+      y = total_relative_kcal_hr,
+      color = BPA_EXPOSURE
+    ),
+    position = position_jitterdodge(
+      jitter.width = 0.15,
+      dodge.width = 0.75
+    ),
+    size = 2,
+    alpha = 0.6,
+    inherit.aes = FALSE
+  ) +
+  facet_wrap(~ SEX) +
+  labs(
+    x = "Light cycle",
+    y = "Kcal",
+    fill = "BPA exposure",
+    color = "BPA exposure"
+  ) +
+  theme_minimal() +
+  theme(
+    strip.text = element_text(size = 12),
+    axis.text = element_text(size = 11),
+    axis.title = element_text(size = 12),
+    legend.position = "top"
+  ) +
+  # Set BPA_EXPOSURE colors manually
+  scale_fill_manual(values = c("NO" = "black", "YES" = "gray")) +
+  scale_color_manual(values = c("NO" = "black", "YES" = "gray"))
+
+sf9c
+
+# supplementary figure 9 (SF9A + SF9B + SF9C)----
+
+sf9a <- sf9a + labs(tag = "A")
+sf9b <- sf9b + labs(tag = "B")
+sf9c <- sf9c + labs(tag = "C")
+
+combined_plot_kcal_hr <- sf9a / sf9b / sf9c
+combined_plot_kcal_hr
 
 
-##RER####
+##Respiratory Exchange Ratio analysis####
 ical_data_RER_coh15 <- read_csv("~/Documents/GitHub/data/data/iCal_Kotz_082425_RER.csv") %>% 
   rename(ID = Subject) %>% 
   mutate(ID = as.numeric(paste0("93", ID))) %>% 
@@ -3437,10 +3906,9 @@ ical_long16RER <- ical_long16RER %>% select(all_of(common_cols))
 ical_long_allRER <- bind_rows(ical_long15RER, ical_long16RER) #this is key, here we combined
 
 ical_long_allRER %>% 
-  group_by(cohort) %>%
-  summarise(n_ID = n_distinct(ID)) %>% 
-  print(n = Inf) #ok great we have 24 animals for cohort 15 and 15 animals for cohort 16
-#so in total 39 animals
+  filter(!ID ==9406) %>%   #9406 has a  weird pattern in locomotion
+  group_by(BPA_EXPOSURE,SEX) %>%
+  summarise(n_ID = n_distinct(ID)) 
 
 ical_long_allRER <- ical_long_allRER %>%
   mutate(
@@ -3460,9 +3928,18 @@ ical_long_allRER <- ical_long_allRER %>%
     hour_ordered = if_else(hour < 20, hour + 24, hour)
   ) %>%
   arrange(ID, exp_day, hour_ordered) %>%
-  group_by(ID, exp_day)
+  group_by(ID, exp_day) %>%
+  mutate(RER_mean = mean(RER)) %>%
+  ungroup() %>% 
+  filter(!ID ==9406) %>%   #9406 has a  weird pattern in locomotion
+  group_by(ID, exp_day) 
 
-ical_long_allRER <- ical_long_allRER %>%
+ical_long_allRER %>%
+  filter(ID == min(ID)) %>%
+  select(datetime, exp_day, hour, hour_ordered, RER_mean) %>%
+  arrange(datetime)
+
+ical_long_allRER <- ical_long_allRER%>%
   mutate(
     hour_label = factor(
       hour_ordered,
@@ -3478,12 +3955,13 @@ ical_long_allRER <- ical_long_allRER %>%
     )
   )
 
+#### individual RER data----
 
-ggplot(
+ggplot( 
   ical_long_allRER,
   aes(
     x = hour_label,
-    y = RER,
+    y = RER_mean,
     group = interaction(ID, exp_day)
   )
 ) +
@@ -3491,7 +3969,7 @@ ggplot(
   facet_wrap(~ ID) +
   labs(
     x = "Time (20:00 → 19:00)",
-    y = "RER (VCO2/VO2)"
+    y = "mean RER"
   ) +
   theme_minimal() +
   theme(
@@ -3500,7 +3978,8 @@ ggplot(
   )
 
 ical_long_allgroupedRER <- ical_long_allRER %>% 
-  group_by(hour_label, SEX, BPA_EXPOSURE) %>% 
+  filter(!ID ==9406) %>%   #9406 has a  weird pattern in locomotion
+  group_by(hour_label, SEX, BPA_EXPOSURE,DIET_FORMULA) %>% 
   summarise(
     mean_RER = mean(RER, na.rm = TRUE),
     sem_RER  = sd(RER, na.rm = TRUE) / sqrt(n_distinct(ID)),
@@ -3508,16 +3987,33 @@ ical_long_allgroupedRER <- ical_long_allRER %>%
     .groups = "drop"
   )
 
+dark_phase <- data.frame(
+  xmin = 1,
+  xmax = 11,
+  ymin = -Inf,
+  ymax = Inf
+)
+
+#### cumulative RER separated by diet----
+
 ggplot(
   ical_long_allgroupedRER,
   aes(
-    x = hour_label,
+    x = as.numeric(hour_label),
     y = mean_RER,
     group = BPA_EXPOSURE,
     color = BPA_EXPOSURE,
     fill  = BPA_EXPOSURE
   )
 ) +
+  # DARK PHASE BACKGROUND
+  geom_rect(
+    data = dark_phase,
+    aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax),
+    inherit.aes = FALSE,
+    fill = "grey85",
+    alpha = 0.5
+  ) +
   geom_ribbon(
     aes(
       ymin = mean_RER - sem_RER,
@@ -3527,10 +4023,22 @@ ggplot(
     color = NA
   ) +
   geom_line(size = 1) +
-  facet_wrap(~ SEX) +
+  facet_wrap(
+    ~ SEX * DIET_FORMULA,
+    labeller = labeller(
+      DIET_FORMULA = c(
+        "D12450Hi" = "HCD",
+        "D12451i"  = "HFD"
+      )
+    )
+  ) +
+  scale_x_continuous(
+    breaks = 1:24,
+    labels = levels(ical_long_allgroupedRER$hour_label)
+  ) +
   labs(
     x = "Time (20:00 → 19:00)",
-    y = "RER (VCO2/VO2 mean ± SEM)",
+    y = "RER (mean ± SEM)",
     color = "BPA exposure",
     fill  = "BPA exposure"
   ) +
@@ -3543,159 +4051,4 @@ ggplot(
 #RER ≈ 0.7: Mostly fat oxidation
 #RER ≈ 0.85: Mix of fat and carbohydrate oxidation
 #RER ≈ 1.0: Mostly carbohydrate oxidation
-
-# BPA effects on dams----
-  dams_data <- read_csv("../data/DAMSBPAINFO.csv") %>% 
-  mutate(SEX = ifelse(SEX == FALSE, "F",
-                      ifelse(SEX == TRUE, "M", as.character(SEX)))) %>% 
-  group_by(ID) %>% 
-  mutate(F_M_sexratio = female_pups_number / male_pups_number) %>% 
-  ungroup()
-
-# Add female/male sex ratio
-dams_data <- dams_data %>%
-  mutate(F_M_sexratio = female_pups_number / male_pups_number)
-
-summary_stats <- dams_data %>%
-  group_by(BPA_EXPOSURE) %>%
-  summarise(
-    mean_Liter_size = mean(Liter_size, na.rm = TRUE),
-    sem_Liter_size  = sd(Liter_size, na.rm = TRUE) / sqrt(n()),
-    n_Liter_size    = n(),
-    
-    mean_gestation_days = mean(gestation_lenght_days, na.rm = TRUE),
-    sem_gestation_days  = sd(gestation_lenght_days, na.rm = TRUE) / sqrt(n()),
-    n_gestation_days    = n(),
-    
-    mean_female_pups = mean(female_pups_number, na.rm = TRUE),
-    sem_female_pups  = sd(female_pups_number, na.rm = TRUE) / sqrt(n()),
-    n_female_pups    = n(),
-    
-    mean_male_pups = mean(male_pups_number, na.rm = TRUE),
-    sem_male_pups  = sd(male_pups_number, na.rm = TRUE) / sqrt(n()),
-    n_male_pups    = n(),
-    
-    mean_F_M_sexratio = mean(F_M_sexratio, na.rm = TRUE),
-    sem_F_M_sexratio  = sd(F_M_sexratio, na.rm = TRUE) / sqrt(n()),
-    n_F_M_sexratio    = n()
-  )
-
-
-# First, define fill manually: YES -> grey pattern, NO -> white
-summary_stats <- summary_stats %>%
-  mutate(fill_color = ifelse(BPA_EXPOSURE == "YES", "pattern", "black"))
-
-# Panel A example
-pA <- ggplot(summary_stats, aes(x = BPA_EXPOSURE, y = mean_gestation_days)) +
-  # draw NO and YES bars separately
-  geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="NO"),
-           aes(y = mean_gestation_days),
-           fill = "black", color = "black", width = 0.6) +
-  geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="YES"),
-           aes(y = mean_gestation_days),
-           fill = "gray", color = "black", width = 0.6) +
-  geom_errorbar(aes(ymin = mean_gestation_days - sem_gestation_days,
-                    ymax = mean_gestation_days + sem_gestation_days),
-                width = 0.2, color = "black", size = 0.8) +
-  labs(y = "Gestational days", x = "") +
-  theme_classic(base_size = 14)
-
-pA
-
-# Panel B: Liter size
-pB <- ggplot(summary_stats, aes(x = BPA_EXPOSURE, y = mean_Liter_size)) +
-  geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="NO"),
-           fill = "black", color = "black", width = 0.6) +
-  geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="YES"),
-           fill = "gray", color = "black", width = 0.6) +
-  geom_errorbar(aes(ymin = mean_Liter_size - sem_Liter_size,
-                    ymax = mean_Liter_size + sem_Liter_size),
-                width = 0.2, color = "black", size = 0.8) +
-  labs(y = "Liter size", x = "") +
-  theme_classic(base_size = 14)
-
-# Panel C: Female pups
-pC <- ggplot(summary_stats, aes(x = BPA_EXPOSURE, y = mean_female_pups)) +
-  geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="NO"),
-           fill = "black", color = "black", width = 0.6) +
-  geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="YES"),
-           fill = "gray", color = "black", width = 0.6) +
-  geom_errorbar(aes(ymin = mean_female_pups - sem_female_pups,
-                    ymax = mean_female_pups + sem_female_pups),
-                width = 0.2, color = "black", size = 0.8) +
-  labs(y = "Female pups", x = "") +
-  theme_classic(base_size = 14)
-
-# Panel D: Male pups
-pD <- ggplot(summary_stats, aes(x = BPA_EXPOSURE, y = mean_male_pups)) +
-  geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="NO"),
-           fill = "black", color = "black", width = 0.6) +
-  geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="YES"),
-           fill = "gray", color = "black", width = 0.6) +
-  geom_errorbar(aes(ymin = mean_male_pups - sem_male_pups,
-                    ymax = mean_male_pups + sem_male_pups),
-                width = 0.2, color = "black", size = 0.8) +
-  labs(y = "Male pups", x = "") +
-  theme_classic(base_size = 14)
-
-# Panel E: Female/male sex ratio
-pE <- ggplot(summary_stats, aes(x = BPA_EXPOSURE, y = mean_F_M_sexratio)) +
-  geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="NO"),
-           fill = "black", color = "black", width = 0.6) +
-  geom_col(data = summary_stats %>% filter(BPA_EXPOSURE=="YES"),
-           fill = "gray", color = "black", width = 0.6) +
-  geom_errorbar(aes(ymin = mean_F_M_sexratio - sem_F_M_sexratio,
-                    ymax = mean_F_M_sexratio + sem_F_M_sexratio),
-                width = 0.2, color = "black", size = 0.8) +
-  labs(y = "Female/male sex ratio", x = "BPA EXPOSURE") +
-  theme_classic(base_size = 14)
-
-
-(pA | pB) /
-  (pC | pD) /
-  pE +
-  plot_annotation(tag_levels = 'A')
-
-##-- stats of BPA on dams----
-# List of parameters
-parameters <- c("gestation_lenght_days", "Liter_size",
-                "female_pups_number", "male_pups_number", "F_M_sexratio")
-
-# Function to run appropriate test comparing YES vs NO
-run_comparison <- function(param) {
-  
-  # Check normality per group
-  normality <- dams_data %>%
-    group_by(BPA_EXPOSURE) %>%
-    summarise(
-      shapiro_p = if(length(unique(get(param))) > 1) {
-        shapiro.test(get(param))$p.value
-      } else {
-        NA  # cannot test if all identical
-      },
-      .groups = "drop"
-    )
-  
-  # Decide which test to use
-  use_wilcox <- any(normality$shapiro_p < 0.05, na.rm = TRUE) | any(is.na(normality$shapiro_p))
-  
-  if (use_wilcox) {
-    test_res <- wilcox.test(get(param) ~ BPA_EXPOSURE, data = dams_data)
-    test_name <- "Wilcoxon"
-  } else {
-    test_res <- t.test(get(param) ~ BPA_EXPOSURE, data = dams_data)
-    test_name <- "t-test"
-  }
-  
-  data.frame(
-    parameter = param,
-    test = test_name,
-    p_value = test_res$p.value
-  )
-}
-
-# Run for all parameters and combine results
-comparison_results <- lapply(parameters, run_comparison) %>% bind_rows()
-
-comparison_results
 
