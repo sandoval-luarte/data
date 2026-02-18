@@ -21,6 +21,8 @@ COHORT 14: C57BL/6J young - Eegap project (second cohort experiment acute IP RTI
 COHORT 15: CD-1 young - BPA project 2409-42370A
 COHORT 16: CD-1 young - BPA project 2409-42370A
 COHORT 17: OREXIN-Cre young - uncertainty project 2409-42368A 
+COHORT 18: CD-1 young - BPA project 2409-42370A
+
 
 
 # Raw_data
