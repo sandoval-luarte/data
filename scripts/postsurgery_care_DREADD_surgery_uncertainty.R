@@ -33,9 +33,7 @@ BW_data <- BW_data %>%
   filter(DATE >= surgery_date) %>% 
   drop_na(GROUP) %>% 
   mutate(day_rel = as.integer(as.Date(DATE) - as.Date(first(DATE)))) %>% 
-  filter(GROUP != "WT") %>% 
-  filter(COHORT==17)
-  
+  filter(GROUP != "WT") 
 BW_data  %>% 
   group_by(GROUP) %>%
   summarise(n_ID = n_distinct(ID)) 
@@ -66,11 +64,8 @@ echoMRI_data <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
   arrange(Date) %>% 
   select(ID, Date, Fat, Lean, Weight, adiposity_index,COHORT,DIET_FORMULA,n_measurement,GROUP) %>% 
   drop_na(GROUP) %>% 
-  filter(GROUP != "WT") %>% 
-  filter(
-    (COHORT == 11 & n_measurement == 2) |
-      (COHORT == 17 & n_measurement == 1)
-  )
+  filter(GROUP != "WT") 
+  
  
 echoMRI_data  %>% 
   group_by(GROUP) %>%

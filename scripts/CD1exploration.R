@@ -185,7 +185,7 @@ comparison_results
 METABPA <- read_csv("~/Documents/GitHub/data/data/METABPA.csv")
 
 BW_data_collapsed <- read_csv("../data/BW.csv") %>% 
-  filter(COHORT %in% c(15, 16)) %>% 
+  filter(COHORT %in% c(15, 16,18)) %>% 
   filter(!ID ==9406) %>%  #9406 has a  weird pattern in locomotion
   mutate(DATE = ymd(DATE)) %>% 
   arrange(DATE) %>% 
@@ -1015,7 +1015,7 @@ combined_plot
 METABPA <- read_csv("~/Documents/GitHub/data/data/METABPA.csv")
 
 echoMRI_data <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
-  filter(COHORT %in% c(15,16)) %>% 
+  filter(COHORT %in% c(15,16,18)) %>% 
   filter(!ID %in% c("9406", "9354")) %>%  #9406 has a  weird pattern in locomotion and 9354 lack body comp measurements for 18 weeks
 group_by(ID) %>%
   arrange(Date) %>% 
@@ -1039,21 +1039,22 @@ echoMRI_data_comparisons_collapsed <- echoMRI_data %>%
     n_measurement= case_when(
       COHORT == 15 & Date == "2025-04-29" ~ "0 wks",
       COHORT == 16 & Date == "2025-08-04" ~ "0 wks",
-      COHORT == 15 & Date == "2025-05-28" ~ "3 wks",
-      COHORT == 16 & Date == "2025-09-09" ~ "3 wks", #really this is 5 wks
-      COHORT == 15 & Date == "2025-07-07" ~ "9 wks",
-      COHORT == 16 & Date == "2025-10-07" ~ "9 wks",
-      COHORT == 15 & Date == "2025-08-01" ~ "12 wks",
-      COHORT == 16 & Date == "2025-11-17" ~ "12 wks", #really this is 15 wks
-      COHORT == 15 & Date == "2025-09-09" ~ "18 wks",
-      COHORT == 16 & Date == "2025-12-18" ~ "18 wks",#really this is 19 wks
-      COHORT == 15 & Date == "2025-10-07" ~ "22 wks",
-      COHORT == 16 & Date == "2026-01-09" ~ "22 wks"
+      COHORT == 18 & Date %in% c("2026-01-21", "2026-01-23") ~ "0 wks",
+      COHORT == 15 & Date == "2025-05-28" ~ "4 wks",
+      COHORT == 16 & Date == "2025-09-09" ~ "4 wks", #really this is 5 wks
+      COHORT == 15 & Date == "2025-07-07" ~ "10 wks",
+      COHORT == 16 & Date == "2025-10-07" ~ "10 wks", #really 9 wks
+      COHORT == 15 & Date == "2025-08-01" ~ "13 wks",
+      COHORT == 16 & Date == "2025-11-17" ~ "13 wks", #really this is 15 wks
+      COHORT == 15 & Date == "2025-09-09" ~ "19 wks",
+      COHORT == 16 & Date == "2025-12-18" ~ "19 wks",
+      COHORT == 15 & Date == "2025-10-07" ~ "23 wks",
+      COHORT == 16 & Date == "2026-01-09" ~ "23 wks" #really this is 22 wks
     )) %>% 
   mutate(
     n_measurement = factor(
       n_measurement,
-      levels = c("0 wks", "3 wks", "9 wks", "12 wks", "18 wks", "22 wks")
+      levels = c("0 wks", "4 wks", "10 wks", "13 wks", "19 wks", "23 wks")
     )
   )
 

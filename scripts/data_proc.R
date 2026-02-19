@@ -92,7 +92,8 @@ echomri_csv_files <- tibble(
 ) %>% 
     filter(
         grepl("*.xlsx", filepath)
-    )
+    ) 
+  
 echomri_csv_files
 
 echomri_open_files <- echomri_csv_files %>% 
