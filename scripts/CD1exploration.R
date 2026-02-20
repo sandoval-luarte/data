@@ -21,6 +21,7 @@ library(forcats)
 library(patchwork)
 library(ggpattern)
 library(car)
+library(broom) 
 
 
 # BPA effects on dams----
@@ -4207,8 +4208,6 @@ ggplot(data_summary_long_fam, aes(x = Object, y = mean_time, fill = Object)) +
   theme_classic()
 
 ##### STATS----
-library(broom)  # for tidy output
-
 # Make sure we are using only Familiarization stage
 data_fam_wide <- data_raw_long_fam %>%
   select(Animal, `Segment of test`, Object, time) %>%
@@ -4234,6 +4233,19 @@ t_test_results
 #conclusion 3> animals explore the same amount of time the same object which is what we expected so they are ready for the recognition stage
 
 
-#projections> to calculate discrimination indexes defined as (Tn-Tf)/(Tn+Tf) and/or to compare the novel object preference (%) = ((Tn)/(Tn+Tf))*100
+#projections> to calculate discrimination indexes (DI) defined as (Tn-Tf)/(Tn+Tf) and/or to compare the novel object preference (%) = ((Tn)/(Tn+Tf))*100
 # Tn: time spent with the novel object
 # Tf: time spent with the familiar object
+
+#hypothesis N3: In the familiarization stage animals have a discrimination index (Di) close to zero ----
+
+dat_fam_di <- data %>% 
+  ungroup() %>% 
+  select(Animal, Stage, `Segment of test`,
+         `Familiar Object 1 : time investigating (s)`,
+         `Familiar Object 2 : time investigating (s)`,
+         `Novel Object : time investigating (s)`) %>% 
+  drop_na() %>% 
+  group_by(Animal, `Segment of test`) %>% 
+  mutate(Discrimination_index = ())
+`Familiar Object 1 : time investigating (s)`,  `Familiar Object 2 : time investigating (s)`
