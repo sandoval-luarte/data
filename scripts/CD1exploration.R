@@ -4053,3 +4053,187 @@ ggplot(
 #RER ≈ 0.85: Mix of fat and carbohydrate oxidation
 #RER ≈ 1.0: Mostly carbohydrate oxidation
 
+#Novel object recognition test ----
+
+#Read me: 
+#Data.csv- raw data for cohort 1 at 4 months of age 
+#Data-3.csv- Raw data for cohort 1 at 6 months of age and cohort 2 at 2 months
+#Data-2.csv- Raw data for cohort 2 at 4 months of age
+
+#so in conclusion the only data we can mix is data.csv and data-2.csv
+
+####Data import----
+
+data <- read_csv("~/Documents/GitHub/data/data/Data.csv")
+
+# exploration of the data about what is happening with the behavior of mice in each stage
+
+# hypothesis N1: animals prefers periphery than center ----
+# we can expect the animals will not have a very clear pattern in terms of spend more time in the center or in the periphery
+#however, mice trend to avoid open spaces so naturally we should expect that they will spend more time in the periphery area
+
+data_raw <- read_csv("~/Documents/GitHub/data/data/Data.csv") %>% 
+  select(Animal, Stage, `Segment of test`,
+         `Center : time (s)`, `Periphery : time (s)`)
+data_summary <- data_raw %>% 
+  group_by(Stage, `Segment of test`) %>% 
+  summarise(
+    n = n(),
+    mean_time_center = mean(`Center : time (s)`, na.rm = TRUE),
+    sem_time_center  = sd(`Center : time (s)`, na.rm = TRUE)/sqrt(n),
+    mean_time_periphery = mean(`Periphery : time (s)`, na.rm = TRUE),
+    sem_time_periphery  = sd(`Periphery : time (s)`, na.rm = TRUE)/sqrt(n),
+    .groups = "drop"
+  )
+data_raw_long <- data_raw %>% 
+  pivot_longer(
+    cols = c(`Center : time (s)`, `Periphery : time (s)`),
+    names_to = "Location",
+    values_to = "time"
+  )
+
+data_summary_long <- data_summary %>%
+  pivot_longer(
+    cols = -c(Stage, `Segment of test`, n),
+    names_to = c(".value", "Location"),
+    names_pattern = "(mean_time|sem_time)_(.*)")
+    
+    data_raw_long$Stage <- factor(data_raw_long$Stage,
+                                  levels = c("Habituation",
+                                             "Familiarization",
+                                             "Recognition"))
+    
+    data_summary_long$Stage <- factor(data_summary_long$Stage,
+                                      levels = c("Habituation",
+                                                 "Familiarization",
+                                                 "Recognition"))
+ggplot() +
+  
+  geom_col(data = data_summary_long,
+           aes(x = `Segment of test`,
+               y = mean_time,
+               fill = Location),
+           position = position_dodge(width = 0.8),
+           alpha = 0.6) +
+  
+  geom_errorbar(data = data_summary_long,
+                aes(x = `Segment of test`,
+                    ymin = mean_time - sem_time,
+                    ymax = mean_time + sem_time,
+                    group = Location),
+                position = position_dodge(width = 0.8),
+                width = 0.2) +
+  
+  geom_jitter(data = data_raw_long,
+              aes(x = `Segment of test`,
+                  y = time,
+                  color = Location),
+              position = position_jitterdodge(
+                jitter.width = 0.15,
+                dodge.width = 0.8
+              ),
+              alpha = 0.8,
+              size = 2,
+              show.legend = FALSE) +
+  facet_wrap(~Stage) +
+  labs(y = "Time (seconds)",
+       x = "Segment of the test",
+       fill = "Zone") +
+  theme_classic()
+
+#conclusion> so great animals spent more time in the periphery than in the center of the arena
+#conclusion 2 > in the recognition stage animals spend more time interacting with the objects that are in the center
+
+# hypothesis N2: In the familiarization stage animals will spend the same time with both objects ----
+# we can expect the animals will spend the same amount of time with the two objects IF THOSE ARE THE SAME OBJECTS
+
+data_fam <- read_csv("~/Documents/GitHub/data/data/Data.csv") %>% 
+  select(Animal, Stage, `Segment of test`,
+         `Familiar Object 1 : time investigating (s)`,
+         `Familiar Object 2 : time investigating (s)`) %>% 
+  filter(Stage =='Familiarization') %>% 
+  drop_na()
+
+data_summary_fam <- data_fam %>% 
+  group_by(`Segment of test`) %>% 
+  summarise(
+    n = n(),
+    mean_time_fam1 = mean( `Familiar Object 1 : time investigating (s)`, na.rm = TRUE),
+    sem_time_fam1  = sd( `Familiar Object 1 : time investigating (s)`, na.rm = TRUE)/sqrt(n),
+    mean_time_fam2 = mean( `Familiar Object 2 : time investigating (s)`, na.rm = TRUE),
+    sem_time_fam2  = sd( `Familiar Object 2 : time investigating (s)`, na.rm = TRUE)/sqrt(n),
+    .groups = "drop"
+  )
+data_raw_long_fam <- data_fam %>% 
+  pivot_longer(
+    cols = c(`Familiar Object 1 : time investigating (s)`,  `Familiar Object 2 : time investigating (s)`),
+    names_to = "Object",
+    values_to = "time"
+  )
+
+data_raw_long_fam <- data_raw_long_fam %>%
+  mutate(Object = as.character(Object),
+         Object = case_when(
+           Object == "Familiar Object 1 : time investigating (s)" ~ "1",
+           Object == "Familiar Object 2 : time investigating (s)" ~ "2",
+           TRUE ~ Object  # leave any unexpected values as-is
+         ),
+         Object = factor(Object, levels = c("1", "2")))
+
+data_summary_long_fam <- data_summary_fam %>%
+  pivot_longer(
+    cols = -`Segment of test`,
+    names_to = c(".value", "Object"),
+    names_pattern = "(mean_time|sem_time)_fam(\\d)"
+  ) %>%
+  mutate(Object = case_when(
+    Object == "1" ~ "1",
+    Object == "2" ~ "2"
+  ),
+  Object = factor(Object, levels = c("1", "2"))) %>% 
+  drop_na()
+
+
+ggplot(data_summary_long_fam, aes(x = Object, y = mean_time, fill = Object)) +
+  geom_col(alpha = 0.6) +
+  geom_errorbar(aes(ymin = mean_time - sem_time,
+                    ymax = mean_time + sem_time),
+                width = 0.2) +
+  geom_jitter(data = data_raw_long_fam,
+              aes(x = Object, y = time, color = Object),
+              width = 0.15, size = 2, alpha = 0.8, show.legend = FALSE) +
+  facet_wrap(~`Segment of test`) +
+  labs(x = "Object", y = "Time Investigating (s)", fill = "Object") +
+  theme_classic()
+
+##### STATS----
+library(broom)  # for tidy output
+
+# Make sure we are using only Familiarization stage
+data_fam_wide <- data_raw_long_fam %>%
+  select(Animal, `Segment of test`, Object, time) %>%
+  pivot_wider(
+    names_from = Object,
+    values_from = time,
+    names_prefix = "Object_"
+  )
+data_fam_wide
+
+t_test_results <- data_fam_wide %>%
+  group_by(`Segment of test`) %>%
+  summarise(
+    t_test = list(t.test(Object_1, Object_2, paired = TRUE)),
+    .groups = "drop"
+  ) %>%
+  mutate(t_test = map(t_test, broom::tidy)) %>%
+  unnest(t_test)
+t_test_results
+
+#conclusion 1> For both segments, p > 0.05, so mice did not spend significantly different time investigating Object 1 vs Object 2.
+#conclusion 2> The small positive estimate just means Object 1 time was slightly higher on average, but not significant.
+#conclusion 3> animals explore the same amount of time the same object which is what we expected so they are ready for the recognition stage
+
+
+#projections> to calculate discrimination indexes defined as (Tn-Tf)/(Tn+Tf) and/or to compare the novel object preference (%) = ((Tn)/(Tn+Tf))*100
+# Tn: time spent with the novel object
+# Tf: time spent with the familiar object

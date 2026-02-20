@@ -1,0 +1,25 @@
+Test,Animal,Stage,Apparatus,Date,Time,Segment of test,Familiar Object 1 ,Novel Object ,Familiar Object 2 ,Duration (s),Distance (m),Center : time (s),Periphery : time (s),Familiar Object 1 : time investigating (s),Familiar Object 1 : time oriented towards (s),Novel Object : time investigating (s),Familiar Object 2 : time investigating (s)
+1,9413.1,Habituation,NORT pod 1,11/10/2025,9:38:,0 - 300 secs.,,,,300.0,16.255,34.2,265.4,,,,
+1,9413.1,Habituation,NORT pod 1,11/10/2025,9:38:,300 - 600 secs.,,,,300.0,10.507,48.3,251.5,,,,
+2,9413.2,Habituation,NORT pod 2,11/10/2025,9:38:,0 - 300 secs.,,,,300.0,25.245,17.6,281.7,,,,
+2,9413.2,Habituation,NORT pod 2,11/10/2025,9:38:,300 - 600 secs.,,,,300.0,15.369,3.8,296.1,,,,
+3,9408,Habituation,NORT pod 3,11/10/2025,9:38:,0 - 300 secs.,,,,300.0,14.414,5.3,294.7,,,,
+3,9408,Habituation,NORT pod 3,11/10/2025,9:38:,300 - 600 secs.,,,,300.0,12.300,6.1,293.9,,,,
+4,9409,Habituation,NORT Pod 4,11/10/2025,9:38:,0 - 300 secs.,,,,300.0,34.258,27.9,271.1,,,,
+4,9409,Habituation,NORT Pod 4,11/10/2025,9:38:,300 - 600 secs.,,,,300.0,26.568,21.2,274.4,,,,
+5,9413.1,Familiarization,NORT pod 1,11/11/2025,9:35:,0 - 300 secs.,Back left,,Front right,300.0,27.641,6.3,290.4,19.1,84.8,,20.8
+5,9413.1,Familiarization,NORT pod 1,11/11/2025,9:35:,300 - 600 secs.,Back left,,Front right,300.0,19.806,21.1,276.7,19.3,98.3,,21.7
+6,9413.2,Familiarization,NORT pod 2,11/11/2025,9:35:,0 - 300 secs.,Back left,,Front right,300.0,24.751,22.9,271.4,13.4,56.2,,27.6
+6,9413.2,Familiarization,NORT pod 2,11/11/2025,9:35:,300 - 600 secs.,Back left,,Front right,300.0,16.125,27.0,249.7,16.2,52.3,,15.7
+7,9408,Familiarization,NORT pod 3,11/11/2025,9:35:,0 - 300 secs.,Back left,,Front right,300.0,29.077,18.8,280.1,13.8,45.8,,18.0
+7,9408,Familiarization,NORT pod 3,11/11/2025,9:35:,300 - 600 secs.,Back left,,Front right,300.0,26.134,43.4,252.9,20.3,66.3,,26.2
+8,9409,Familiarization,NORT Pod 4,11/11/2025,9:35:,0 - 300 secs.,Back left,,Front right,300.0,16.711,16.3,281.9,22.1,58.4,,17.1
+8,9409,Familiarization,NORT Pod 4,11/11/2025,9:35:,300 - 600 secs.,Back left,,Front right,300.0,12.727,28.5,267.8,29.5,63.0,,11.3
+9,9413.1,Recognition,NORT pod 1,11/11/2025,10:12,0 - 300 secs.,Back left,Front right,,300.0,15.271,30.6,253.8,18.1,80.2,23.7,
+9,9413.1,Recognition,NORT pod 1,11/11/2025,10:12,300 - 600 secs.,Back left,Front right,,300.0,11.233,34.6,260.7,22.1,84.3,15.0,
+10,9413.2,Recognition,NORT pod 2,11/11/2025,10:12,0 - 300 secs.,Back left,Front right,,300.0,20.289,4.8,293.0,14.9,94.8,16.3,
+10,9413.2,Recognition,NORT pod 2,11/11/2025,10:12,300 - 600 secs.,Back left,Front right,,300.0,11.990,4.3,293.8,8.7,131.6,7.8,
+11,9408,Recognition,NORT pod 3,11/11/2025,10:12,0 - 300 secs.,Back left,Front right,,300.0,22.282,51.2,245.4,20.0,65.9,66.2,
+11,9408,Recognition,NORT pod 3,11/11/2025,10:12,300 - 600 secs.,Back left,Front right,,300.0,19.648,52.6,243.1,65.7,96.7,40.3,
+12,9409,Recognition,NORT Pod 4,11/11/2025,10:12,0 - 300 secs.,Back left,Front right,,300.0,8.546,5.4,285.5,14.2,82.1,39.8,
+12,9409,Recognition,NORT Pod 4,11/11/2025,10:12,300 - 600 secs.,Back left,Front right,,300.0,9.679,6.3,286.4,22.1,75.7,10.3,
