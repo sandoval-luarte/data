@@ -33,7 +33,9 @@ BW_data <- BW_data %>%
   filter(DATE >= surgery_date) %>% 
   drop_na(GROUP) %>% 
   mutate(day_rel = as.integer(as.Date(DATE) - as.Date(first(DATE)))) %>% 
-  filter(GROUP != "WT") 
+  filter(GROUP != "WT") %>% 
+  filter(COHORT == 17)
+
 BW_data  %>% 
   group_by(GROUP) %>%
   summarise(n_ID = n_distinct(ID)) 
