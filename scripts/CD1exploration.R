@@ -189,7 +189,7 @@ filter(!grepl("-", ID)) %>%  #I eliminate from metadata all animals that were me
   mutate(ID = as.numeric(ID)) 
   
 BW_data_collapsed <- read_csv("../data/BW.csv") %>% 
-  filter(COHORT %in% c(15, 16, 18)) %>% 
+  filter(COHORT %in% c(15, 16,18)) %>% 
   filter(!ID ==9406) %>%  #9406 has a  weird pattern in locomotion
   mutate(DATE = ymd(DATE)) %>% 
   arrange(DATE) %>% 
@@ -1677,6 +1677,13 @@ combined_plot_fm
 
 ## Figure 2A (F2A) lean mass collapsed by diet ----
 
+shade_df <- tibble(
+  SEX  = c("F", "M"),
+  xmin = c(2, 2),
+  xmax = c(Inf, 4),
+  ymin = -Inf,
+  ymax = Inf
+)
 
 f2a <- ggplot(bodycomp_summary_collapsed,
              aes(x = n_measurement,
@@ -1689,6 +1696,13 @@ f2a <- ggplot(bodycomp_summary_collapsed,
                   ymax = mean_lean + sem_lean),
               alpha = 0.25,
               color = NA) +
+  geom_rect(
+    data = shade_df,
+    aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax),
+    inherit.aes = FALSE,
+    fill = "grey70",
+    alpha = 0.35
+  ) +
   facet_wrap( ~ SEX) +
   labs(
     x = "Days of measurement",
@@ -1767,6 +1781,14 @@ lean_stats_m
 #there is a time window between 4 wks to 10 wks in which males exposed to BPA have more lean mass than non exposed ones independent of the OD
 
 ## Figure 2B (F2B) lean mass by diet ----
+shade_df <- tibble(
+  SEX = c("F", "F","M", "M"),
+  DIET_FORMULA = c("D12450Hi", "D12451i","D12450Hi", "D12451i"),
+  xmin = c(2,2,0,2),
+  xmax = c(Inf,Inf,0,3),
+  ymin = -Inf,
+  ymax = Inf
+)
 f2b <- ggplot(bodycomp_summary,
                aes(x = n_measurement,
                    y = mean_lean,
@@ -1774,6 +1796,13 @@ f2b <- ggplot(bodycomp_summary,
                    fill  = BPA_EXPOSURE,
                    group = BPA_EXPOSURE)) +
   geom_line(size = 1) +
+  geom_rect(
+    data = shade_df,
+    aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax),
+    inherit.aes = FALSE,
+    fill = "grey70",
+    alpha = 0.35
+  )+
   geom_ribbon(aes(ymin = mean_lean - sem_lean,
                   ymax = mean_lean + sem_lean),
               alpha = 0.25,
@@ -4586,53 +4615,77 @@ ggplot(data2_summary_fam_di, aes(x = `Segment of test`, y = mean_time_Di)) +
   
 ##ALL COHORTS ANALYSIS----
 
-  #Read me: 
-  #Data.csv- raw data for cohort 15 (7/15/25)
-  #Data-3.csv- Raw data for cohort 15 and cohort 16 (10/13/2025)
-  #Data-2.csv- Raw data for cohort 16 (11/10/2025)
+#Read me: 
+#Data.csv- raw data for cohort 15 (7/15/25)
+#Data-2.csv- Raw data for cohort 16 (11/10/2025)
+#Data-3.csv- Raw data for cohort 15 and cohort 16 (10/13/2025)
+#Data-4.csv- raw data for cohort 16 (1/15/2026)
   
-  #cohort 15: D.O.B 4/10/2025 - 7/15/2025 = 13.7 wks (measurement 1) ~13 wks
-  #cohort 15: D.O.B 4/10/2025 - 10/13/2025  = 26.6 wks (measurement 2)~27 wks
-  #cohort 16: D.O.B 7/13/2025 - 10/13/2025 =  13.1 wks (measurement 1) ~13 wks
-  #cohort 16: D.O.B 7/13/2025 - 11/10/2025 = 14.6 wks (measurement 2) ~17 wks
-  #cohort 18: D.O.B 12/31/2025 and 1/2/2026 = ??
-
 ####Data import----
   
 METABPA <- read_csv("~/Documents/GitHub/data/data/METABPA.csv") %>% 
-    rename(Animal = ID)
+filter(grepl("-", ID) | ID %in% c("9408", "9409"))   #I want to keep just IDs that were measured for NORT for cohort 1, 2 and 3
+
   
-data<- read_csv("~/Documents/GitHub/data/data/Data.csv") %>% 
-    mutate(Animal = gsub("\\.", "-", as.character(Animal))) %>% 
-    left_join(METABPA, by= "Animal") 
+data<- read_csv("~/Documents/GitHub/data/data/Data.csv") %>% #familiarization data from 9380-3 and 9391-1 was not recorded property 
+  rename(ID = Animal) %>% 
+  mutate(ID= as.character(ID),ID = case_when(
+    ID == "1"  ~ "9389-1",
+    ID == "2"  ~ "9389-2",
+    ID == "3"  ~ "9389-3",
+    ID == "4"  ~ "9389-4",
+    ID == "5"  ~ "9380-1",
+    ID == "6"  ~ "9380-2",
+    ID == "7"  ~ "9380-3",
+    ID == "8"  ~ "9391-1",
+    ID == "9"  ~ "9391-2",
+    ID == "10" ~ "9392-1",
+    ID == "11" ~ "9392-2",
+    ID == "12" ~ "9392-3",
+    ID == "13" ~ "9385-1",
+    ID == "14" ~ "9385-2",
+    ID == "15" ~ "9385-3",
+    ID == "16" ~ "9385-4",
+    TRUE       ~ ID))%>% 
+  left_join(METABPA, by= "ID")
   
 data2 <- read_csv("~/Documents/GitHub/data/data/Data-2.csv") %>% 
-    mutate(Animal = gsub("\\.", "-", as.character(Animal))) %>% 
-    left_join(METABPA, by= "Animal")
+  rename(ID = Animal) %>% 
+    mutate(ID = gsub("\\.", "-", as.character(ID))) %>% 
+    left_join(METABPA, by= "ID")
 
 data3 <- read_csv("~/Documents/GitHub/data/data/Data-3.csv") %>% 
-  mutate(Animal = gsub("\\.", "-", as.character(Animal))) %>% 
-  left_join(METABPA, by= "Animal") 
+  rename(ID = Animal) %>% 
+  mutate(ID = gsub("\\.", "-", as.character(ID))) %>% 
+  left_join(METABPA, by= "ID")
 
-all_data <- bind_rows(data, data2, data3) %>% 
+data4 <- read_csv("~/Documents/GitHub/data/data/Data-4.csv") %>% #habituation data was not recorded property 
+  rename(ID = Animal) %>% 
+  mutate(ID = gsub("\\.", "-", as.character(ID))) %>% 
+  left_join(METABPA, by= "ID")
+
+all_data <- bind_rows(data, data2, data3, data4) %>% 
   mutate(
     Date = mdy(Date),
     DOB  = mdy(DOB),
     age_weeks = as.numeric(difftime(Date, DOB, units = "weeks")))%>%
-  mutate(age_week_round = round(age_weeks)) %>% 
-  drop_na(age_week_round) #I will remove incomplete data
+  mutate(age_week_round = round(age_weeks),
+         age_week_round = case_when(
+           age_week_round %in% c(13, 14) ~ 13.5,  # merge 13 and 14 into 13.5
+           TRUE ~ age_week_round               # keep other ages as they are
+         )) %>% 
+  filter(SEX=="F")
 
-# exploration of the data about what is happening with the behavior of mice in each stage
 # hypothesis N1: animals prefers periphery than center ----
-# we can expect the animals will trend to avoid open spaces so naturally we should expect that they will spend more time in the periphery area
+# we can expect the animals will trend to avoid open spaces so they will spend more time in the periphery area
 #this behavior will be independent of the age, BPA exposure, sex and Stage
   
 data_raw <- all_data %>% 
- select(Animal, Stage, `Segment of test`,
-           `Center : time (s)`, `Periphery : time (s)`, BPA_EXPOSURE, SEX, COHORT, age_week_round)
+ select(ID, Stage, `Segment of test`,
+           `Center : time (s)`, `Periphery : time (s)`, BPA_EXPOSURE, age_week_round)
 
   data_summary <- data_raw %>% 
-    group_by(Stage, `Segment of test`,age_week_round) %>% 
+    group_by(Stage, `Segment of test`,age_week_round,BPA_EXPOSURE) %>% #there is not enough females to split the data by sex
     summarise(
       n = n(),
       mean_time_center = mean(`Center : time (s)`, na.rm = TRUE),
@@ -4651,7 +4704,7 @@ data_raw <- all_data %>%
   
   data_summary_long <- data_summary %>%
     pivot_longer(
-      cols = -c(Stage, `Segment of test`, n, age_week_round),
+      cols = -c(Stage, `Segment of test`, n, age_week_round,BPA_EXPOSURE),
       names_to = c(".value", "Location"),
       names_pattern = "(mean_time|sem_time)_(.*)")
   
@@ -4692,7 +4745,7 @@ data_raw <- all_data %>%
                 alpha = 0.8,
                 size = 2,
                 show.legend = FALSE) +
-    facet_wrap(~Stage*age_week_round) +
+    facet_wrap(~Stage*age_week_round*BPA_EXPOSURE) +
     labs(y = "Time (seconds)",
          x = "Segment of the test",
          fill = "Zone") +
