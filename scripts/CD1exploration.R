@@ -24,6 +24,7 @@ library(car)
 library(broom) 
 
 
+
 # BPA effects on dams----
 dams_data <- read_csv("../data/DAMSBPAINFO.csv") %>% 
   mutate(SEX = ifelse(SEX == FALSE, "F",
@@ -183,10 +184,12 @@ comparison_results
 
 ## BW diet collapsed by diet----
 
-METABPA <- read_csv("~/Documents/GitHub/data/data/METABPA.csv")
-
+METABPA <- read_csv("~/Documents/GitHub/data/data/METABPA.csv") %>% 
+filter(!grepl("-", ID)) %>%  #I eliminate from metadata all animals that were measured for NORT
+  mutate(ID = as.numeric(ID)) 
+  
 BW_data_collapsed <- read_csv("../data/BW.csv") %>% 
-  filter(COHORT %in% c(15, 16,18)) %>% 
+  filter(COHORT %in% c(15, 16, 18)) %>% 
   filter(!ID ==9406) %>%  #9406 has a  weird pattern in locomotion
   mutate(DATE = ymd(DATE)) %>% 
   arrange(DATE) %>% 
@@ -199,11 +202,13 @@ BW_data_collapsed <- read_csv("../data/BW.csv") %>%
   left_join(METABPA, by= "ID") %>% 
   select(
     -SEX.y,
-    -DIET_FORMULA.y
+    -DIET_FORMULA.y,
+    -COHORT.y
   ) %>% 
   rename(
     SEX = SEX.x,
-    DIET_FORMULA = DIET_FORMULA.x
+    DIET_FORMULA = DIET_FORMULA.x,
+    COHORT = COHORT.x
   )
 
 BW_data_collapsed  %>% 
@@ -251,7 +256,8 @@ day_contrasts_fem_collapsed <- contrast(
 
 day_stats_fem_collapsed <- as.data.frame(day_contrasts_fem_collapsed) 
 day_stats_fem_collapsed 
-#so for females in OD diets (HCD + HFD) after day 77 BPA females are heavier than non BPA females (week 11)
+#so for females in OD diets (HCD + HFD) after day 7 BPA females are heavier than non BPA females considering cohort 3
+# however, it seems that from day 0 they females BPA exposed and non exposed have different BW
 
 ## STATS males in OD (HCD+HFD)----
 bw_m_collapsed <- BW_data_collapsed %>%
@@ -306,7 +312,7 @@ BW_summary_collapsed <- BW_data_collapsed %>%
   )
 shade_df <- tibble(
   SEX = c("F"),
-  xmin = c(11),
+  xmin = c(1),
   xmax = Inf,
   ymin = -Inf,
   ymax = Inf
@@ -350,10 +356,12 @@ plot_bw_sex_collapsed <- ggplot(
 plot_bw_sex_collapsed
 
 ## BW separated by diet ----
-METABPA <- read_csv("~/Documents/GitHub/data/data/METABPA.csv")
+METABPA <- read_csv("~/Documents/GitHub/data/data/METABPA.csv") %>% 
+filter(!grepl("-", ID)) %>%  #I eliminate from metadata all animals that were measured for NORT
+  mutate(ID = as.numeric(ID)) 
 
 BW_data <- read_csv("../data/BW.csv") %>% 
-  filter(COHORT %in% c(15, 16)) %>% 
+  filter(COHORT %in% c(15, 16, 18)) %>% 
   filter(!ID ==9406) %>%  #9406 has a  weird pattern in locomotion
   mutate(DATE = ymd(DATE)) %>% 
   arrange(DATE) %>% 
@@ -366,11 +374,13 @@ BW_data <- read_csv("../data/BW.csv") %>%
   left_join(METABPA, by= "ID") %>% 
   select(
     -SEX.y,
-    -DIET_FORMULA.y
+    -DIET_FORMULA.y,
+    -COHORT.y
   ) %>% 
   rename(
     SEX = SEX.x,
-    DIET_FORMULA = DIET_FORMULA.x
+    DIET_FORMULA = DIET_FORMULA.x,
+    COHORT = COHORT.x
   )
 
 BW_data  %>% 
@@ -419,7 +429,7 @@ day_contrasts_fem_hcd <- contrast(
 
 day_stats_fem_hcd <- as.data.frame(day_contrasts_fem_hcd) 
 day_stats_fem_hcd
-#so for females in HCD after day 119 (week 17) BPA females are heavier than non BPA females
+#so for females in HCD after day 63 (week 9) BPA females are heavier than non BPA females after considering cohort 3
 
 ## STATS females in HFD----
 
@@ -454,7 +464,7 @@ day_contrasts_fem_hfd <- contrast(
 
 day_stats_fem_hfd <- as.data.frame(day_contrasts_fem_hfd) 
 day_stats_fem_hfd 
-#so for females in HFD after day 35 (week 5) BPA females are heavier than non BPA females
+#so for females in HFD they started with different BWs so we can say nothing
 
 ## STATS males in HCD----
 
@@ -489,7 +499,7 @@ day_contrasts_male_hcd <- contrast(
 
 day_stats_male_hcd <- as.data.frame(day_contrasts_male_hcd) 
 day_stats_male_hcd
-#so for there is no days in which BPA males are heavier than non-BPA males
+#so for there is no days in which BPA males are heavier than non-BPA males considering cohort 3 for HCD
 
 ## STATS males in HFD----
 
@@ -524,7 +534,7 @@ day_contrasts_male_hfd <- contrast(
 
 day_stats_male_hfd <- as.data.frame(day_contrasts_male_hfd) 
 day_stats_male_hfd 
-#so for there is no days in which BPA males are heavier than non-BPA males
+#so for males they started with different BWs (BPA vs no BPA ones) but they started to have the same BW after 2 weeks with HFD
 
 ## Figure 1B BW separated by diet----
 
@@ -545,10 +555,10 @@ BW_summary <- BW_data %>%
     .groups = "drop"
   )
 shade_df <- tibble(
-  SEX = c("F", "F"),
-  DIET_FORMULA = c("D12450Hi", "D12451i"),
-  xmin = c(17, 5),
-  xmax = Inf,
+  SEX = c("F", "F","M", "M"),
+  DIET_FORMULA = c("D12450Hi", "D12451i","D12450Hi", "D12451i"),
+  xmin = c(9,0,0,0),
+  xmax = c(Inf,Inf,0,4),
   ymin = -Inf,
   ymax = Inf
 )
@@ -747,7 +757,7 @@ week_contrasts_fem_hcd <- contrast(
 week_stats_fem_hcd <- as.data.frame(week_contrasts_fem_hcd)
 week_stats_fem_hcd 
 #There were no weeks in which BPA-exposed females fed HCD exhibited a greater 
-#percentage body-weight gain than non-BPA females
+#percentage body-weight gain than non-BPA females considering cohort 3
 
 #### females in HFD----
 bw_gain_fem_hfd <- BW_gain %>%
@@ -782,7 +792,7 @@ week_contrasts_fem_hfd <- contrast(
 week_stats_fem_hfd <- as.data.frame(week_contrasts_fem_hfd)
 week_stats_fem_hfd 
 #There were no weeks in which BPA-exposed females fed HFD exhibited a greater 
-#percentage body-weight gain than non-BPA females
+#percentage body-weight gain than non-BPA females considering cohort 3
 
 #### males in HCD----
 bw_gain_m_hcd <- BW_gain %>%
@@ -817,7 +827,7 @@ week_contrasts_m_hcd <- contrast(
 week_stats_m_hcd <- as.data.frame(week_contrasts_m_hcd)
 week_stats_m_hcd 
 #There were no weeks in which BPA-exposed males fed HCD exhibited a greater 
-#percentage body-weight gain than non-BPA males
+#percentage body-weight gain than non-BPA males considering cohort 3
 
 #### males in HFD----
 bw_gain_m_hfd <- BW_gain %>%
@@ -852,7 +862,7 @@ week_contrasts_m_hfd <- contrast(
 week_stats_m_hfd <- as.data.frame(week_contrasts_m_hfd)
 week_stats_m_hfd 
 #There were no weeks in which BPA-exposed males fed HFD exhibited a greater 
-#percentage body-weight gain than non-BPA males
+#percentage body-weight gain than non-BPA males considering cohort 3
 
 ### supplementary figure 2 ----
 
@@ -943,20 +953,17 @@ lmer_speed <- lmer(
 summary(lmer_speed)
 
 
-#Male mice exhibited a significantly faster rate of body
-#weight gain than females (≈0.08 g/day greater; t = 4.77).
-#BPA exposure did not significantly alter growth rate in 
-#either sex, and no significant BPA × sex interaction on
-#growth speed was observed.
+#Male mice exhibited a significantly faster rate of body weight gain
+#than females (≈0.075 g/day greater; t = 3.75, p < 0.001). 
+#BPA exposure did not significantly alter growth rate in either sex, 
+#and no significant BPA × sex interaction on growth speed was observed.
 
-#Although the estimated growth rate was slightly higher in BPA-exposed females,
-#this difference did not reach statistical significance (t = 1.36).
 
 ### Could BPA affect growth speed only later in life?----
 
 lmer(
   BW ~ day_rel * BPA_EXPOSURE * SEX + (day_rel | ID),
-  data = BW_data %>% filter(day_rel >= 35) #the day in which we saw differences in females HFD
+  data = BW_data %>% filter(day_rel >= 63) #the day in which we saw differences in females HFD
 )
 
 #Even when restricting the analysis to the post-divergence period (day ≥ 35)
@@ -1000,40 +1007,36 @@ p2 <- p2 + labs(tag = "B")
 combined_plot <- p1 | p2
 combined_plot
 
-#so Sex was the primary determinant of growth rate
-#with females growing more slowly than males, regardless of BPA exposure.
-#However, BPA exposure was associated with higher BW in females, specially after HFD exposure
-#without a corresponding increase in growth rate.
-
-#CONCLUSIONS (within each sex BPA exposed vs non BPA exposed)
-# Same starting BW
-# Same % BW gain
-# Same growth rate
-# Higher final BW in BPA females in HCD and HFD but stronger in HFD
+#so Sex was NOT the primary determinant of growth rate when we considering cohort 3
 
 # BODY COMPOSITION ANALYSIS----
 
-METABPA <- read_csv("~/Documents/GitHub/data/data/METABPA.csv")
+METABPA <- read_csv("~/Documents/GitHub/data/data/METABPA.csv")%>% 
+  filter(!grepl("-", ID)) %>%  #I eliminate from metadata all animals that were measured for NORT
+  mutate(ID = as.numeric(ID)) 
 
 echoMRI_data <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
   filter(COHORT %in% c(15,16,18)) %>% 
-  filter(!ID %in% c("9406", "9354")) %>%  #9406 has a  weird pattern in locomotion and 9354 lack body comp measurements for 18 weeks
+  filter(!ID %in% c("9406", "9354")) %>%  #9406 has a  weird pattern in locomotion and 9354 last measurement were donw after 26 wks with the OD 
 group_by(ID) %>%
   arrange(Date) %>% 
   select(ID, Date, Fat, Lean, Weight, adiposity_index,COHORT,DIET_FORMULA) %>% 
   left_join(METABPA, by= "ID") %>% 
   ungroup() %>% 
   select(
-    -DIET_FORMULA.y) %>% 
+    -DIET_FORMULA.y,
+    -COHORT.y) %>% 
   rename(
-    DIET_FORMULA = DIET_FORMULA.x)
+    DIET_FORMULA = DIET_FORMULA.x,
+    COHORT = COHORT.x) %>% 
+  filter(!(DIET_FORMULA == "2918_teklad_Irradiated_Global_18%_Protein_Rodent_Diet"))
 
 ## Adiposity index collapsed by diet ----
 
 echoMRI_data %>% 
   group_by(SEX,BPA_EXPOSURE) %>%
   summarise(n_ID = n_distinct(ID)) %>% 
-  print(n = Inf) #ok great we have the same amount of data than for BW (i.e 18 F and 20 M)
+  print(n = Inf) 
 
 echoMRI_data_comparisons_collapsed <- echoMRI_data %>% 
   mutate(
@@ -1043,7 +1046,7 @@ echoMRI_data_comparisons_collapsed <- echoMRI_data %>%
       COHORT == 18 & Date %in% c("2026-01-21", "2026-01-23") ~ "0 wks",
       COHORT == 15 & Date == "2025-05-28" ~ "4 wks",
       COHORT == 16 & Date == "2025-09-09" ~ "4 wks", #really this is 5 wks
-    # COHORT == 18 & Date == "2026-02-25" ~ "4.5 wks" ~ 
+     COHORT == 18 & Date == "2026-02-23" ~ "4 wks", #really this is 4.5 wks
       COHORT == 15 & Date == "2025-07-07" ~ "10 wks",
       COHORT == 16 & Date == "2025-10-07" ~ "10 wks", #really 9 wks
     # COHORT == 18 & Date == "2026-04-01" ~ "9.5 wks",
@@ -1068,7 +1071,7 @@ echoMRI_data_comparisons_collapsed <- echoMRI_data %>%
 echoMRI_data_comparisons_collapsed  %>% 
   group_by(SEX,n_measurement) %>%
   summarise(n_ID = n_distinct(ID)) %>% 
-  print(n = Inf) #ok great we have the same amount of data than for BW (i.e 17 F and 20 M) we removed ID 9406 and 9354 
+  print(n = Inf) 
 
 bodycomp_summary_collapsed <- echoMRI_data_comparisons_collapsed %>%
   group_by(n_measurement, BPA_EXPOSURE,SEX) %>%
@@ -1083,14 +1086,11 @@ bodycomp_summary_collapsed <- echoMRI_data_comparisons_collapsed %>%
     .groups = "drop"
   ) %>% 
   mutate(n_measurement = factor(n_measurement, levels = c("0 wks",
-                                                          "3 wks",
-                                                          #"5 wks",
-                                                          "9 wks",
-                                                          "12 wks",
-                                                          #"15 wks",
-                                                          "18 wks",
-                                                          #   "19 wks",
-                                                          "22 wks"))) %>% 
+                                                          "4 wks",
+                                                          "10 wks",
+                                                          "13 wks",
+                                                          "19 wks",
+                                                          "23 wks"))) %>% 
   ungroup()
 
 ### supplementary figure 4A (SF4A) adiposity index collapsed by diet ----
@@ -1190,33 +1190,39 @@ echoMRI_data %>%
   print(n = Inf) #ok great we have the same amount of data than for BW (i.e 18 F and 20 M)
 
 echoMRI_data_comparisons <- echoMRI_data %>% 
-  mutate(
-    n_measurement= case_when(
-      COHORT == 15 & Date == "2025-04-29" ~ "0 wks",
-      COHORT == 16 & Date == "2025-08-04" ~ "0 wks",
-      COHORT == 15 & Date == "2025-05-28" ~ "3 wks",
-      COHORT == 16 & Date == "2025-09-09" ~ "3 wks", #really this is 5 wks
-      COHORT == 15 & Date == "2025-07-07" ~ "9 wks",
-      COHORT == 16 & Date == "2025-10-07" ~ "9 wks",
-      COHORT == 15 & Date == "2025-08-01" ~ "12 wks",
-      COHORT == 16 & Date == "2025-11-17" ~ "12 wks", #really this is 15 wks
-      COHORT == 15 & Date == "2025-09-09" ~ "18 wks",
-      COHORT == 16 & Date == "2025-12-18" ~ "18 wks",#really this is 19 wks
-      COHORT == 15 & Date == "2025-10-07" ~ "22 wks",
-      COHORT == 16 & Date == "2026-01-09" ~ "22 wks"
-     )) %>% 
-  mutate(
-    n_measurement = factor(
-      n_measurement,
-      levels = c("0 wks", "3 wks", "9 wks", "12 wks", "18 wks", "22 wks")
-    )
-  )
+    mutate(
+      n_measurement= case_when(
+        COHORT == 15 & Date == "2025-04-29" ~ "0 wks",
+        COHORT == 16 & Date == "2025-08-04" ~ "0 wks",
+        COHORT == 18 & Date %in% c("2026-01-21", "2026-01-23") ~ "0 wks",
+        COHORT == 15 & Date == "2025-05-28" ~ "4 wks",
+        COHORT == 16 & Date == "2025-09-09" ~ "4 wks", #really this is 5 wks
+        COHORT == 18 & Date == "2026-02-23" ~ "4 wks", #really this is 4.5 wks
+        COHORT == 15 & Date == "2025-07-07" ~ "10 wks",
+        COHORT == 16 & Date == "2025-10-07" ~ "10 wks", #really 9 wks
+        # COHORT == 18 & Date == "2026-04-01" ~ "9.5 wks",
+        COHORT == 15 & Date == "2025-08-01" ~ "13 wks",
+        COHORT == 16 & Date == "2025-11-17" ~ "13 wks", #really this is 15 wks
+        #   COHORT == 18 & Date == "2026-04-29" ~ "14 wks",  
+        COHORT == 15 & Date == "2025-09-09" ~ "19 wks",
+        COHORT == 16 & Date == "2025-12-18" ~ "19 wks",
+        #   COHORT == 18 & Date == "2026-06-03" ~ "19 wks",
+        COHORT == 15 & Date == "2025-10-07" ~ "23 wks",
+        COHORT == 16 & Date == "2026-01-09" ~ "23 wks" #really this is 22 wks ,
+        #   COHORT == 18 & Date == "2026-07-08" ~ "24 wks"
+      )) %>% 
+      mutate(
+        n_measurement = factor(
+          n_measurement,
+          levels = c("0 wks", "4 wks", "10 wks", "13 wks", "19 wks", "23 wks")
+        )
+      )
 
 
 echoMRI_data_comparisons  %>% 
   group_by(SEX,n_measurement) %>%
   summarise(n_ID = n_distinct(ID)) %>% 
-  print(n = Inf) #ok great we have the same amount of data than for BW (i.e 17 F and 20 M) we removed ID 9406 and 9354 
+  print(n = Inf) 
 
 bodycomp_summary <- echoMRI_data_comparisons %>%
   group_by(n_measurement, BPA_EXPOSURE,SEX,DIET_FORMULA) %>%
@@ -1231,14 +1237,11 @@ bodycomp_summary <- echoMRI_data_comparisons %>%
     .groups = "drop"
   ) %>% 
   mutate(n_measurement = factor(n_measurement, levels = c("0 wks",
-                                                          "3 wks",
-                                                         #"5 wks",
-                                                          "9 wks",
-                                                          "12 wks",
-                                                         #"15 wks",
-                                                          "18 wks",
-                                                       #   "19 wks",
-                                                          "22 wks"))) %>% 
+                                                          "4 wks",
+                                                          "10 wks",
+                                                          "13 wks",
+                                                          "19 wks",
+                                                          "23 wks"))) %>% 
   ungroup()
 
 
@@ -1673,6 +1676,8 @@ combined_plot_fm <- sf5a  | sf5b
 combined_plot_fm
 
 ## Figure 2A (F2A) lean mass collapsed by diet ----
+
+
 f2a <- ggplot(bodycomp_summary_collapsed,
              aes(x = n_measurement,
                  y = mean_lean,
@@ -1726,7 +1731,7 @@ contr_fem_lean <- contrast(
 lean_stats_fem<- as.data.frame(contr_fem_lean)
 lean_stats_fem
 
-# so after week 12 female mice exposed to BPA have more lean mass than non exposed one independent of the obesogenic diet
+# so after week 4 female mice exposed to BPA have more lean mass than non exposed one independent of the obesogenic diet
 
 ####STATS for males----
 
@@ -1759,7 +1764,7 @@ contr_m_lean <- contrast(
 lean_stats_m<- as.data.frame(contr_m_lean)
 lean_stats_m
 
-#there is no weeks in which males exposed to BPA have more lean mass than non exposed ones
+#there is a time window between 4 wks to 10 wks in which males exposed to BPA have more lean mass than non exposed ones independent of the OD
 
 ## Figure 2B (F2B) lean mass by diet ----
 f2b <- ggplot(bodycomp_summary,
@@ -1820,7 +1825,7 @@ contr_fem_lean_hcd <- contrast(
 lean_stats_fem_hcd <- as.data.frame(contr_fem_lean_hcd)
 lean_stats_fem_hcd
 
-#after 18 weeks of HCD onwards BPA exposed females have more lean mass than control ones
+#after 4 weeks of HCD onwards BPA exposed females have more lean mass than control ones
 
 
 ###STATS for females HFD----
@@ -1855,7 +1860,7 @@ contr_fem_lean_hfd <- contrast(
 lean_stats_fem_hfd <- as.data.frame(contr_fem_lean_hfd)
 lean_stats_fem_hfd
 
-#after 12 weeks of HFD onwards BPA exposed females have more lean mass than control ones
+#after 4 weeks of HFD onwards BPA exposed females have more lean mass than control ones
 
 ###STATS for males HCD----
 
@@ -1923,7 +1928,7 @@ contr_m_lean_hfd <- contrast(
 lean_stats_m_hfd <- as.data.frame(contr_m_lean_hfd)
 lean_stats_m_hfd
 
-#there is no weeks in which BPA exposed males have more lean mass than non exposed one after being fed with HFD
+#In the time window between 4 wks and 10 wks males exposed to bpa has more lean mas than males not exposed to bpa
 
 # Figure 2 (F2A+ F2B)----
 f2a <- f2a + labs(tag = "A")
@@ -1931,6 +1936,62 @@ f2b <- f2b + labs(tag = "B")
 
 combined_plot_lm <- f2a  | f2b 
 combined_plot_lm
+
+#LENGTH ANALYSIS----
+
+METABPA <- read_csv("~/Documents/GitHub/data/data/METABPA.csv") %>% 
+  filter(!grepl("-", ID)) %>%  #I eliminate from metadata all animals that were measured for NORT
+  mutate(ID = as.numeric(ID))
+
+length_data <- read_csv("../data/METABPA_LENGTH.csv") %>% 
+  left_join(METABPA, by= "ID") %>% 
+  group_by(ID) %>% 
+  mutate(
+    DATE = mdy(DATE),
+    DOB  = mdy(DOB),
+    age_weeks = as.numeric(difftime(DATE, DOB, units = "weeks")))%>%
+  mutate(age_week_round = round(age_weeks)) %>% 
+  ungroup()
+
+length_summary <- length_data  %>%
+  group_by(SEX, BPA_EXPOSURE) %>%
+  summarise(
+    mean_length = mean(LENGTH_CM, na.rm = TRUE),
+    sem_length  = sd(LENGTH_CM, na.rm = TRUE) / sqrt(n_distinct(ID)),
+    n = n_distinct(ID),
+    .groups = "drop"
+  ) 
+
+##STATS----
+# Female groups
+female_data <- length_data %>% filter(SEX == "F")
+shapiro.test(female_data$LENGTH_CM[female_data$BPA_EXPOSURE == "YES"])
+shapiro.test(female_data$LENGTH_CM[female_data$BPA_EXPOSURE == "NO"])
+
+# Male groups
+male_data <- length_data %>% filter(SEX == "M")
+shapiro.test(male_data$LENGTH_CM[male_data$BPA_EXPOSURE == "YES"])
+shapiro.test(male_data$LENGTH_CM[male_data$BPA_EXPOSURE == "NO"])
+
+# Female
+leveneTest(LENGTH_CM ~ BPA_EXPOSURE, data = female_data)
+
+# Male
+leveneTest(LENGTH_CM ~ BPA_EXPOSURE, data = male_data)
+
+# Welch t-test for females
+t.test(LENGTH_CM ~ BPA_EXPOSURE, data = female_data, var.equal = FALSE)
+# Standard t-test for males
+t.test(LENGTH_CM ~ BPA_EXPOSURE, data = male_data, var.equal = TRUE)
+
+length_1 <- ggplot(length_summary, aes(x = BPA_EXPOSURE, y = mean_length, fill = BPA_EXPOSURE)) + 
+  geom_col(width = 0.7) + 
+  geom_errorbar( aes(ymin = mean_length - sem_length, ymax = mean_length + sem_length), 
+                 width = 0.2 ) + facet_wrap(~ SEX) + labs( y = "length (cm)",
+                                                           x = "BPA exposure", fill = "BPA exposure" ) + 
+  theme_classic(base_size = 14) 
+length_1
+
 
 
 # FOOD INTAKE ANALYSIS----
