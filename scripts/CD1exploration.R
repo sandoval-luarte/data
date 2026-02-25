@@ -2026,7 +2026,7 @@ length_1
 # FOOD INTAKE ANALYSIS----
 
 FI_data <- read_csv("../data/FI.csv") %>% 
-  filter(COHORT %in% c(15,16)) %>% 
+  filter(COHORT %in% c(15,16,18)) %>% 
   mutate(DATE = ymd(DATE)) %>% 
   arrange(DATE) %>% 
   group_by(ID) %>% 
@@ -2036,11 +2036,13 @@ FI_data <- read_csv("../data/FI.csv") %>%
   left_join(METABPA, by= "ID") %>% 
   select(
     -SEX.y,
+    -DIET_FORMULA.y,
     -DIET_FORMULA.x,
-    -DIET_FORMULA.y
+    -COHORT.y
   ) %>% 
   rename(
-    SEX = SEX.x
+    SEX = SEX.x,
+    COHORT = COHORT.x
   ) %>% 
   mutate(
     FIcumulative = cumsum(corrected_intake_kcal)) %>% 
@@ -2048,7 +2050,7 @@ FI_data <- read_csv("../data/FI.csv") %>%
   filter(!ID ==9406)  #9406 has a  weird pattern in locomotion
 
 FI_data   %>% 
-  group_by(SEX,BPA_EXPOSURE,DIET_FORMULA) %>%
+  group_by(SEX,BPA_EXPOSURE) %>%
   summarise(n_ID = n_distinct(ID)) 
 
 ####FI collapsed by diet----
@@ -2062,6 +2064,7 @@ FI_summary <- FI_data %>%
     .groups = "drop"
   ) %>% 
   filter(day_rel == 138)
+
 
 FI_plotA <- ggplot(FI_summary, aes(x = BPA_EXPOSURE, y = mean_FI, fill = BPA_EXPOSURE)) +
   geom_col(width = 0.7) +
@@ -4671,10 +4674,15 @@ all_data <- bind_rows(data, data2, data3, data4) %>%
     age_weeks = as.numeric(difftime(Date, DOB, units = "weeks")))%>%
   mutate(age_week_round = round(age_weeks),
          age_week_round = case_when(
-           age_week_round %in% c(13, 14) ~ 13.5,  # merge 13 and 14 into 13.5
+           age_week_round %in% c(13, 14) ~ 11,
+           age_week_round ==17 ~ 14,# this is 17 wks old, 14 wks with chow
+           age_week_round ==27 ~ 24, # this is 27 wks old, 24 wks with cho
            TRUE ~ age_week_round               # keep other ages as they are
-         )) %>% 
-  filter(SEX=="F")
+         )) 
+
+all_data   %>% 
+  group_by(SEX,BPA_EXPOSURE,COHORT) %>%
+  summarise(n_ID = n_distinct(ID))
 
 # hypothesis N1: animals prefers periphery than center ----
 # we can expect the animals will trend to avoid open spaces so they will spend more time in the periphery area
@@ -4682,10 +4690,14 @@ all_data <- bind_rows(data, data2, data3, data4) %>%
   
 data_raw <- all_data %>% 
  select(ID, Stage, `Segment of test`,
-           `Center : time (s)`, `Periphery : time (s)`, BPA_EXPOSURE, age_week_round)
+           `Center : time (s)`, `Periphery : time (s)`, BPA_EXPOSURE, age_week_round,SEX,COHORT)
+
+data_raw   %>% 
+  group_by(SEX,BPA_EXPOSURE,COHORT) %>%
+  summarise(n_ID = n_distinct(ID))
 
   data_summary <- data_raw %>% 
-    group_by(Stage, `Segment of test`,age_week_round,BPA_EXPOSURE) %>% #there is not enough females to split the data by sex
+    group_by(Stage, `Segment of test`,age_week_round) %>% #there is not enough females to split the data by sex
     summarise(
       n = n(),
       mean_time_center = mean(`Center : time (s)`, na.rm = TRUE),
@@ -4704,7 +4716,7 @@ data_raw <- all_data %>%
   
   data_summary_long <- data_summary %>%
     pivot_longer(
-      cols = -c(Stage, `Segment of test`, n, age_week_round,BPA_EXPOSURE),
+      cols = -c(Stage, `Segment of test`, n, age_week_round),
       names_to = c(".value", "Location"),
       names_pattern = "(mean_time|sem_time)_(.*)")
   
@@ -4745,28 +4757,33 @@ data_raw <- all_data %>%
                 alpha = 0.8,
                 size = 2,
                 show.legend = FALSE) +
-    facet_wrap(~Stage*age_week_round*BPA_EXPOSURE) +
+    facet_wrap(~Stage*age_week_round) +
     labs(y = "Time (seconds)",
          x = "Segment of the test",
          fill = "Zone") +
     theme_classic()
   
 #conclusion> so great animals spent more time in the periphery than in the center of the arena in all Stages
-#conclusion 2 > in the recognition stage of animals 27 week old Zander did not record from 5-10 min stage completely because he was in a hurry
+#conclusion 2 > In the recognition stage for the 27-week-old animals, the 5–10 minute period was not fully recorded. Zander mentioned that this was because another group was scheduled to use the room
   
 # hypothesis N2: In the familiarization stage animals will spend the same time with both objects ----
 # we can expect the animals will spend the same amount of time with the two identical objects independent of age, Segment of the test and BPA exposure 
   
 data_fam <- all_data %>% 
-    select(Animal, Stage, `Segment of test`,
+    select(ID, Stage, `Segment of test`,
            `Familiar Object 1 : time investigating (s)`,
            `Familiar Object 2 : time investigating (s)`,
            BPA_EXPOSURE, SEX, COHORT, age_week_round) %>% 
     filter(Stage =='Familiarization') %>% 
     drop_na()
   
+  data_fam   %>% 
+    group_by(SEX,BPA_EXPOSURE,COHORT) %>%
+    summarise(n_ID = n_distinct(ID))  
+  
+  
   data_summary_fam <- data_fam %>% 
-    group_by(`Segment of test`, age_week_round,BPA_EXPOSURE) %>% 
+    group_by(`Segment of test`, age_week_round) %>% 
     summarise(
       n = n(),
       mean_time_fam1 = mean( `Familiar Object 1 : time investigating (s)`, na.rm = TRUE),
@@ -4794,7 +4811,7 @@ data_fam <- all_data %>%
   
   data_summary_long_fam <- data_summary_fam %>%
     pivot_longer(
-      cols = -c(`Segment of test`, age_week_round,BPA_EXPOSURE),
+      cols = -c(`Segment of test`, age_week_round),
       names_to = c(".value", "Object"),
       names_pattern = "(mean_time|sem_time)_fam(\\d)"
     ) %>%
@@ -4814,14 +4831,14 @@ data_fam <- all_data %>%
     geom_jitter(data = data_raw_long_fam,
                 aes(x = Object, y = time, color = Object),
                 width = 0.15, size = 2, alpha = 0.8, show.legend = FALSE) +
-    facet_wrap(~`Segment of test`*age_week_round*BPA_EXPOSURE) +
+    facet_wrap(~`Segment of test`*age_week_round) +
     labs(x = "Object", y = "Time Investigating (s)", fill = "Object") +
     theme_classic()
   
 ##### STATS----
 # Make sure we are using only Familiarization stage
   data_fam_wide <- data_raw_long_fam %>%
-    select(Animal, `Segment of test`, Object, time,age_week_round,BPA_EXPOSURE) %>%
+    select(Animal, `Segment of test`, Object, time,age_week_round) %>%
     pivot_wider(
       names_from = Object,
       values_from = time,
