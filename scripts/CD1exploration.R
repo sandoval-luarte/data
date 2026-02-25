@@ -4620,9 +4620,10 @@ ggplot(data2_summary_fam_di, aes(x = `Segment of test`, y = mean_time_Di)) +
 
 #Read me: 
 #Data.csv- raw data for cohort 15 (7/15/25)
-#Data-2.csv- Raw data for cohort 16 (11/10/2025)
-#Data-3.csv- Raw data for cohort 15 and cohort 16 (10/13/2025)
-#Data-4.csv- raw data for cohort 16 (1/15/2026)
+#Data-2.csv- Raw data for cohort 16 (11/10/2025) #Zander comment (12/21/25): The Data-2 was cut short. Due to technical issues we had to start late and we had to rush because another lab group was telling us they needed the room. We for sure got the 0-5 minute window for all mice though.
+#Data-3.csv- Raw data for cohort 15 and cohort 16 (10/13/2025) 
+#Data-4.csv- raw data for cohort 16 (1/15/2026) #habituation was not correctly recordered. Zander did not recorded 300 - 600 secs section of the test in the habituation phase. Also he ran the same day habituation, familiarization and recognition phases
+
   
 ####Data import----
   
@@ -4838,7 +4839,7 @@ data_fam <- all_data %>%
 ##### STATS----
 # Make sure we are using only Familiarization stage
   data_fam_wide <- data_raw_long_fam %>%
-    select(Animal, `Segment of test`, Object, time,age_week_round) %>%
+    select(ID, `Segment of test`, Object, time,age_week_round) %>%
     pivot_wider(
       names_from = Object,
       values_from = time,
@@ -4847,7 +4848,7 @@ data_fam <- all_data %>%
   data_fam_wide
   
   t_test_results <- data_fam_wide %>%
-    group_by(`Segment of test`,age_week_round,BPA_EXPOSURE) %>%
+    group_by(`Segment of test`,age_week_round) %>%
     summarise(
       t_test = list(t.test(Object_1, Object_2, paired = TRUE)),
       .groups = "drop"
@@ -4868,7 +4869,7 @@ data_fam <- all_data %>%
   
 dat_fam_di <- data_fam %>% 
     ungroup() %>% 
-    group_by(Animal,`Segment of test`) %>% 
+    group_by(ID,`Segment of test`,BPA_EXPOSURE) %>% 
     mutate(Di =(`Familiar Object 1 : time investigating (s)` - `Familiar Object 2 : time investigating (s)`)/(`Familiar Object 1 : time investigating (s)` + `Familiar Object 2 : time investigating (s)`))
   
   data_summary_fam_di <- dat_fam_di %>% 
@@ -4899,7 +4900,7 @@ dat_fam_di <- data_fam %>%
                 width = 0.1, size = 2, alpha = 0.8) +
     labs(x = "Segment of test",
          y = "Discrimination index (Di)") +
- facet_wrap(~age_week_round*BPA_EXPOSURE) +
+ facet_wrap(~age_week_round*BPA_EXPOSURE, ncol = 2, nrow = 3) +
     theme_classic()
   
   #####STATS----
@@ -4919,13 +4920,19 @@ dat_fam_di <- data_fam %>%
 #NOP (%) = ((TN)/(TN+TF))*100 where TN = time spent interacting with novel object
 #TF = Time spent interacting with familiar object. 
 #Reductions in preference is indicative of impaired learning and memory.
+
+#I took the 0-300 sec because recognition phase for data-2.csv was cut short
   
 dat_recog <- all_data%>% 
     ungroup() %>% 
-    group_by(Animal,`Segment of test`) %>% 
+    group_by(`Segment of test`) %>% 
     filter(Stage =='Recognition') %>% 
-    mutate(NOP =(`Novel Object : time investigating (s)`)/(`Familiar Object 1 : time investigating (s)` + `Novel Object : time investigating (s)`)) %>% 
-    select(Animal,`Segment of test`,BPA_EXPOSURE, SEX, COHORT, BPA_EXPOSURE, age_week_round,NOP)
+    mutate(NOP = ((`Novel Object : time investigating (s)`) /
+                    (`Familiar Object 1 : time investigating (s)` + 
+                       `Novel Object : time investigating (s)`)) * 100) %>% 
+    select(ID, `Segment of test`, BPA_EXPOSURE, SEX, COHORT, 
+           age_week_round, NOP) %>% 
+    filter(SEX=="F")
   
 data_summary_recog <- dat_recog %>% 
     ungroup() %>% 
@@ -4937,7 +4944,7 @@ data_summary_recog <- dat_recog %>%
       .groups = "drop"
     ) %>% 
     ungroup() %>% 
-  filter(`Segment of test` == "0 - 300 secs.")
+  filter(`Segment of test` == "0 - 300 secs.") #because this person recorded just the first part of the test and not the entire test =/
 
 data_raw_long_recog <- dat_recog %>% 
   pivot_longer(
@@ -4945,7 +4952,7 @@ data_raw_long_recog <- dat_recog %>%
     names_to = "Object",
     values_to = "NOP_value"
   ) %>% 
-  filter(`Segment of test` == "0 - 300 secs.")
+  filter(`Segment of test` == "0 - 300 secs.") #because this person recorded just the first part of the test and not the entire test =/
   
 
 ggplot(data_summary_recog, aes(x = BPA_EXPOSURE, y = mean_time_NOP)) +
@@ -4960,4 +4967,11 @@ ggplot(data_summary_recog, aes(x = BPA_EXPOSURE, y = mean_time_NOP)) +
        y = "% of novel object preference  (NOP%)") +
   facet_wrap(~age_week_round) +
   theme_classic()
-  
+
+t_test_NOP <- dat_recog %>%
+  group_by(age_week_round) %>%
+  summarise(t_test = list(t.test(NOP ~ BPA_EXPOSURE)),
+            .groups = "drop") %>%
+  mutate(t_test = map(t_test, broom::tidy)) %>%
+  unnest(t_test)  
+t_test_NOP 
