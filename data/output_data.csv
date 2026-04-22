@@ -1,0 +1,886 @@
+"X1","X2","X3","X4","X5","X6","X7","X8","X9","X10","X11","X12","X13","X14","X15","X16","X17","X18","X19","X20","X21","X22","X23","X24","X25","X26","X27","X28","X29","X30","X31","X32","X33","X34","X35","X36","X37","X38","X39","X40","X41","X42","X43","X44","X45","X46","X47","X48","X49","X50","X51","X52","X53","X54","X55","X56","X57","X58","X59","X60","X61","X62","X63","X64","X65","X66","X67","X68","X69","X70","X71","X72","X73","X74","X75","X76","X77","X78","X79","X80","X81","X82","X83","X84","X85","X86","X87","X88","X89","X90","X91","X92","X93","X94","X95","X96","X97","X98","X99","X100","X101","X102","X103","X104","X105","X106","X107","X108","X109","X110","X111","X112","X113","X114","X115","X116","X117","X118","X119","X120","X121","X122","X123","X124","X125","X126","X127","X128","X129","X130","X131","X132","X133","X134","X135","X136","X137","X138","X139","X140","X141","X142","X143","X144","X145","X146","X147","X148","X149","X150","X151","X152","X153","X154","X155","X156","X157","X158","X159","X160","X161","X162","X163","X164","X165","X166","X167","X168","X169","X170","X171","X172","X173","X174","X175","X176","X177","X178","X179","X180","X181","X182","X183","X184","X185","X186","X187","X188","X189","X190","X191","X192","X193","X194","X195","X196","X197","X198","X199","X200","X201","X202","X203","X204","X205","X206","X207","X208","X209","X210","X211","X212","X213","X214","X215","X216","X217","X218","X219","X220","X221","X222","X223","X224","X225","X226","X227","X228","X229","X230","X231","X232","X233","X234","X235","X236","X237","X238","X239","X240","X241","X242","X243","X244","X245","X246","X247","X248","X249","X250","X251","X252","X253","X254","X255","X256","X257","X258","X259","X260","X261","X262","X263","X264","X265","X266","X267","X268","X269","X270","X271","X272","X273","X274","X275","X276","X277","X278","X279","X280","X281","X282","X283","X284","X285","X286","X287","X288","X289","X290","X291","X292","X293","X294","X295","X296","X297","X298","X299","X300","X301","X302","X303","X304","X305","X306","X307","X308","X309","X310","X311","X312","X313","X314","X315","X316","X317","X318","X319","X320","X321","X322","X323","X324","X325","X326","X327","X328","X329","X330","X331","X332","X333","X334","X335","X336","X337","X338","X339","X340","X341","X342","X343","X344","X345","X346","X347","X348","X349","X350","X351","X352","X353","X354","X355","X356","X357","X358","X359","X360","X361","X362","X363","X364","X365","X366","X367","X368","X369","X370","X371","X372","X373","X374","X375","X376","X377","X378","X379","X380","X381","X382","X383","X384","X385","X386","X387","X388","X389","X390","X391","X392","X393","X394","X395","X396","X397","X398","X399","X400","X401","X402","X403","X404","X405","X406","X407","X408","X409","X410","X411","X412","X413","X414","X415","X416","X417","X418","X419","X420","X421","X422","X423","X424","X425","X426","X427","X428","X429","X430","X431","X432","X433","X434","X435","X436","X437","X438","X439","X440","X441","X442","X443","X444","X445","X446","X447","X448","X449","X450","X451","X452","X453","X454","X455","X456","X457","X458","X459","X460","X461","X462","X463","X464","X465","X466","X467","X468","X469","X470","X471","X472","X473","X474","X475","X476","X477","X478","X479","X480","X481","X482","X483","X484","X485","X486","X487","X488","X489","X490","X491","X492","X493","X494","X495","X496","X497","X498","X499","X500","X501","X502","X503","X504","X505","X506","X507","X508","X509","X510","X511","X512","X513","X514","X515","X516","X517","X518","X519","X520","X521","X522","X523","X524","X525","X526","X527","X528","X529","X530","X531","X532","X533","X534","X535","X536","X537","X538","X539","X540","X541","X542","X543","X544","X545","X546","X547","X548","X549","X550","X551","X552"
+"Test day of the week
+T=
+reatment &nb=
+sp; N  Data (note 1) BPA =
+td> 15 Monday(9431.1N), Tuesday(=
+9431.1N), Tuesda=
+y(9431.1N), Monday(9431.2L), Tuesday(9431.2L), Tuesday(9431.2L=
+), Monday (9431.3R), Tuesday(9431.3R), Tuesday(9431.3R), Monday(9440.1N), Tuesday(944=
+0.1N), Tuesday(9440.1N), Monday(9440.2L),=
+ Tuesday(9440.2L=
+), Tuesday(9440.2L)=
+Control&nbs=
+p; 12 Monday(9445.1N), Tuesday=
+(9445.1N), =
+Tuesday(9445.1N), Monday(9445.2L), Tuesday(=
+9445.2L), Tuesda=
+y(9445.2L), Monday(9447.1N), Tuesday(9447.1N), Tuesday(9447.1N=
+), Monday (9447.2L), Tuesday(9447.2L), Tuesday(9447.2L)Notes: 
+1.Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. Test time of day (am/pm)
+T=
+reatment &nb=
+sp; N  Data (note 1) BPA =
+td> 15 pm(9431.1N), pm(9431.1N), pm(9431.1N), pm(9431.2L), p=
+m(9431.2L), pm (9431.2L), pm(9431=
+.3R), pm(9431.3R), pm(9431.3R), pm(9440.1N), pm(9440.1N),=
+ pm(9440.1N), pm(9440.2L), pm(=
+9440.2L), pm(9440.2L)Control&nbs=
+p; 12 pm(9445.1N), pm(9445.1N), pm(9445.1N), pm(9445.2L),=
+ pm(9445.2L), pm(9445.2L), pm(=
+9447.1N), pm(9447.1N), pm=
+(9447.1N), pm(9447.2L=
+), pm=
+ (9447.2L), pm(9447.2=
+L)Notes: 
+1.Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. Animal lighter / darker than apparatus
+T=
+reatment &nb=
+sp; N  Data (notes 1, 2) BPA =
+td> 5=
+td> Lighter(9431.1N), Lighter(=
+9431.2L), Lighte=
+r(9431.3R), Lighter(9440.1N), Lighter(9440.2L)Control&nbs=
+p; 4 Lighter(9445.1N), Lighter=
+(9445.2L), =
+Lighter(9447.1N), Lighter(9447.2L)Notes: 
+1.Th=
+ere is only one data value for each animal, as this result is calculated=
+ at the animal level.2.Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. Location of Familiar Object 1 zone
+T=
+reatment &nb=
+sp; N  Data (note 1) BPA =
+td> 10 Back left(9431.1N), Back left(9431.1N),=
+ Back left(9431.=
+2L), Back left(9431.2L), Back left=
+sup>(9431.3R), Back left(94=
+31.3R), Back left(9440.1N)=
+, Back left=
+ (9440.1N), Back left(9440.2L), Back left=
+(9440.2L)Control&nbs=
+p; 8 Back left(9445.1N), Back left=
+sup>(9445.1N), Back left(94=
+45.2L), Back left(9445.2L)=
+, Back left=
+ (9447.1N), Back left(9447.1N), Back left=
+(9447.2L), Back left (9447.2L)
+Notes: 
+1.Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. Location of Novel Object zone
+T=
+reatment &nb=
+sp; N  Data (note 1) BPA =
+td> 5=
+td> Front right(9431.1N), Front right=
+sup>(9431.2L), Front right(=
+9431.3R), Front right(9440.1N)=
+sup>, Front right(9440.2L)=
+Control&nbs=
+p; 4 Front right(9445.1N), Front right(9445.2L), Front right(9447.1N), Front right=
+span>(9447.2L)Notes: 
+1.Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. Location of Familiar Object 2 zone
+T=
+reatment &nb=
+sp; N  Data (note 1) BPA =
+td> 5=
+td> Front right(9431.1N), Front right=
+sup>(9431.2L), Front right(=
+9431.3R), Front right(9440.1N)=
+sup>, Front right(9440.2L)=
+Control&nbs=
+p; 4 Front right(9445.1N), Front right(9445.2L), Front right(9447.1N), Front right=
+span>(9447.2L)Notes: 
+1.Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. Test duration (s)
+Treatment &=
+nbsp; N Mean  SD (note 1) Data (note 2) BPA =
+td> 15600.00=B10.00 600.0(943=
+1.1N), 600.0(9431.1N), 600.0(9431.1N), 60=
+0.0(9431.2L), 600.0(9431.2L), 600.0(9431.2L), 600.0(9431.3R)=
+sup>, 600.0=
+ (9431.3R), 600.0(943=
+1.3R), 600.0(9440.1N), 600.0(9440.1N), 60=
+0.0(9440.1N), 600.0(9440.2L), 600.0(9440.2L), 600.0(9440.2L)=
+sup>Control&nbs=
+p; 12600.00=B10.00 600.0(9445.1N), 600.0(9445.1N)=
+, 600.0(9445.1N), 600.0(9445.2L=
+), 600.0(9445.2L), 600.0(=
+sup>9445.2L), 600.0(9447.1N=
+), 600.0 (9447.1N), 600.0(9=
+447.1N), 600.0(9447.2L), 600.0=
+(9447.2L), =
+600.0(9447.2L)Notes: 
+1.SD=
+ =3D Standard deviation. 2.Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. Total distance travelled (m)
+Treatment &=
+nbsp; N Mean  SD (note 1) Data (note 2) BPA =
+td> 1527.8111=
+=B15.9570 20.028(9431.1N), 21.092(9431.1N), 19.996(9431.1N), 35.575(9431=
+.2L), 37.745(9431.2L), 26.707(9431.2L), 2=
+1.478(9431.3R), 25.829(9431.3R), 25.052(9431.3R), 32.754(9440.1N), 32.833(9440.1N), 31.294(9440.1N), 33.838=
+(9440.2L), 29.343=
+ (9440.2L), 23.602(94=
+40.2L)Control&nbs=
+p; 1218.0381=B14.7013 21.863(9445.1N), 14.389(9445.1N), 22.237(9445.1N), 21.200(=
+9445.2L), 16.790(9445.2L), 14.672(9445.2L), 27.649(9447.1=
+N), 19.624(9447.1N)=
+, 14.110(9447.1N), 17.=
+443(9447.2L), 16.236(9447.2L), 10.244(9447.2L)Notes: 
+1.SD=
+ =3D Standard deviation. 2.Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. Total distance travelled by the animal's head (m)=
+
+Treatment &=
+nbsp; N Mean  SD (note 1) Data (note 2) BPA =
+td> 1546.0691=
+=B18.2655 37.804(9431.1N), 38.659(9431.1N), 38.460(9431.1N), 58.111(9431=
+.2L), 59.548(9431.2L), 43.366(9431.2L), 3=
+7.958(9431.3R), 41.022(9431.3R), 38.607(9431.3R), 55.219(9440.1N), 52.688(9440.1N), 48.226(9440.1N), 56.520=
+(9440.2L), 46.058=
+ (9440.2L), 38.790(94=
+40.2L)Control&nbs=
+p; 1232.6672=B16.8285 41.347(9445.1N), 27.919(9445.1N), 38.038(9445.1N), 36.720(=
+9445.2L), 30.435(9445.2L), 24.241(9445.2L), 43.414(9447.1=
+N), 35.578(9447.1N)=
+, 27.345(9447.1N), 34.=
+588(9447.2L), 31.382(9447.2L), 20.999(9447.2L)Notes: 
+1.SD=
+ =3D Standard deviation. 2.Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. Number of entries to the Center zone
+Treatment &=
+nbsp; N Mean  SD (note 1) Data (note 2) BPA =
+td> 1539.33=B18.91 38(9431.1=
+N), 43(9431.1N), 49(9431.1N), 50(9431.2L), 52(9431.2L),=
+ 29(9431.2L), 37(9431.3R), 30(=
+9431.3R), 36(9431.3R), 50=
+(9440.1N), 42(9440.1N=
+), 38=
+ (9440.1N), 41(9440.2=
+L), 35(9440.2L), 20(9440.2L)Control&nbs=
+p; 1232.75=B113.05 46(9=
+445.1N), 23(9445.1N), 59(=
+9445.1N), 30(9445.2L)=
+, 15 =
+(9445.2L), 18(9445.2L=
+), 46(9447.1N), 37(=
+9447.1N), 28(9447.1N)=
+, 37=
+(9447.2L), =
+33(9447.2L=
+), 21=
+(9447.2L)
+Notes: 
+1.SD=
+ =3D Standard deviation. 2.Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. Time in the Center zone (s)
+Treatment &=
+nbsp; N Mean  SD (note 1) Data (note 2) BPA =
+td> 1576.17=B131.12 79.9(9431=
+.1N), 144.0(9431.1N), 133.7(9431.1N), 56.=
+4(9431.2L), 75.9(9431.2L), 62.8(9431.2L), 77.5(9431.3R), 93.4(9431.3R),=
+ 75.4(9431.3R), 100.4(9440.1N), 61.0(9440.1N), 54.1(9440.1N)=
+sup>, 50.5 =
+(9440.2L), 40.5(9440.=
+2L), 37.1(9440.2L)Control&nbs=
+p; 1291.48=B147.29 74.1(9445.1N), 140.8(9445.1N), 184.9(9445.1N)=
+, 49.1(9445.2L=
+sup>), 22.5(9445.2L), 46.3(9445.2L), 81.4(9447.1N)=
+sup>, 82.9 =
+(9447.1N), 108.3(9447=
+.1N), 152.3(9447.2L), 76.2(9447.2L), 79.0=
+(9447.2L)Notes: 
+1.SD=
+ =3D Standard deviation. 2.Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. Number of entries to the Periphery zone
+Treatment &=
+nbsp; N Mean  SD (note 1) Data (note 2) BPA =
+td> 1597.60=B132.22 65(9431.1=
+N), 63(9431.1N), 54(9431.1N), 104(9431.2L), 110(9431.2L), 65(9431.2L), 90(9431.3R), 90(9431.3R), 87(9431.3R), 147(9440.1N), 14=
+3(9440.1N), 109=
+(9440.1N), 161(=
+9440.2L), 93(9440.2L), 83=
+(9440.2L)Control&nbs=
+p; 1263.42=B116.22 82(9=
+445.1N), 67(9445.1N), 89(=
+9445.1N), 58(9445.2L)=
+, 70 =
+(9445.2L), 34(9445.2L=
+), 77(9447.1N), 67(=
+9447.1N), 59(9447.1N)=
+, 58=
+(9447.2L), =
+63(9447.2L=
+), 37=
+(9447.2L)
+Notes: 
+1.SD=
+ =3D Standard deviation. 2.Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. Time in the Periphery zone (s)
+Treatment &=
+nbsp; N Mean  SD (note 1) Data (note 2) BPA =
+td> 15491.16=B126.29 508.7(943=
+1.1N), 449.5(9431.1N), 465.0(9431.1N), 52=
+9.1(9431.2L), 502.5(9431.2L), 524.4(9431.2L), 500.5(9431.3R)=
+sup>, 473.9=
+ (9431.3R), 492.4(943=
+1.3R), 443.4(9440.1N), 478.2(9440.1N), 48=
+8.8(9440.1N), 478.8(9440.2L), 520.5(9440.2L), 511.7(9440.2L)=
+sup>Control&nbs=
+p; 12488.61=B146.46 510.1(9445.1N), 432.9(9445.1N), 394.1=
+sup>(9445.1N), 537.7(9445.2=
+L), 524.8(9445.2L), 545.3=
+(9445.2L), 496.4=
+(9447.1N), 500.3(9447.1N), 463.4(9447.1N), 438.1(9447.2L), 509.8=
+sup>(9447.2L), 510.4(9447.2=
+L)Notes: 
+1.SD=
+ =3D Standard deviation. 2.Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. Number of investigations of the Familiar Object 1 zon=
+e
+Treatment &=
+nbsp; N Mean  SD (note 1) Data (note 2) BPA =
+td> 1038.90=B111.86 #N/A(9431=
+.1N), 48(9431.1N), 36(9431.1N), #N/A(9431.2L), 55(9431.2L), 50(9431.2L),=
+ #N/A(9431.3R),=
+ 29(9431.3R), 27(9431.3R), #N/A(9440.1N), 54(=
+9440.1N), 29(9440.1N), #N/A(9440.2L), 37=
+(9440.2L), 24(9440.2L=
+)Control&nbs=
+p; 836.62=B112.06 #N/A(=
+9445.1N), 45(9445.1N), 58=
+(9445.1N), #N/A=
+(9445.2L), 25(9445.2L=
+), 27=
+ (9445.2L), #N/A=
+ (9447.1N), 48(9447.1=
+N), 29(9447.1N), #N/A(9447.2L), 30(9447.2L), 31(9447.2L)Notes: 
+1.SD=
+ =3D Standard deviation. 2.Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. 3.Da=
+ta shown as #N/A represent a result that is undefined.
+Time investigating the Familiar Object 1 zone (s)=
+
+Treatment &=
+nbsp; N Mean  SD (note 1) Data (note 2) BPA =
+td> 1048.93=B114.25 #N/A(9431=
+.1N), 78.2(9431.1N)=
+, 47.8=
+(9431.1N), #N/A=
+(9431.2L), 65.9(9431.2L), 45.6 (9431.2L), #N/A(9431.3R), 51.3(94=
+31.3R), 30.1(9431.3R), #N/A(9440.1N), 48.1(9440.1N), 32.=
+7(9440.1N), #N/=
+A(9440.2L), 47.2(9440.2L), 42.4(9440.2L)Control&nbs=
+p; 859.26=B118.24 #N/A(=
+9445.1N), 84.8(9445.1N), 73.3(9445.1N), #N/A(9445.2L), 3=
+3.4(9445.2L), 72.6(9445.2L), #N/A(9447.1N), 62.7(9447.1N), 35.1(9447.1N), #N/A(9447.2L), 59.0(9447.2L), 53.2(9447.2L)Notes: 
+1.SD=
+ =3D Standard deviation. 2.Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. 3.Da=
+ta shown as #N/A represent a result that is undefined.
+Familiar Object 1 was first zone investigated
+T=
+reatment &nb=
+sp; N  Data (note 1) BPA =
+td> 10 #N/A(9431.1N), No(9431.1N), Yes(9431.1N), #N/A(9431.2L), Yes(9431.2L), Yes(9431.2L=
+sup>), #N/A(9431.3R=
+sup>), No(9431.3R), Yes(9431.3R), #N/A(9440.1N), Yes(9440.1N)=
+, Yes(9440.1N),=
+ #N/A(9440.2L),=
+ Yes(9440.2L), No(9440.2L)Control&nbs=
+p; 8 #N/A(9445.1N), No(=
+sup>9445.1N), No(9445.1N)=
+sup>, #N/A(9445.2L)=
+sup>, Yes(9445.2L), No(9445.2L), #N/A(9447.1N), Yes(9447.1N), No(=
+9447.1N), #N/A(=
+9447.2L), Yes(9447.2L), Yes(9447.2L)Notes: 
+1.Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. 2.Da=
+ta shown as #N/A represent a result that is undefined.
+Number of investigations of the Novel Object zone=
+
+Treatment &=
+nbsp; N Mean  SD (note 1) Data (note 2) BPA =
+td> 5=
+td>43.20=B115.21 #N/A(9431=
+.1N), #N/A(9431=
+.1N), 70(9431.1N), #N/A(9431.2L), #N/A(9431.2L), 40(9431.2L), #N/A(9431.3R), #N/A(9431.3R), 38(9431.3R), #N/A(9440.1N), #N/A(9440.1N), 34(9440.1N),=
+ #N/A(9440.2L),=
+ #N/A(9440.2L),=
+ 34(9440.2L)Control&nbs=
+p; 437.75=B12.36 #N/A(9=
+445.1N), #N/A(9=
+445.1N), 41(9445.1N), #N/A(9445.2L), #N/A(9445.2L), 38(=
+9445.2L), #N/A(=
+9447.1N), #N/A(=
+9447.1N), 36(9447.1N)=
+, #N/A(9447.2L)=
+, #N/A(9447.2L)=
+, 36 =
+(9447.2L)Notes: 
+1.SD=
+ =3D Standard deviation. 2.Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. 3.Da=
+ta shown as #N/A represent a result that is undefined.
+Time investigating the Novel Object zone (s)
+Treatment &=
+nbsp; N Mean  SD (note 1) Data (note 2) BPA =
+td> 5=
+td>65.16=B123.51 #N/A(9431=
+.1N), #N/A(9431=
+.1N), 105.4(9431.1N), #N/A(9431.2L), #N/A(9431.2L), 52.3(9431.2L), #N/A(9431.3R), #N/A(9431.3R), 55.5=
+(9431.3R), #N/A=
+(9440.1N), #N/A=
+(9440.1N), 46.9=
+(9440.1N), #N/A=
+(9440.2L), #N/A=
+(9440.2L), 65.7(9440.2L)Control&nbs=
+p; 466.12=B115.25 #N/A(=
+9445.1N), #N/A(=
+9445.1N), 44.5(9445.1N), #N/A(9445.2L), #N/A(9445.2L), 71.6(9445.2L), #N/A(9447.1N), #N/A(9447.1N), 6=
+8.3(9447.1N), #=
+N/A(9447.2L), #=
+N/A(9447.2L), 80.1(9447.2L)Notes: 
+1.SD=
+ =3D Standard deviation. 2.Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. 3.Da=
+ta shown as #N/A represent a result that is undefined.
+Novel Object was first zone investigated
+T=
+reatment &nb=
+sp; N  Data (note 1) BPA =
+td> 5=
+td> #N/A(9431.1N), #N/A(9431.1N), No(=
+9431.1N), #N/A(=
+9431.2L), #N/A(=
+9431.2L), No(9431.2L)=
+, #N/A(9431.3R)=
+, #N/A(9431.3R)=
+, No=
+(9431.3R), =
+#N/A=
+(9440.1N), =
+#N/A=
+(9440.1N), =
+No(9440.1N=
+), #N=
+/A(9440.2L=
+), #N=
+/A(9440.2L=
+), Yes(9440.2L)=
+Control&nbs=
+p; 4 #N/A(9445.1N), #N/A(9445.1N), Yes(9445.1N), =
+#N/A(9445.2L), =
+#N/A(9445.2L), Yes(9445.2L)=
+, #N/A(9447.1N)=
+, #N/A(9447.1N)=
+, Yes=
+ (9447.1N), #N/A=
+ (9447.2L), #N/A=
+ (9447.2L), No(9447.2=
+L)Notes: 
+1.Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. 2.Da=
+ta shown as #N/A represent a result that is undefined.
+Number of investigations of the Familiar Object 2 zon=
+e
+Treatment &=
+nbsp; N Mean  SD (note 1) Data (note 2) BPA =
+td> 5=
+td>46.20=B112.79 #N/A(9431=
+.1N), 58(9431.1N), #N/A(9431.1N), #N/A(9431.2L), 61(9431.2L), #N/A(9431.2L), #N/A(9431.3R), 32(9431.3R), #N/A(9431.3R), #N/A(9440.1N), 37(9440.1N),=
+ #N/A(9440.1N),=
+ #N/A(9440.2L),=
+ 43(9440.2L), #=
+N/A(9440.2L)Control&nbs=
+p; 442.50=B110.75 #N/A(=
+9445.1N), 30(9445.1N), #N/A(9445.1N), #N/A(9445.2L), 40=
+(9445.2L), #N/A=
+(9445.2L), #N/A=
+(9447.1N), 56(9447.1N=
+), #N/A(9447.1N=
+), #N/A(9447.2L=
+), 44=
+ (9447.2L), #N/A=
+ (9447.2L)
+Notes: 
+1.SD=
+ =3D Standard deviation. 2.Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. 3.Da=
+ta shown as #N/A represent a result that is undefined.
+Time investigating the Familiar Object 2 zone (s)=
+
+Treatment &=
+nbsp; N Mean  SD (note 1) Data (note 2) BPA =
+td> 5=
+td>47.40=B115.68 #N/A(9431=
+.1N), 68.8(9431.1N)=
+, #N/A(9431.1N)=
+, #N/A(9431.2L)=
+, 44.1=
+(9431.2L), #N/A=
+(9431.2L), #N/A=
+(9431.3R), 33.5(9431.3R), #N/A(9431.3R), #N/A(9440.1N), 32.8 (9440.1N), #N/A(9440.1N), #N/A(9440.2L), 57.8(94=
+40.2L), #N/A(9440=
+.2L)Control&nbs=
+p; 458.42=B118.60 #N/A(=
+9445.1N), 38.7(9445.1N), #N/A(9445.1N), #N/A(9445.2L), 55.6(9445.2L), #N/A(9445.2L), #N/A(9447.1N), 8=
+3.6(9447.1N), #=
+N/A(9447.1N), #=
+N/A(9447.2L), 55.8(9447.2L), #N/A(9447.2L)Notes: 
+1.SD=
+ =3D Standard deviation. 2.Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. 3.Da=
+ta shown as #N/A represent a result that is undefined.
+Familiar Object 2 was first zone investigated
+T=
+reatment &nb=
+sp; N  Data (note 1) BPA =
+td> 5=
+td> #N/A(9431.1N), Yes(9431.1N), #N/A(9431.1N), #N/A(9431.2L), No(9431.2L), #N/A(9431.2L), #N/A(9431.3R), Yes(9431.3R)=
+, #N/A(9431.3R)=
+, #N/A(9440.1N)=
+, No(9440.1N), =
+#N/A(9440.1N), =
+#N/A(9440.2L), No(9440.2L), #N/A(9440.2L)Control&nbs=
+p; 4 #N/A(9445.1N), Yes(9445.1N), =
+#N/A(9445.1N), =
+#N/A(9445.2L), No(9445.2L), #N/A(9445.2L), #N/A(9447.1N), No(9447.1N), #N/A(9447.1N), #N/A(9447.2L), No(9447.2L), #N/A(9447.2L)Notes: 
+1.Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. 2.Da=
+ta shown as #N/A represent a result that is undefined.","T=
+reatment","&nb=
+sp;",NA,"N",NA,"Data (note 1)","BPA","=
+td>",NA,15,NA,"Monday(9431.1N), Tuesday(=
+9431.1N), Tuesda=
+y(9431.1N), Monday(9431.2L), Tuesday(9431.2L), Tuesday(9431.2L=
+), Monday (9431.3R), Tuesday(9431.3R), Tuesday(9431.3R), Monday(9440.1N), Tuesday(944=
+0.1N), Tuesday(9440.1N), Monday(9440.2L),=
+ Tuesday(9440.2L=
+), Tuesday(9440.2L)=","Control","&nbs=
+p;",NA,12,NA,"Monday(9445.1N), Tuesday=
+(9445.1N), =
+Tuesday(9445.1N), Monday(9445.2L), Tuesday(=
+9445.2L), Tuesda=
+y(9445.2L), Monday(9447.1N), Tuesday(9447.1N), Tuesday(9447.1N=
+), Monday (9447.2L), Tuesday(9447.2L), Tuesday(9447.2L)",1,"Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report.","T=
+reatment","&nb=
+sp;",NA,"N",NA,"Data (note 1)","BPA","=
+td>",NA,15,NA,"pm(9431.1N), pm(9431.1N), pm(9431.1N), pm(9431.2L), p=
+m(9431.2L), pm (9431.2L), pm(9431=
+.3R), pm(9431.3R), pm(9431.3R), pm(9440.1N), pm(9440.1N),=
+ pm(9440.1N), pm(9440.2L), pm(=
+9440.2L), pm(9440.2L)","Control","&nbs=
+p;",NA,12,NA,"pm(9445.1N), pm(9445.1N), pm(9445.1N), pm(9445.2L),=
+ pm(9445.2L), pm(9445.2L), pm(=
+9447.1N), pm(9447.1N), pm=
+(9447.1N), pm(9447.2L=
+), pm=
+ (9447.2L), pm(9447.2=
+L)",1,"Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report.","T=
+reatment","&nb=
+sp;",NA,"N",NA,"Data (notes 1, 2)","BPA","=
+td>",NA,"5=
+td>",NA,"Lighter(9431.1N), Lighter(=
+9431.2L), Lighte=
+r(9431.3R), Lighter(9440.1N), Lighter(9440.2L)","Control","&nbs=
+p;",NA,4,NA,"Lighter(9445.1N), Lighter=
+(9445.2L), =
+Lighter(9447.1N), Lighter(9447.2L)",1,"Th=
+ere is only one data value for each animal, as this result is calculated=
+ at the animal level.",2,"Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report.","T=
+reatment","&nb=
+sp;",NA,"N",NA,"Data (note 1)","BPA","=
+td>",NA,10,NA,"Back left(9431.1N), Back left(9431.1N),=
+ Back left(9431.=
+2L), Back left(9431.2L), Back left=
+sup>(9431.3R), Back left(94=
+31.3R), Back left(9440.1N)=
+, Back left=
+ (9440.1N), Back left(9440.2L), Back left=
+(9440.2L)","Control","&nbs=
+p;",NA,8,NA,"Back left(9445.1N), Back left=
+sup>(9445.1N), Back left(94=
+45.2L), Back left(9445.2L)=
+, Back left=
+ (9447.1N), Back left(9447.1N), Back left=
+(9447.2L), Back left (9447.2L)",1,"Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report.","T=
+reatment","&nb=
+sp;",NA,"N",NA,"Data (note 1)","BPA","=
+td>",NA,"5=
+td>",NA,"Front right(9431.1N), Front right=
+sup>(9431.2L), Front right(=
+9431.3R), Front right(9440.1N)=
+sup>, Front right(9440.2L)","Control","&nbs=
+p;",NA,4,NA,"Front right(9445.1N), Front right(9445.2L), Front right(9447.1N), Front right=
+span>(9447.2L)",1,"Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report.","T=
+reatment","&nb=
+sp;",NA,"N",NA,"Data (note 1)","BPA","=
+td>",NA,"5=
+td>",NA,"Front right(9431.1N), Front right=
+sup>(9431.2L), Front right(=
+9431.3R), Front right(9440.1N)=
+sup>, Front right(9440.2L)","Control","&nbs=
+p;",NA,4,NA,"Front right(9445.1N), Front right(9445.2L), Front right(9447.1N), Front right=
+span>(9447.2L)",1,"Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report.","Treatment","&=
+nbsp;",NA,"Mean",NA,"SD (note 1)","Data (note 2)","BPA","=
+td>",NA,15,600,"=B10.00",NA,"600.0(943=
+1.1N), 600.0(9431.1N), 600.0(9431.1N), 60=
+0.0(9431.2L), 600.0(9431.2L), 600.0(9431.2L), 600.0(9431.3R)=
+sup>, 600.0=
+ (9431.3R), 600.0(943=
+1.3R), 600.0(9440.1N), 600.0(9440.1N), 60=
+0.0(9440.1N), 600.0(9440.2L), 600.0(9440.2L), 600.0(9440.2L)=
+sup>","Control","&nbs=
+p;",NA,12,600,"=B10.00",NA,"600.0(9445.1N), 600.0(9445.1N)=
+, 600.0(9445.1N), 600.0(9445.2L=
+), 600.0(9445.2L), 600.0(=
+sup>9445.2L), 600.0(9447.1N=
+), 600.0 (9447.1N), 600.0(9=
+447.1N), 600.0(9447.2L), 600.0=
+(9447.2L), =
+600.0(9447.2L)",1,"SD=
+ =3D Standard deviation.",2,"Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report.","Treatment","&=
+nbsp;",NA,"Mean",NA,"SD (note 1)","Data (note 2)","BPA","=
+td>",NA,15,27.8111,"=
+=B15.9570",NA,"20.028(9431.1N), 21.092(9431.1N), 19.996(9431.1N), 35.575(9431=
+.2L), 37.745(9431.2L), 26.707(9431.2L), 2=
+1.478(9431.3R), 25.829(9431.3R), 25.052(9431.3R), 32.754(9440.1N), 32.833(9440.1N), 31.294(9440.1N), 33.838=
+(9440.2L), 29.343=
+ (9440.2L), 23.602(94=
+40.2L)","Control","&nbs=
+p;",NA,12,18.0381,"=B14.7013",NA,"21.863(9445.1N), 14.389(9445.1N), 22.237(9445.1N), 21.200(=
+9445.2L), 16.790(9445.2L), 14.672(9445.2L), 27.649(9447.1=
+N), 19.624(9447.1N)=
+, 14.110(9447.1N), 17.=
+443(9447.2L), 16.236(9447.2L), 10.244(9447.2L)",1,"SD=
+ =3D Standard deviation.",2,"Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report.","Treatment","&=
+nbsp;",NA,"Mean",NA,"SD (note 1)","Data (note 2)","BPA","=
+td>",NA,15,46.0691,"=
+=B18.2655",NA,"37.804(9431.1N), 38.659(9431.1N), 38.460(9431.1N), 58.111(9431=
+.2L), 59.548(9431.2L), 43.366(9431.2L), 3=
+7.958(9431.3R), 41.022(9431.3R), 38.607(9431.3R), 55.219(9440.1N), 52.688(9440.1N), 48.226(9440.1N), 56.520=
+(9440.2L), 46.058=
+ (9440.2L), 38.790(94=
+40.2L)","Control","&nbs=
+p;",NA,12,32.6672,"=B16.8285",NA,"41.347(9445.1N), 27.919(9445.1N), 38.038(9445.1N), 36.720(=
+9445.2L), 30.435(9445.2L), 24.241(9445.2L), 43.414(9447.1=
+N), 35.578(9447.1N)=
+, 27.345(9447.1N), 34.=
+588(9447.2L), 31.382(9447.2L), 20.999(9447.2L)",1,"SD=
+ =3D Standard deviation.",2,"Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report.","Treatment","&=
+nbsp;",NA,"Mean",NA,"SD (note 1)","Data (note 2)","BPA","=
+td>",NA,15,39.33,"=B18.91",NA,"38(9431.1=
+N), 43(9431.1N), 49(9431.1N), 50(9431.2L), 52(9431.2L),=
+ 29(9431.2L), 37(9431.3R), 30(=
+9431.3R), 36(9431.3R), 50=
+(9440.1N), 42(9440.1N=
+), 38=
+ (9440.1N), 41(9440.2=
+L), 35(9440.2L), 20(9440.2L)","Control","&nbs=
+p;",NA,12,32.75,"=B113.05",NA,"46(9=
+445.1N), 23(9445.1N), 59(=
+9445.1N), 30(9445.2L)=
+, 15 =
+(9445.2L), 18(9445.2L=
+), 46(9447.1N), 37(=
+9447.1N), 28(9447.1N)=
+, 37=
+(9447.2L), =
+33(9447.2L=
+), 21=
+(9447.2L)",1,"SD=
+ =3D Standard deviation.",2,"Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report.","Treatment","&=
+nbsp;",NA,"Mean",NA,"SD (note 1)","Data (note 2)","BPA","=
+td>",NA,15,76.17,"=B131.12",NA,"79.9(9431=
+.1N), 144.0(9431.1N), 133.7(9431.1N), 56.=
+4(9431.2L), 75.9(9431.2L), 62.8(9431.2L), 77.5(9431.3R), 93.4(9431.3R),=
+ 75.4(9431.3R), 100.4(9440.1N), 61.0(9440.1N), 54.1(9440.1N)=
+sup>, 50.5 =
+(9440.2L), 40.5(9440.=
+2L), 37.1(9440.2L)","Control","&nbs=
+p;",NA,12,91.48,"=B147.29",NA,"74.1(9445.1N), 140.8(9445.1N), 184.9(9445.1N)=
+, 49.1(9445.2L=
+sup>), 22.5(9445.2L), 46.3(9445.2L), 81.4(9447.1N)=
+sup>, 82.9 =
+(9447.1N), 108.3(9447=
+.1N), 152.3(9447.2L), 76.2(9447.2L), 79.0=
+(9447.2L)",1,"SD=
+ =3D Standard deviation.",2,"Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report.","Treatment","&=
+nbsp;",NA,"Mean",NA,"SD (note 1)","Data (note 2)","BPA","=
+td>",NA,15,97.6,"=B132.22",NA,"65(9431.1=
+N), 63(9431.1N), 54(9431.1N), 104(9431.2L), 110(9431.2L), 65(9431.2L), 90(9431.3R), 90(9431.3R), 87(9431.3R), 147(9440.1N), 14=
+3(9440.1N), 109=
+(9440.1N), 161(=
+9440.2L), 93(9440.2L), 83=
+(9440.2L)","Control","&nbs=
+p;",NA,12,63.42,"=B116.22",NA,"82(9=
+445.1N), 67(9445.1N), 89(=
+9445.1N), 58(9445.2L)=
+, 70 =
+(9445.2L), 34(9445.2L=
+), 77(9447.1N), 67(=
+9447.1N), 59(9447.1N)=
+, 58=
+(9447.2L), =
+63(9447.2L=
+), 37=
+(9447.2L)",1,"SD=
+ =3D Standard deviation.",2,"Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report.","Treatment","&=
+nbsp;",NA,"Mean",NA,"SD (note 1)","Data (note 2)","BPA","=
+td>",NA,15,491.16,"=B126.29",NA,"508.7(943=
+1.1N), 449.5(9431.1N), 465.0(9431.1N), 52=
+9.1(9431.2L), 502.5(9431.2L), 524.4(9431.2L), 500.5(9431.3R)=
+sup>, 473.9=
+ (9431.3R), 492.4(943=
+1.3R), 443.4(9440.1N), 478.2(9440.1N), 48=
+8.8(9440.1N), 478.8(9440.2L), 520.5(9440.2L), 511.7(9440.2L)=
+sup>","Control","&nbs=
+p;",NA,12,488.61,"=B146.46",NA,"510.1(9445.1N), 432.9(9445.1N), 394.1=
+sup>(9445.1N), 537.7(9445.2=
+L), 524.8(9445.2L), 545.3=
+(9445.2L), 496.4=
+(9447.1N), 500.3(9447.1N), 463.4(9447.1N), 438.1(9447.2L), 509.8=
+sup>(9447.2L), 510.4(9447.2=
+L)",1,"SD=
+ =3D Standard deviation.",2,"Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report.","Treatment","&=
+nbsp;",NA,"Mean",NA,"SD (note 1)","Data (note 2)","BPA","=
+td>",NA,10,38.9,"=B111.86",NA,"#N/A(9431=
+.1N), 48(9431.1N), 36(9431.1N), #N/A(9431.2L), 55(9431.2L), 50(9431.2L),=
+ #N/A(9431.3R),=
+ 29(9431.3R), 27(9431.3R), #N/A(9440.1N), 54(=
+9440.1N), 29(9440.1N), #N/A(9440.2L), 37=
+(9440.2L), 24(9440.2L=
+)","Control","&nbs=
+p;",NA,8,36.62,"=B112.06",NA,"#N/A(=
+9445.1N), 45(9445.1N), 58=
+(9445.1N), #N/A=
+(9445.2L), 25(9445.2L=
+), 27=
+ (9445.2L), #N/A=
+ (9447.1N), 48(9447.1=
+N), 29(9447.1N), #N/A(9447.2L), 30(9447.2L), 31(9447.2L)",1,"SD=
+ =3D Standard deviation.",2,"Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report.",3,"Da=
+ta shown as #N/A represent a result that is undefined.","Treatment","&=
+nbsp;",NA,"Mean",NA,"SD (note 1)","Data (note 2)","BPA","=
+td>",NA,10,48.93,"=B114.25",NA,"#N/A(9431=
+.1N), 78.2(9431.1N)=
+, 47.8=
+(9431.1N), #N/A=
+(9431.2L), 65.9(9431.2L), 45.6 (9431.2L), #N/A(9431.3R), 51.3(94=
+31.3R), 30.1(9431.3R), #N/A(9440.1N), 48.1(9440.1N), 32.=
+7(9440.1N), #N/=
+A(9440.2L), 47.2(9440.2L), 42.4(9440.2L)","Control","&nbs=
+p;",NA,8,59.26,"=B118.24",NA,"#N/A(=
+9445.1N), 84.8(9445.1N), 73.3(9445.1N), #N/A(9445.2L), 3=
+3.4(9445.2L), 72.6(9445.2L), #N/A(9447.1N), 62.7(9447.1N), 35.1(9447.1N), #N/A(9447.2L), 59.0(9447.2L), 53.2(9447.2L)",1,"SD=
+ =3D Standard deviation.",2,"Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report.",3,"Da=
+ta shown as #N/A represent a result that is undefined.","T=
+reatment","&nb=
+sp;",NA,"N",NA,"Data (note 1)","BPA","=
+td>",NA,10,NA,"#N/A(9431.1N), No(9431.1N), Yes(9431.1N), #N/A(9431.2L), Yes(9431.2L), Yes(9431.2L=
+sup>), #N/A(9431.3R=
+sup>), No(9431.3R), Yes(9431.3R), #N/A(9440.1N), Yes(9440.1N)=
+, Yes(9440.1N),=
+ #N/A(9440.2L),=
+ Yes(9440.2L), No(9440.2L)","Control","&nbs=
+p;",NA,8,NA,"#N/A(9445.1N), No(=
+sup>9445.1N), No(9445.1N)=
+sup>, #N/A(9445.2L)=
+sup>, Yes(9445.2L), No(9445.2L), #N/A(9447.1N), Yes(9447.1N), No(=
+9447.1N), #N/A(=
+9447.2L), Yes(9447.2L), Yes(9447.2L)",1,"Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report.",2,"Da=
+ta shown as #N/A represent a result that is undefined.","Treatment","&=
+nbsp;",NA,"Mean",NA,"SD (note 1)","Data (note 2)","BPA","=
+td>",NA,"5=
+td>",43.2,"=B115.21",NA,"#N/A(9431=
+.1N), #N/A(9431=
+.1N), 70(9431.1N), #N/A(9431.2L), #N/A(9431.2L), 40(9431.2L), #N/A(9431.3R), #N/A(9431.3R), 38(9431.3R), #N/A(9440.1N), #N/A(9440.1N), 34(9440.1N),=
+ #N/A(9440.2L),=
+ #N/A(9440.2L),=
+ 34(9440.2L)","Control","&nbs=
+p;",NA,4,37.75,"=B12.36",NA,"#N/A(9=
+445.1N), #N/A(9=
+445.1N), 41(9445.1N), #N/A(9445.2L), #N/A(9445.2L), 38(=
+9445.2L), #N/A(=
+9447.1N), #N/A(=
+9447.1N), 36(9447.1N)=
+, #N/A(9447.2L)=
+, #N/A(9447.2L)=
+, 36 =
+(9447.2L)",1,"SD=
+ =3D Standard deviation.",2,"Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report.",3,"Da=
+ta shown as #N/A represent a result that is undefined.","Treatment","&=
+nbsp;",NA,"Mean",NA,"SD (note 1)","Data (note 2)","BPA","=
+td>",NA,"5=
+td>",65.16,"=B123.51",NA,"#N/A(9431=
+.1N), #N/A(9431=
+.1N), 105.4(9431.1N), #N/A(9431.2L), #N/A(9431.2L), 52.3(9431.2L), #N/A(9431.3R), #N/A(9431.3R), 55.5=
+(9431.3R), #N/A=
+(9440.1N), #N/A=
+(9440.1N), 46.9=
+(9440.1N), #N/A=
+(9440.2L), #N/A=
+(9440.2L), 65.7(9440.2L)","Control","&nbs=
+p;",NA,4,66.12,"=B115.25",NA,"#N/A(=
+9445.1N), #N/A(=
+9445.1N), 44.5(9445.1N), #N/A(9445.2L), #N/A(9445.2L), 71.6(9445.2L), #N/A(9447.1N), #N/A(9447.1N), 6=
+8.3(9447.1N), #=
+N/A(9447.2L), #=
+N/A(9447.2L), 80.1(9447.2L)",1,"SD=
+ =3D Standard deviation.",2,"Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report.",3,"Da=
+ta shown as #N/A represent a result that is undefined.","T=
+reatment","&nb=
+sp;",NA,"N",NA,"Data (note 1)","BPA","=
+td>",NA,"5=
+td>",NA,"#N/A(9431.1N), #N/A(9431.1N), No(=
+9431.1N), #N/A(=
+9431.2L), #N/A(=
+9431.2L), No(9431.2L)=
+, #N/A(9431.3R)=
+, #N/A(9431.3R)=
+, No=
+(9431.3R), =
+#N/A=
+(9440.1N), =
+#N/A=
+(9440.1N), =
+No(9440.1N=
+), #N=
+/A(9440.2L=
+), #N=
+/A(9440.2L=
+), Yes(9440.2L)","Control","&nbs=
+p;",NA,4,NA,"#N/A(9445.1N), #N/A(9445.1N), Yes(9445.1N), =
+#N/A(9445.2L), =
+#N/A(9445.2L), Yes(9445.2L)=
+, #N/A(9447.1N)=
+, #N/A(9447.1N)=
+, Yes=
+ (9447.1N), #N/A=
+ (9447.2L), #N/A=
+ (9447.2L), No(9447.2=
+L)",1,"Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report.",2,"Da=
+ta shown as #N/A represent a result that is undefined.","Treatment","&=
+nbsp;",NA,"Mean",NA,"SD (note 1)","Data (note 2)","BPA","=
+td>",NA,"5=
+td>",46.2,"=B112.79",NA,"#N/A(9431=
+.1N), 58(9431.1N), #N/A(9431.1N), #N/A(9431.2L), 61(9431.2L), #N/A(9431.2L), #N/A(9431.3R), 32(9431.3R), #N/A(9431.3R), #N/A(9440.1N), 37(9440.1N),=
+ #N/A(9440.1N),=
+ #N/A(9440.2L),=
+ 43(9440.2L), #=
+N/A(9440.2L)","Control","&nbs=
+p;",NA,4,42.5,"=B110.75",NA,"#N/A(=
+9445.1N), 30(9445.1N), #N/A(9445.1N), #N/A(9445.2L), 40=
+(9445.2L), #N/A=
+(9445.2L), #N/A=
+(9447.1N), 56(9447.1N=
+), #N/A(9447.1N=
+), #N/A(9447.2L=
+), 44=
+ (9447.2L), #N/A=
+ (9447.2L)",1,"SD=
+ =3D Standard deviation.",2,"Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report.",3,"Da=
+ta shown as #N/A represent a result that is undefined.","Treatment","&=
+nbsp;",NA,"Mean",NA,"SD (note 1)","Data (note 2)","BPA","=
+td>",NA,"5=
+td>",47.4,"=B115.68",NA,"#N/A(9431=
+.1N), 68.8(9431.1N)=
+, #N/A(9431.1N)=
+, #N/A(9431.2L)=
+, 44.1=
+(9431.2L), #N/A=
+(9431.2L), #N/A=
+(9431.3R), 33.5(9431.3R), #N/A(9431.3R), #N/A(9440.1N), 32.8 (9440.1N), #N/A(9440.1N), #N/A(9440.2L), 57.8(94=
+40.2L), #N/A(9440=
+.2L)","Control","&nbs=
+p;",NA,4,58.42,"=B118.60",NA,"#N/A(=
+9445.1N), 38.7(9445.1N), #N/A(9445.1N), #N/A(9445.2L), 55.6(9445.2L), #N/A(9445.2L), #N/A(9447.1N), 8=
+3.6(9447.1N), #=
+N/A(9447.1N), #=
+N/A(9447.2L), 55.8(9447.2L), #N/A(9447.2L)",1,"SD=
+ =3D Standard deviation.",2,"Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report.",3,"Da=
+ta shown as #N/A represent a result that is undefined.","T=
+reatment","&nb=
+sp;",NA,"N",NA,"Data (note 1)","BPA","=
+td>",NA,"5=
+td>",NA,"#N/A(9431.1N), Yes(9431.1N), #N/A(9431.1N), #N/A(9431.2L), No(9431.2L), #N/A(9431.2L), #N/A(9431.3R), Yes(9431.3R)=
+, #N/A(9431.3R)=
+, #N/A(9440.1N)=
+, No(9440.1N), =
+#N/A(9440.1N), =
+#N/A(9440.2L), No(9440.2L), #N/A(9440.2L)","Control","&nbs=
+p;",NA,4,NA,"#N/A(9445.1N), Yes(9445.1N), =
+#N/A(9445.1N), =
+#N/A(9445.2L), No(9445.2L), #N/A(9445.2L), #N/A(9447.1N), No(9447.1N), #N/A(9447.1N), #N/A(9447.2L), No(9447.2L), #N/A(9447.2L)",1,"Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report.",2,"Da=
+ta shown as #N/A represent a result that is undefined."

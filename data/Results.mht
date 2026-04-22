@@ -1,0 +1,1978 @@
+From: <Saved by ANY-maze 7.61>
+Subject: Results
+Date: 4/7/2026 15:43
+MIME-Version: 1.0
+Content-Type: text/html; charset=windows-1252
+Content-Transfer-Encoding: quoted-printable
+Content-Location: 
+
+<!DOCTYPE html><html>
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dwindow=
+s-1252">
+<meta name=3D"GENERATOR" content=3D"ANY-maze Video Tracking System versi=
+on 7.61">
+<title>Results</title>
+<style>
+<!--
+.am1  { font-size: 100%; font-family: "Segoe UI", arial, helvetica, sans=
+-serf; font-weight: normal; font-style: normal; text-decoration: none; v=
+ertical-align: baseline; color: #000000; background-color: #FFFFFF; text=
+-align: Left; margin-top: 0pt; padding-top: 0pt; margin-bottom: 0pt; pad=
+ding-bottom: 2pt; text-indent: -20pt; margin-left: 20pt; margin-right: 0=
+pt; background-color: #FFFFFF; }
+.am3  { font-size: 116%; font-family: "Segoe UI", arial, helvetica, sans=
+-serf; font-weight: normal; font-style: normal; text-decoration: none; v=
+ertical-align: baseline; color: #4E78B6; background-color: #FFFFFF; text=
+-align: Left; margin-top: 0pt; padding-top: 0pt; margin-bottom: 0pt; pad=
+ding-bottom: 3pt; text-indent: 0pt; margin-left: 0pt; margin-right: 0pt;=
+ background-color: #FFFFFF; }
+.am5  { font-size: 83%; font-family: "Segoe UI", arial, helvetica, sans-=
+serf; font-weight: normal; font-style: italic; text-decoration: none; ve=
+rtical-align: baseline; color: #000000; background-color: #FFFFFF; text-=
+align: Left; margin-top: 0pt; padding-top: 1pt; margin-bottom: 0pt; padd=
+ing-bottom: 3pt; text-indent: -133pt; margin-left: 133pt; margin-right: =
+0pt; background-color: #FFFFFF; }
+.am6  { font-size: 83%; font-family: "Segoe UI", arial, helvetica, sans-=
+serf; font-weight: normal; font-style: italic; text-decoration: none; ve=
+rtical-align: baseline; color: #000000; background-color: #FFFFFF; margi=
+n-top: 0pt; padding-top: 1pt; margin-bottom: 0pt; padding-bottom: 3pt; t=
+ext-indent: 0pt; margin-left: 0pt; margin-right: 0pt; background-color: =
+#FFFFFF; }
+.am8  { font-size: 100%; font-family: "Segoe UI", arial, helvetica, sans=
+-serf; font-weight: normal; font-style: italic; text-decoration: none; v=
+ertical-align: baseline; color: #000000; background-color: #FFFFFF; text=
+-indent: 0pt; margin-left: 0pt; margin-right: 0pt; background-color: #FF=
+FFFF; }
+.am10  { font-size: 83%; font-family: "Arial", arial, helvetica, sans-se=
+rf; font-weight: normal; font-style: italic; text-decoration: none; vert=
+ical-align: baseline; color: #000000; background-color: #FFFFFF; margin-=
+top: 0pt; padding-top: 1pt; margin-bottom: 0pt; padding-bottom: 3pt; tex=
+t-indent: 0pt; margin-left: 0pt; margin-right: 0pt; background-color: #F=
+FFFFF; }
+.am12  { font-size: 83%; font-family: "Arial", arial, helvetica, sans-se=
+rf; font-weight: normal; font-style: normal; text-decoration: none; vert=
+ical-align: baseline; color: #000000; background-color: #FFFFFF; margin-=
+top: 0pt; padding-top: 1pt; margin-bottom: 0pt; padding-bottom: 3pt; tex=
+t-indent: 0pt; margin-left: 0pt; margin-right: 0pt; background-color: #F=
+FFFFF; }
+.am14  { font-size: 90%; font-family: "Segoe UI", arial, helvetica, sans=
+-serf; font-weight: normal; font-style: normal; text-decoration: none; v=
+ertical-align: baseline; color: #000000; background-color: #FFFFFF; text=
+-indent: 0pt; margin-left: 0pt; margin-right: 0pt; background-color: #FF=
+FFFF; }
+.am15  { font-size: 83%; font-family: "Segoe UI", arial, helvetica, sans=
+-serf; font-weight: normal; font-style: normal; text-decoration: none; v=
+ertical-align: baseline; color: #000000; background-color: #FFFFFF; text=
+-align: Left; margin-top: 0pt; padding-top: 0pt; margin-bottom: 0pt; pad=
+ding-bottom: 0pt; text-indent: -133pt; margin-left: 133pt; margin-right:=
+ 0pt; background-color: #FFFFFF; }
+.am16  { font-size: 83%; font-family: "Segoe UI", arial, helvetica, sans=
+-serf; font-weight: normal; font-style: normal; text-decoration: none; v=
+ertical-align: baseline; color: #000000; background-color: #FFFFFF; marg=
+in-top: 0pt; padding-top: 0pt; margin-bottom: 0pt; padding-bottom: 0pt; =
+text-indent: 0pt; margin-left: 0pt; margin-right: 0pt; background-color:=
+ #FFFFFF; }
+.am18  { font-size: 100%; font-family: "Segoe UI", arial, helvetica, san=
+s-serf; font-weight: normal; font-style: normal; text-decoration: none; =
+vertical-align: baseline; color: #000000; background-color: #FFFFFF; tex=
+t-indent: 0pt; margin-left: 0pt; margin-right: 0pt; background-color: #F=
+FFFFF; }
+.am20  { font-size: 85%; font-family: "Segoe UI", arial, helvetica, sans=
+-serf; font-weight: normal; font-style: normal; text-decoration: none; v=
+ertical-align: baseline; color: #000000; background-color: #FFFFFF; text=
+-indent: 0pt; margin-left: 0pt; margin-right: 0pt; background-color: #FF=
+FFFF; }
+.am21  { font-size: 75%; font-family: "Segoe UI", arial, helvetica, sans=
+-serf; font-weight: normal; font-style: normal; text-decoration: none; v=
+ertical-align: baseline; color: #000000; background-color: #FFFFFF; text=
+-align: Left; margin-top: 0pt; padding-top: 15pt; margin-bottom: 0pt; pa=
+dding-bottom: 1pt; text-indent: 0pt; margin-left: 0pt; margin-right: 0pt=
+; background-color: #FFFFFF; }
+.am23  { font-size: 75%; font-family: "Segoe UI", arial, helvetica, sans=
+-serf; font-weight: normal; font-style: normal; text-decoration: none; v=
+ertical-align: baseline; color: #000000; background-color: #FFFFFF; text=
+-align: Left; margin-top: 0pt; padding-top: 0pt; margin-bottom: 0pt; pad=
+ding-bottom: 2pt; text-indent: -20pt; margin-left: 20pt; margin-right: 0=
+pt; background-color: #FFFFFF; }
+.am24  { font-size: 75%; font-family: "Segoe UI", arial, helvetica, sans=
+-serf; font-weight: normal; font-style: normal; text-decoration: none; v=
+ertical-align: baseline; color: #000000; background-color: #FFFFFF; marg=
+in-top: 0pt; padding-top: 0pt; margin-bottom: 0pt; padding-bottom: 2pt; =
+text-indent: 0pt; margin-left: 0pt; margin-right: 0pt; background-color:=
+ #FFFFFF; }
+.am26  { font-size: 100%; font-family: "Segoe UI", arial, helvetica, san=
+s-serf; font-weight: normal; font-style: normal; text-decoration: none; =
+vertical-align: baseline; color: #000000; background-color: #FFFFFF; tex=
+t-indent: 0pt; margin-left: 0pt; margin-right: 0pt; background-color: #F=
+FFFFF; }
+.am27  { font-size: 116%; font-family: "Segoe UI", arial, helvetica, san=
+s-serf; font-weight: normal; font-style: normal; text-decoration: none; =
+vertical-align: baseline; color: #4E78B6; background-color: #FFFFFF; tex=
+t-align: Left; margin-top: 0pt; padding-top: 30pt; margin-bottom: 0pt; p=
+adding-bottom: 3pt; text-indent: -20pt; margin-left: 20pt; margin-right:=
+ 0pt; background-color: #FFFFFF; }
+.am29  { font-size: 83%; font-family: "Segoe UI", arial, helvetica, sans=
+-serf; font-weight: normal; font-style: italic; text-decoration: none; v=
+ertical-align: baseline; color: #000000; background-color: #FFFFFF; text=
+-align: Left; margin-top: 0pt; padding-top: 1pt; margin-bottom: 0pt; pad=
+ding-bottom: 3pt; text-indent: -300pt; margin-left: 300pt; margin-right:=
+ 0pt; background-color: #FFFFFF; }
+.am30  { font-size: 83%; font-family: "Segoe UI", arial, helvetica, sans=
+-serf; font-weight: normal; font-style: italic; text-decoration: none; v=
+ertical-align: baseline; color: #000000; background-color: #FFFFFF; marg=
+in-top: 0pt; padding-top: 1pt; margin-bottom: 0pt; padding-bottom: 3pt; =
+text-indent: 0pt; margin-left: 0pt; margin-right: 0pt; background-color:=
+ #FFFFFF; }
+.am32  { font-size: 100%; font-family: "Segoe UI", arial, helvetica, san=
+s-serf; font-weight: normal; font-style: italic; text-decoration: none; =
+vertical-align: baseline; color: #000000; background-color: #FFFFFF; tex=
+t-indent: 0pt; margin-left: 0pt; margin-right: 0pt; background-color: #F=
+FFFFF; }
+.am34  { font-size: 83%; font-family: "Arial", arial, helvetica, sans-se=
+rf; font-weight: normal; font-style: italic; text-decoration: none; vert=
+ical-align: baseline; color: #000000; background-color: #FFFFFF; margin-=
+top: 0pt; padding-top: 1pt; margin-bottom: 0pt; padding-bottom: 3pt; tex=
+t-indent: 0pt; margin-left: 0pt; margin-right: 0pt; background-color: #F=
+FFFFF; }
+.am36  { font-size: 83%; font-family: "Arial", arial, helvetica, sans-se=
+rf; font-weight: normal; font-style: normal; text-decoration: none; vert=
+ical-align: baseline; color: #000000; background-color: #FFFFFF; margin-=
+top: 0pt; padding-top: 1pt; margin-bottom: 0pt; padding-bottom: 3pt; tex=
+t-indent: 0pt; margin-left: 0pt; margin-right: 0pt; background-color: #F=
+FFFFF; }
+.am38  { font-size: 90%; font-family: "Segoe UI", arial, helvetica, sans=
+-serf; font-weight: normal; font-style: normal; text-decoration: none; v=
+ertical-align: baseline; color: #000000; background-color: #FFFFFF; text=
+-indent: 0pt; margin-left: 0pt; margin-right: 0pt; background-color: #FF=
+FFFF; }
+.am39  { font-size: 83%; font-family: "Segoe UI", arial, helvetica, sans=
+-serf; font-weight: normal; font-style: normal; text-decoration: none; v=
+ertical-align: baseline; color: #000000; background-color: #FFFFFF; text=
+-align: Left; margin-top: 0pt; padding-top: 0pt; margin-bottom: 0pt; pad=
+ding-bottom: 0pt; text-indent: -300pt; margin-left: 300pt; margin-right:=
+ 0pt; background-color: #FFFFFF; }
+.am40  { font-size: 83%; font-family: "Segoe UI", arial, helvetica, sans=
+-serf; font-weight: normal; font-style: normal; text-decoration: none; v=
+ertical-align: baseline; color: #000000; background-color: #FFFFFF; marg=
+in-top: 0pt; padding-top: 0pt; margin-bottom: 0pt; padding-bottom: 0pt; =
+text-indent: 0pt; margin-left: 0pt; margin-right: 0pt; background-color:=
+ #FFFFFF; }
+.am42  { font-size: 100%; font-family: "Segoe UI", arial, helvetica, san=
+s-serf; font-weight: normal; font-style: normal; text-decoration: none; =
+vertical-align: baseline; color: #000000; background-color: #FFFFFF; tex=
+t-indent: 0pt; margin-left: 0pt; margin-right: 0pt; background-color: #F=
+FFFFF; }
+.am44  { font-size: 85%; font-family: "Segoe UI", arial, helvetica, sans=
+-serf; font-weight: normal; font-style: normal; text-decoration: none; v=
+ertical-align: baseline; color: #000000; background-color: #FFFFFF; text=
+-indent: 0pt; margin-left: 0pt; margin-right: 0pt; background-color: #FF=
+FFFF; }
+.am46  { font-size: 100%; font-family: "Segoe UI", arial, helvetica, san=
+s-serf; font-weight: normal; font-style: normal; text-decoration: none; =
+vertical-align: baseline; color: #C0C0C0; background-color: #FFFFFF; tex=
+t-indent: 0pt; margin-left: 0pt; margin-right: 0pt; background-color: #F=
+FFFFF; }
+.am48  { font-size: 100%; font-family: "Segoe UI", arial, helvetica, san=
+s-serf; font-weight: normal; font-style: normal; text-decoration: none; =
+vertical-align: baseline; color: #C0C0C0; background-color: #FFFFFF; tex=
+t-indent: 0pt; margin-left: 0pt; margin-right: 0pt; background-color: #F=
+FFFFF; }
+-->
+</style>
+<style>:root{--page-max-width:230mm;--page-padding:12mm;}html{ backgroun=
+d: #f7f7f7;}body{ margin:0;}.am-page{box-sizing: border-box;max-width: v=
+ar(--page-max-width);margin: 0px auto;padding: 3pt var(--page-padding);b=
+ackground: #fff;}.am-page img{ max-width: 100%; height: auto; }.am-page =
+table{ max-width: 100%; width: 100%; } @media print{html{ background: #f=
+ff;}.am-page{ margin: 0; padding: 10mm;}}a{text-decoration: none;color: =
+#4E78B6;}a:hover {text-decoration: underline;}</style>
+</head>
+<body class=3D"am-page" topmargin=3D"14pt" leftmargin=3D"14pt"><table bo=
+rder=3D"0" style=3D"width:expression(document.body.clientWidth-20 > 940 =
+? 940+'px' : document.body.clientWidth-20+'px');" cellspacing=3D"0" cell=
+padding=3D"0" bgcolor=3D"#FFFFFF"><tr><td class=3D"am1">
+<p  class=3D"am3">Test day of the week</p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am6" width=3D"90pt" align=3D"left"><span class=3D"am8">T=
+reatment </span></td><td class=3D"am10" width=3D"4pt" align=3D"left">&nb=
+sp;</td><td class=3D"am10" width=3D"2pt" align=3D"right">&nbsp;</td><td =
+class=3D"am10" width=3D"20pt" align=3D"right"><span class=3D"am8">N </sp=
+an></td><td class=3D"am12" width=3D"17pt" align=3D"left">&nbsp;</td><td =
+class=3D"am12" align=3D"left"><span class=3D"am8">Data </span><span clas=
+s=3D"am14">(note 1) </span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am16" width=3D"90pt" align=3D"left"><span class=3D"am18"=
+>BPA</span></td><td class=3D"am16" width=3D"4pt" align=3D"left">&nbsp;</=
+td><td class=3D"am16" width=3D"2pt" align=3D"right">&nbsp;</td><td class=
+=3D"am16" width=3D"20pt" align=3D"right"><span class=3D"am18">15</span><=
+/td><td class=3D"am16" width=3D"17pt" align=3D"left">&nbsp;</td><td clas=
+s=3D"am16" align=3D"left"><span class=3D"am18">Monday</span><span class=3D=
+"am20"><sup> </sup><sup>(</sup><sup>9431.1N</sup><sup>)</sup></span><spa=
+n class=3D"am18">, Tuesday</span><span class=3D"am20"><sup> </sup><sup>(=
+</sup><sup>9431.1N</sup><sup>)</sup></span><span class=3D"am18">, Tuesda=
+y</span><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9431.1N</sup><=
+sup>)</sup></span><span class=3D"am18">, Monday</span><span class=3D"am2=
+0"><sup> </sup><sup>(</sup><sup>9431.2L</sup><sup>)</sup></span><span cl=
+ass=3D"am18">, Tuesday</span><span class=3D"am20"><sup> </sup><sup>(</su=
+p><sup>9431.2L</sup><sup>)</sup></span><span class=3D"am18">, Tuesday</s=
+pan><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9431.2L</sup><sup>=
+)</sup></span><span class=3D"am18">, Monday</span><span class=3D"am20"><=
+sup> </sup><sup>(</sup><sup>9431.3R</sup><sup>)</sup></span><span class=3D=
+"am18">, Tuesday</span><span class=3D"am20"><sup> </sup><sup>(</sup><sup=
+>9431.3R</sup><sup>)</sup></span><span class=3D"am18">, Tuesday</span><s=
+pan class=3D"am20"><sup> </sup><sup>(</sup><sup>9431.3R</sup><sup>)</sup=
+></span><span class=3D"am18">, Monday</span><span class=3D"am20"><sup> <=
+/sup><sup>(</sup><sup>9440.1N</sup><sup>)</sup></span><span class=3D"am1=
+8">, Tuesday</span><span class=3D"am20"><sup> </sup><sup>(</sup><sup>944=
+0.1N</sup><sup>)</sup></span><span class=3D"am18">, Tuesday</span><span =
+class=3D"am20"><sup> </sup><sup>(</sup><sup>9440.1N</sup><sup>)</sup></s=
+pan><span class=3D"am18">, Monday</span><span class=3D"am20"><sup> </sup=
+><sup>(</sup><sup>9440.2L</sup><sup>)</sup></span><span class=3D"am18">,=
+ Tuesday</span><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9440.2L=
+</sup><sup>)</sup></span><span class=3D"am18">, Tuesday</span><span clas=
+s=3D"am20"><sup> </sup><sup>(</sup><sup>9440.2L</sup><sup>)</sup></span>=
+</td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am16" width=3D"90pt" align=3D"left"><span class=3D"am18"=
+>Control</span></td><td class=3D"am16" width=3D"4pt" align=3D"left">&nbs=
+p;</td><td class=3D"am16" width=3D"2pt" align=3D"right">&nbsp;</td><td c=
+lass=3D"am16" width=3D"20pt" align=3D"right"><span class=3D"am18">12</sp=
+an></td><td class=3D"am16" width=3D"17pt" align=3D"left">&nbsp;</td><td =
+class=3D"am16" align=3D"left"><span class=3D"am18">Monday</span><span cl=
+ass=3D"am20"><sup> </sup><sup>(</sup><sup>9445.1N</sup><sup>)</sup></spa=
+n><span class=3D"am18">, Tuesday</span><span class=3D"am20"><sup> </sup>=
+<sup>(</sup><sup>9445.1N</sup><sup>)</sup></span><span class=3D"am18">, =
+Tuesday</span><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9445.1N<=
+/sup><sup>)</sup></span><span class=3D"am18">, Monday</span><span class=3D=
+"am20"><sup> </sup><sup>(</sup><sup>9445.2L</sup><sup>)</sup></span><spa=
+n class=3D"am18">, Tuesday</span><span class=3D"am20"><sup> </sup><sup>(=
+</sup><sup>9445.2L</sup><sup>)</sup></span><span class=3D"am18">, Tuesda=
+y</span><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9445.2L</sup><=
+sup>)</sup></span><span class=3D"am18">, Monday</span><span class=3D"am2=
+0"><sup> </sup><sup>(</sup><sup>9447.1N</sup><sup>)</sup></span><span cl=
+ass=3D"am18">, Tuesday</span><span class=3D"am20"><sup> </sup><sup>(</su=
+p><sup>9447.1N</sup><sup>)</sup></span><span class=3D"am18">, Tuesday</s=
+pan><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9447.1N</sup><sup>=
+)</sup></span><span class=3D"am18">, Monday</span><span class=3D"am20"><=
+sup> </sup><sup>(</sup><sup>9447.2L</sup><sup>)</sup></span><span class=3D=
+"am18">, Tuesday</span><span class=3D"am20"><sup> </sup><sup>(</sup><sup=
+>9447.2L</sup><sup>)</sup></span><span class=3D"am18">, Tuesday</span><s=
+pan class=3D"am20"><sup> </sup><sup>(</sup><sup>9447.2L</sup><sup>)</sup=
+></span></td></tr></table>
+<p  class=3D"am21">Notes: </p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>1.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. </span></td></t=
+r></table>
+<p  class=3D"am27">Test time of day (am/pm)</p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am6" width=3D"90pt" align=3D"left"><span class=3D"am8">T=
+reatment </span></td><td class=3D"am10" width=3D"4pt" align=3D"left">&nb=
+sp;</td><td class=3D"am10" width=3D"2pt" align=3D"right">&nbsp;</td><td =
+class=3D"am10" width=3D"20pt" align=3D"right"><span class=3D"am8">N </sp=
+an></td><td class=3D"am12" width=3D"17pt" align=3D"left">&nbsp;</td><td =
+class=3D"am12" align=3D"left"><span class=3D"am8">Data </span><span clas=
+s=3D"am14">(note 1) </span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am16" width=3D"90pt" align=3D"left"><span class=3D"am18"=
+>BPA</span></td><td class=3D"am16" width=3D"4pt" align=3D"left">&nbsp;</=
+td><td class=3D"am16" width=3D"2pt" align=3D"right">&nbsp;</td><td class=
+=3D"am16" width=3D"20pt" align=3D"right"><span class=3D"am18">15</span><=
+/td><td class=3D"am16" width=3D"17pt" align=3D"left">&nbsp;</td><td clas=
+s=3D"am16" align=3D"left"><span class=3D"am18">pm</span><span class=3D"a=
+m20"><sup> </sup><sup>(</sup><sup>9431.1N</sup><sup>)</sup></span><span =
+class=3D"am18">, pm</span><span class=3D"am20"><sup> </sup><sup>(</sup><=
+sup>9431.1N</sup><sup>)</sup></span><span class=3D"am18">, pm</span><spa=
+n class=3D"am20"><sup> </sup><sup>(</sup><sup>9431.1N</sup><sup>)</sup><=
+/span><span class=3D"am18">, pm</span><span class=3D"am20"><sup> </sup><=
+sup>(</sup><sup>9431.2L</sup><sup>)</sup></span><span class=3D"am18">, p=
+m</span><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9431.2L</sup><=
+sup>)</sup></span><span class=3D"am18">, pm</span><span class=3D"am20"><=
+sup> </sup><sup>(</sup><sup>9431.2L</sup><sup>)</sup></span><span class=3D=
+"am18">, pm</span><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9431=
+.3R</sup><sup>)</sup></span><span class=3D"am18">, pm</span><span class=3D=
+"am20"><sup> </sup><sup>(</sup><sup>9431.3R</sup><sup>)</sup></span><spa=
+n class=3D"am18">, pm</span><span class=3D"am20"><sup> </sup><sup>(</sup=
+><sup>9431.3R</sup><sup>)</sup></span><span class=3D"am18">, pm</span><s=
+pan class=3D"am20"><sup> </sup><sup>(</sup><sup>9440.1N</sup><sup>)</sup=
+></span><span class=3D"am18">, pm</span><span class=3D"am20"><sup> </sup=
+><sup>(</sup><sup>9440.1N</sup><sup>)</sup></span><span class=3D"am18">,=
+ pm</span><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9440.1N</sup=
+><sup>)</sup></span><span class=3D"am18">, pm</span><span class=3D"am20"=
+><sup> </sup><sup>(</sup><sup>9440.2L</sup><sup>)</sup></span><span clas=
+s=3D"am18">, pm</span><span class=3D"am20"><sup> </sup><sup>(</sup><sup>=
+9440.2L</sup><sup>)</sup></span><span class=3D"am18">, pm</span><span cl=
+ass=3D"am20"><sup> </sup><sup>(</sup><sup>9440.2L</sup><sup>)</sup></spa=
+n></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am16" width=3D"90pt" align=3D"left"><span class=3D"am18"=
+>Control</span></td><td class=3D"am16" width=3D"4pt" align=3D"left">&nbs=
+p;</td><td class=3D"am16" width=3D"2pt" align=3D"right">&nbsp;</td><td c=
+lass=3D"am16" width=3D"20pt" align=3D"right"><span class=3D"am18">12</sp=
+an></td><td class=3D"am16" width=3D"17pt" align=3D"left">&nbsp;</td><td =
+class=3D"am16" align=3D"left"><span class=3D"am18">pm</span><span class=3D=
+"am20"><sup> </sup><sup>(</sup><sup>9445.1N</sup><sup>)</sup></span><spa=
+n class=3D"am18">, pm</span><span class=3D"am20"><sup> </sup><sup>(</sup=
+><sup>9445.1N</sup><sup>)</sup></span><span class=3D"am18">, pm</span><s=
+pan class=3D"am20"><sup> </sup><sup>(</sup><sup>9445.1N</sup><sup>)</sup=
+></span><span class=3D"am18">, pm</span><span class=3D"am20"><sup> </sup=
+><sup>(</sup><sup>9445.2L</sup><sup>)</sup></span><span class=3D"am18">,=
+ pm</span><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9445.2L</sup=
+><sup>)</sup></span><span class=3D"am18">, pm</span><span class=3D"am20"=
+><sup> </sup><sup>(</sup><sup>9445.2L</sup><sup>)</sup></span><span clas=
+s=3D"am18">, pm</span><span class=3D"am20"><sup> </sup><sup>(</sup><sup>=
+9447.1N</sup><sup>)</sup></span><span class=3D"am18">, pm</span><span cl=
+ass=3D"am20"><sup> </sup><sup>(</sup><sup>9447.1N</sup><sup>)</sup></spa=
+n><span class=3D"am18">, pm</span><span class=3D"am20"><sup> </sup><sup>=
+(</sup><sup>9447.1N</sup><sup>)</sup></span><span class=3D"am18">, pm</s=
+pan><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9447.2L</sup><sup>=
+)</sup></span><span class=3D"am18">, pm</span><span class=3D"am20"><sup>=
+ </sup><sup>(</sup><sup>9447.2L</sup><sup>)</sup></span><span class=3D"a=
+m18">, pm</span><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9447.2=
+L</sup><sup>)</sup></span></td></tr></table>
+<p  class=3D"am21">Notes: </p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>1.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. </span></td></t=
+r></table>
+<p  class=3D"am27">Animal lighter / darker than apparatus</p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am6" width=3D"90pt" align=3D"left"><span class=3D"am8">T=
+reatment </span></td><td class=3D"am10" width=3D"4pt" align=3D"left">&nb=
+sp;</td><td class=3D"am10" width=3D"2pt" align=3D"right">&nbsp;</td><td =
+class=3D"am10" width=3D"20pt" align=3D"right"><span class=3D"am8">N </sp=
+an></td><td class=3D"am12" width=3D"17pt" align=3D"left">&nbsp;</td><td =
+class=3D"am12" align=3D"left"><span class=3D"am8">Data </span><span clas=
+s=3D"am14">(notes 1, 2) </span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am16" width=3D"90pt" align=3D"left"><span class=3D"am18"=
+>BPA</span></td><td class=3D"am16" width=3D"4pt" align=3D"left">&nbsp;</=
+td><td class=3D"am16" width=3D"2pt" align=3D"right">&nbsp;</td><td class=
+=3D"am16" width=3D"20pt" align=3D"right"><span class=3D"am18">5</span></=
+td><td class=3D"am16" width=3D"17pt" align=3D"left">&nbsp;</td><td class=
+=3D"am16" align=3D"left"><span class=3D"am18">Lighter</span><span class=3D=
+"am20"><sup> </sup><sup>(</sup><sup>9431.1N</sup><sup>)</sup></span><spa=
+n class=3D"am18">, Lighter</span><span class=3D"am20"><sup> </sup><sup>(=
+</sup><sup>9431.2L</sup><sup>)</sup></span><span class=3D"am18">, Lighte=
+r</span><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9431.3R</sup><=
+sup>)</sup></span><span class=3D"am18">, Lighter</span><span class=3D"am=
+20"><sup> </sup><sup>(</sup><sup>9440.1N</sup><sup>)</sup></span><span c=
+lass=3D"am18">, Lighter</span><span class=3D"am20"><sup> </sup><sup>(</s=
+up><sup>9440.2L</sup><sup>)</sup></span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am16" width=3D"90pt" align=3D"left"><span class=3D"am18"=
+>Control</span></td><td class=3D"am16" width=3D"4pt" align=3D"left">&nbs=
+p;</td><td class=3D"am16" width=3D"2pt" align=3D"right">&nbsp;</td><td c=
+lass=3D"am16" width=3D"20pt" align=3D"right"><span class=3D"am18">4</spa=
+n></td><td class=3D"am16" width=3D"17pt" align=3D"left">&nbsp;</td><td c=
+lass=3D"am16" align=3D"left"><span class=3D"am18">Lighter</span><span cl=
+ass=3D"am20"><sup> </sup><sup>(</sup><sup>9445.1N</sup><sup>)</sup></spa=
+n><span class=3D"am18">, Lighter</span><span class=3D"am20"><sup> </sup>=
+<sup>(</sup><sup>9445.2L</sup><sup>)</sup></span><span class=3D"am18">, =
+Lighter</span><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9447.1N<=
+/sup><sup>)</sup></span><span class=3D"am18">, Lighter</span><span class=
+=3D"am20"><sup> </sup><sup>(</sup><sup>9447.2L</sup><sup>)</sup></span><=
+/td></tr></table>
+<p  class=3D"am21">Notes: </p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>1.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">Th=
+ere is only one data value for each animal, as this result is calculated=
+ at the animal level.</span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>2.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. </span></td></t=
+r></table>
+<p  class=3D"am27">Location of Familiar Object 1 zone</p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am6" width=3D"90pt" align=3D"left"><span class=3D"am8">T=
+reatment </span></td><td class=3D"am10" width=3D"4pt" align=3D"left">&nb=
+sp;</td><td class=3D"am10" width=3D"2pt" align=3D"right">&nbsp;</td><td =
+class=3D"am10" width=3D"20pt" align=3D"right"><span class=3D"am8">N </sp=
+an></td><td class=3D"am12" width=3D"17pt" align=3D"left">&nbsp;</td><td =
+class=3D"am12" align=3D"left"><span class=3D"am8">Data </span><span clas=
+s=3D"am14">(note 1) </span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am16" width=3D"90pt" align=3D"left"><span class=3D"am18"=
+>BPA</span></td><td class=3D"am16" width=3D"4pt" align=3D"left">&nbsp;</=
+td><td class=3D"am16" width=3D"2pt" align=3D"right">&nbsp;</td><td class=
+=3D"am16" width=3D"20pt" align=3D"right"><span class=3D"am18">10</span><=
+/td><td class=3D"am16" width=3D"17pt" align=3D"left">&nbsp;</td><td clas=
+s=3D"am16" align=3D"left"><span class=3D"am18">Back left</span><span cla=
+ss=3D"am20"><sup> </sup><sup>(</sup><sup>9431.1N</sup><sup>)</sup></span=
+><span class=3D"am18">, Back left</span><span class=3D"am20"><sup> </sup=
+><sup>(</sup><sup>9431.1N</sup><sup>)</sup></span><span class=3D"am18">,=
+ Back left</span><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9431.=
+2L</sup><sup>)</sup></span><span class=3D"am18">, Back left</span><span =
+class=3D"am20"><sup> </sup><sup>(</sup><sup>9431.2L</sup><sup>)</sup></s=
+pan><span class=3D"am18">, Back left</span><span class=3D"am20"><sup> </=
+sup><sup>(</sup><sup>9431.3R</sup><sup>)</sup></span><span class=3D"am18=
+">, Back left</span><span class=3D"am20"><sup> </sup><sup>(</sup><sup>94=
+31.3R</sup><sup>)</sup></span><span class=3D"am18">, Back left</span><sp=
+an class=3D"am20"><sup> </sup><sup>(</sup><sup>9440.1N</sup><sup>)</sup>=
+</span><span class=3D"am18">, Back left</span><span class=3D"am20"><sup>=
+ </sup><sup>(</sup><sup>9440.1N</sup><sup>)</sup></span><span class=3D"a=
+m18">, Back left</span><span class=3D"am20"><sup> </sup><sup>(</sup><sup=
+>9440.2L</sup><sup>)</sup></span><span class=3D"am18">, Back left</span>=
+<span class=3D"am20"><sup> </sup><sup>(</sup><sup>9440.2L</sup><sup>)</s=
+up></span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am16" width=3D"90pt" align=3D"left"><span class=3D"am18"=
+>Control</span></td><td class=3D"am16" width=3D"4pt" align=3D"left">&nbs=
+p;</td><td class=3D"am16" width=3D"2pt" align=3D"right">&nbsp;</td><td c=
+lass=3D"am16" width=3D"20pt" align=3D"right"><span class=3D"am18">8</spa=
+n></td><td class=3D"am16" width=3D"17pt" align=3D"left">&nbsp;</td><td c=
+lass=3D"am16" align=3D"left"><span class=3D"am18">Back left</span><span =
+class=3D"am20"><sup> </sup><sup>(</sup><sup>9445.1N</sup><sup>)</sup></s=
+pan><span class=3D"am18">, Back left</span><span class=3D"am20"><sup> </=
+sup><sup>(</sup><sup>9445.1N</sup><sup>)</sup></span><span class=3D"am18=
+">, Back left</span><span class=3D"am20"><sup> </sup><sup>(</sup><sup>94=
+45.2L</sup><sup>)</sup></span><span class=3D"am18">, Back left</span><sp=
+an class=3D"am20"><sup> </sup><sup>(</sup><sup>9445.2L</sup><sup>)</sup>=
+</span><span class=3D"am18">, Back left</span><span class=3D"am20"><sup>=
+ </sup><sup>(</sup><sup>9447.1N</sup><sup>)</sup></span><span class=3D"a=
+m18">, Back left</span><span class=3D"am20"><sup> </sup><sup>(</sup><sup=
+>9447.1N</sup><sup>)</sup></span><span class=3D"am18">, Back left</span>=
+<span class=3D"am20"><sup> </sup><sup>(</sup><sup>9447.2L</sup><sup>)</s=
+up></span><span class=3D"am18">, Back left</span><span class=3D"am20"><s=
+up> </sup><sup>(</sup><sup>9447.2L</sup><sup>)</sup></span></td></tr></t=
+able>
+<p  class=3D"am21">Notes: </p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>1.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. </span></td></t=
+r></table>
+<p  class=3D"am27">Location of Novel Object zone</p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am6" width=3D"90pt" align=3D"left"><span class=3D"am8">T=
+reatment </span></td><td class=3D"am10" width=3D"4pt" align=3D"left">&nb=
+sp;</td><td class=3D"am10" width=3D"2pt" align=3D"right">&nbsp;</td><td =
+class=3D"am10" width=3D"20pt" align=3D"right"><span class=3D"am8">N </sp=
+an></td><td class=3D"am12" width=3D"17pt" align=3D"left">&nbsp;</td><td =
+class=3D"am12" align=3D"left"><span class=3D"am8">Data </span><span clas=
+s=3D"am14">(note 1) </span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am16" width=3D"90pt" align=3D"left"><span class=3D"am18"=
+>BPA</span></td><td class=3D"am16" width=3D"4pt" align=3D"left">&nbsp;</=
+td><td class=3D"am16" width=3D"2pt" align=3D"right">&nbsp;</td><td class=
+=3D"am16" width=3D"20pt" align=3D"right"><span class=3D"am18">5</span></=
+td><td class=3D"am16" width=3D"17pt" align=3D"left">&nbsp;</td><td class=
+=3D"am16" align=3D"left"><span class=3D"am18">Front right</span><span cl=
+ass=3D"am20"><sup> </sup><sup>(</sup><sup>9431.1N</sup><sup>)</sup></spa=
+n><span class=3D"am18">, Front right</span><span class=3D"am20"><sup> </=
+sup><sup>(</sup><sup>9431.2L</sup><sup>)</sup></span><span class=3D"am18=
+">, Front right</span><span class=3D"am20"><sup> </sup><sup>(</sup><sup>=
+9431.3R</sup><sup>)</sup></span><span class=3D"am18">, Front right</span=
+><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9440.1N</sup><sup>)</=
+sup></span><span class=3D"am18">, Front right</span><span class=3D"am20"=
+><sup> </sup><sup>(</sup><sup>9440.2L</sup><sup>)</sup></span></td></tr>=
+</table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am16" width=3D"90pt" align=3D"left"><span class=3D"am18"=
+>Control</span></td><td class=3D"am16" width=3D"4pt" align=3D"left">&nbs=
+p;</td><td class=3D"am16" width=3D"2pt" align=3D"right">&nbsp;</td><td c=
+lass=3D"am16" width=3D"20pt" align=3D"right"><span class=3D"am18">4</spa=
+n></td><td class=3D"am16" width=3D"17pt" align=3D"left">&nbsp;</td><td c=
+lass=3D"am16" align=3D"left"><span class=3D"am18">Front right</span><spa=
+n class=3D"am20"><sup> </sup><sup>(</sup><sup>9445.1N</sup><sup>)</sup><=
+/span><span class=3D"am18">, Front right</span><span class=3D"am20"><sup=
+> </sup><sup>(</sup><sup>9445.2L</sup><sup>)</sup></span><span class=3D"=
+am18">, Front right</span><span class=3D"am20"><sup> </sup><sup>(</sup><=
+sup>9447.1N</sup><sup>)</sup></span><span class=3D"am18">, Front right</=
+span><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9447.2L</sup><sup=
+>)</sup></span></td></tr></table>
+<p  class=3D"am21">Notes: </p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>1.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. </span></td></t=
+r></table>
+<p  class=3D"am27">Location of Familiar Object 2 zone</p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am6" width=3D"90pt" align=3D"left"><span class=3D"am8">T=
+reatment </span></td><td class=3D"am10" width=3D"4pt" align=3D"left">&nb=
+sp;</td><td class=3D"am10" width=3D"2pt" align=3D"right">&nbsp;</td><td =
+class=3D"am10" width=3D"20pt" align=3D"right"><span class=3D"am8">N </sp=
+an></td><td class=3D"am12" width=3D"17pt" align=3D"left">&nbsp;</td><td =
+class=3D"am12" align=3D"left"><span class=3D"am8">Data </span><span clas=
+s=3D"am14">(note 1) </span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am16" width=3D"90pt" align=3D"left"><span class=3D"am18"=
+>BPA</span></td><td class=3D"am16" width=3D"4pt" align=3D"left">&nbsp;</=
+td><td class=3D"am16" width=3D"2pt" align=3D"right">&nbsp;</td><td class=
+=3D"am16" width=3D"20pt" align=3D"right"><span class=3D"am18">5</span></=
+td><td class=3D"am16" width=3D"17pt" align=3D"left">&nbsp;</td><td class=
+=3D"am16" align=3D"left"><span class=3D"am18">Front right</span><span cl=
+ass=3D"am20"><sup> </sup><sup>(</sup><sup>9431.1N</sup><sup>)</sup></spa=
+n><span class=3D"am18">, Front right</span><span class=3D"am20"><sup> </=
+sup><sup>(</sup><sup>9431.2L</sup><sup>)</sup></span><span class=3D"am18=
+">, Front right</span><span class=3D"am20"><sup> </sup><sup>(</sup><sup>=
+9431.3R</sup><sup>)</sup></span><span class=3D"am18">, Front right</span=
+><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9440.1N</sup><sup>)</=
+sup></span><span class=3D"am18">, Front right</span><span class=3D"am20"=
+><sup> </sup><sup>(</sup><sup>9440.2L</sup><sup>)</sup></span></td></tr>=
+</table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am16" width=3D"90pt" align=3D"left"><span class=3D"am18"=
+>Control</span></td><td class=3D"am16" width=3D"4pt" align=3D"left">&nbs=
+p;</td><td class=3D"am16" width=3D"2pt" align=3D"right">&nbsp;</td><td c=
+lass=3D"am16" width=3D"20pt" align=3D"right"><span class=3D"am18">4</spa=
+n></td><td class=3D"am16" width=3D"17pt" align=3D"left">&nbsp;</td><td c=
+lass=3D"am16" align=3D"left"><span class=3D"am18">Front right</span><spa=
+n class=3D"am20"><sup> </sup><sup>(</sup><sup>9445.1N</sup><sup>)</sup><=
+/span><span class=3D"am18">, Front right</span><span class=3D"am20"><sup=
+> </sup><sup>(</sup><sup>9445.2L</sup><sup>)</sup></span><span class=3D"=
+am18">, Front right</span><span class=3D"am20"><sup> </sup><sup>(</sup><=
+sup>9447.1N</sup><sup>)</sup></span><span class=3D"am18">, Front right</=
+span><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9447.2L</sup><sup=
+>)</sup></span></td></tr></table>
+<p  class=3D"am21">Notes: </p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>1.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. </span></td></t=
+r></table>
+<p  class=3D"am27">Test duration (s)</p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am30" width=3D"90pt" align=3D"left"><span class=3D"am32"=
+>Treatment </span></td><td class=3D"am34" width=3D"4pt" align=3D"left">&=
+nbsp;</td><td class=3D"am34" width=3D"2pt" align=3D"right">&nbsp;</td><t=
+d class=3D"am34" width=3D"20pt" align=3D"right"><span class=3D"am32">N <=
+/span></td><td class=3D"am36" width=3D"80pt" align=3D"right"><span class=
+=3D"am32">Mean </span></td><td class=3D"am36" width=3D"17pt" align=3D"le=
+ft">&nbsp;</td><td class=3D"am36" width=3D"87pt" align=3D"left"><span cl=
+ass=3D"am32">SD </span><span class=3D"am38">(note 1) </span></td><td cla=
+ss=3D"am36" align=3D"left"><span class=3D"am32">Data </span><span class=3D=
+"am38">(note 2) </span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am40" width=3D"90pt" align=3D"left"><span class=3D"am42"=
+>BPA</span></td><td class=3D"am40" width=3D"4pt" align=3D"left">&nbsp;</=
+td><td class=3D"am40" width=3D"2pt" align=3D"right">&nbsp;</td><td class=
+=3D"am40" width=3D"20pt" align=3D"right"><span class=3D"am42">15</span><=
+/td><td class=3D"am40" width=3D"80pt" align=3D"right"><span class=3D"am4=
+2">600.00</span></td><td class=3D"am40" width=3D"87pt" align=3D"right"><=
+span class=3D"am42">=B10.00</span></td><td class=3D"am40" width=3D"17pt" a=
+lign=3D"left">&nbsp;</td><td class=3D"am40" align=3D"left"><span class=3D=
+"am42">600.0</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>943=
+1.1N</sup><sup>)</sup></span><span class=3D"am42">, 600.0</span><span cl=
+ass=3D"am44"><sup> </sup><sup>(</sup><sup>9431.1N</sup><sup>)</sup></spa=
+n><span class=3D"am42">, 600.0</span><span class=3D"am44"><sup> </sup><s=
+up>(</sup><sup>9431.1N</sup><sup>)</sup></span><span class=3D"am42">, 60=
+0.0</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9431.2L</sup=
+><sup>)</sup></span><span class=3D"am42">, 600.0</span><span class=3D"am=
+44"><sup> </sup><sup>(</sup><sup>9431.2L</sup><sup>)</sup></span><span c=
+lass=3D"am42">, 600.0</span><span class=3D"am44"><sup> </sup><sup>(</sup=
+><sup>9431.2L</sup><sup>)</sup></span><span class=3D"am42">, 600.0</span=
+><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9431.3R</sup><sup>)</=
+sup></span><span class=3D"am42">, 600.0</span><span class=3D"am44"><sup>=
+ </sup><sup>(</sup><sup>9431.3R</sup><sup>)</sup></span><span class=3D"a=
+m42">, 600.0</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>943=
+1.3R</sup><sup>)</sup></span><span class=3D"am42">, 600.0</span><span cl=
+ass=3D"am44"><sup> </sup><sup>(</sup><sup>9440.1N</sup><sup>)</sup></spa=
+n><span class=3D"am42">, 600.0</span><span class=3D"am44"><sup> </sup><s=
+up>(</sup><sup>9440.1N</sup><sup>)</sup></span><span class=3D"am42">, 60=
+0.0</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9440.1N</sup=
+><sup>)</sup></span><span class=3D"am42">, 600.0</span><span class=3D"am=
+44"><sup> </sup><sup>(</sup><sup>9440.2L</sup><sup>)</sup></span><span c=
+lass=3D"am42">, 600.0</span><span class=3D"am44"><sup> </sup><sup>(</sup=
+><sup>9440.2L</sup><sup>)</sup></span><span class=3D"am42">, 600.0</span=
+><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9440.2L</sup><sup>)</=
+sup></span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am40" width=3D"90pt" align=3D"left"><span class=3D"am42"=
+>Control</span></td><td class=3D"am40" width=3D"4pt" align=3D"left">&nbs=
+p;</td><td class=3D"am40" width=3D"2pt" align=3D"right">&nbsp;</td><td c=
+lass=3D"am40" width=3D"20pt" align=3D"right"><span class=3D"am42">12</sp=
+an></td><td class=3D"am40" width=3D"80pt" align=3D"right"><span class=3D=
+"am42">600.00</span></td><td class=3D"am40" width=3D"87pt" align=3D"righ=
+t"><span class=3D"am42">=B10.00</span></td><td class=3D"am40" width=3D"17p=
+t" align=3D"left">&nbsp;</td><td class=3D"am40" align=3D"left"><span cla=
+ss=3D"am42">600.0</span><span class=3D"am44"><sup> </sup><sup>(</sup><su=
+p>9445.1N</sup><sup>)</sup></span><span class=3D"am42">, 600.0</span><sp=
+an class=3D"am44"><sup> </sup><sup>(</sup><sup>9445.1N</sup><sup>)</sup>=
+</span><span class=3D"am42">, 600.0</span><span class=3D"am44"><sup> </s=
+up><sup>(</sup><sup>9445.1N</sup><sup>)</sup></span><span class=3D"am42"=
+>, 600.0</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9445.2L=
+</sup><sup>)</sup></span><span class=3D"am42">, 600.0</span><span class=3D=
+"am44"><sup> </sup><sup>(</sup><sup>9445.2L</sup><sup>)</sup></span><spa=
+n class=3D"am42">, 600.0</span><span class=3D"am44"><sup> </sup><sup>(</=
+sup><sup>9445.2L</sup><sup>)</sup></span><span class=3D"am42">, 600.0</s=
+pan><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9447.1N</sup><sup>=
+)</sup></span><span class=3D"am42">, 600.0</span><span class=3D"am44"><s=
+up> </sup><sup>(</sup><sup>9447.1N</sup><sup>)</sup></span><span class=3D=
+"am42">, 600.0</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9=
+447.1N</sup><sup>)</sup></span><span class=3D"am42">, 600.0</span><span =
+class=3D"am44"><sup> </sup><sup>(</sup><sup>9447.2L</sup><sup>)</sup></s=
+pan><span class=3D"am42">, 600.0</span><span class=3D"am44"><sup> </sup>=
+<sup>(</sup><sup>9447.2L</sup><sup>)</sup></span><span class=3D"am42">, =
+600.0</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9447.2L</s=
+up><sup>)</sup></span></td></tr></table>
+<p  class=3D"am21">Notes: </p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>1.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">SD=
+ =3D Standard deviation. </span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>2.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. </span></td></t=
+r></table>
+<p  class=3D"am27">Total distance travelled (m)</p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am30" width=3D"90pt" align=3D"left"><span class=3D"am32"=
+>Treatment </span></td><td class=3D"am34" width=3D"4pt" align=3D"left">&=
+nbsp;</td><td class=3D"am34" width=3D"2pt" align=3D"right">&nbsp;</td><t=
+d class=3D"am34" width=3D"20pt" align=3D"right"><span class=3D"am32">N <=
+/span></td><td class=3D"am36" width=3D"80pt" align=3D"right"><span class=
+=3D"am32">Mean </span></td><td class=3D"am36" width=3D"17pt" align=3D"le=
+ft">&nbsp;</td><td class=3D"am36" width=3D"87pt" align=3D"left"><span cl=
+ass=3D"am32">SD </span><span class=3D"am38">(note 1) </span></td><td cla=
+ss=3D"am36" align=3D"left"><span class=3D"am32">Data </span><span class=3D=
+"am38">(note 2) </span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am40" width=3D"90pt" align=3D"left"><span class=3D"am42"=
+>BPA</span></td><td class=3D"am40" width=3D"4pt" align=3D"left">&nbsp;</=
+td><td class=3D"am40" width=3D"2pt" align=3D"right">&nbsp;</td><td class=
+=3D"am40" width=3D"20pt" align=3D"right"><span class=3D"am42">15</span><=
+/td><td class=3D"am40" width=3D"80pt" align=3D"right"><span class=3D"am4=
+2">27.8111</span></td><td class=3D"am40" width=3D"87pt" align=3D"right">=
+<span class=3D"am42">=B15.9570</span></td><td class=3D"am40" width=3D"17pt=
+" align=3D"left">&nbsp;</td><td class=3D"am40" align=3D"left"><span clas=
+s=3D"am42">20.028</span><span class=3D"am44"><sup> </sup><sup>(</sup><su=
+p>9431.1N</sup><sup>)</sup></span><span class=3D"am42">, 21.092</span><s=
+pan class=3D"am44"><sup> </sup><sup>(</sup><sup>9431.1N</sup><sup>)</sup=
+></span><span class=3D"am42">, 19.996</span><span class=3D"am44"><sup> <=
+/sup><sup>(</sup><sup>9431.1N</sup><sup>)</sup></span><span class=3D"am4=
+2">, 35.575</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9431=
+.2L</sup><sup>)</sup></span><span class=3D"am42">, 37.745</span><span cl=
+ass=3D"am44"><sup> </sup><sup>(</sup><sup>9431.2L</sup><sup>)</sup></spa=
+n><span class=3D"am42">, 26.707</span><span class=3D"am44"><sup> </sup><=
+sup>(</sup><sup>9431.2L</sup><sup>)</sup></span><span class=3D"am42">, 2=
+1.478</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9431.3R</s=
+up><sup>)</sup></span><span class=3D"am42">, 25.829</span><span class=3D=
+"am44"><sup> </sup><sup>(</sup><sup>9431.3R</sup><sup>)</sup></span><spa=
+n class=3D"am42">, 25.052</span><span class=3D"am44"><sup> </sup><sup>(<=
+/sup><sup>9431.3R</sup><sup>)</sup></span><span class=3D"am42">, 32.754<=
+/span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9440.1N</sup><su=
+p>)</sup></span><span class=3D"am42">, 32.833</span><span class=3D"am44"=
+><sup> </sup><sup>(</sup><sup>9440.1N</sup><sup>)</sup></span><span clas=
+s=3D"am42">, 31.294</span><span class=3D"am44"><sup> </sup><sup>(</sup><=
+sup>9440.1N</sup><sup>)</sup></span><span class=3D"am42">, 33.838</span>=
+<span class=3D"am44"><sup> </sup><sup>(</sup><sup>9440.2L</sup><sup>)</s=
+up></span><span class=3D"am42">, 29.343</span><span class=3D"am44"><sup>=
+ </sup><sup>(</sup><sup>9440.2L</sup><sup>)</sup></span><span class=3D"a=
+m42">, 23.602</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>94=
+40.2L</sup><sup>)</sup></span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am40" width=3D"90pt" align=3D"left"><span class=3D"am42"=
+>Control</span></td><td class=3D"am40" width=3D"4pt" align=3D"left">&nbs=
+p;</td><td class=3D"am40" width=3D"2pt" align=3D"right">&nbsp;</td><td c=
+lass=3D"am40" width=3D"20pt" align=3D"right"><span class=3D"am42">12</sp=
+an></td><td class=3D"am40" width=3D"80pt" align=3D"right"><span class=3D=
+"am42">18.0381</span></td><td class=3D"am40" width=3D"87pt" align=3D"rig=
+ht"><span class=3D"am42">=B14.7013</span></td><td class=3D"am40" width=3D"=
+17pt" align=3D"left">&nbsp;</td><td class=3D"am40" align=3D"left"><span =
+class=3D"am42">21.863</span><span class=3D"am44"><sup> </sup><sup>(</sup=
+><sup>9445.1N</sup><sup>)</sup></span><span class=3D"am42">, 14.389</spa=
+n><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9445.1N</sup><sup>)<=
+/sup></span><span class=3D"am42">, 22.237</span><span class=3D"am44"><su=
+p> </sup><sup>(</sup><sup>9445.1N</sup><sup>)</sup></span><span class=3D=
+"am42">, 21.200</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>=
+9445.2L</sup><sup>)</sup></span><span class=3D"am42">, 16.790</span><spa=
+n class=3D"am44"><sup> </sup><sup>(</sup><sup>9445.2L</sup><sup>)</sup><=
+/span><span class=3D"am42">, 14.672</span><span class=3D"am44"><sup> </s=
+up><sup>(</sup><sup>9445.2L</sup><sup>)</sup></span><span class=3D"am42"=
+>, 27.649</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9447.1=
+N</sup><sup>)</sup></span><span class=3D"am42">, 19.624</span><span clas=
+s=3D"am44"><sup> </sup><sup>(</sup><sup>9447.1N</sup><sup>)</sup></span>=
+<span class=3D"am42">, 14.110</span><span class=3D"am44"><sup> </sup><su=
+p>(</sup><sup>9447.1N</sup><sup>)</sup></span><span class=3D"am42">, 17.=
+443</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9447.2L</sup=
+><sup>)</sup></span><span class=3D"am42">, 16.236</span><span class=3D"a=
+m44"><sup> </sup><sup>(</sup><sup>9447.2L</sup><sup>)</sup></span><span =
+class=3D"am42">, 10.244</span><span class=3D"am44"><sup> </sup><sup>(</s=
+up><sup>9447.2L</sup><sup>)</sup></span></td></tr></table>
+<p  class=3D"am21">Notes: </p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>1.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">SD=
+ =3D Standard deviation. </span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>2.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. </span></td></t=
+r></table>
+<p  class=3D"am27">Total distance travelled by the animal's head (m)</p>=
+
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am30" width=3D"90pt" align=3D"left"><span class=3D"am32"=
+>Treatment </span></td><td class=3D"am34" width=3D"4pt" align=3D"left">&=
+nbsp;</td><td class=3D"am34" width=3D"2pt" align=3D"right">&nbsp;</td><t=
+d class=3D"am34" width=3D"20pt" align=3D"right"><span class=3D"am32">N <=
+/span></td><td class=3D"am36" width=3D"80pt" align=3D"right"><span class=
+=3D"am32">Mean </span></td><td class=3D"am36" width=3D"17pt" align=3D"le=
+ft">&nbsp;</td><td class=3D"am36" width=3D"87pt" align=3D"left"><span cl=
+ass=3D"am32">SD </span><span class=3D"am38">(note 1) </span></td><td cla=
+ss=3D"am36" align=3D"left"><span class=3D"am32">Data </span><span class=3D=
+"am38">(note 2) </span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am40" width=3D"90pt" align=3D"left"><span class=3D"am42"=
+>BPA</span></td><td class=3D"am40" width=3D"4pt" align=3D"left">&nbsp;</=
+td><td class=3D"am40" width=3D"2pt" align=3D"right">&nbsp;</td><td class=
+=3D"am40" width=3D"20pt" align=3D"right"><span class=3D"am42">15</span><=
+/td><td class=3D"am40" width=3D"80pt" align=3D"right"><span class=3D"am4=
+2">46.0691</span></td><td class=3D"am40" width=3D"87pt" align=3D"right">=
+<span class=3D"am42">=B18.2655</span></td><td class=3D"am40" width=3D"17pt=
+" align=3D"left">&nbsp;</td><td class=3D"am40" align=3D"left"><span clas=
+s=3D"am42">37.804</span><span class=3D"am44"><sup> </sup><sup>(</sup><su=
+p>9431.1N</sup><sup>)</sup></span><span class=3D"am42">, 38.659</span><s=
+pan class=3D"am44"><sup> </sup><sup>(</sup><sup>9431.1N</sup><sup>)</sup=
+></span><span class=3D"am42">, 38.460</span><span class=3D"am44"><sup> <=
+/sup><sup>(</sup><sup>9431.1N</sup><sup>)</sup></span><span class=3D"am4=
+2">, 58.111</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9431=
+.2L</sup><sup>)</sup></span><span class=3D"am42">, 59.548</span><span cl=
+ass=3D"am44"><sup> </sup><sup>(</sup><sup>9431.2L</sup><sup>)</sup></spa=
+n><span class=3D"am42">, 43.366</span><span class=3D"am44"><sup> </sup><=
+sup>(</sup><sup>9431.2L</sup><sup>)</sup></span><span class=3D"am42">, 3=
+7.958</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9431.3R</s=
+up><sup>)</sup></span><span class=3D"am42">, 41.022</span><span class=3D=
+"am44"><sup> </sup><sup>(</sup><sup>9431.3R</sup><sup>)</sup></span><spa=
+n class=3D"am42">, 38.607</span><span class=3D"am44"><sup> </sup><sup>(<=
+/sup><sup>9431.3R</sup><sup>)</sup></span><span class=3D"am42">, 55.219<=
+/span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9440.1N</sup><su=
+p>)</sup></span><span class=3D"am42">, 52.688</span><span class=3D"am44"=
+><sup> </sup><sup>(</sup><sup>9440.1N</sup><sup>)</sup></span><span clas=
+s=3D"am42">, 48.226</span><span class=3D"am44"><sup> </sup><sup>(</sup><=
+sup>9440.1N</sup><sup>)</sup></span><span class=3D"am42">, 56.520</span>=
+<span class=3D"am44"><sup> </sup><sup>(</sup><sup>9440.2L</sup><sup>)</s=
+up></span><span class=3D"am42">, 46.058</span><span class=3D"am44"><sup>=
+ </sup><sup>(</sup><sup>9440.2L</sup><sup>)</sup></span><span class=3D"a=
+m42">, 38.790</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>94=
+40.2L</sup><sup>)</sup></span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am40" width=3D"90pt" align=3D"left"><span class=3D"am42"=
+>Control</span></td><td class=3D"am40" width=3D"4pt" align=3D"left">&nbs=
+p;</td><td class=3D"am40" width=3D"2pt" align=3D"right">&nbsp;</td><td c=
+lass=3D"am40" width=3D"20pt" align=3D"right"><span class=3D"am42">12</sp=
+an></td><td class=3D"am40" width=3D"80pt" align=3D"right"><span class=3D=
+"am42">32.6672</span></td><td class=3D"am40" width=3D"87pt" align=3D"rig=
+ht"><span class=3D"am42">=B16.8285</span></td><td class=3D"am40" width=3D"=
+17pt" align=3D"left">&nbsp;</td><td class=3D"am40" align=3D"left"><span =
+class=3D"am42">41.347</span><span class=3D"am44"><sup> </sup><sup>(</sup=
+><sup>9445.1N</sup><sup>)</sup></span><span class=3D"am42">, 27.919</spa=
+n><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9445.1N</sup><sup>)<=
+/sup></span><span class=3D"am42">, 38.038</span><span class=3D"am44"><su=
+p> </sup><sup>(</sup><sup>9445.1N</sup><sup>)</sup></span><span class=3D=
+"am42">, 36.720</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>=
+9445.2L</sup><sup>)</sup></span><span class=3D"am42">, 30.435</span><spa=
+n class=3D"am44"><sup> </sup><sup>(</sup><sup>9445.2L</sup><sup>)</sup><=
+/span><span class=3D"am42">, 24.241</span><span class=3D"am44"><sup> </s=
+up><sup>(</sup><sup>9445.2L</sup><sup>)</sup></span><span class=3D"am42"=
+>, 43.414</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9447.1=
+N</sup><sup>)</sup></span><span class=3D"am42">, 35.578</span><span clas=
+s=3D"am44"><sup> </sup><sup>(</sup><sup>9447.1N</sup><sup>)</sup></span>=
+<span class=3D"am42">, 27.345</span><span class=3D"am44"><sup> </sup><su=
+p>(</sup><sup>9447.1N</sup><sup>)</sup></span><span class=3D"am42">, 34.=
+588</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9447.2L</sup=
+><sup>)</sup></span><span class=3D"am42">, 31.382</span><span class=3D"a=
+m44"><sup> </sup><sup>(</sup><sup>9447.2L</sup><sup>)</sup></span><span =
+class=3D"am42">, 20.999</span><span class=3D"am44"><sup> </sup><sup>(</s=
+up><sup>9447.2L</sup><sup>)</sup></span></td></tr></table>
+<p  class=3D"am21">Notes: </p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>1.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">SD=
+ =3D Standard deviation. </span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>2.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. </span></td></t=
+r></table>
+<p  class=3D"am27">Number of entries to the Center zone</p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am30" width=3D"90pt" align=3D"left"><span class=3D"am32"=
+>Treatment </span></td><td class=3D"am34" width=3D"4pt" align=3D"left">&=
+nbsp;</td><td class=3D"am34" width=3D"2pt" align=3D"right">&nbsp;</td><t=
+d class=3D"am34" width=3D"20pt" align=3D"right"><span class=3D"am32">N <=
+/span></td><td class=3D"am36" width=3D"80pt" align=3D"right"><span class=
+=3D"am32">Mean </span></td><td class=3D"am36" width=3D"17pt" align=3D"le=
+ft">&nbsp;</td><td class=3D"am36" width=3D"87pt" align=3D"left"><span cl=
+ass=3D"am32">SD </span><span class=3D"am38">(note 1) </span></td><td cla=
+ss=3D"am36" align=3D"left"><span class=3D"am32">Data </span><span class=3D=
+"am38">(note 2) </span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am40" width=3D"90pt" align=3D"left"><span class=3D"am42"=
+>BPA</span></td><td class=3D"am40" width=3D"4pt" align=3D"left">&nbsp;</=
+td><td class=3D"am40" width=3D"2pt" align=3D"right">&nbsp;</td><td class=
+=3D"am40" width=3D"20pt" align=3D"right"><span class=3D"am42">15</span><=
+/td><td class=3D"am40" width=3D"80pt" align=3D"right"><span class=3D"am4=
+2">39.33</span></td><td class=3D"am40" width=3D"87pt" align=3D"right"><s=
+pan class=3D"am42">=B18.91</span></td><td class=3D"am40" width=3D"17pt" al=
+ign=3D"left">&nbsp;</td><td class=3D"am40" align=3D"left"><span class=3D=
+"am42">38</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9431.1=
+N</sup><sup>)</sup></span><span class=3D"am42">, 43</span><span class=3D=
+"am44"><sup> </sup><sup>(</sup><sup>9431.1N</sup><sup>)</sup></span><spa=
+n class=3D"am42">, 49</span><span class=3D"am44"><sup> </sup><sup>(</sup=
+><sup>9431.1N</sup><sup>)</sup></span><span class=3D"am42">, 50</span><s=
+pan class=3D"am44"><sup> </sup><sup>(</sup><sup>9431.2L</sup><sup>)</sup=
+></span><span class=3D"am42">, 52</span><span class=3D"am44"><sup> </sup=
+><sup>(</sup><sup>9431.2L</sup><sup>)</sup></span><span class=3D"am42">,=
+ 29</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9431.2L</sup=
+><sup>)</sup></span><span class=3D"am42">, 37</span><span class=3D"am44"=
+><sup> </sup><sup>(</sup><sup>9431.3R</sup><sup>)</sup></span><span clas=
+s=3D"am42">, 30</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>=
+9431.3R</sup><sup>)</sup></span><span class=3D"am42">, 36</span><span cl=
+ass=3D"am44"><sup> </sup><sup>(</sup><sup>9431.3R</sup><sup>)</sup></spa=
+n><span class=3D"am42">, 50</span><span class=3D"am44"><sup> </sup><sup>=
+(</sup><sup>9440.1N</sup><sup>)</sup></span><span class=3D"am42">, 42</s=
+pan><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9440.1N</sup><sup>=
+)</sup></span><span class=3D"am42">, 38</span><span class=3D"am44"><sup>=
+ </sup><sup>(</sup><sup>9440.1N</sup><sup>)</sup></span><span class=3D"a=
+m42">, 41</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9440.2=
+L</sup><sup>)</sup></span><span class=3D"am42">, 35</span><span class=3D=
+"am44"><sup> </sup><sup>(</sup><sup>9440.2L</sup><sup>)</sup></span><spa=
+n class=3D"am42">, 20</span><span class=3D"am44"><sup> </sup><sup>(</sup=
+><sup>9440.2L</sup><sup>)</sup></span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am40" width=3D"90pt" align=3D"left"><span class=3D"am42"=
+>Control</span></td><td class=3D"am40" width=3D"4pt" align=3D"left">&nbs=
+p;</td><td class=3D"am40" width=3D"2pt" align=3D"right">&nbsp;</td><td c=
+lass=3D"am40" width=3D"20pt" align=3D"right"><span class=3D"am42">12</sp=
+an></td><td class=3D"am40" width=3D"80pt" align=3D"right"><span class=3D=
+"am42">32.75</span></td><td class=3D"am40" width=3D"87pt" align=3D"right=
+"><span class=3D"am42">=B113.05</span></td><td class=3D"am40" width=3D"17p=
+t" align=3D"left">&nbsp;</td><td class=3D"am40" align=3D"left"><span cla=
+ss=3D"am42">46</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9=
+445.1N</sup><sup>)</sup></span><span class=3D"am42">, 23</span><span cla=
+ss=3D"am44"><sup> </sup><sup>(</sup><sup>9445.1N</sup><sup>)</sup></span=
+><span class=3D"am42">, 59</span><span class=3D"am44"><sup> </sup><sup>(=
+</sup><sup>9445.1N</sup><sup>)</sup></span><span class=3D"am42">, 30</sp=
+an><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9445.2L</sup><sup>)=
+</sup></span><span class=3D"am42">, 15</span><span class=3D"am44"><sup> =
+</sup><sup>(</sup><sup>9445.2L</sup><sup>)</sup></span><span class=3D"am=
+42">, 18</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9445.2L=
+</sup><sup>)</sup></span><span class=3D"am42">, 46</span><span class=3D"=
+am44"><sup> </sup><sup>(</sup><sup>9447.1N</sup><sup>)</sup></span><span=
+ class=3D"am42">, 37</span><span class=3D"am44"><sup> </sup><sup>(</sup>=
+<sup>9447.1N</sup><sup>)</sup></span><span class=3D"am42">, 28</span><sp=
+an class=3D"am44"><sup> </sup><sup>(</sup><sup>9447.1N</sup><sup>)</sup>=
+</span><span class=3D"am42">, 37</span><span class=3D"am44"><sup> </sup>=
+<sup>(</sup><sup>9447.2L</sup><sup>)</sup></span><span class=3D"am42">, =
+33</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9447.2L</sup>=
+<sup>)</sup></span><span class=3D"am42">, 21</span><span class=3D"am44">=
+<sup> </sup><sup>(</sup><sup>9447.2L</sup><sup>)</sup></span></td></tr><=
+/table>
+<p  class=3D"am21">Notes: </p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>1.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">SD=
+ =3D Standard deviation. </span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>2.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. </span></td></t=
+r></table>
+<p  class=3D"am27">Time in the Center zone (s)</p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am30" width=3D"90pt" align=3D"left"><span class=3D"am32"=
+>Treatment </span></td><td class=3D"am34" width=3D"4pt" align=3D"left">&=
+nbsp;</td><td class=3D"am34" width=3D"2pt" align=3D"right">&nbsp;</td><t=
+d class=3D"am34" width=3D"20pt" align=3D"right"><span class=3D"am32">N <=
+/span></td><td class=3D"am36" width=3D"80pt" align=3D"right"><span class=
+=3D"am32">Mean </span></td><td class=3D"am36" width=3D"17pt" align=3D"le=
+ft">&nbsp;</td><td class=3D"am36" width=3D"87pt" align=3D"left"><span cl=
+ass=3D"am32">SD </span><span class=3D"am38">(note 1) </span></td><td cla=
+ss=3D"am36" align=3D"left"><span class=3D"am32">Data </span><span class=3D=
+"am38">(note 2) </span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am40" width=3D"90pt" align=3D"left"><span class=3D"am42"=
+>BPA</span></td><td class=3D"am40" width=3D"4pt" align=3D"left">&nbsp;</=
+td><td class=3D"am40" width=3D"2pt" align=3D"right">&nbsp;</td><td class=
+=3D"am40" width=3D"20pt" align=3D"right"><span class=3D"am42">15</span><=
+/td><td class=3D"am40" width=3D"80pt" align=3D"right"><span class=3D"am4=
+2">76.17</span></td><td class=3D"am40" width=3D"87pt" align=3D"right"><s=
+pan class=3D"am42">=B131.12</span></td><td class=3D"am40" width=3D"17pt" a=
+lign=3D"left">&nbsp;</td><td class=3D"am40" align=3D"left"><span class=3D=
+"am42">79.9</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9431=
+.1N</sup><sup>)</sup></span><span class=3D"am42">, 144.0</span><span cla=
+ss=3D"am44"><sup> </sup><sup>(</sup><sup>9431.1N</sup><sup>)</sup></span=
+><span class=3D"am42">, 133.7</span><span class=3D"am44"><sup> </sup><su=
+p>(</sup><sup>9431.1N</sup><sup>)</sup></span><span class=3D"am42">, 56.=
+4</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9431.2L</sup><=
+sup>)</sup></span><span class=3D"am42">, 75.9</span><span class=3D"am44"=
+><sup> </sup><sup>(</sup><sup>9431.2L</sup><sup>)</sup></span><span clas=
+s=3D"am42">, 62.8</span><span class=3D"am44"><sup> </sup><sup>(</sup><su=
+p>9431.2L</sup><sup>)</sup></span><span class=3D"am42">, 77.5</span><spa=
+n class=3D"am44"><sup> </sup><sup>(</sup><sup>9431.3R</sup><sup>)</sup><=
+/span><span class=3D"am42">, 93.4</span><span class=3D"am44"><sup> </sup=
+><sup>(</sup><sup>9431.3R</sup><sup>)</sup></span><span class=3D"am42">,=
+ 75.4</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9431.3R</s=
+up><sup>)</sup></span><span class=3D"am42">, 100.4</span><span class=3D"=
+am44"><sup> </sup><sup>(</sup><sup>9440.1N</sup><sup>)</sup></span><span=
+ class=3D"am42">, 61.0</span><span class=3D"am44"><sup> </sup><sup>(</su=
+p><sup>9440.1N</sup><sup>)</sup></span><span class=3D"am42">, 54.1</span=
+><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9440.1N</sup><sup>)</=
+sup></span><span class=3D"am42">, 50.5</span><span class=3D"am44"><sup> =
+</sup><sup>(</sup><sup>9440.2L</sup><sup>)</sup></span><span class=3D"am=
+42">, 40.5</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9440.=
+2L</sup><sup>)</sup></span><span class=3D"am42">, 37.1</span><span class=
+=3D"am44"><sup> </sup><sup>(</sup><sup>9440.2L</sup><sup>)</sup></span><=
+/td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am40" width=3D"90pt" align=3D"left"><span class=3D"am42"=
+>Control</span></td><td class=3D"am40" width=3D"4pt" align=3D"left">&nbs=
+p;</td><td class=3D"am40" width=3D"2pt" align=3D"right">&nbsp;</td><td c=
+lass=3D"am40" width=3D"20pt" align=3D"right"><span class=3D"am42">12</sp=
+an></td><td class=3D"am40" width=3D"80pt" align=3D"right"><span class=3D=
+"am42">91.48</span></td><td class=3D"am40" width=3D"87pt" align=3D"right=
+"><span class=3D"am42">=B147.29</span></td><td class=3D"am40" width=3D"17p=
+t" align=3D"left">&nbsp;</td><td class=3D"am40" align=3D"left"><span cla=
+ss=3D"am42">74.1</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup=
+>9445.1N</sup><sup>)</sup></span><span class=3D"am42">, 140.8</span><spa=
+n class=3D"am44"><sup> </sup><sup>(</sup><sup>9445.1N</sup><sup>)</sup><=
+/span><span class=3D"am42">, 184.9</span><span class=3D"am44"><sup> </su=
+p><sup>(</sup><sup>9445.1N</sup><sup>)</sup></span><span class=3D"am42">=
+, 49.1</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9445.2L</=
+sup><sup>)</sup></span><span class=3D"am42">, 22.5</span><span class=3D"=
+am44"><sup> </sup><sup>(</sup><sup>9445.2L</sup><sup>)</sup></span><span=
+ class=3D"am42">, 46.3</span><span class=3D"am44"><sup> </sup><sup>(</su=
+p><sup>9445.2L</sup><sup>)</sup></span><span class=3D"am42">, 81.4</span=
+><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9447.1N</sup><sup>)</=
+sup></span><span class=3D"am42">, 82.9</span><span class=3D"am44"><sup> =
+</sup><sup>(</sup><sup>9447.1N</sup><sup>)</sup></span><span class=3D"am=
+42">, 108.3</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9447=
+.1N</sup><sup>)</sup></span><span class=3D"am42">, 152.3</span><span cla=
+ss=3D"am44"><sup> </sup><sup>(</sup><sup>9447.2L</sup><sup>)</sup></span=
+><span class=3D"am42">, 76.2</span><span class=3D"am44"><sup> </sup><sup=
+>(</sup><sup>9447.2L</sup><sup>)</sup></span><span class=3D"am42">, 79.0=
+</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9447.2L</sup><s=
+up>)</sup></span></td></tr></table>
+<p  class=3D"am21">Notes: </p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>1.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">SD=
+ =3D Standard deviation. </span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>2.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. </span></td></t=
+r></table>
+<p  class=3D"am27">Number of entries to the Periphery zone</p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am30" width=3D"90pt" align=3D"left"><span class=3D"am32"=
+>Treatment </span></td><td class=3D"am34" width=3D"4pt" align=3D"left">&=
+nbsp;</td><td class=3D"am34" width=3D"2pt" align=3D"right">&nbsp;</td><t=
+d class=3D"am34" width=3D"20pt" align=3D"right"><span class=3D"am32">N <=
+/span></td><td class=3D"am36" width=3D"80pt" align=3D"right"><span class=
+=3D"am32">Mean </span></td><td class=3D"am36" width=3D"17pt" align=3D"le=
+ft">&nbsp;</td><td class=3D"am36" width=3D"87pt" align=3D"left"><span cl=
+ass=3D"am32">SD </span><span class=3D"am38">(note 1) </span></td><td cla=
+ss=3D"am36" align=3D"left"><span class=3D"am32">Data </span><span class=3D=
+"am38">(note 2) </span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am40" width=3D"90pt" align=3D"left"><span class=3D"am42"=
+>BPA</span></td><td class=3D"am40" width=3D"4pt" align=3D"left">&nbsp;</=
+td><td class=3D"am40" width=3D"2pt" align=3D"right">&nbsp;</td><td class=
+=3D"am40" width=3D"20pt" align=3D"right"><span class=3D"am42">15</span><=
+/td><td class=3D"am40" width=3D"80pt" align=3D"right"><span class=3D"am4=
+2">97.60</span></td><td class=3D"am40" width=3D"87pt" align=3D"right"><s=
+pan class=3D"am42">=B132.22</span></td><td class=3D"am40" width=3D"17pt" a=
+lign=3D"left">&nbsp;</td><td class=3D"am40" align=3D"left"><span class=3D=
+"am42">65</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9431.1=
+N</sup><sup>)</sup></span><span class=3D"am42">, 63</span><span class=3D=
+"am44"><sup> </sup><sup>(</sup><sup>9431.1N</sup><sup>)</sup></span><spa=
+n class=3D"am42">, 54</span><span class=3D"am44"><sup> </sup><sup>(</sup=
+><sup>9431.1N</sup><sup>)</sup></span><span class=3D"am42">, 104</span><=
+span class=3D"am44"><sup> </sup><sup>(</sup><sup>9431.2L</sup><sup>)</su=
+p></span><span class=3D"am42">, 110</span><span class=3D"am44"><sup> </s=
+up><sup>(</sup><sup>9431.2L</sup><sup>)</sup></span><span class=3D"am42"=
+>, 65</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9431.2L</s=
+up><sup>)</sup></span><span class=3D"am42">, 90</span><span class=3D"am4=
+4"><sup> </sup><sup>(</sup><sup>9431.3R</sup><sup>)</sup></span><span cl=
+ass=3D"am42">, 90</span><span class=3D"am44"><sup> </sup><sup>(</sup><su=
+p>9431.3R</sup><sup>)</sup></span><span class=3D"am42">, 87</span><span =
+class=3D"am44"><sup> </sup><sup>(</sup><sup>9431.3R</sup><sup>)</sup></s=
+pan><span class=3D"am42">, 147</span><span class=3D"am44"><sup> </sup><s=
+up>(</sup><sup>9440.1N</sup><sup>)</sup></span><span class=3D"am42">, 14=
+3</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9440.1N</sup><=
+sup>)</sup></span><span class=3D"am42">, 109</span><span class=3D"am44">=
+<sup> </sup><sup>(</sup><sup>9440.1N</sup><sup>)</sup></span><span class=
+=3D"am42">, 161</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>=
+9440.2L</sup><sup>)</sup></span><span class=3D"am42">, 93</span><span cl=
+ass=3D"am44"><sup> </sup><sup>(</sup><sup>9440.2L</sup><sup>)</sup></spa=
+n><span class=3D"am42">, 83</span><span class=3D"am44"><sup> </sup><sup>=
+(</sup><sup>9440.2L</sup><sup>)</sup></span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am40" width=3D"90pt" align=3D"left"><span class=3D"am42"=
+>Control</span></td><td class=3D"am40" width=3D"4pt" align=3D"left">&nbs=
+p;</td><td class=3D"am40" width=3D"2pt" align=3D"right">&nbsp;</td><td c=
+lass=3D"am40" width=3D"20pt" align=3D"right"><span class=3D"am42">12</sp=
+an></td><td class=3D"am40" width=3D"80pt" align=3D"right"><span class=3D=
+"am42">63.42</span></td><td class=3D"am40" width=3D"87pt" align=3D"right=
+"><span class=3D"am42">=B116.22</span></td><td class=3D"am40" width=3D"17p=
+t" align=3D"left">&nbsp;</td><td class=3D"am40" align=3D"left"><span cla=
+ss=3D"am42">82</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9=
+445.1N</sup><sup>)</sup></span><span class=3D"am42">, 67</span><span cla=
+ss=3D"am44"><sup> </sup><sup>(</sup><sup>9445.1N</sup><sup>)</sup></span=
+><span class=3D"am42">, 89</span><span class=3D"am44"><sup> </sup><sup>(=
+</sup><sup>9445.1N</sup><sup>)</sup></span><span class=3D"am42">, 58</sp=
+an><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9445.2L</sup><sup>)=
+</sup></span><span class=3D"am42">, 70</span><span class=3D"am44"><sup> =
+</sup><sup>(</sup><sup>9445.2L</sup><sup>)</sup></span><span class=3D"am=
+42">, 34</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9445.2L=
+</sup><sup>)</sup></span><span class=3D"am42">, 77</span><span class=3D"=
+am44"><sup> </sup><sup>(</sup><sup>9447.1N</sup><sup>)</sup></span><span=
+ class=3D"am42">, 67</span><span class=3D"am44"><sup> </sup><sup>(</sup>=
+<sup>9447.1N</sup><sup>)</sup></span><span class=3D"am42">, 59</span><sp=
+an class=3D"am44"><sup> </sup><sup>(</sup><sup>9447.1N</sup><sup>)</sup>=
+</span><span class=3D"am42">, 58</span><span class=3D"am44"><sup> </sup>=
+<sup>(</sup><sup>9447.2L</sup><sup>)</sup></span><span class=3D"am42">, =
+63</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9447.2L</sup>=
+<sup>)</sup></span><span class=3D"am42">, 37</span><span class=3D"am44">=
+<sup> </sup><sup>(</sup><sup>9447.2L</sup><sup>)</sup></span></td></tr><=
+/table>
+<p  class=3D"am21">Notes: </p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>1.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">SD=
+ =3D Standard deviation. </span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>2.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. </span></td></t=
+r></table>
+<p  class=3D"am27">Time in the Periphery zone (s)</p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am30" width=3D"90pt" align=3D"left"><span class=3D"am32"=
+>Treatment </span></td><td class=3D"am34" width=3D"4pt" align=3D"left">&=
+nbsp;</td><td class=3D"am34" width=3D"2pt" align=3D"right">&nbsp;</td><t=
+d class=3D"am34" width=3D"20pt" align=3D"right"><span class=3D"am32">N <=
+/span></td><td class=3D"am36" width=3D"80pt" align=3D"right"><span class=
+=3D"am32">Mean </span></td><td class=3D"am36" width=3D"17pt" align=3D"le=
+ft">&nbsp;</td><td class=3D"am36" width=3D"87pt" align=3D"left"><span cl=
+ass=3D"am32">SD </span><span class=3D"am38">(note 1) </span></td><td cla=
+ss=3D"am36" align=3D"left"><span class=3D"am32">Data </span><span class=3D=
+"am38">(note 2) </span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am40" width=3D"90pt" align=3D"left"><span class=3D"am42"=
+>BPA</span></td><td class=3D"am40" width=3D"4pt" align=3D"left">&nbsp;</=
+td><td class=3D"am40" width=3D"2pt" align=3D"right">&nbsp;</td><td class=
+=3D"am40" width=3D"20pt" align=3D"right"><span class=3D"am42">15</span><=
+/td><td class=3D"am40" width=3D"80pt" align=3D"right"><span class=3D"am4=
+2">491.16</span></td><td class=3D"am40" width=3D"87pt" align=3D"right"><=
+span class=3D"am42">=B126.29</span></td><td class=3D"am40" width=3D"17pt" =
+align=3D"left">&nbsp;</td><td class=3D"am40" align=3D"left"><span class=3D=
+"am42">508.7</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>943=
+1.1N</sup><sup>)</sup></span><span class=3D"am42">, 449.5</span><span cl=
+ass=3D"am44"><sup> </sup><sup>(</sup><sup>9431.1N</sup><sup>)</sup></spa=
+n><span class=3D"am42">, 465.0</span><span class=3D"am44"><sup> </sup><s=
+up>(</sup><sup>9431.1N</sup><sup>)</sup></span><span class=3D"am42">, 52=
+9.1</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9431.2L</sup=
+><sup>)</sup></span><span class=3D"am42">, 502.5</span><span class=3D"am=
+44"><sup> </sup><sup>(</sup><sup>9431.2L</sup><sup>)</sup></span><span c=
+lass=3D"am42">, 524.4</span><span class=3D"am44"><sup> </sup><sup>(</sup=
+><sup>9431.2L</sup><sup>)</sup></span><span class=3D"am42">, 500.5</span=
+><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9431.3R</sup><sup>)</=
+sup></span><span class=3D"am42">, 473.9</span><span class=3D"am44"><sup>=
+ </sup><sup>(</sup><sup>9431.3R</sup><sup>)</sup></span><span class=3D"a=
+m42">, 492.4</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>943=
+1.3R</sup><sup>)</sup></span><span class=3D"am42">, 443.4</span><span cl=
+ass=3D"am44"><sup> </sup><sup>(</sup><sup>9440.1N</sup><sup>)</sup></spa=
+n><span class=3D"am42">, 478.2</span><span class=3D"am44"><sup> </sup><s=
+up>(</sup><sup>9440.1N</sup><sup>)</sup></span><span class=3D"am42">, 48=
+8.8</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9440.1N</sup=
+><sup>)</sup></span><span class=3D"am42">, 478.8</span><span class=3D"am=
+44"><sup> </sup><sup>(</sup><sup>9440.2L</sup><sup>)</sup></span><span c=
+lass=3D"am42">, 520.5</span><span class=3D"am44"><sup> </sup><sup>(</sup=
+><sup>9440.2L</sup><sup>)</sup></span><span class=3D"am42">, 511.7</span=
+><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9440.2L</sup><sup>)</=
+sup></span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am40" width=3D"90pt" align=3D"left"><span class=3D"am42"=
+>Control</span></td><td class=3D"am40" width=3D"4pt" align=3D"left">&nbs=
+p;</td><td class=3D"am40" width=3D"2pt" align=3D"right">&nbsp;</td><td c=
+lass=3D"am40" width=3D"20pt" align=3D"right"><span class=3D"am42">12</sp=
+an></td><td class=3D"am40" width=3D"80pt" align=3D"right"><span class=3D=
+"am42">488.61</span></td><td class=3D"am40" width=3D"87pt" align=3D"righ=
+t"><span class=3D"am42">=B146.46</span></td><td class=3D"am40" width=3D"17=
+pt" align=3D"left">&nbsp;</td><td class=3D"am40" align=3D"left"><span cl=
+ass=3D"am42">510.1</span><span class=3D"am44"><sup> </sup><sup>(</sup><s=
+up>9445.1N</sup><sup>)</sup></span><span class=3D"am42">, 432.9</span><s=
+pan class=3D"am44"><sup> </sup><sup>(</sup><sup>9445.1N</sup><sup>)</sup=
+></span><span class=3D"am42">, 394.1</span><span class=3D"am44"><sup> </=
+sup><sup>(</sup><sup>9445.1N</sup><sup>)</sup></span><span class=3D"am42=
+">, 537.7</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9445.2=
+L</sup><sup>)</sup></span><span class=3D"am42">, 524.8</span><span class=
+=3D"am44"><sup> </sup><sup>(</sup><sup>9445.2L</sup><sup>)</sup></span><=
+span class=3D"am42">, 545.3</span><span class=3D"am44"><sup> </sup><sup>=
+(</sup><sup>9445.2L</sup><sup>)</sup></span><span class=3D"am42">, 496.4=
+</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9447.1N</sup><s=
+up>)</sup></span><span class=3D"am42">, 500.3</span><span class=3D"am44"=
+><sup> </sup><sup>(</sup><sup>9447.1N</sup><sup>)</sup></span><span clas=
+s=3D"am42">, 463.4</span><span class=3D"am44"><sup> </sup><sup>(</sup><s=
+up>9447.1N</sup><sup>)</sup></span><span class=3D"am42">, 438.1</span><s=
+pan class=3D"am44"><sup> </sup><sup>(</sup><sup>9447.2L</sup><sup>)</sup=
+></span><span class=3D"am42">, 509.8</span><span class=3D"am44"><sup> </=
+sup><sup>(</sup><sup>9447.2L</sup><sup>)</sup></span><span class=3D"am42=
+">, 510.4</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9447.2=
+L</sup><sup>)</sup></span></td></tr></table>
+<p  class=3D"am21">Notes: </p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>1.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">SD=
+ =3D Standard deviation. </span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>2.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. </span></td></t=
+r></table>
+<p  class=3D"am27">Number of investigations of the Familiar Object 1 zon=
+e</p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am30" width=3D"90pt" align=3D"left"><span class=3D"am32"=
+>Treatment </span></td><td class=3D"am34" width=3D"4pt" align=3D"left">&=
+nbsp;</td><td class=3D"am34" width=3D"2pt" align=3D"right">&nbsp;</td><t=
+d class=3D"am34" width=3D"20pt" align=3D"right"><span class=3D"am32">N <=
+/span></td><td class=3D"am36" width=3D"80pt" align=3D"right"><span class=
+=3D"am32">Mean </span></td><td class=3D"am36" width=3D"17pt" align=3D"le=
+ft">&nbsp;</td><td class=3D"am36" width=3D"87pt" align=3D"left"><span cl=
+ass=3D"am32">SD </span><span class=3D"am38">(note 1) </span></td><td cla=
+ss=3D"am36" align=3D"left"><span class=3D"am32">Data </span><span class=3D=
+"am38">(note 2) </span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am40" width=3D"90pt" align=3D"left"><span class=3D"am42"=
+>BPA</span></td><td class=3D"am40" width=3D"4pt" align=3D"left">&nbsp;</=
+td><td class=3D"am40" width=3D"2pt" align=3D"right">&nbsp;</td><td class=
+=3D"am40" width=3D"20pt" align=3D"right"><span class=3D"am42">10</span><=
+/td><td class=3D"am40" width=3D"80pt" align=3D"right"><span class=3D"am4=
+2">38.90</span></td><td class=3D"am40" width=3D"87pt" align=3D"right"><s=
+pan class=3D"am42">=B111.86</span></td><td class=3D"am40" width=3D"17pt" a=
+lign=3D"left">&nbsp;</td><td class=3D"am40" align=3D"left"><span class=3D=
+"am46">#N/A</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9431=
+.1N</sup><sup>)</sup></span><span class=3D"am42">, 48</span><span class=3D=
+"am44"><sup> </sup><sup>(</sup><sup>9431.1N</sup><sup>)</sup></span><spa=
+n class=3D"am42">, 36</span><span class=3D"am44"><sup> </sup><sup>(</sup=
+><sup>9431.1N</sup><sup>)</sup></span><span class=3D"am42">, </span><spa=
+n class=3D"am46">#N/A</span><span class=3D"am44"><sup> </sup><sup>(</sup=
+><sup>9431.2L</sup><sup>)</sup></span><span class=3D"am42">, 55</span><s=
+pan class=3D"am44"><sup> </sup><sup>(</sup><sup>9431.2L</sup><sup>)</sup=
+></span><span class=3D"am42">, 50</span><span class=3D"am44"><sup> </sup=
+><sup>(</sup><sup>9431.2L</sup><sup>)</sup></span><span class=3D"am42">,=
+ </span><span class=3D"am46">#N/A</span><span class=3D"am44"><sup> </sup=
+><sup>(</sup><sup>9431.3R</sup><sup>)</sup></span><span class=3D"am42">,=
+ 29</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9431.3R</sup=
+><sup>)</sup></span><span class=3D"am42">, 27</span><span class=3D"am44"=
+><sup> </sup><sup>(</sup><sup>9431.3R</sup><sup>)</sup></span><span clas=
+s=3D"am42">, </span><span class=3D"am46">#N/A</span><span class=3D"am44"=
+><sup> </sup><sup>(</sup><sup>9440.1N</sup><sup>)</sup></span><span clas=
+s=3D"am42">, 54</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>=
+9440.1N</sup><sup>)</sup></span><span class=3D"am42">, 29</span><span cl=
+ass=3D"am44"><sup> </sup><sup>(</sup><sup>9440.1N</sup><sup>)</sup></spa=
+n><span class=3D"am42">, </span><span class=3D"am46">#N/A</span><span cl=
+ass=3D"am44"><sup> </sup><sup>(</sup><sup>9440.2L</sup><sup>)</sup></spa=
+n><span class=3D"am42">, 37</span><span class=3D"am44"><sup> </sup><sup>=
+(</sup><sup>9440.2L</sup><sup>)</sup></span><span class=3D"am42">, 24</s=
+pan><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9440.2L</sup><sup>=
+)</sup></span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am40" width=3D"90pt" align=3D"left"><span class=3D"am42"=
+>Control</span></td><td class=3D"am40" width=3D"4pt" align=3D"left">&nbs=
+p;</td><td class=3D"am40" width=3D"2pt" align=3D"right">&nbsp;</td><td c=
+lass=3D"am40" width=3D"20pt" align=3D"right"><span class=3D"am42">8</spa=
+n></td><td class=3D"am40" width=3D"80pt" align=3D"right"><span class=3D"=
+am42">36.62</span></td><td class=3D"am40" width=3D"87pt" align=3D"right"=
+><span class=3D"am42">=B112.06</span></td><td class=3D"am40" width=3D"17pt=
+" align=3D"left">&nbsp;</td><td class=3D"am40" align=3D"left"><span clas=
+s=3D"am46">#N/A</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>=
+9445.1N</sup><sup>)</sup></span><span class=3D"am42">, 45</span><span cl=
+ass=3D"am44"><sup> </sup><sup>(</sup><sup>9445.1N</sup><sup>)</sup></spa=
+n><span class=3D"am42">, 58</span><span class=3D"am44"><sup> </sup><sup>=
+(</sup><sup>9445.1N</sup><sup>)</sup></span><span class=3D"am42">, </spa=
+n><span class=3D"am46">#N/A</span><span class=3D"am44"><sup> </sup><sup>=
+(</sup><sup>9445.2L</sup><sup>)</sup></span><span class=3D"am42">, 25</s=
+pan><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9445.2L</sup><sup>=
+)</sup></span><span class=3D"am42">, 27</span><span class=3D"am44"><sup>=
+ </sup><sup>(</sup><sup>9445.2L</sup><sup>)</sup></span><span class=3D"a=
+m42">, </span><span class=3D"am46">#N/A</span><span class=3D"am44"><sup>=
+ </sup><sup>(</sup><sup>9447.1N</sup><sup>)</sup></span><span class=3D"a=
+m42">, 48</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9447.1=
+N</sup><sup>)</sup></span><span class=3D"am42">, 29</span><span class=3D=
+"am44"><sup> </sup><sup>(</sup><sup>9447.1N</sup><sup>)</sup></span><spa=
+n class=3D"am42">, </span><span class=3D"am46">#N/A</span><span class=3D=
+"am44"><sup> </sup><sup>(</sup><sup>9447.2L</sup><sup>)</sup></span><spa=
+n class=3D"am42">, 30</span><span class=3D"am44"><sup> </sup><sup>(</sup=
+><sup>9447.2L</sup><sup>)</sup></span><span class=3D"am42">, 31</span><s=
+pan class=3D"am44"><sup> </sup><sup>(</sup><sup>9447.2L</sup><sup>)</sup=
+></span></td></tr></table>
+<p  class=3D"am21">Notes: </p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>1.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">SD=
+ =3D Standard deviation. </span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>2.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. </span></td></t=
+r></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>3.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">Da=
+ta shown as #N/A represent a result that is undefined.</span></td></tr><=
+/table>
+<p  class=3D"am27">Time investigating the Familiar Object 1 zone (s)</p>=
+
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am30" width=3D"90pt" align=3D"left"><span class=3D"am32"=
+>Treatment </span></td><td class=3D"am34" width=3D"4pt" align=3D"left">&=
+nbsp;</td><td class=3D"am34" width=3D"2pt" align=3D"right">&nbsp;</td><t=
+d class=3D"am34" width=3D"20pt" align=3D"right"><span class=3D"am32">N <=
+/span></td><td class=3D"am36" width=3D"80pt" align=3D"right"><span class=
+=3D"am32">Mean </span></td><td class=3D"am36" width=3D"17pt" align=3D"le=
+ft">&nbsp;</td><td class=3D"am36" width=3D"87pt" align=3D"left"><span cl=
+ass=3D"am32">SD </span><span class=3D"am38">(note 1) </span></td><td cla=
+ss=3D"am36" align=3D"left"><span class=3D"am32">Data </span><span class=3D=
+"am38">(note 2) </span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am40" width=3D"90pt" align=3D"left"><span class=3D"am42"=
+>BPA</span></td><td class=3D"am40" width=3D"4pt" align=3D"left">&nbsp;</=
+td><td class=3D"am40" width=3D"2pt" align=3D"right">&nbsp;</td><td class=
+=3D"am40" width=3D"20pt" align=3D"right"><span class=3D"am42">10</span><=
+/td><td class=3D"am40" width=3D"80pt" align=3D"right"><span class=3D"am4=
+2">48.93</span></td><td class=3D"am40" width=3D"87pt" align=3D"right"><s=
+pan class=3D"am42">=B114.25</span></td><td class=3D"am40" width=3D"17pt" a=
+lign=3D"left">&nbsp;</td><td class=3D"am40" align=3D"left"><span class=3D=
+"am46">#N/A</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9431=
+.1N</sup><sup>)</sup></span><span class=3D"am42">, 78.2</span><span clas=
+s=3D"am44"><sup> </sup><sup>(</sup><sup>9431.1N</sup><sup>)</sup></span>=
+<span class=3D"am42">, 47.8</span><span class=3D"am44"><sup> </sup><sup>=
+(</sup><sup>9431.1N</sup><sup>)</sup></span><span class=3D"am42">, </spa=
+n><span class=3D"am46">#N/A</span><span class=3D"am44"><sup> </sup><sup>=
+(</sup><sup>9431.2L</sup><sup>)</sup></span><span class=3D"am42">, 65.9<=
+/span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9431.2L</sup><su=
+p>)</sup></span><span class=3D"am42">, 45.6</span><span class=3D"am44"><=
+sup> </sup><sup>(</sup><sup>9431.2L</sup><sup>)</sup></span><span class=3D=
+"am42">, </span><span class=3D"am46">#N/A</span><span class=3D"am44"><su=
+p> </sup><sup>(</sup><sup>9431.3R</sup><sup>)</sup></span><span class=3D=
+"am42">, 51.3</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>94=
+31.3R</sup><sup>)</sup></span><span class=3D"am42">, 30.1</span><span cl=
+ass=3D"am44"><sup> </sup><sup>(</sup><sup>9431.3R</sup><sup>)</sup></spa=
+n><span class=3D"am42">, </span><span class=3D"am46">#N/A</span><span cl=
+ass=3D"am44"><sup> </sup><sup>(</sup><sup>9440.1N</sup><sup>)</sup></spa=
+n><span class=3D"am42">, 48.1</span><span class=3D"am44"><sup> </sup><su=
+p>(</sup><sup>9440.1N</sup><sup>)</sup></span><span class=3D"am42">, 32.=
+7</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9440.1N</sup><=
+sup>)</sup></span><span class=3D"am42">, </span><span class=3D"am46">#N/=
+A</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9440.2L</sup><=
+sup>)</sup></span><span class=3D"am42">, 47.2</span><span class=3D"am44"=
+><sup> </sup><sup>(</sup><sup>9440.2L</sup><sup>)</sup></span><span clas=
+s=3D"am42">, 42.4</span><span class=3D"am44"><sup> </sup><sup>(</sup><su=
+p>9440.2L</sup><sup>)</sup></span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am40" width=3D"90pt" align=3D"left"><span class=3D"am42"=
+>Control</span></td><td class=3D"am40" width=3D"4pt" align=3D"left">&nbs=
+p;</td><td class=3D"am40" width=3D"2pt" align=3D"right">&nbsp;</td><td c=
+lass=3D"am40" width=3D"20pt" align=3D"right"><span class=3D"am42">8</spa=
+n></td><td class=3D"am40" width=3D"80pt" align=3D"right"><span class=3D"=
+am42">59.26</span></td><td class=3D"am40" width=3D"87pt" align=3D"right"=
+><span class=3D"am42">=B118.24</span></td><td class=3D"am40" width=3D"17pt=
+" align=3D"left">&nbsp;</td><td class=3D"am40" align=3D"left"><span clas=
+s=3D"am46">#N/A</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>=
+9445.1N</sup><sup>)</sup></span><span class=3D"am42">, 84.8</span><span =
+class=3D"am44"><sup> </sup><sup>(</sup><sup>9445.1N</sup><sup>)</sup></s=
+pan><span class=3D"am42">, 73.3</span><span class=3D"am44"><sup> </sup><=
+sup>(</sup><sup>9445.1N</sup><sup>)</sup></span><span class=3D"am42">, <=
+/span><span class=3D"am46">#N/A</span><span class=3D"am44"><sup> </sup><=
+sup>(</sup><sup>9445.2L</sup><sup>)</sup></span><span class=3D"am42">, 3=
+3.4</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9445.2L</sup=
+><sup>)</sup></span><span class=3D"am42">, 72.6</span><span class=3D"am4=
+4"><sup> </sup><sup>(</sup><sup>9445.2L</sup><sup>)</sup></span><span cl=
+ass=3D"am42">, </span><span class=3D"am46">#N/A</span><span class=3D"am4=
+4"><sup> </sup><sup>(</sup><sup>9447.1N</sup><sup>)</sup></span><span cl=
+ass=3D"am42">, 62.7</span><span class=3D"am44"><sup> </sup><sup>(</sup><=
+sup>9447.1N</sup><sup>)</sup></span><span class=3D"am42">, 35.1</span><s=
+pan class=3D"am44"><sup> </sup><sup>(</sup><sup>9447.1N</sup><sup>)</sup=
+></span><span class=3D"am42">, </span><span class=3D"am46">#N/A</span><s=
+pan class=3D"am44"><sup> </sup><sup>(</sup><sup>9447.2L</sup><sup>)</sup=
+></span><span class=3D"am42">, 59.0</span><span class=3D"am44"><sup> </s=
+up><sup>(</sup><sup>9447.2L</sup><sup>)</sup></span><span class=3D"am42"=
+>, 53.2</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9447.2L<=
+/sup><sup>)</sup></span></td></tr></table>
+<p  class=3D"am21">Notes: </p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>1.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">SD=
+ =3D Standard deviation. </span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>2.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. </span></td></t=
+r></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>3.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">Da=
+ta shown as #N/A represent a result that is undefined.</span></td></tr><=
+/table>
+<p  class=3D"am27">Familiar Object 1 was first zone investigated</p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am6" width=3D"90pt" align=3D"left"><span class=3D"am8">T=
+reatment </span></td><td class=3D"am10" width=3D"4pt" align=3D"left">&nb=
+sp;</td><td class=3D"am10" width=3D"2pt" align=3D"right">&nbsp;</td><td =
+class=3D"am10" width=3D"20pt" align=3D"right"><span class=3D"am8">N </sp=
+an></td><td class=3D"am12" width=3D"17pt" align=3D"left">&nbsp;</td><td =
+class=3D"am12" align=3D"left"><span class=3D"am8">Data </span><span clas=
+s=3D"am14">(note 1) </span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am16" width=3D"90pt" align=3D"left"><span class=3D"am18"=
+>BPA</span></td><td class=3D"am16" width=3D"4pt" align=3D"left">&nbsp;</=
+td><td class=3D"am16" width=3D"2pt" align=3D"right">&nbsp;</td><td class=
+=3D"am16" width=3D"20pt" align=3D"right"><span class=3D"am18">10</span><=
+/td><td class=3D"am16" width=3D"17pt" align=3D"left">&nbsp;</td><td clas=
+s=3D"am16" align=3D"left"><span class=3D"am48">#N/A</span><span class=3D=
+"am20"><sup> </sup><sup>(</sup><sup>9431.1N</sup><sup>)</sup></span><spa=
+n class=3D"am18">, No</span><span class=3D"am20"><sup> </sup><sup>(</sup=
+><sup>9431.1N</sup><sup>)</sup></span><span class=3D"am18">, Yes</span><=
+span class=3D"am20"><sup> </sup><sup>(</sup><sup>9431.1N</sup><sup>)</su=
+p></span><span class=3D"am18">, </span><span class=3D"am48">#N/A</span><=
+span class=3D"am20"><sup> </sup><sup>(</sup><sup>9431.2L</sup><sup>)</su=
+p></span><span class=3D"am18">, Yes</span><span class=3D"am20"><sup> </s=
+up><sup>(</sup><sup>9431.2L</sup><sup>)</sup></span><span class=3D"am18"=
+>, Yes</span><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9431.2L</=
+sup><sup>)</sup></span><span class=3D"am18">, </span><span class=3D"am48=
+">#N/A</span><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9431.3R</=
+sup><sup>)</sup></span><span class=3D"am18">, No</span><span class=3D"am=
+20"><sup> </sup><sup>(</sup><sup>9431.3R</sup><sup>)</sup></span><span c=
+lass=3D"am18">, Yes</span><span class=3D"am20"><sup> </sup><sup>(</sup><=
+sup>9431.3R</sup><sup>)</sup></span><span class=3D"am18">, </span><span =
+class=3D"am48">#N/A</span><span class=3D"am20"><sup> </sup><sup>(</sup><=
+sup>9440.1N</sup><sup>)</sup></span><span class=3D"am18">, Yes</span><sp=
+an class=3D"am20"><sup> </sup><sup>(</sup><sup>9440.1N</sup><sup>)</sup>=
+</span><span class=3D"am18">, Yes</span><span class=3D"am20"><sup> </sup=
+><sup>(</sup><sup>9440.1N</sup><sup>)</sup></span><span class=3D"am18">,=
+ </span><span class=3D"am48">#N/A</span><span class=3D"am20"><sup> </sup=
+><sup>(</sup><sup>9440.2L</sup><sup>)</sup></span><span class=3D"am18">,=
+ Yes</span><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9440.2L</su=
+p><sup>)</sup></span><span class=3D"am18">, No</span><span class=3D"am20=
+"><sup> </sup><sup>(</sup><sup>9440.2L</sup><sup>)</sup></span></td></tr=
+></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am16" width=3D"90pt" align=3D"left"><span class=3D"am18"=
+>Control</span></td><td class=3D"am16" width=3D"4pt" align=3D"left">&nbs=
+p;</td><td class=3D"am16" width=3D"2pt" align=3D"right">&nbsp;</td><td c=
+lass=3D"am16" width=3D"20pt" align=3D"right"><span class=3D"am18">8</spa=
+n></td><td class=3D"am16" width=3D"17pt" align=3D"left">&nbsp;</td><td c=
+lass=3D"am16" align=3D"left"><span class=3D"am48">#N/A</span><span class=
+=3D"am20"><sup> </sup><sup>(</sup><sup>9445.1N</sup><sup>)</sup></span><=
+span class=3D"am18">, No</span><span class=3D"am20"><sup> </sup><sup>(</=
+sup><sup>9445.1N</sup><sup>)</sup></span><span class=3D"am18">, No</span=
+><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9445.1N</sup><sup>)</=
+sup></span><span class=3D"am18">, </span><span class=3D"am48">#N/A</span=
+><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9445.2L</sup><sup>)</=
+sup></span><span class=3D"am18">, Yes</span><span class=3D"am20"><sup> <=
+/sup><sup>(</sup><sup>9445.2L</sup><sup>)</sup></span><span class=3D"am1=
+8">, No</span><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9445.2L<=
+/sup><sup>)</sup></span><span class=3D"am18">, </span><span class=3D"am4=
+8">#N/A</span><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9447.1N<=
+/sup><sup>)</sup></span><span class=3D"am18">, Yes</span><span class=3D"=
+am20"><sup> </sup><sup>(</sup><sup>9447.1N</sup><sup>)</sup></span><span=
+ class=3D"am18">, No</span><span class=3D"am20"><sup> </sup><sup>(</sup>=
+<sup>9447.1N</sup><sup>)</sup></span><span class=3D"am18">, </span><span=
+ class=3D"am48">#N/A</span><span class=3D"am20"><sup> </sup><sup>(</sup>=
+<sup>9447.2L</sup><sup>)</sup></span><span class=3D"am18">, Yes</span><s=
+pan class=3D"am20"><sup> </sup><sup>(</sup><sup>9447.2L</sup><sup>)</sup=
+></span><span class=3D"am18">, Yes</span><span class=3D"am20"><sup> </su=
+p><sup>(</sup><sup>9447.2L</sup><sup>)</sup></span></td></tr></table>
+<p  class=3D"am21">Notes: </p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>1.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. </span></td></t=
+r></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>2.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">Da=
+ta shown as #N/A represent a result that is undefined.</span></td></tr><=
+/table>
+<p  class=3D"am27">Number of investigations of the Novel Object zone</p>=
+
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am30" width=3D"90pt" align=3D"left"><span class=3D"am32"=
+>Treatment </span></td><td class=3D"am34" width=3D"4pt" align=3D"left">&=
+nbsp;</td><td class=3D"am34" width=3D"2pt" align=3D"right">&nbsp;</td><t=
+d class=3D"am34" width=3D"20pt" align=3D"right"><span class=3D"am32">N <=
+/span></td><td class=3D"am36" width=3D"80pt" align=3D"right"><span class=
+=3D"am32">Mean </span></td><td class=3D"am36" width=3D"17pt" align=3D"le=
+ft">&nbsp;</td><td class=3D"am36" width=3D"87pt" align=3D"left"><span cl=
+ass=3D"am32">SD </span><span class=3D"am38">(note 1) </span></td><td cla=
+ss=3D"am36" align=3D"left"><span class=3D"am32">Data </span><span class=3D=
+"am38">(note 2) </span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am40" width=3D"90pt" align=3D"left"><span class=3D"am42"=
+>BPA</span></td><td class=3D"am40" width=3D"4pt" align=3D"left">&nbsp;</=
+td><td class=3D"am40" width=3D"2pt" align=3D"right">&nbsp;</td><td class=
+=3D"am40" width=3D"20pt" align=3D"right"><span class=3D"am42">5</span></=
+td><td class=3D"am40" width=3D"80pt" align=3D"right"><span class=3D"am42=
+">43.20</span></td><td class=3D"am40" width=3D"87pt" align=3D"right"><sp=
+an class=3D"am42">=B115.21</span></td><td class=3D"am40" width=3D"17pt" al=
+ign=3D"left">&nbsp;</td><td class=3D"am40" align=3D"left"><span class=3D=
+"am46">#N/A</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9431=
+.1N</sup><sup>)</sup></span><span class=3D"am42">, </span><span class=3D=
+"am46">#N/A</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9431=
+.1N</sup><sup>)</sup></span><span class=3D"am42">, 70</span><span class=3D=
+"am44"><sup> </sup><sup>(</sup><sup>9431.1N</sup><sup>)</sup></span><spa=
+n class=3D"am42">, </span><span class=3D"am46">#N/A</span><span class=3D=
+"am44"><sup> </sup><sup>(</sup><sup>9431.2L</sup><sup>)</sup></span><spa=
+n class=3D"am42">, </span><span class=3D"am46">#N/A</span><span class=3D=
+"am44"><sup> </sup><sup>(</sup><sup>9431.2L</sup><sup>)</sup></span><spa=
+n class=3D"am42">, 40</span><span class=3D"am44"><sup> </sup><sup>(</sup=
+><sup>9431.2L</sup><sup>)</sup></span><span class=3D"am42">, </span><spa=
+n class=3D"am46">#N/A</span><span class=3D"am44"><sup> </sup><sup>(</sup=
+><sup>9431.3R</sup><sup>)</sup></span><span class=3D"am42">, </span><spa=
+n class=3D"am46">#N/A</span><span class=3D"am44"><sup> </sup><sup>(</sup=
+><sup>9431.3R</sup><sup>)</sup></span><span class=3D"am42">, 38</span><s=
+pan class=3D"am44"><sup> </sup><sup>(</sup><sup>9431.3R</sup><sup>)</sup=
+></span><span class=3D"am42">, </span><span class=3D"am46">#N/A</span><s=
+pan class=3D"am44"><sup> </sup><sup>(</sup><sup>9440.1N</sup><sup>)</sup=
+></span><span class=3D"am42">, </span><span class=3D"am46">#N/A</span><s=
+pan class=3D"am44"><sup> </sup><sup>(</sup><sup>9440.1N</sup><sup>)</sup=
+></span><span class=3D"am42">, 34</span><span class=3D"am44"><sup> </sup=
+><sup>(</sup><sup>9440.1N</sup><sup>)</sup></span><span class=3D"am42">,=
+ </span><span class=3D"am46">#N/A</span><span class=3D"am44"><sup> </sup=
+><sup>(</sup><sup>9440.2L</sup><sup>)</sup></span><span class=3D"am42">,=
+ </span><span class=3D"am46">#N/A</span><span class=3D"am44"><sup> </sup=
+><sup>(</sup><sup>9440.2L</sup><sup>)</sup></span><span class=3D"am42">,=
+ 34</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9440.2L</sup=
+><sup>)</sup></span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am40" width=3D"90pt" align=3D"left"><span class=3D"am42"=
+>Control</span></td><td class=3D"am40" width=3D"4pt" align=3D"left">&nbs=
+p;</td><td class=3D"am40" width=3D"2pt" align=3D"right">&nbsp;</td><td c=
+lass=3D"am40" width=3D"20pt" align=3D"right"><span class=3D"am42">4</spa=
+n></td><td class=3D"am40" width=3D"80pt" align=3D"right"><span class=3D"=
+am42">37.75</span></td><td class=3D"am40" width=3D"87pt" align=3D"right"=
+><span class=3D"am42">=B12.36</span></td><td class=3D"am40" width=3D"17pt"=
+ align=3D"left">&nbsp;</td><td class=3D"am40" align=3D"left"><span class=
+=3D"am46">#N/A</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9=
+445.1N</sup><sup>)</sup></span><span class=3D"am42">, </span><span class=
+=3D"am46">#N/A</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9=
+445.1N</sup><sup>)</sup></span><span class=3D"am42">, 41</span><span cla=
+ss=3D"am44"><sup> </sup><sup>(</sup><sup>9445.1N</sup><sup>)</sup></span=
+><span class=3D"am42">, </span><span class=3D"am46">#N/A</span><span cla=
+ss=3D"am44"><sup> </sup><sup>(</sup><sup>9445.2L</sup><sup>)</sup></span=
+><span class=3D"am42">, </span><span class=3D"am46">#N/A</span><span cla=
+ss=3D"am44"><sup> </sup><sup>(</sup><sup>9445.2L</sup><sup>)</sup></span=
+><span class=3D"am42">, 38</span><span class=3D"am44"><sup> </sup><sup>(=
+</sup><sup>9445.2L</sup><sup>)</sup></span><span class=3D"am42">, </span=
+><span class=3D"am46">#N/A</span><span class=3D"am44"><sup> </sup><sup>(=
+</sup><sup>9447.1N</sup><sup>)</sup></span><span class=3D"am42">, </span=
+><span class=3D"am46">#N/A</span><span class=3D"am44"><sup> </sup><sup>(=
+</sup><sup>9447.1N</sup><sup>)</sup></span><span class=3D"am42">, 36</sp=
+an><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9447.1N</sup><sup>)=
+</sup></span><span class=3D"am42">, </span><span class=3D"am46">#N/A</sp=
+an><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9447.2L</sup><sup>)=
+</sup></span><span class=3D"am42">, </span><span class=3D"am46">#N/A</sp=
+an><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9447.2L</sup><sup>)=
+</sup></span><span class=3D"am42">, 36</span><span class=3D"am44"><sup> =
+</sup><sup>(</sup><sup>9447.2L</sup><sup>)</sup></span></td></tr></table=
+>
+<p  class=3D"am21">Notes: </p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>1.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">SD=
+ =3D Standard deviation. </span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>2.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. </span></td></t=
+r></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>3.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">Da=
+ta shown as #N/A represent a result that is undefined.</span></td></tr><=
+/table>
+<p  class=3D"am27">Time investigating the Novel Object zone (s)</p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am30" width=3D"90pt" align=3D"left"><span class=3D"am32"=
+>Treatment </span></td><td class=3D"am34" width=3D"4pt" align=3D"left">&=
+nbsp;</td><td class=3D"am34" width=3D"2pt" align=3D"right">&nbsp;</td><t=
+d class=3D"am34" width=3D"20pt" align=3D"right"><span class=3D"am32">N <=
+/span></td><td class=3D"am36" width=3D"80pt" align=3D"right"><span class=
+=3D"am32">Mean </span></td><td class=3D"am36" width=3D"17pt" align=3D"le=
+ft">&nbsp;</td><td class=3D"am36" width=3D"87pt" align=3D"left"><span cl=
+ass=3D"am32">SD </span><span class=3D"am38">(note 1) </span></td><td cla=
+ss=3D"am36" align=3D"left"><span class=3D"am32">Data </span><span class=3D=
+"am38">(note 2) </span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am40" width=3D"90pt" align=3D"left"><span class=3D"am42"=
+>BPA</span></td><td class=3D"am40" width=3D"4pt" align=3D"left">&nbsp;</=
+td><td class=3D"am40" width=3D"2pt" align=3D"right">&nbsp;</td><td class=
+=3D"am40" width=3D"20pt" align=3D"right"><span class=3D"am42">5</span></=
+td><td class=3D"am40" width=3D"80pt" align=3D"right"><span class=3D"am42=
+">65.16</span></td><td class=3D"am40" width=3D"87pt" align=3D"right"><sp=
+an class=3D"am42">=B123.51</span></td><td class=3D"am40" width=3D"17pt" al=
+ign=3D"left">&nbsp;</td><td class=3D"am40" align=3D"left"><span class=3D=
+"am46">#N/A</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9431=
+.1N</sup><sup>)</sup></span><span class=3D"am42">, </span><span class=3D=
+"am46">#N/A</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9431=
+.1N</sup><sup>)</sup></span><span class=3D"am42">, 105.4</span><span cla=
+ss=3D"am44"><sup> </sup><sup>(</sup><sup>9431.1N</sup><sup>)</sup></span=
+><span class=3D"am42">, </span><span class=3D"am46">#N/A</span><span cla=
+ss=3D"am44"><sup> </sup><sup>(</sup><sup>9431.2L</sup><sup>)</sup></span=
+><span class=3D"am42">, </span><span class=3D"am46">#N/A</span><span cla=
+ss=3D"am44"><sup> </sup><sup>(</sup><sup>9431.2L</sup><sup>)</sup></span=
+><span class=3D"am42">, 52.3</span><span class=3D"am44"><sup> </sup><sup=
+>(</sup><sup>9431.2L</sup><sup>)</sup></span><span class=3D"am42">, </sp=
+an><span class=3D"am46">#N/A</span><span class=3D"am44"><sup> </sup><sup=
+>(</sup><sup>9431.3R</sup><sup>)</sup></span><span class=3D"am42">, </sp=
+an><span class=3D"am46">#N/A</span><span class=3D"am44"><sup> </sup><sup=
+>(</sup><sup>9431.3R</sup><sup>)</sup></span><span class=3D"am42">, 55.5=
+</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9431.3R</sup><s=
+up>)</sup></span><span class=3D"am42">, </span><span class=3D"am46">#N/A=
+</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9440.1N</sup><s=
+up>)</sup></span><span class=3D"am42">, </span><span class=3D"am46">#N/A=
+</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9440.1N</sup><s=
+up>)</sup></span><span class=3D"am42">, 46.9</span><span class=3D"am44">=
+<sup> </sup><sup>(</sup><sup>9440.1N</sup><sup>)</sup></span><span class=
+=3D"am42">, </span><span class=3D"am46">#N/A</span><span class=3D"am44">=
+<sup> </sup><sup>(</sup><sup>9440.2L</sup><sup>)</sup></span><span class=
+=3D"am42">, </span><span class=3D"am46">#N/A</span><span class=3D"am44">=
+<sup> </sup><sup>(</sup><sup>9440.2L</sup><sup>)</sup></span><span class=
+=3D"am42">, 65.7</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup=
+>9440.2L</sup><sup>)</sup></span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am40" width=3D"90pt" align=3D"left"><span class=3D"am42"=
+>Control</span></td><td class=3D"am40" width=3D"4pt" align=3D"left">&nbs=
+p;</td><td class=3D"am40" width=3D"2pt" align=3D"right">&nbsp;</td><td c=
+lass=3D"am40" width=3D"20pt" align=3D"right"><span class=3D"am42">4</spa=
+n></td><td class=3D"am40" width=3D"80pt" align=3D"right"><span class=3D"=
+am42">66.12</span></td><td class=3D"am40" width=3D"87pt" align=3D"right"=
+><span class=3D"am42">=B115.25</span></td><td class=3D"am40" width=3D"17pt=
+" align=3D"left">&nbsp;</td><td class=3D"am40" align=3D"left"><span clas=
+s=3D"am46">#N/A</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>=
+9445.1N</sup><sup>)</sup></span><span class=3D"am42">, </span><span clas=
+s=3D"am46">#N/A</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>=
+9445.1N</sup><sup>)</sup></span><span class=3D"am42">, 44.5</span><span =
+class=3D"am44"><sup> </sup><sup>(</sup><sup>9445.1N</sup><sup>)</sup></s=
+pan><span class=3D"am42">, </span><span class=3D"am46">#N/A</span><span =
+class=3D"am44"><sup> </sup><sup>(</sup><sup>9445.2L</sup><sup>)</sup></s=
+pan><span class=3D"am42">, </span><span class=3D"am46">#N/A</span><span =
+class=3D"am44"><sup> </sup><sup>(</sup><sup>9445.2L</sup><sup>)</sup></s=
+pan><span class=3D"am42">, 71.6</span><span class=3D"am44"><sup> </sup><=
+sup>(</sup><sup>9445.2L</sup><sup>)</sup></span><span class=3D"am42">, <=
+/span><span class=3D"am46">#N/A</span><span class=3D"am44"><sup> </sup><=
+sup>(</sup><sup>9447.1N</sup><sup>)</sup></span><span class=3D"am42">, <=
+/span><span class=3D"am46">#N/A</span><span class=3D"am44"><sup> </sup><=
+sup>(</sup><sup>9447.1N</sup><sup>)</sup></span><span class=3D"am42">, 6=
+8.3</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9447.1N</sup=
+><sup>)</sup></span><span class=3D"am42">, </span><span class=3D"am46">#=
+N/A</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9447.2L</sup=
+><sup>)</sup></span><span class=3D"am42">, </span><span class=3D"am46">#=
+N/A</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9447.2L</sup=
+><sup>)</sup></span><span class=3D"am42">, 80.1</span><span class=3D"am4=
+4"><sup> </sup><sup>(</sup><sup>9447.2L</sup><sup>)</sup></span></td></t=
+r></table>
+<p  class=3D"am21">Notes: </p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>1.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">SD=
+ =3D Standard deviation. </span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>2.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. </span></td></t=
+r></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>3.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">Da=
+ta shown as #N/A represent a result that is undefined.</span></td></tr><=
+/table>
+<p  class=3D"am27">Novel Object was first zone investigated</p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am6" width=3D"90pt" align=3D"left"><span class=3D"am8">T=
+reatment </span></td><td class=3D"am10" width=3D"4pt" align=3D"left">&nb=
+sp;</td><td class=3D"am10" width=3D"2pt" align=3D"right">&nbsp;</td><td =
+class=3D"am10" width=3D"20pt" align=3D"right"><span class=3D"am8">N </sp=
+an></td><td class=3D"am12" width=3D"17pt" align=3D"left">&nbsp;</td><td =
+class=3D"am12" align=3D"left"><span class=3D"am8">Data </span><span clas=
+s=3D"am14">(note 1) </span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am16" width=3D"90pt" align=3D"left"><span class=3D"am18"=
+>BPA</span></td><td class=3D"am16" width=3D"4pt" align=3D"left">&nbsp;</=
+td><td class=3D"am16" width=3D"2pt" align=3D"right">&nbsp;</td><td class=
+=3D"am16" width=3D"20pt" align=3D"right"><span class=3D"am18">5</span></=
+td><td class=3D"am16" width=3D"17pt" align=3D"left">&nbsp;</td><td class=
+=3D"am16" align=3D"left"><span class=3D"am48">#N/A</span><span class=3D"=
+am20"><sup> </sup><sup>(</sup><sup>9431.1N</sup><sup>)</sup></span><span=
+ class=3D"am18">, </span><span class=3D"am48">#N/A</span><span class=3D"=
+am20"><sup> </sup><sup>(</sup><sup>9431.1N</sup><sup>)</sup></span><span=
+ class=3D"am18">, No</span><span class=3D"am20"><sup> </sup><sup>(</sup>=
+<sup>9431.1N</sup><sup>)</sup></span><span class=3D"am18">, </span><span=
+ class=3D"am48">#N/A</span><span class=3D"am20"><sup> </sup><sup>(</sup>=
+<sup>9431.2L</sup><sup>)</sup></span><span class=3D"am18">, </span><span=
+ class=3D"am48">#N/A</span><span class=3D"am20"><sup> </sup><sup>(</sup>=
+<sup>9431.2L</sup><sup>)</sup></span><span class=3D"am18">, No</span><sp=
+an class=3D"am20"><sup> </sup><sup>(</sup><sup>9431.2L</sup><sup>)</sup>=
+</span><span class=3D"am18">, </span><span class=3D"am48">#N/A</span><sp=
+an class=3D"am20"><sup> </sup><sup>(</sup><sup>9431.3R</sup><sup>)</sup>=
+</span><span class=3D"am18">, </span><span class=3D"am48">#N/A</span><sp=
+an class=3D"am20"><sup> </sup><sup>(</sup><sup>9431.3R</sup><sup>)</sup>=
+</span><span class=3D"am18">, No</span><span class=3D"am20"><sup> </sup>=
+<sup>(</sup><sup>9431.3R</sup><sup>)</sup></span><span class=3D"am18">, =
+</span><span class=3D"am48">#N/A</span><span class=3D"am20"><sup> </sup>=
+<sup>(</sup><sup>9440.1N</sup><sup>)</sup></span><span class=3D"am18">, =
+</span><span class=3D"am48">#N/A</span><span class=3D"am20"><sup> </sup>=
+<sup>(</sup><sup>9440.1N</sup><sup>)</sup></span><span class=3D"am18">, =
+No</span><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9440.1N</sup>=
+<sup>)</sup></span><span class=3D"am18">, </span><span class=3D"am48">#N=
+/A</span><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9440.2L</sup>=
+<sup>)</sup></span><span class=3D"am18">, </span><span class=3D"am48">#N=
+/A</span><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9440.2L</sup>=
+<sup>)</sup></span><span class=3D"am18">, Yes</span><span class=3D"am20"=
+><sup> </sup><sup>(</sup><sup>9440.2L</sup><sup>)</sup></span></td></tr>=
+</table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am16" width=3D"90pt" align=3D"left"><span class=3D"am18"=
+>Control</span></td><td class=3D"am16" width=3D"4pt" align=3D"left">&nbs=
+p;</td><td class=3D"am16" width=3D"2pt" align=3D"right">&nbsp;</td><td c=
+lass=3D"am16" width=3D"20pt" align=3D"right"><span class=3D"am18">4</spa=
+n></td><td class=3D"am16" width=3D"17pt" align=3D"left">&nbsp;</td><td c=
+lass=3D"am16" align=3D"left"><span class=3D"am48">#N/A</span><span class=
+=3D"am20"><sup> </sup><sup>(</sup><sup>9445.1N</sup><sup>)</sup></span><=
+span class=3D"am18">, </span><span class=3D"am48">#N/A</span><span class=
+=3D"am20"><sup> </sup><sup>(</sup><sup>9445.1N</sup><sup>)</sup></span><=
+span class=3D"am18">, Yes</span><span class=3D"am20"><sup> </sup><sup>(<=
+/sup><sup>9445.1N</sup><sup>)</sup></span><span class=3D"am18">, </span>=
+<span class=3D"am48">#N/A</span><span class=3D"am20"><sup> </sup><sup>(<=
+/sup><sup>9445.2L</sup><sup>)</sup></span><span class=3D"am18">, </span>=
+<span class=3D"am48">#N/A</span><span class=3D"am20"><sup> </sup><sup>(<=
+/sup><sup>9445.2L</sup><sup>)</sup></span><span class=3D"am18">, Yes</sp=
+an><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9445.2L</sup><sup>)=
+</sup></span><span class=3D"am18">, </span><span class=3D"am48">#N/A</sp=
+an><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9447.1N</sup><sup>)=
+</sup></span><span class=3D"am18">, </span><span class=3D"am48">#N/A</sp=
+an><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9447.1N</sup><sup>)=
+</sup></span><span class=3D"am18">, Yes</span><span class=3D"am20"><sup>=
+ </sup><sup>(</sup><sup>9447.1N</sup><sup>)</sup></span><span class=3D"a=
+m18">, </span><span class=3D"am48">#N/A</span><span class=3D"am20"><sup>=
+ </sup><sup>(</sup><sup>9447.2L</sup><sup>)</sup></span><span class=3D"a=
+m18">, </span><span class=3D"am48">#N/A</span><span class=3D"am20"><sup>=
+ </sup><sup>(</sup><sup>9447.2L</sup><sup>)</sup></span><span class=3D"a=
+m18">, No</span><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9447.2=
+L</sup><sup>)</sup></span></td></tr></table>
+<p  class=3D"am21">Notes: </p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>1.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. </span></td></t=
+r></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>2.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">Da=
+ta shown as #N/A represent a result that is undefined.</span></td></tr><=
+/table>
+<p  class=3D"am27">Number of investigations of the Familiar Object 2 zon=
+e</p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am30" width=3D"90pt" align=3D"left"><span class=3D"am32"=
+>Treatment </span></td><td class=3D"am34" width=3D"4pt" align=3D"left">&=
+nbsp;</td><td class=3D"am34" width=3D"2pt" align=3D"right">&nbsp;</td><t=
+d class=3D"am34" width=3D"20pt" align=3D"right"><span class=3D"am32">N <=
+/span></td><td class=3D"am36" width=3D"80pt" align=3D"right"><span class=
+=3D"am32">Mean </span></td><td class=3D"am36" width=3D"17pt" align=3D"le=
+ft">&nbsp;</td><td class=3D"am36" width=3D"87pt" align=3D"left"><span cl=
+ass=3D"am32">SD </span><span class=3D"am38">(note 1) </span></td><td cla=
+ss=3D"am36" align=3D"left"><span class=3D"am32">Data </span><span class=3D=
+"am38">(note 2) </span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am40" width=3D"90pt" align=3D"left"><span class=3D"am42"=
+>BPA</span></td><td class=3D"am40" width=3D"4pt" align=3D"left">&nbsp;</=
+td><td class=3D"am40" width=3D"2pt" align=3D"right">&nbsp;</td><td class=
+=3D"am40" width=3D"20pt" align=3D"right"><span class=3D"am42">5</span></=
+td><td class=3D"am40" width=3D"80pt" align=3D"right"><span class=3D"am42=
+">46.20</span></td><td class=3D"am40" width=3D"87pt" align=3D"right"><sp=
+an class=3D"am42">=B112.79</span></td><td class=3D"am40" width=3D"17pt" al=
+ign=3D"left">&nbsp;</td><td class=3D"am40" align=3D"left"><span class=3D=
+"am46">#N/A</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9431=
+.1N</sup><sup>)</sup></span><span class=3D"am42">, 58</span><span class=3D=
+"am44"><sup> </sup><sup>(</sup><sup>9431.1N</sup><sup>)</sup></span><spa=
+n class=3D"am42">, </span><span class=3D"am46">#N/A</span><span class=3D=
+"am44"><sup> </sup><sup>(</sup><sup>9431.1N</sup><sup>)</sup></span><spa=
+n class=3D"am42">, </span><span class=3D"am46">#N/A</span><span class=3D=
+"am44"><sup> </sup><sup>(</sup><sup>9431.2L</sup><sup>)</sup></span><spa=
+n class=3D"am42">, 61</span><span class=3D"am44"><sup> </sup><sup>(</sup=
+><sup>9431.2L</sup><sup>)</sup></span><span class=3D"am42">, </span><spa=
+n class=3D"am46">#N/A</span><span class=3D"am44"><sup> </sup><sup>(</sup=
+><sup>9431.2L</sup><sup>)</sup></span><span class=3D"am42">, </span><spa=
+n class=3D"am46">#N/A</span><span class=3D"am44"><sup> </sup><sup>(</sup=
+><sup>9431.3R</sup><sup>)</sup></span><span class=3D"am42">, 32</span><s=
+pan class=3D"am44"><sup> </sup><sup>(</sup><sup>9431.3R</sup><sup>)</sup=
+></span><span class=3D"am42">, </span><span class=3D"am46">#N/A</span><s=
+pan class=3D"am44"><sup> </sup><sup>(</sup><sup>9431.3R</sup><sup>)</sup=
+></span><span class=3D"am42">, </span><span class=3D"am46">#N/A</span><s=
+pan class=3D"am44"><sup> </sup><sup>(</sup><sup>9440.1N</sup><sup>)</sup=
+></span><span class=3D"am42">, 37</span><span class=3D"am44"><sup> </sup=
+><sup>(</sup><sup>9440.1N</sup><sup>)</sup></span><span class=3D"am42">,=
+ </span><span class=3D"am46">#N/A</span><span class=3D"am44"><sup> </sup=
+><sup>(</sup><sup>9440.1N</sup><sup>)</sup></span><span class=3D"am42">,=
+ </span><span class=3D"am46">#N/A</span><span class=3D"am44"><sup> </sup=
+><sup>(</sup><sup>9440.2L</sup><sup>)</sup></span><span class=3D"am42">,=
+ 43</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9440.2L</sup=
+><sup>)</sup></span><span class=3D"am42">, </span><span class=3D"am46">#=
+N/A</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9440.2L</sup=
+><sup>)</sup></span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am40" width=3D"90pt" align=3D"left"><span class=3D"am42"=
+>Control</span></td><td class=3D"am40" width=3D"4pt" align=3D"left">&nbs=
+p;</td><td class=3D"am40" width=3D"2pt" align=3D"right">&nbsp;</td><td c=
+lass=3D"am40" width=3D"20pt" align=3D"right"><span class=3D"am42">4</spa=
+n></td><td class=3D"am40" width=3D"80pt" align=3D"right"><span class=3D"=
+am42">42.50</span></td><td class=3D"am40" width=3D"87pt" align=3D"right"=
+><span class=3D"am42">=B110.75</span></td><td class=3D"am40" width=3D"17pt=
+" align=3D"left">&nbsp;</td><td class=3D"am40" align=3D"left"><span clas=
+s=3D"am46">#N/A</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>=
+9445.1N</sup><sup>)</sup></span><span class=3D"am42">, 30</span><span cl=
+ass=3D"am44"><sup> </sup><sup>(</sup><sup>9445.1N</sup><sup>)</sup></spa=
+n><span class=3D"am42">, </span><span class=3D"am46">#N/A</span><span cl=
+ass=3D"am44"><sup> </sup><sup>(</sup><sup>9445.1N</sup><sup>)</sup></spa=
+n><span class=3D"am42">, </span><span class=3D"am46">#N/A</span><span cl=
+ass=3D"am44"><sup> </sup><sup>(</sup><sup>9445.2L</sup><sup>)</sup></spa=
+n><span class=3D"am42">, 40</span><span class=3D"am44"><sup> </sup><sup>=
+(</sup><sup>9445.2L</sup><sup>)</sup></span><span class=3D"am42">, </spa=
+n><span class=3D"am46">#N/A</span><span class=3D"am44"><sup> </sup><sup>=
+(</sup><sup>9445.2L</sup><sup>)</sup></span><span class=3D"am42">, </spa=
+n><span class=3D"am46">#N/A</span><span class=3D"am44"><sup> </sup><sup>=
+(</sup><sup>9447.1N</sup><sup>)</sup></span><span class=3D"am42">, 56</s=
+pan><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9447.1N</sup><sup>=
+)</sup></span><span class=3D"am42">, </span><span class=3D"am46">#N/A</s=
+pan><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9447.1N</sup><sup>=
+)</sup></span><span class=3D"am42">, </span><span class=3D"am46">#N/A</s=
+pan><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9447.2L</sup><sup>=
+)</sup></span><span class=3D"am42">, 44</span><span class=3D"am44"><sup>=
+ </sup><sup>(</sup><sup>9447.2L</sup><sup>)</sup></span><span class=3D"a=
+m42">, </span><span class=3D"am46">#N/A</span><span class=3D"am44"><sup>=
+ </sup><sup>(</sup><sup>9447.2L</sup><sup>)</sup></span></td></tr></tabl=
+e>
+<p  class=3D"am21">Notes: </p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>1.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">SD=
+ =3D Standard deviation. </span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>2.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. </span></td></t=
+r></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>3.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">Da=
+ta shown as #N/A represent a result that is undefined.</span></td></tr><=
+/table>
+<p  class=3D"am27">Time investigating the Familiar Object 2 zone (s)</p>=
+
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am30" width=3D"90pt" align=3D"left"><span class=3D"am32"=
+>Treatment </span></td><td class=3D"am34" width=3D"4pt" align=3D"left">&=
+nbsp;</td><td class=3D"am34" width=3D"2pt" align=3D"right">&nbsp;</td><t=
+d class=3D"am34" width=3D"20pt" align=3D"right"><span class=3D"am32">N <=
+/span></td><td class=3D"am36" width=3D"80pt" align=3D"right"><span class=
+=3D"am32">Mean </span></td><td class=3D"am36" width=3D"17pt" align=3D"le=
+ft">&nbsp;</td><td class=3D"am36" width=3D"87pt" align=3D"left"><span cl=
+ass=3D"am32">SD </span><span class=3D"am38">(note 1) </span></td><td cla=
+ss=3D"am36" align=3D"left"><span class=3D"am32">Data </span><span class=3D=
+"am38">(note 2) </span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am40" width=3D"90pt" align=3D"left"><span class=3D"am42"=
+>BPA</span></td><td class=3D"am40" width=3D"4pt" align=3D"left">&nbsp;</=
+td><td class=3D"am40" width=3D"2pt" align=3D"right">&nbsp;</td><td class=
+=3D"am40" width=3D"20pt" align=3D"right"><span class=3D"am42">5</span></=
+td><td class=3D"am40" width=3D"80pt" align=3D"right"><span class=3D"am42=
+">47.40</span></td><td class=3D"am40" width=3D"87pt" align=3D"right"><sp=
+an class=3D"am42">=B115.68</span></td><td class=3D"am40" width=3D"17pt" al=
+ign=3D"left">&nbsp;</td><td class=3D"am40" align=3D"left"><span class=3D=
+"am46">#N/A</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9431=
+.1N</sup><sup>)</sup></span><span class=3D"am42">, 68.8</span><span clas=
+s=3D"am44"><sup> </sup><sup>(</sup><sup>9431.1N</sup><sup>)</sup></span>=
+<span class=3D"am42">, </span><span class=3D"am46">#N/A</span><span clas=
+s=3D"am44"><sup> </sup><sup>(</sup><sup>9431.1N</sup><sup>)</sup></span>=
+<span class=3D"am42">, </span><span class=3D"am46">#N/A</span><span clas=
+s=3D"am44"><sup> </sup><sup>(</sup><sup>9431.2L</sup><sup>)</sup></span>=
+<span class=3D"am42">, 44.1</span><span class=3D"am44"><sup> </sup><sup>=
+(</sup><sup>9431.2L</sup><sup>)</sup></span><span class=3D"am42">, </spa=
+n><span class=3D"am46">#N/A</span><span class=3D"am44"><sup> </sup><sup>=
+(</sup><sup>9431.2L</sup><sup>)</sup></span><span class=3D"am42">, </spa=
+n><span class=3D"am46">#N/A</span><span class=3D"am44"><sup> </sup><sup>=
+(</sup><sup>9431.3R</sup><sup>)</sup></span><span class=3D"am42">, 33.5<=
+/span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9431.3R</sup><su=
+p>)</sup></span><span class=3D"am42">, </span><span class=3D"am46">#N/A<=
+/span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9431.3R</sup><su=
+p>)</sup></span><span class=3D"am42">, </span><span class=3D"am46">#N/A<=
+/span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9440.1N</sup><su=
+p>)</sup></span><span class=3D"am42">, 32.8</span><span class=3D"am44"><=
+sup> </sup><sup>(</sup><sup>9440.1N</sup><sup>)</sup></span><span class=3D=
+"am42">, </span><span class=3D"am46">#N/A</span><span class=3D"am44"><su=
+p> </sup><sup>(</sup><sup>9440.1N</sup><sup>)</sup></span><span class=3D=
+"am42">, </span><span class=3D"am46">#N/A</span><span class=3D"am44"><su=
+p> </sup><sup>(</sup><sup>9440.2L</sup><sup>)</sup></span><span class=3D=
+"am42">, 57.8</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>94=
+40.2L</sup><sup>)</sup></span><span class=3D"am42">, </span><span class=3D=
+"am46">#N/A</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9440=
+.2L</sup><sup>)</sup></span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am40" width=3D"90pt" align=3D"left"><span class=3D"am42"=
+>Control</span></td><td class=3D"am40" width=3D"4pt" align=3D"left">&nbs=
+p;</td><td class=3D"am40" width=3D"2pt" align=3D"right">&nbsp;</td><td c=
+lass=3D"am40" width=3D"20pt" align=3D"right"><span class=3D"am42">4</spa=
+n></td><td class=3D"am40" width=3D"80pt" align=3D"right"><span class=3D"=
+am42">58.42</span></td><td class=3D"am40" width=3D"87pt" align=3D"right"=
+><span class=3D"am42">=B118.60</span></td><td class=3D"am40" width=3D"17pt=
+" align=3D"left">&nbsp;</td><td class=3D"am40" align=3D"left"><span clas=
+s=3D"am46">#N/A</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>=
+9445.1N</sup><sup>)</sup></span><span class=3D"am42">, 38.7</span><span =
+class=3D"am44"><sup> </sup><sup>(</sup><sup>9445.1N</sup><sup>)</sup></s=
+pan><span class=3D"am42">, </span><span class=3D"am46">#N/A</span><span =
+class=3D"am44"><sup> </sup><sup>(</sup><sup>9445.1N</sup><sup>)</sup></s=
+pan><span class=3D"am42">, </span><span class=3D"am46">#N/A</span><span =
+class=3D"am44"><sup> </sup><sup>(</sup><sup>9445.2L</sup><sup>)</sup></s=
+pan><span class=3D"am42">, 55.6</span><span class=3D"am44"><sup> </sup><=
+sup>(</sup><sup>9445.2L</sup><sup>)</sup></span><span class=3D"am42">, <=
+/span><span class=3D"am46">#N/A</span><span class=3D"am44"><sup> </sup><=
+sup>(</sup><sup>9445.2L</sup><sup>)</sup></span><span class=3D"am42">, <=
+/span><span class=3D"am46">#N/A</span><span class=3D"am44"><sup> </sup><=
+sup>(</sup><sup>9447.1N</sup><sup>)</sup></span><span class=3D"am42">, 8=
+3.6</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9447.1N</sup=
+><sup>)</sup></span><span class=3D"am42">, </span><span class=3D"am46">#=
+N/A</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9447.1N</sup=
+><sup>)</sup></span><span class=3D"am42">, </span><span class=3D"am46">#=
+N/A</span><span class=3D"am44"><sup> </sup><sup>(</sup><sup>9447.2L</sup=
+><sup>)</sup></span><span class=3D"am42">, 55.8</span><span class=3D"am4=
+4"><sup> </sup><sup>(</sup><sup>9447.2L</sup><sup>)</sup></span><span cl=
+ass=3D"am42">, </span><span class=3D"am46">#N/A</span><span class=3D"am4=
+4"><sup> </sup><sup>(</sup><sup>9447.2L</sup><sup>)</sup></span></td></t=
+r></table>
+<p  class=3D"am21">Notes: </p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>1.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">SD=
+ =3D Standard deviation. </span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>2.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. </span></td></t=
+r></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>3.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">Da=
+ta shown as #N/A represent a result that is undefined.</span></td></tr><=
+/table>
+<p  class=3D"am27">Familiar Object 2 was first zone investigated</p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am6" width=3D"90pt" align=3D"left"><span class=3D"am8">T=
+reatment </span></td><td class=3D"am10" width=3D"4pt" align=3D"left">&nb=
+sp;</td><td class=3D"am10" width=3D"2pt" align=3D"right">&nbsp;</td><td =
+class=3D"am10" width=3D"20pt" align=3D"right"><span class=3D"am8">N </sp=
+an></td><td class=3D"am12" width=3D"17pt" align=3D"left">&nbsp;</td><td =
+class=3D"am12" align=3D"left"><span class=3D"am8">Data </span><span clas=
+s=3D"am14">(note 1) </span></td></tr></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am16" width=3D"90pt" align=3D"left"><span class=3D"am18"=
+>BPA</span></td><td class=3D"am16" width=3D"4pt" align=3D"left">&nbsp;</=
+td><td class=3D"am16" width=3D"2pt" align=3D"right">&nbsp;</td><td class=
+=3D"am16" width=3D"20pt" align=3D"right"><span class=3D"am18">5</span></=
+td><td class=3D"am16" width=3D"17pt" align=3D"left">&nbsp;</td><td class=
+=3D"am16" align=3D"left"><span class=3D"am48">#N/A</span><span class=3D"=
+am20"><sup> </sup><sup>(</sup><sup>9431.1N</sup><sup>)</sup></span><span=
+ class=3D"am18">, Yes</span><span class=3D"am20"><sup> </sup><sup>(</sup=
+><sup>9431.1N</sup><sup>)</sup></span><span class=3D"am18">, </span><spa=
+n class=3D"am48">#N/A</span><span class=3D"am20"><sup> </sup><sup>(</sup=
+><sup>9431.1N</sup><sup>)</sup></span><span class=3D"am18">, </span><spa=
+n class=3D"am48">#N/A</span><span class=3D"am20"><sup> </sup><sup>(</sup=
+><sup>9431.2L</sup><sup>)</sup></span><span class=3D"am18">, No</span><s=
+pan class=3D"am20"><sup> </sup><sup>(</sup><sup>9431.2L</sup><sup>)</sup=
+></span><span class=3D"am18">, </span><span class=3D"am48">#N/A</span><s=
+pan class=3D"am20"><sup> </sup><sup>(</sup><sup>9431.2L</sup><sup>)</sup=
+></span><span class=3D"am18">, </span><span class=3D"am48">#N/A</span><s=
+pan class=3D"am20"><sup> </sup><sup>(</sup><sup>9431.3R</sup><sup>)</sup=
+></span><span class=3D"am18">, Yes</span><span class=3D"am20"><sup> </su=
+p><sup>(</sup><sup>9431.3R</sup><sup>)</sup></span><span class=3D"am18">=
+, </span><span class=3D"am48">#N/A</span><span class=3D"am20"><sup> </su=
+p><sup>(</sup><sup>9431.3R</sup><sup>)</sup></span><span class=3D"am18">=
+, </span><span class=3D"am48">#N/A</span><span class=3D"am20"><sup> </su=
+p><sup>(</sup><sup>9440.1N</sup><sup>)</sup></span><span class=3D"am18">=
+, No</span><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9440.1N</su=
+p><sup>)</sup></span><span class=3D"am18">, </span><span class=3D"am48">=
+#N/A</span><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9440.1N</su=
+p><sup>)</sup></span><span class=3D"am18">, </span><span class=3D"am48">=
+#N/A</span><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9440.2L</su=
+p><sup>)</sup></span><span class=3D"am18">, No</span><span class=3D"am20=
+"><sup> </sup><sup>(</sup><sup>9440.2L</sup><sup>)</sup></span><span cla=
+ss=3D"am18">, </span><span class=3D"am48">#N/A</span><span class=3D"am20=
+"><sup> </sup><sup>(</sup><sup>9440.2L</sup><sup>)</sup></span></td></tr=
+></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am16" width=3D"90pt" align=3D"left"><span class=3D"am18"=
+>Control</span></td><td class=3D"am16" width=3D"4pt" align=3D"left">&nbs=
+p;</td><td class=3D"am16" width=3D"2pt" align=3D"right">&nbsp;</td><td c=
+lass=3D"am16" width=3D"20pt" align=3D"right"><span class=3D"am18">4</spa=
+n></td><td class=3D"am16" width=3D"17pt" align=3D"left">&nbsp;</td><td c=
+lass=3D"am16" align=3D"left"><span class=3D"am48">#N/A</span><span class=
+=3D"am20"><sup> </sup><sup>(</sup><sup>9445.1N</sup><sup>)</sup></span><=
+span class=3D"am18">, Yes</span><span class=3D"am20"><sup> </sup><sup>(<=
+/sup><sup>9445.1N</sup><sup>)</sup></span><span class=3D"am18">, </span>=
+<span class=3D"am48">#N/A</span><span class=3D"am20"><sup> </sup><sup>(<=
+/sup><sup>9445.1N</sup><sup>)</sup></span><span class=3D"am18">, </span>=
+<span class=3D"am48">#N/A</span><span class=3D"am20"><sup> </sup><sup>(<=
+/sup><sup>9445.2L</sup><sup>)</sup></span><span class=3D"am18">, No</spa=
+n><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9445.2L</sup><sup>)<=
+/sup></span><span class=3D"am18">, </span><span class=3D"am48">#N/A</spa=
+n><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9445.2L</sup><sup>)<=
+/sup></span><span class=3D"am18">, </span><span class=3D"am48">#N/A</spa=
+n><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9447.1N</sup><sup>)<=
+/sup></span><span class=3D"am18">, No</span><span class=3D"am20"><sup> <=
+/sup><sup>(</sup><sup>9447.1N</sup><sup>)</sup></span><span class=3D"am1=
+8">, </span><span class=3D"am48">#N/A</span><span class=3D"am20"><sup> <=
+/sup><sup>(</sup><sup>9447.1N</sup><sup>)</sup></span><span class=3D"am1=
+8">, </span><span class=3D"am48">#N/A</span><span class=3D"am20"><sup> <=
+/sup><sup>(</sup><sup>9447.2L</sup><sup>)</sup></span><span class=3D"am1=
+8">, No</span><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9447.2L<=
+/sup><sup>)</sup></span><span class=3D"am18">, </span><span class=3D"am4=
+8">#N/A</span><span class=3D"am20"><sup> </sup><sup>(</sup><sup>9447.2L<=
+/sup><sup>)</sup></span></td></tr></table>
+<p  class=3D"am21">Notes: </p>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>1.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">Th=
+e numbers in parentheses next to the data values are animal numbers - yo=
+u can click these to access the animal's details report. </span></td></t=
+r></table>
+<table border=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0"><=
+tr><td class=3D"am24" width=3D"20pt" align=3D"left"><span class=3D"am26"=
+>2.</span></td><td class=3D"am24" align=3D"left"><span class=3D"am26">Da=
+ta shown as #N/A represent a result that is undefined.</span></td></tr><=
+/table>
+</td></tr></table></body>
+</html>

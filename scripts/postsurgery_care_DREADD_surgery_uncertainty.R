@@ -42,7 +42,7 @@ BW_data  %>%
 
 
 ##BW plot####
-plot <- ggplot(BW_data, aes(x = day_rel, y = BW)) +
+plot <- ggplot(BW_data, aes(x = DATE, y = BW)) +
   geom_point(alpha = 0.7) +
   geom_line(aes(group = ID), alpha = 0.7) +
   theme_minimal() +
