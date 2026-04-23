@@ -22,6 +22,7 @@ COHORT 15: CD-1 young - BPA project 2409-42370A
 COHORT 16: CD-1 young - BPA project 2409-42370A
 COHORT 17: OREXIN-Cre young - uncertainty project 2409-42368A 
 COHORT 18: CD-1 young - BPA project 2409-42370A
+COHORT 19: NZO young - Eegap project 2303-40942A (incretin project)
 
 
 
@@ -50,7 +51,9 @@ COHORT 13: C57BL/6J (n=6 males), DOB: 10/31/2024, WEEKS_WITH_FAT_DIET: NA
 COHORT 14: C57BL/6J (n=21 males), DOB: 9/16/2025, WEEKS_WITH_FAT_DIET: NA
 COHORT 15: CD1 (n=12 males, n=12 females), DOB: 4/10/2025, WEEKS_WITH_FAT_DIET: 22
 COHORT 16: CD1 (n= males, n= females), DOB: 7/13/2025, WEEKS_WITH_FAT_DIET: 
-
+COHORT 17:
+COHORT 18:
+COHORT 19: NZO/HlLtJ (n=24 females), DOB: 1/13/2026 (n=5), 1/20/2026 (n=7), 1/27/2026 (n=3), 2/3/2026 (n=4), 2/10/2026 (n=5), WEEKS_WITH_FAT_DIET: 4 weeks until now (4/23/2026) (LFD)
 #Diet formulas
 general information: HFD and LFD are obtained from research diets. Chow is obtained from teklad diets. Pellets are obtained from Bio-serv diets
 
@@ -71,6 +74,9 @@ COHORT 13:CHOW: 2918
 COHORT 14:CHOW: 2918
 COHORT 15: HFD: D12451i, LFD: D12450Hi
 COHORT 16: HFD: D12451i, LFD: D12450Hi
+COHORT 17:
+COHORT 18:
+COHORT 19: LFD: D12450Hi
 
 #Outcomes
 
