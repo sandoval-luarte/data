@@ -294,7 +294,7 @@ BW_data <- read_csv("../data/BW.csv") %>%
   filter(week_rel<=19) #the last week of measurement for cohort 15 is 21, for cohort 16 is 19 so 19 is the common end
 
 BW_data  %>% 
-  group_by(SEX,BPA_EXPOSURE,DIET_FORMULA) %>%
+  group_by(SEX) %>%
   summarise(n_ID = n_distinct(ID)) 
 
 BW_summary <- BW_data %>%
@@ -803,33 +803,38 @@ plot_wk_19
 y_min <- min(c(BW_week0_raw$BW, BW_week19_raw$BW), na.rm = TRUE)
 y_max <- max(c(BW_week0_raw$BW, BW_week19_raw$BW), na.rm = TRUE)
 
-plot_bw_sex <- plot_bw_sex + labs(tag = "A")+
-   scale_color_manual(values = c("NO" = "gray50", "YES" = "black")) +
-  scale_fill_manual(values = c("NO" = "gray50", "YES" = "gray30"))
-#delta_bwplot <- delta_bwplot + labs(tag = "B")+ 
- # scale_color_manual(values = c("NO" = "gray50", "YES" = "black")) +
-  #scale_shape_manual(values = c("NO" = 16, "YES" = 17))+
-  #theme(legend.position = "none")+
-plot_wk_0<- plot_wk_0 + labs(tag = "C")+ 
- scale_color_manual(values = c("NO" = "gray50", "YES" = "black")) +
-scale_shape_manual(values = c("NO" = 16, "YES" = 17))+
-theme(legend.position = "none") 
-plot_wk_19 <- plot_wk_19 + labs(tag = "D")+ 
-  scale_color_manual(values = c("NO" = "gray50", "YES" = "black")) +
-  scale_shape_manual(values = c("NO" = 16, "YES" = 17))+
+# Color palettes
+bpa_colors <- c("NO" = "gray70", "YES" = "#0072B2")
+bpa_fills  <- c("NO" = "gray80", "YES" = "#0072B2")
+
+sex_colors <- c("F" = "#CC79A7", "M" = "#009E73")  # optional if plotting sex directly
+
+plot_bw_sex <- plot_bw_sex +
+  labs(tag = "A") +
+  scale_color_manual(values = bpa_colors) +
+  scale_fill_manual(values = bpa_fills)
+
+plot_bw_slopes <- plot_bw_slopes +
+  labs(tag = "B") +
+  scale_color_manual(values = bpa_colors) +
+  scale_shape_manual(values = c("NO" = 16, "YES" = 17)) +
   theme(legend.position = "none")
-plot_bw_slopes <- plot_bw_slopes + labs(tag = "B")+ 
-  scale_color_manual(values = c("NO" = "gray50", "YES" = "black")) +
-  scale_shape_manual(values = c("NO" = 16, "YES" = 17))+
- theme(legend.position = "none")
 
 plot_wk_0 <- plot_wk_0 +
-  coord_cartesian(ylim = c(y_min, y_max))
+  labs(tag = "C") +
+  scale_fill_manual(values = bpa_fills) +
+  coord_cartesian(ylim = c(y_min, y_max)) +
+  theme(legend.position = "none")
 
 plot_wk_19 <- plot_wk_19 +
-  coord_cartesian(ylim = c(y_min, y_max))
+  labs(tag = "D") +
+  scale_fill_manual(values = bpa_fills) +
+  coord_cartesian(ylim = c(y_min, y_max)) +
+  theme(legend.position = "none")
 
-combined_plot <-combined_plot <- (plot_bw_sex | plot_bw_slopes) / (plot_wk_0 | plot_wk_19  )
+combined_plot <- (plot_bw_sex | plot_bw_slopes) /
+  (plot_wk_0   | plot_wk_19)
+
 combined_plot
 
 # BODY COMPOSITION ANALYSIS----
@@ -870,13 +875,13 @@ echoMRI_data_comparisons_collapsed <- echoMRI_data %>%
       COHORT == 18 & Date %in% c("2026-01-21", "2026-01-23") ~ "0",
       COHORT == 15 & Date == "2025-05-28" ~ "4",
       COHORT == 16 & Date == "2025-09-09" ~ "4", #really this is 5 wks
-     COHORT == 18 & Date == "2026-02-23" ~ "4", #really this is 4.5 wks
+      COHORT == 18 & Date == "2026-02-23" ~ "4", #really this is 4.5 wks
       COHORT == 15 & Date == "2025-07-07" ~ "10",
       COHORT == 16 & Date == "2025-10-07" ~ "10", #really 9 wks
-     COHORT == 18 & Date == "2026-04-01" ~  "10",
+      COHORT == 18 & Date == "2026-04-01" ~  "10",
       COHORT == 15 & Date == "2025-08-01" ~ "13",
       COHORT == 16 & Date == "2025-11-17" ~ "13", #really this is 15 wks
-  #   COHORT == 18 & Date == "2026-04-29" ~ "14",  
+      COHORT == 18 & Date == "2026-04-29" ~ "13",  
       COHORT == 15 & Date == "2025-09-09" ~ "19",
       COHORT == 16 & Date == "2025-12-18" ~ "19",
   #   COHORT == 18 & Date == "2026-06-03" ~ "19",
@@ -1187,32 +1192,42 @@ plot_ai_19
 
 # FIGURE 2 ADIPOSITY INDEX  ----
 
-y_min <- min(c(AI_week19$adiposity_index, AI_week19$adiposity_index), na.rm = TRUE)
-y_max <- max(c(AI_week19$adiposity_index, AI_week19$adiposity_index), na.rm = TRUE)
+# Color palettes
+bpa_colors <- c("NO" = "gray70", "YES" = "#0072B2")
+bpa_fills  <- c("NO" = "gray80", "YES" = "#0072B2")
 
-plot_ai_sex <- plot_ai_sex + labs(tag = "A")+
-  scale_color_manual(values = c("NO" = "gray50", "YES" = "black")) +
-  scale_fill_manual(values = c("NO" = "gray50", "YES" = "gray30"))
-plot_ai_0<- plot_ai_0 + labs(tag = "C")+ 
-  scale_color_manual(values = c("NO" = "gray50", "YES" = "black")) +
-  scale_shape_manual(values = c("NO" = 16, "YES" = 17))+
-  theme(legend.position = "none") 
-plot_ai_19 <- plot_ai_19 + labs(tag = "D")+ 
-  scale_color_manual(values = c("NO" = "gray50", "YES" = "black")) +
-  scale_shape_manual(values = c("NO" = 16, "YES" = 17))+
-  theme(legend.position = "none")
-plot_ai_slopes <- plot_ai_slopes + labs(tag = "B")+ 
-  scale_color_manual(values = c("NO" = "gray50", "YES" = "black")) +
-  scale_shape_manual(values = c("NO" = 16, "YES" = 17))+
+# Common y-axis for week 0 and week 19 AI plots
+y_min <- min(c(AI_week0$adiposity_index, AI_week19$adiposity_index), na.rm = TRUE)
+y_max <- max(c(AI_week0$adiposity_index, AI_week19$adiposity_index), na.rm = TRUE)
+
+# Figure AI ----
+
+plot_ai_sex <- plot_ai_sex +
+  labs(tag = "A") +
+  scale_color_manual(values = bpa_colors) +
+  scale_fill_manual(values = bpa_fills)
+
+plot_ai_slopes <- plot_ai_slopes +
+  labs(tag = "B") +
+  scale_color_manual(values = bpa_colors) +
+  scale_shape_manual(values = c("NO" = 16, "YES" = 17)) +
   theme(legend.position = "none")
 
 plot_ai_0 <- plot_ai_0 +
-  coord_cartesian(ylim = c(y_min, y_max))
+  labs(tag = "C") +
+  scale_fill_manual(values = bpa_fills) +
+  coord_cartesian(ylim = c(y_min, y_max)) +
+  theme(legend.position = "none")
 
 plot_ai_19 <- plot_ai_19 +
-  coord_cartesian(ylim = c(y_min, y_max))
+  labs(tag = "D") +
+  scale_fill_manual(values = bpa_fills) +
+  coord_cartesian(ylim = c(y_min, y_max)) +
+  theme(legend.position = "none")
 
-combined_plot <-combined_plot <- (plot_ai_sex | plot_ai_slopes) / (plot_ai_0 | plot_ai_19  )
+combined_plot <- (plot_ai_sex | plot_ai_slopes) /
+  (plot_ai_0   | plot_ai_19)
+
 combined_plot
 
 #ALTERNATIVE ANALYSIS ----
@@ -1549,7 +1564,7 @@ t_maleHCD <- t.test(
   data = fat_week0HCF  %>% filter(SEX == "M"))
 # Males in HFD
 t_maleHFD <- t.test(
-  adiposity_index  ~ BPA_EXPOSURE,
+  Fat  ~ BPA_EXPOSURE,
   data = fat_week0HFD  %>% filter(SEX == "M")
 )
 t_femaleHCD 
@@ -1686,35 +1701,43 @@ plot_fat_19 <- ggplot(fat_week19_sum ,
 plot_fat_19
 
 # FIGURE 3 FAT MASS  ----
+# Color palettes
+bpa_colors <- c("NO" = "gray70", "YES" = "#0072B2")
+bpa_fills  <- c("NO" = "gray80", "YES" = "#0072B2")
 
-y_min <- min(c(fat_week19$Fat, fat_week19$Fat), na.rm = TRUE)
-y_max <- max(c(fat_week19$Fat, fat_week19$Fat), na.rm = TRUE)
+# Common y-axis for baseline and week 19 plots
+y_min <- min(c(fat_week0$Fat, fat_week19$Fat), na.rm = TRUE)
+y_max <- max(c(fat_week0$Fat, fat_week19$Fat), na.rm = TRUE)
 
-plot_fat_sex <- plot_fat_sex + labs(tag = "A")+
-  scale_color_manual(values = c("NO" = "gray50", "YES" = "black")) +
-  scale_fill_manual(values = c("NO" = "gray50", "YES" = "gray30"))
-plot_fat_0<- plot_fat_0 + labs(tag = "C")+ 
-  scale_color_manual(values = c("NO" = "gray50", "YES" = "black")) +
-  scale_shape_manual(values = c("NO" = 16, "YES" = 17))+
-  theme(legend.position = "none") 
-plot_fat_19 <- plot_fat_19 + labs(tag = "D")+ 
-  scale_color_manual(values = c("NO" = "gray50", "YES" = "black")) +
-  scale_shape_manual(values = c("NO" = 16, "YES" = 17))+
-  theme(legend.position = "none")
-plot_fat_slopes <- plot_fat_slopes + labs(tag = "B")+ 
-  scale_color_manual(values = c("NO" = "gray50", "YES" = "black")) +
-  scale_shape_manual(values = c("NO" = 16, "YES" = 17))+
+# Figure fat mass ----
+
+plot_fat_sex <- plot_fat_sex +
+  labs(tag = "A") +
+  scale_color_manual(values = bpa_colors) +
+  scale_fill_manual(values = bpa_fills)
+
+plot_fat_slopes <- plot_fat_slopes +
+  labs(tag = "B") +
+  scale_color_manual(values = bpa_colors) +
+  scale_shape_manual(values = c("NO" = 16, "YES" = 17)) +
   theme(legend.position = "none")
 
 plot_fat_0 <- plot_fat_0 +
-  coord_cartesian(ylim = c(y_min, y_max))
+  labs(tag = "C") +
+  scale_fill_manual(values = bpa_fills) +
+  coord_cartesian(ylim = c(y_min, y_max)) +
+  theme(legend.position = "none")
 
 plot_fat_19 <- plot_fat_19 +
-  coord_cartesian(ylim = c(y_min, y_max))
+  labs(tag = "D") +
+  scale_fill_manual(values = bpa_fills) +
+  coord_cartesian(ylim = c(y_min, y_max)) +
+  theme(legend.position = "none")
 
-combined_plot <-combined_plot <- (plot_fat_sex | plot_fat_slopes) / (plot_fat_0 | plot_fat_19  )
+combined_plot <- (plot_fat_sex | plot_fat_slopes) /
+  (plot_fat_0   | plot_fat_19)
+
 combined_plot
-
 ### LEAN MASS----
 ## plot A: lean mass separated by diet over time----
 lean_summary <- echoMRI_data_comparisons_collapsed %>%
@@ -2006,33 +2029,45 @@ plot_lean_19 <- ggplot(lean_week19_sum ,
 plot_lean_19
 
 # FIGURE 4 LEAN MASS  ----
+# Color palettes
+bpa_colors <- c("NO" = "gray70", "YES" = "#0072B2")
+bpa_fills  <- c("NO" = "gray80", "YES" = "#0072B2")
 
-y_min <- min(c(lean_week0$Lean, lean_week0$Lean), na.rm = TRUE)
-y_max <- max(c(lean_week19$Lean, lean_week19$Lean), na.rm = TRUE)
+# Common y-axis for week 0 and week 19 lean mass plots
+y_min <- min(c(lean_week0$Lean, lean_week19$Lean), na.rm = TRUE)
+y_max <- max(c(lean_week0$Lean, lean_week19$Lean), na.rm = TRUE)
 
-plot_lean_sex <- plot_lean_sex + labs(tag = "A")+
-  scale_color_manual(values = c("NO" = "gray50", "YES" = "black")) +
-  scale_fill_manual(values = c("NO" = "gray50", "YES" = "gray30"))
-plot_lean_0<- plot_lean_0 + labs(tag = "C")+ 
-  scale_color_manual(values = c("NO" = "gray50", "YES" = "black")) +
-  scale_shape_manual(values = c("NO" = 16, "YES" = 17))+
-  theme(legend.position = "none") 
-plot_lean_19 <- plot_lean_19 + labs(tag = "D")+ 
-  scale_color_manual(values = c("NO" = "gray50", "YES" = "black")) +
-  scale_shape_manual(values = c("NO" = 16, "YES" = 17))+
+# Panel A: longitudinal lean mass
+plot_lean_sex <- plot_lean_sex +
+  labs(tag = "A") +
+  scale_color_manual(values = bpa_colors) +
+  scale_fill_manual(values = bpa_fills)
+
+# Panel B: rate of lean mass gain
+plot_lean_slopes <- plot_lean_slopes +
+  labs(tag = "B") +
+  scale_color_manual(values = bpa_colors) +
+  scale_shape_manual(values = c("NO" = 16, "YES" = 17)) +
   theme(legend.position = "none")
-plot_lean_slopes <- plot_lean_slopes + labs(tag = "B")+ 
-  scale_color_manual(values = c("NO" = "gray50", "YES" = "black")) +
-  scale_shape_manual(values = c("NO" = 16, "YES" = 17))+
-  theme(legend.position = "none")
 
+# Panel C: lean mass at baseline
 plot_lean_0 <- plot_lean_0 +
-  coord_cartesian(ylim = c(y_min, y_max))
+  labs(tag = "C") +
+  scale_fill_manual(values = bpa_fills) +
+  coord_cartesian(ylim = c(y_min, y_max)) +
+  theme(legend.position = "none")
 
+# Panel D: lean mass at week 19
 plot_lean_19 <- plot_lean_19 +
-  coord_cartesian(ylim = c(y_min, y_max))
+  labs(tag = "D") +
+  scale_fill_manual(values = bpa_fills) +
+  coord_cartesian(ylim = c(y_min, y_max)) +
+  theme(legend.position = "none")
 
-combined_plot <-combined_plot <- (plot_lean_sex | plot_lean_slopes) / (plot_lean_0 | plot_lean_19  )
+# Combined figure
+combined_plot <- (plot_lean_sex | plot_lean_slopes) /
+  (plot_lean_0   | plot_lean_19)
+
 combined_plot
 
 #LENGTH ANALYSIS----
@@ -2100,6 +2135,9 @@ t.test(LENGTH_CM ~ BPA_EXPOSURE, data = female_data, var.equal = FALSE)
 t.test(LENGTH_CM ~ BPA_EXPOSURE, data = male_data, var.equal = TRUE)
 
 ### Length plot----
+# Color palettes
+bpa_fills  <- c("NO" = "gray80", "YES" = "#0072B2")
+
 length_plot <- ggplot(
   length_data,
   aes(x = BPA_EXPOSURE, y = LENGTH_CM, fill = BPA_EXPOSURE)
@@ -2120,14 +2158,14 @@ length_plot <- ggplot(
     width = 0.15,
     size = 2,
     shape = 21,
-    fill = "white",
+    fill = "white",   # 👈 FIX: keep points white
     color = "black"
   ) +
   facet_wrap(~ SEX) +
-  scale_fill_manual(values = c("NO" = "gray80", "YES" = "black")) +
+  scale_fill_manual(values = bpa_fills) +
   labs(
     x = "BPA exposure",
-    y = "Length (cm)"
+    y = "Body length (cm)"
   ) +
   theme_classic(base_size = 14) +
   theme(legend.position = "none")
@@ -2615,11 +2653,91 @@ t.test(
 )
 
 # supplementary figure 7 (ogtta + ogttb + ogttc)----
+# BPA colors
+bpa_colors <- c("NO" = "gray70", "YES" = "#0072B2")
+bpa_fills  <- c("NO" = "gray80", "YES" = "#0072B2")
 
-sf7b <- ogttc + labs(tag = "A")
-sf7c <- ogttb + labs(tag = "B")
+# Sex colors
+sex_colors <- c("F" = "black", "M" = "black")
+sex_fills  <- c("F" = "black", "M" = "black")
 
-combined_plot_ogtt <- sf7b | sf7c 
+# Panel A: OGTT AUC by BPA exposure, separated by sex and diet
+sf7b <- ggplot(
+  auc_df,
+  aes(x = BPA_EXPOSURE, y = AUC, fill = BPA_EXPOSURE)
+) +
+  stat_summary(
+    fun = mean,
+    geom = "col",
+    width = 0.6,
+    color = "black"
+  ) +
+  stat_summary(
+    fun.data = mean_se,
+    geom = "errorbar",
+    width = 0.2,
+    linewidth = 0.8
+  ) +
+  geom_jitter(
+    width = 0.15,
+    size = 2,
+    shape = 21,
+    fill = "white",
+    color = "black"
+  ) +
+  facet_wrap(
+    ~ SEX * DIET_FORMULA,
+    labeller = labeller(
+      DIET_FORMULA = c(
+        "D12450Hi" = "HCD",
+        "D12451i"  = "HFD"
+      )
+    )
+  ) +
+  scale_fill_manual(values = bpa_fills) +
+  labs(
+    tag = "A",
+    x = "BPA exposure",
+    y = "Glucose AUC (0–90 min)"
+  ) +
+  theme_classic(base_size = 14) +
+  theme(legend.position = "none")
+
+# Panel B: OGTT AUC by sex, collapsed across BPA exposure
+sf7c <- ggplot(
+  ogtt,
+  aes(x = SEX, y = AUC, fill = SEX)
+) +
+  stat_summary(
+    fun = mean,
+    geom = "col",
+    width = 0.6,
+    color = "black"
+  ) +
+  stat_summary(
+    fun.data = mean_se,
+    geom = "errorbar",
+    width = 0.2,
+    linewidth = 0.8
+  ) +
+  geom_jitter(
+    width = 0.15,
+    size = 2,
+    shape = 21,
+    fill = "white",
+    color = "black"
+  ) +
+  scale_fill_manual(values = sex_fills) +
+  labs(
+    tag = "B",
+    x = "Sex",
+    y = "Glucose AUC (0–90 min)"
+  ) +
+  theme_classic(base_size = 14) +
+  theme(legend.position = "none")
+
+combined_plot_ogtt <- sf7b | sf7c
+
 combined_plot_ogtt
 
 # INDIRECT CALORIMETRY / COLUMBUS DATA ANALYSIS ----
@@ -5167,4 +5285,146 @@ t_test_NOP
 
 ##match bw baseline----
 
+#GRID TEST, PHYSICAL PERFORMANCE ----
 
+METABPA <- read_csv("~/Documents/GitHub/data/data/METABPA.csv") %>% 
+  filter(!grepl("-", ID)) %>%  #I eliminate from metadata all animals that were measured for NORT
+  mutate(ID = as.numeric(ID)) 
+
+grid <- read_csv("~/Documents/GitHub/data/data/CD1_gridtest.csv")
+
+length2 <- length_data %>% 
+  select(ID,LENGTH_CM,DATE) %>% 
+  filter(DATE == "2026-04-29") %>% 
+  select(ID,LENGTH_CM)
+
+grid2 <- grid %>%
+  left_join(METABPA, by = "ID") %>% 
+  rowwise()
+
+grid3 <- grid2 %>%
+  left_join(length2, by = "ID") %>% 
+  rowwise()
+
+## latency to fall (s)----
+
+grid4 <- grid3 %>%
+  mutate(
+    mean_latency = mean(c_across(t1:t4), na.rm = TRUE),
+    max_latency = max(c_across(t1:t4), na.rm = TRUE)
+  ) %>%
+  ungroup()
+
+summary_grid <- grid4%>%
+  group_by(SEX,  BPA_EXPOSURE) %>%
+  summarise(
+    group_mean_latency = mean(mean_latency, na.rm = TRUE),
+    sem_latency = sd(mean_latency, na.rm = TRUE) / sqrt(sum(!is.na(mean_latency))),
+    n = sum(!is.na(mean_latency)),
+    .groups = "drop"
+  )
+
+ggplot(summary_grid, aes(x = BPA_EXPOSURE, y = group_mean_latency, fill = BPA_EXPOSURE)) +
+  
+  geom_col(width = 0.6, color = "black") +
+  
+  geom_errorbar(
+    aes(
+      ymin = group_mean_latency - sem_latency,
+      ymax = group_mean_latency + sem_latency
+    ),
+    width = 0.2,
+    linewidth = 0.8
+  ) +
+  facet_wrap(~ SEX)+
+  scale_fill_manual(values = c("NO" = "gray70", "YES" = "black")) +
+  
+  labs(
+    x = "BPA Exposure",
+    y = "Mean latency to fall (s)",
+    title = "Grid Test Performance",
+    subtitle = "Mean ± SEM per group"
+  ) +
+  
+  theme_classic(base_size = 14) +
+  theme(
+    strip.background = element_blank(),
+    strip.text = element_text(face = "bold"),
+    legend.position = "none"
+  )
+## STATS----
+# collapsing for diet formula because we dont have enough stat power
+ttest_results <- grid4 %>%
+  group_by(SEX) %>%
+  do(
+    tidy(t.test(mean_latency ~ BPA_EXPOSURE, data = .))
+  )
+
+ttest_results
+
+#Despite increased body weight, 
+#BPA-exposed females show a tendency toward improved physical performance
+
+##STATS adjusting for BW----
+lm(mean_latency ~ BPA_EXPOSURE + BW, data = grid4 %>% filter(SEX == "F"))
+summary(lm(mean_latency ~ BPA_EXPOSURE + BW, data = grid4 %>% filter(SEX == "F")))
+
+##STATS adjusting for LENGTH----
+lm(mean_latency ~ BPA_EXPOSURE + LENGTH_CM, data = grid4 %>% filter(SEX == "F"))
+summary(lm(mean_latency ~ BPA_EXPOSURE + LENGTH_CM, data = grid4 %>% filter(SEX == "F")))
+
+#BPA-exposed females showed a trend toward increased latency to fall 
+#compared to controls when collapsing across diet. 
+#However, this effect was not statistically significant after adjusting 
+#for body weight, likely due to limited sample size.
+
+## fatigue rate----
+
+grid_long <- grid2 %>%
+  pivot_longer(
+    cols = t1:t4,
+    names_to = "trial",
+    values_to = "latency"
+  ) %>%
+  mutate(
+    trial_num = as.numeric(gsub("t", "", trial))
+  )
+
+fatigue_rate <- grid_long %>%
+  group_by(ID) %>%
+  do(tidy(lm(latency ~ trial_num, data = .))) %>%
+  filter(term == "trial_num") %>%
+  rename(fatigue_slope = estimate) %>%
+  select(ID, fatigue_slope, std.error, statistic, p.value)
+
+fatigue_rate <- fatigue_rate %>%
+  left_join(
+    grid2 %>% select(ID, SEX, DIET_FORMULA, BPA_EXPOSURE, BW),
+    by = "ID"
+  )
+
+
+ggplot(fatigue_rate, aes(x = BPA_EXPOSURE, y = fatigue_slope, fill = BPA_EXPOSURE)) +
+  geom_jitter(width = 0.1, size = 2, alpha = 0.7) +
+  stat_summary(fun = mean, geom = "point", size = 4, color = "red") +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.2, color = "red") +
+  facet_wrap(~SEX) +
+  scale_fill_manual(values = c("NO" = "gray70", "YES" = "black")) +
+  labs(
+    x = "BPA Exposure",
+    y = "Fatigue rate: change in latency per trial",
+    title = "Grid Test Fatigue Rate",
+    subtitle = "Negative slope = fatigue; positive slope = improvement/adaptation"
+  ) +
+  theme_classic(base_size = 14) +
+  theme(legend.position = "none")
+
+##STATS----
+fatigue_ttest <- fatigue_rate %>%
+  group_by(SEX) %>%
+  do(tidy(t.test(fatigue_slope ~ BPA_EXPOSURE, data = .)))
+
+fatigue_ttest
+
+#Both groups showed minimal changes in performance across repeated trials
+#suggesting limited fatigue effects under these conditions.
