@@ -291,7 +291,10 @@ BW_data <- read_csv("../data/BW.csv") %>%
   mutate(
     week_rel = day_rel / 7
   ) %>% 
-  filter(week_rel<=19) #the last week of measurement for cohort 15 is 21, for cohort 16 is 19 so 19 is the common end
+  filter(week_rel<=19) #the last week of measurement for cohort 15 is 21
+                      # the last week of measurement for cohort 16 is 19
+                      # the last week of measurement for cohort 18 is 15
+#so for Levine x
 
 BW_data  %>% 
   group_by(SEX) %>%

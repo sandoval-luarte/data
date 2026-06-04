@@ -87,3 +87,4 @@ COHORT 6,13: White deposit formation and evaluation of metabolic parameters
 COHORT 8: Changes in: 1. Food intake, 2. Body composition, 3. Metabolic parameters
 COHORT 9,12: White deposit formation
 COHORT 10 and 11: 1. Changes in Food (pellets) intake, 2. Body composition, 3. Metabolic parameters between food certainty and uncertainty environment 
+COHORT 19: Changes in 1. Body weight 2. Food intake 3. Body composition, in response to tirzepatide or survodutide. Changes in 1. Body weight 2. Food intake 3. Physical activity 4. Energy expenditure, in response to icv injections of Orexin A
