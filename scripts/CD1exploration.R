@@ -294,10 +294,10 @@ BW_data <- read_csv("../data/BW.csv") %>%
   filter(week_rel<=19) #the last week of measurement for cohort 15 is 21
                       # the last week of measurement for cohort 16 is 19
                       # the last week of measurement for cohort 18 is 15
-#so for Levine x
+#so for the meeting with Allen Levine we will lack of data of cohort 18
 
 BW_data  %>% 
-  group_by(SEX) %>%
+  group_by(SEX,BPA_EXPOSURE) %>%
   summarise(n_ID = n_distinct(ID)) 
 
 BW_summary <- BW_data %>%
@@ -412,7 +412,7 @@ week_contrasts_male_hcd <- contrast(
 
 week_stats_male_hcd <- as.data.frame(week_contrasts_male_hcd) 
 week_stats_male_hcd
-#so for there is no weeks in which BPA males are heavier than controls
+#so for there is no weeks in which BPA in HCD males are heavier than controls
 
 ### STATS males in HFD----
 
@@ -447,7 +447,7 @@ week_contrasts_male_hfd <- contrast(
 
 week_stats_male_hfd <- as.data.frame(week_contrasts_male_hfd) 
 week_stats_male_hfd 
-#so for males they started with different BWs (BPA vs no BPA ones) but they have the same BW after 17 weeks with HFD
+#so for males in HFD, the ones exposed to BPA are heavier than control after week 2 onward
 
 ### overal mix model ----
 model <-lmer(
@@ -456,11 +456,6 @@ model <-lmer(
   data = BW_data
 )
 emmeans(model, pairwise ~ BPA_EXPOSURE | SEX * DIET_FORMULA * week_rel)
-
-#for females HCD BPA changes the trajectory of BW over time, BPA animals become heavier starting around week 9–10
-#for females HFD BPA animals are overall heavier, and trend toward different trajectory, BPA females are heavier from baseline, and remain heavier throughout.
-#for males HCF No BPA effect on BW
-#for males HFD BPA animals are consistently heavier, but slope is similar, Baseline difference present
 
 #### STATS with baseline as a covariate (adjusts for BW starting differences)----
 
@@ -758,7 +753,8 @@ t_femaleHFD
 t_maleHCD
 t_maleHFD 
 
-# significant differences in BW at week 19 between BPA-exposed and control females in both OD. Nothing in males
+# significant differences in BW at week 19 between BPA-exposed and control females in both OD. 
+# there is a trend in males exposed to BPA in HFD to be heavier than controls
 
 #### plot D: BW at week 19----
 plot_wk_19<- ggplot(BW_week19_sum,
@@ -866,7 +862,7 @@ group_by(ID) %>%
 ## Date assignation for longitudinal analysis ----
 
 echoMRI_data %>% 
-  group_by(SEX,BPA_EXPOSURE,DIET_FORMULA) %>%
+  group_by(SEX,BPA_EXPOSURE) %>%
   summarise(n_ID = n_distinct(ID)) %>% 
   print(n = Inf) 
 
@@ -887,7 +883,7 @@ echoMRI_data_comparisons_collapsed <- echoMRI_data %>%
       COHORT == 18 & Date == "2026-04-29" ~ "13",  
       COHORT == 15 & Date == "2025-09-09" ~ "19",
       COHORT == 16 & Date == "2025-12-18" ~ "19",
-  #   COHORT == 18 & Date == "2026-06-03" ~ "19",
+      COHORT == 18 & Date == "2026-06-03" ~ "19",
       COHORT == 15 & Date == "2025-10-07" ~ "23",
       COHORT == 16 & Date == "2026-01-09" ~ "23" #really this is 22 wks ,
   #   COHORT == 18 & Date == "2026-07-08" ~ "24"
@@ -1024,7 +1020,7 @@ AI_week0<- echoMRI_data_comparisons_collapsed  %>%
   filter(n_measurement == 0) 
 
 AI_week0 %>% 
-  group_by(SEX,BPA_EXPOSURE,DIET_FORMULA) %>%
+  group_by(SEX,BPA_EXPOSURE) %>%
   summarise(n_ID = n_distinct(ID)) %>% 
   print(n = Inf) 
 
@@ -1106,12 +1102,12 @@ plot_ai_0 <- ggplot(AI_week0_sum ,
   scale_fill_manual(values = c("NO" = "gray50", "YES" = "black"))
 plot_ai_0 
 
-### Adiposity index at week 19 separated by diet----
+### Adiposity index at week 15 separated by diet----
 AI_week19<- echoMRI_data_comparisons_collapsed  %>% 
   filter(n_measurement == 19) 
 
 AI_week19 %>% 
-  group_by(SEX,BPA_EXPOSURE,DIET_FORMULA) %>%
+  group_by(SEX,BPA_EXPOSURE) %>%
   summarise(n_ID = n_distinct(ID)) %>% 
   print(n = Inf) 
 
