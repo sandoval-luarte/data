@@ -6,7 +6,7 @@ library(dplyr) #to use pipe
 library(ggplot2) #to graph
 library(readr) #to read csv
 library(tidyr)  # to use drop-na()
-library(ggpubr)
+library(ggpubr) 
 library(purrr)
 library(broom)
 library(Hmisc)
@@ -1530,7 +1530,7 @@ fat_week0<- echoMRI_data_comparisons_collapsed  %>%
   filter(n_measurement == 0) 
 
 fat_week0 %>% 
-  group_by(SEX,BPA_EXPOSURE,DIET_FORMULA) %>%
+  group_by(SEX,BPA_EXPOSURE) %>%
   summarise(n_ID = n_distinct(ID)) %>% 
   print(n = Inf) 
 
@@ -1617,7 +1617,7 @@ fat_week19<- echoMRI_data_comparisons_collapsed  %>%
   filter(n_measurement == 19) 
 
 fat_week19 %>% 
-  group_by(SEX,BPA_EXPOSURE,DIET_FORMULA) %>%
+  group_by(SEX,BPA_EXPOSURE) %>%
   summarise(n_ID = n_distinct(ID)) %>% 
   print(n = Inf) 
 
@@ -1858,7 +1858,7 @@ lean_week0<- echoMRI_data_comparisons_collapsed  %>%
   filter(n_measurement == 0) 
 
 lean_week0 %>% 
-  group_by(SEX,BPA_EXPOSURE,DIET_FORMULA) %>%
+  group_by(SEX,BPA_EXPOSURE) %>%
   summarise(n_ID = n_distinct(ID)) %>% 
   print(n = Inf) 
 
@@ -1950,7 +1950,7 @@ lean_week19 %>%
   print(n = Inf) 
 
 lean_week19_sum <- lean_week19  %>% 
-  group_by(BPA_EXPOSURE, SEX,DIET_FORMULA) %>% 
+  group_by(BPA_EXPOSURE, SEX) %>% 
   summarise(
     mean_lean_19 = mean(Lean, na.rm = TRUE),
     sem_lean_19  = sd(Lean, na.rm = TRUE) / sqrt(n()),
@@ -2056,6 +2056,7 @@ plot_lean_0 <- plot_lean_0 +
   coord_cartesian(ylim = c(y_min, y_max)) +
   theme(legend.position = "none")
 
+
 # Panel D: lean mass at week 19
 plot_lean_19 <- plot_lean_19 +
   labs(tag = "D") +
@@ -2085,91 +2086,216 @@ length_data <- read_csv("../data/METABPA_LENGTH.csv") %>%
   mutate(age_week_round = round(age_weeks)) %>% 
   ungroup()
 
+length_data <- length_data %>%
+  mutate(
+    age_week_round = if_else(age_week_round == 7, 8, age_week_round)
+  )
+
+delta_length <- length_data %>%
+  filter(age_week_round %in% c(8, 17)) %>%
+  select(ID, age_week_round, LENGTH_CM) %>%
+  tidyr::pivot_wider(
+    names_from = age_week_round,
+    values_from = LENGTH_CM,
+    names_prefix = "week_"
+  ) %>%
+  mutate(
+    delta_length = week_17 - week_8
+  )
+
+delta_length
+
 length_data %>% 
-  group_by(SEX,BPA_EXPOSURE,DIET_FORMULA) %>%
+  group_by(SEX,BPA_EXPOSURE,age_week_round) %>%
   summarise(n_ID = n_distinct(ID)) 
 
-####histogram check data distribution-----
+#### correlation analysis ----
 
-ggplot(length_data, aes(x = LENGTH_CM)) +
-  geom_histogram(bins = 30, color = "black", fill = "skyblue") +
-  theme_classic()
+delta_bodycomp <- echoMRI_data_comparisons_collapsed %>% 
+  select(
+    ID, Date, Lean, Fat, adiposity_index,
+    DIET_FORMULA, BPA_EXPOSURE, SEX
+  ) %>% 
+  filter(Date %in% c("2026-02-23", "2026-04-29")) %>% 
+  mutate(Date = as.character(Date)) %>%
+  pivot_wider(
+    names_from = Date,
+    values_from = c(Lean, Fat, adiposity_index)
+  ) %>%
+  rename(
+    lean_start = `Lean_2026-02-23`,
+    lean_end   = `Lean_2026-04-29`,
+    Fat_start = `Fat_2026-02-23`,
+    Fat_end   = `Fat_2026-04-29`,
+    adiposity_index_start = `adiposity_index_2026-02-23`,
+    adiposity_index_end   = `adiposity_index_2026-04-29`
+  ) %>% mutate(
+    delta_lean = lean_end - lean_start,
+    delta_fat = Fat_end - Fat_start,
+    delta_adiposity_index = adiposity_index_end - adiposity_index_start)
 
-ggplot(length_data, aes(sample = LENGTH_CM)) +
-  stat_qq() +
-  stat_qq_line() +
-  theme_classic()
 
-shapiro.test(length_data$LENGTH_CM) #The data are normally distributed so analysing the mean is correct
+delta_bodycomp_2 <- delta_bodycomp %>% 
+  select(
+    ID, delta_lean, delta_fat, delta_adiposity_index,
+    DIET_FORMULA, BPA_EXPOSURE, SEX
+  ) %>% 
+  left_join(delta_length, by= "ID") %>% 
+  select(
+    ID, delta_lean, delta_fat, delta_adiposity_index,
+    DIET_FORMULA, BPA_EXPOSURE, SEX, delta_length
+  )
+  
+##### lean vs length----
 
-length_summary <- length_data  %>%
-  group_by(SEX, BPA_EXPOSURE) %>%
+delta_bodycomp_2 %>%
+  group_by(BPA_EXPOSURE) %>%
   summarise(
-    mean_length = mean(LENGTH_CM, na.rm = TRUE),
-    sem_length  = sd(LENGTH_CM, na.rm = TRUE) / sqrt(n_distinct(ID)),
-    n = n_distinct(ID),
+    n = sum(!is.na(delta_length) & !is.na(delta_lean)),
+    r = cor(
+      delta_length,
+      delta_lean,
+      use = "complete.obs",
+      method = "pearson"
+    ),
     .groups = "drop"
-  ) 
+  )
 
-##STATS----
-# Female groups
-female_data <- length_data %>% filter(SEX == "F")
-shapiro.test(female_data$LENGTH_CM[female_data$BPA_EXPOSURE == "YES"])
-shapiro.test(female_data$LENGTH_CM[female_data$BPA_EXPOSURE == "NO"])
+delta_bodycomp_2 %>%
+  group_by(BPA_EXPOSURE) %>%
+  summarise(
+    tidy(cor.test(delta_length, delta_lean)),
+    .groups = "drop"
+  ) %>%
+  select(BPA_EXPOSURE, estimate, p.value, conf.low, conf.high)
 
-# Male groups
-male_data <- length_data %>% filter(SEX == "M")
-shapiro.test(male_data$LENGTH_CM[male_data$BPA_EXPOSURE == "YES"])
-shapiro.test(male_data$LENGTH_CM[male_data$BPA_EXPOSURE == "NO"])
+summary(
+  lm(
+    delta_lean ~ delta_length * BPA_EXPOSURE,
+    data = delta_bodycomp_2
+  )
+)
 
-# Female
-leveneTest(LENGTH_CM ~ BPA_EXPOSURE, data = female_data)
-
-# Male
-leveneTest(LENGTH_CM ~ BPA_EXPOSURE, data = male_data)
-
-# Welch t-test for females
-t.test(LENGTH_CM ~ BPA_EXPOSURE, data = female_data, var.equal = FALSE)
-# Standard t-test for males
-t.test(LENGTH_CM ~ BPA_EXPOSURE, data = male_data, var.equal = TRUE)
-
-### Length plot----
-# Color palettes
-bpa_fills  <- c("NO" = "gray80", "YES" = "#0072B2")
-
-length_plot <- ggplot(
-  length_data,
-  aes(x = BPA_EXPOSURE, y = LENGTH_CM, fill = BPA_EXPOSURE)
+ggplot(
+  delta_bodycomp_2,
+  aes(x = delta_length, y = delta_lean)
 ) +
-  stat_summary(
-    fun = mean,
-    geom = "col",
-    width = 0.6,
-    color = "black"
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", se = TRUE, color = "blue") +
+  stat_cor(
+    method = "pearson",
+    aes(label = paste(..r.label.., ..p.label.., sep = "~`,`~")),
+    label.x.npc = "left",
+    label.y.npc = "top",
+    size = 5
   ) +
-  stat_summary(
-    fun.data = mean_se,
-    geom = "errorbar",
-    width = 0.2,
-    linewidth = 0.8
-  ) +
-  geom_jitter(
-    width = 0.15,
-    size = 2,
-    shape = 21,
-    fill = "white",   # 👈 FIX: keep points white
-    color = "black"
-  ) +
-  facet_wrap(~ SEX) +
-  scale_fill_manual(values = bpa_fills) +
-  labs(
-    x = "BPA exposure",
-    y = "Body length (cm)"
-  ) +
+  facet_wrap(~ BPA_EXPOSURE) +
   theme_classic(base_size = 14) +
-  theme(legend.position = "none")
+  labs(
+    x = expression(Delta*" Length (cm)"),
+    y = expression(Delta*" Lean mass (g)")
+  )
 
-length_plot
+##### fat vs length----
+
+delta_bodycomp_2 %>%
+  group_by(BPA_EXPOSURE) %>%
+  summarise(
+    n = sum(!is.na(delta_length) & !is.na(delta_fat)),
+    r = cor(
+      delta_length,
+      delta_fat,
+      use = "complete.obs",
+      method = "pearson"
+    ),
+    .groups = "drop"
+  )
+
+delta_bodycomp_2 %>%
+  group_by(BPA_EXPOSURE) %>%
+  summarise(
+    tidy(cor.test(delta_length, delta_fat)),
+    .groups = "drop"
+  ) %>%
+  select(BPA_EXPOSURE, estimate, p.value, conf.low, conf.high)
+
+summary(
+  lm(
+    delta_fat ~ delta_length * BPA_EXPOSURE,
+    data = delta_bodycomp_2
+  )
+)
+
+ggplot(
+  delta_bodycomp_2,
+  aes(x = delta_length, y = delta_fat)
+) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", se = TRUE, color = "blue") +
+  stat_cor(
+    method = "pearson",
+    aes(label = paste(..r.label.., ..p.label.., sep = "~`,`~")),
+    label.x.npc = "left",
+    label.y.npc = "top",
+    size = 5
+  ) +
+  facet_wrap(~ BPA_EXPOSURE) +
+  theme_classic(base_size = 14) +
+  labs(
+    x = expression(Delta*" Length (cm)"),
+    y = expression(Delta*" Fat mass (g)")
+  )
+
+##### adiposity index vs length----
+
+delta_bodycomp_2 %>%
+  group_by(BPA_EXPOSURE) %>%
+  summarise(
+    n = sum(!is.na(delta_length) & !is.na(delta_adiposity_index)),
+    r = cor(
+      delta_length,
+      delta_adiposity_index,
+      use = "complete.obs",
+      method = "pearson"
+    ),
+    .groups = "drop"
+  )
+
+delta_bodycomp_2 %>%
+  group_by(BPA_EXPOSURE) %>%
+  summarise(
+    tidy(cor.test(delta_length, delta_adiposity_index)),
+    .groups = "drop"
+  ) %>%
+  select(BPA_EXPOSURE, estimate, p.value, conf.low, conf.high)
+
+summary(
+  lm(
+    delta_adiposity_index ~ delta_length * BPA_EXPOSURE,
+    data = delta_bodycomp_2
+  )
+)
+
+ggplot(
+  delta_bodycomp_2,
+  aes(x = delta_length, y = delta_adiposity_index)
+) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", se = TRUE, color = "blue") +
+  stat_cor(
+    method = "pearson",
+    aes(label = paste(..r.label.., ..p.label.., sep = "~`,`~")),
+    label.x.npc = "left",
+    label.y.npc = "top",
+    size = 5
+  ) +
+  facet_wrap(~ BPA_EXPOSURE) +
+  theme_classic(base_size = 14) +
+  labs(
+    x = expression(Delta*" Length (cm)"),
+    y = expression(Delta*" adiposity index (fat/lean mass)")
+  )
+
 
 # FOOD INTAKE ANALYSIS----
 
