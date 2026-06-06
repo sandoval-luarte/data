@@ -3239,7 +3239,7 @@ combined_plot_ogtt
 
 #cohort 15: D.O.B 4/10/2025 - 08/24/2025 = 19.4 wks
 #cohort 16: D.O.B 7/13/2025 - 11/24/2025 = 19.1 wks
-#cohort 18: D.O.B 12/31/2025 and 1/2/2026 - 05/16/2026 = 19.4 wks
+#cohort 18: D.O.B 12/31/2025 and 1/2/2026 - 05/18/2026 = 19.4 wks
 
 METABPA <- read_csv("~/Documents/GitHub/data/data/METABPA.csv") %>% 
   mutate(ID= as.numeric(ID))
@@ -3273,7 +3273,6 @@ ical_data_counts_coh15 <- read_csv("~/Documents/GitHub/data/data/iCal_Kotz_08242
          -`8/29/25 9:00`,
          -`8/29/25 10:00`)
 
-
 ical_data_counts_coh16 <- read_csv("~/Documents/GitHub/data/data/ical analysis 11262025_counts.csv") %>% 
   rename(ID = Subject) %>% 
   mutate(ID = as.numeric(paste0("9", ID))) %>% 
@@ -3303,6 +3302,35 @@ ical_data_counts_coh16 <- read_csv("~/Documents/GitHub/data/data/ical analysis 1
          -`11/26/25 8:00`,
          -`11/26/25 9:00`)
 
+ical_data_counts_coh18 <- read_csv("~/Documents/GitHub/data/data/iCal_Kotz_051826_counts.csv") %>% 
+  rename(ID = Subject) %>% 
+  select(-`5/18/26 11:00`, #we want to keep just 24 hours
+         -`5/18/26 12:00`,
+         -`5/18/26 13:00`,
+         -`5/18/26 14:00`,
+         -`5/18/26 15:00`,
+         -`5/18/26 16:00`,
+         -`5/18/26 17:00`,
+         -`5/18/26 18:00`,
+         -`5/18/26 19:00`,
+         -`5/19/26 20:00`,
+         -`5/19/26 21:00`,
+         -`5/19/26 22:00`,
+         -`5/19/26 23:00`,
+         -`5/20/26 0:00`,
+         -`5/20/26 1:00`,
+         -`5/20/26 2:00`,
+         -`5/20/26 3:00`,
+         -`5/20/26 4:00`,
+         -`5/20/26 5:00`,
+         -`5/20/26 6:00`,
+         -`5/20/26 7:00`,
+         -`5/20/26 8:00`,
+         -`5/20/26 9:00`,
+         -`5/20/26 10:00`,
+         -`5/20/26 11:00`)
+
+
 ical_long15 <- ical_data_counts_coh15 %>%
   pivot_longer(cols = -c(ID, BW), 
                names_to = "datetime_raw", 
@@ -3317,7 +3345,41 @@ ical_long16 <- ical_data_counts_coh16 %>%
   left_join(METABPA, by = "ID") %>% 
   mutate(datetime = mdy_hm(datetime_raw))
 
+ical_long18 <- ical_data_counts_coh18 %>%
+  pivot_longer(cols = -c(ID, BW), 
+               names_to = "datetime_raw", 
+               values_to = "count") %>% 
+  left_join(METABPA, by = "ID") %>% 
+  mutate(datetime = mdy_hm(datetime_raw))
+
+
+ical_long15 <- ical_long15 %>% 
+  group_by(ID) %>%
+  mutate(
+    day = as.integer(as.Date(datetime) - min(as.Date(datetime))) + 1
+  ) %>%
+  ungroup() %>% 
+  mutate(
+    datetime_day = paste0(
+      "day ", day, " ",
+      format(datetime, "%H:%M")
+    )
+  )
+
 ical_long16 <- ical_long16 %>% 
+  group_by(ID) %>%
+  mutate(
+    day = as.integer(as.Date(datetime) - min(as.Date(datetime))) + 1
+  ) %>%
+  ungroup() %>% 
+  mutate(
+    datetime_day = paste0(
+      "day ", day, " ",
+      format(datetime, "%H:%M")
+    )
+  )
+
+ical_long18 <- ical_long18 %>% 
   group_by(ID) %>%
   mutate(
     day = as.integer(as.Date(datetime) - min(as.Date(datetime))) + 1
@@ -3336,17 +3398,24 @@ ical_long15 <- ical_long15 %>%
 ical_long16 <- ical_long16 %>%
   mutate(cohort = 16)
 
-common_cols <- intersect(names(ical_long15), names(ical_long16)) 
+ical_long18 <- ical_long18 %>%
+  mutate(cohort = 18)
+
+common_cols <- Reduce(
+  intersect,
+  list(names(ical_long15), names(ical_long16), names(ical_long18))
+)
 
 ical_long15 <- ical_long15 %>% select(all_of(common_cols))
 ical_long16 <- ical_long16 %>% select(all_of(common_cols))
+ical_long18 <- ical_long18 %>% select(all_of(common_cols))
 
-ical_long_all <- bind_rows(ical_long15, ical_long16) %>% #this is key, here we combined
-  #filter(!ID %in% c(9367, 9366, 9404, 9363,9406)) #these animals are responsible for a skew behavior of the normal curve in locomotion data
-  filter(!ID ==9406)  #9406 has a  weird pattern in locomotion
+ical_long_all <- bind_rows(ical_long15, ical_long16, ical_long18) %>% #this is key, here we combined
+  filter(!ID %in% c(9406, 9443))
+ #9406 has a  weird pattern in locomotion
+ #9443 had a technical issue in the recording
   
 ical_long_all %>% 
-filter(!ID ==9406) %>%   #9406 has a  weird pattern in locomotion
 group_by(SEX,BPA_EXPOSURE) %>%
   summarise(n_ID = n_distinct(ID)) 
 
@@ -3371,8 +3440,8 @@ ical_long_all <- ical_long_all %>%
   group_by(ID, exp_day) %>%
   mutate(count_total = cumsum(count)) %>%
   ungroup() %>% 
-  filter(!ID ==9406) %>%   #9406 has a  weird pattern in locomotion
-  group_by(ID, exp_day) %>%
+  filter(!ID %in% c(9406, 9443)) %>% 
+group_by(ID, exp_day) %>%
    mutate(
     relative_total_count = count_total - first(count_total))
 
@@ -3420,7 +3489,7 @@ ggplot(
   )
 
 ical_long_allgrouped <- ical_long_all %>% 
-filter(!ID ==9406) %>%   #9406 has a  weird pattern in locomotion
+  filter(!ID %in% c(9406, 9443)) %>% #9367 also has a weird pattern of locomotion
   group_by(hour_label, SEX, BPA_EXPOSURE,DIET_FORMULA) %>% 
   summarise(
     mean_counts = mean(relative_total_count, na.rm = TRUE),
@@ -3501,8 +3570,7 @@ relative_count_at_19 <- ical_long_all %>%
     BPA_EXPOSURE = first(BPA_EXPOSURE),
     .groups = "drop"
   ) %>% 
- # filter(!ID %in% c(9367, 9366, 9404, 9363,9406))
-filter(!ID ==9406)   #9406 has a  weird pattern in locomotion
+  filter(!ID %in% c(9406, 9443,9367))  #9367 also has a weird pattern of locomotion
   
   relative_count_at_19 %>% 
   group_by(SEX,BPA_EXPOSURE) %>%
@@ -3631,6 +3699,7 @@ sf8a
 
 # Summarize relative_total_count at hour == 19 including SEX and BPA_EXPOSURE and DIET so this means locomotion over 24h
 relative_count_at_19_diet <- ical_long_all %>%
+  filter(!ID %in% c(9406, 9443,9367)) %>%   #9367 also has a weird pattern of locomotion
   filter(hour == 19) %>%
   group_by(ID) %>%
   summarise(
@@ -3732,7 +3801,7 @@ sf8b
 ## locomotion analysis separated by light period ----
 
 ical_phase <- ical_long_all %>%
-  filter(!ID ==9406) %>%   #9406 has a  weird pattern in locomotion
+  filter(!ID %in% c(9406, 9443,9367)) %>%   #9367 also has a weird pattern of locomotion
   mutate(
     phase = case_when(
       hour >= 20 | hour < 6  ~ "dark",   # 20:00–05:59
