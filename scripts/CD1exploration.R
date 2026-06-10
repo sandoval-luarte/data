@@ -1901,7 +1901,7 @@ lean_week19<- echoMRI_data_comparisons_collapsed  %>%
   filter(n_measurement == 19) 
 
 lean_week19 %>% 
-  group_by(SEX,BPA_EXPOSURE,DIET_FORMULA) %>%
+  group_by(SEX,BPA_EXPOSURE) %>%
   summarise(n_ID = n_distinct(ID)) %>% 
   print(n = Inf) 
 
@@ -2148,7 +2148,7 @@ fat_perc_week0<- echoMRI_data_comparisons_collapsed  %>%
   filter(n_measurement == 0) 
 
 fat_perc_week0 %>% 
-  group_by(BPA_EXPOSURE, SEX,DIET_FORMULA) %>% 
+  group_by(BPA_EXPOSURE, SEX) %>% 
   summarise(n_ID = n_distinct(ID)) %>% 
   print(n = Inf) 
 
@@ -2234,7 +2234,7 @@ fat_perc_week19<- echoMRI_data_comparisons_collapsed  %>%
   filter(n_measurement == 19) 
 
 fat_perc_week19 %>% 
-  group_by(BPA_EXPOSURE, SEX,DIET_FORMULA) %>% 
+  group_by(BPA_EXPOSURE, SEX) %>% 
   summarise(n_ID = n_distinct(ID)) %>% 
   print(n = Inf) 
 
@@ -2566,7 +2566,7 @@ lean_perc_week19<- echoMRI_data_comparisons_collapsed  %>%
   filter(n_measurement == 19) 
 
 lean_perc_week19 %>% 
-  group_by(BPA_EXPOSURE, SEX,DIET_FORMULA) %>% 
+  group_by(BPA_EXPOSURE, SEX) %>% 
   summarise(n_ID = n_distinct(ID)) %>% 
   print(n = Inf) 
 
@@ -2741,7 +2741,15 @@ ggplot(
     position = position_dodge(width = 0.8),
     width = 0.2
   ) +
-  facet_wrap(~ SEX*DIET_FORMULA) +
+  facet_wrap(
+    ~ SEX * DIET_FORMULA,
+    labeller = labeller(
+      DIET_FORMULA = c(
+        "D12450Hi" = "HCD",
+        "D12451i"  = "HFD"
+      )
+    )
+  ) +
   scale_fill_manual(
     values = c(
       "NO" = "gray80",
@@ -3350,7 +3358,15 @@ plot_latency <- ggplot(summary_grid, aes(x = BPA_EXPOSURE, y = group_mean_latenc
     shape = 21,
     color = "black"
   ) +
-  facet_wrap(~ SEX*DIET_FORMULA) +
+  facet_wrap(
+    ~ SEX * DIET_FORMULA,
+    labeller = labeller(
+      DIET_FORMULA = c(
+        "D12450Hi" = "HCD",
+        "D12451i"  = "HFD"
+      )
+    )
+  ) +
   scale_fill_manual(values = c("NO" = "gray70", "YES" = "black")) +
   labs(
     x = "BPA Exposure",
@@ -3461,8 +3477,15 @@ plot_fatigue <- ggplot(summary_fatigue,
     color = "black",
     inherit.aes = FALSE
   ) +
-  
-  facet_wrap(~SEX*DIET_FORMULA) +
+  facet_wrap(
+    ~ SEX * DIET_FORMULA,
+    labeller = labeller(
+      DIET_FORMULA = c(
+        "D12450Hi" = "HCD",
+        "D12451i"  = "HFD"
+      )
+    )
+  ) +
   
   scale_fill_manual(values = c("NO" = "gray70", "YES" = "black")) +
   
