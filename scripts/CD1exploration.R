@@ -6641,7 +6641,6 @@ dat_fam_di %>%
 
 ####DATA IMPORT COHORT 16 4 MONTH OLD----
 
-
 METABPA <- read_csv("~/Documents/GitHub/data/data/METABPA.csv") %>% 
   rename(Animal = ID)
 
