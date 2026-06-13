@@ -1,0 +1,55 @@
+Test,Animal,Stage,Apparatus,Date,Time,Segment of test,Familiar Object 1 ,Novel Object ,Familiar Object 2 ,Duration (s),Distance (m),Center : time (s),Periphery : time (s),Familiar Object 1 : time investigating (s),Familiar Object 1 : time oriented towards (s),Novel Object : time investigating (s),Familiar Object 2 : time investigating (s)
+1,9431.1N,Habituation,NORT pod 1,4/6/2026,13:38:33,0 - 300 secs.,,,,300.0,13.142,48.5,245.7,,,,
+1,9431.1N,Habituation,NORT pod 1,4/6/2026,13:38:33,300 - 600 secs.,,,,300.0,6.886,31.5,263.0,,,,
+2,9431.2L,Habituation,NORT pod 2,4/6/2026,13:38:33,0 - 300 secs.,,,,300.0,21.300,34.9,253.7,,,,
+2,9431.2L,Habituation,NORT pod 2,4/6/2026,13:38:33,300 - 600 secs.,,,,300.0,14.275,21.5,275.4,,,,
+3,9431.3R,Habituation,NORT pod 3,4/6/2026,13:38:33,0 - 300 secs.,,,,300.0,11.820,30.7,255.6,,,,
+3,9431.3R,Habituation,NORT pod 3,4/6/2026,13:38:33,300 - 600 secs.,,,,300.0,9.658,46.9,245.0,,,,
+4,9440.1N,Habituation,NORT Pod 4,4/6/2026,13:38:33,0 - 300 secs.,,,,300.0,19.612,51.5,212.4,,,,
+4,9440.1N,Habituation,NORT Pod 4,4/6/2026,13:38:33,300 - 600 secs.,,,,300.0,13.142,48.9,231.0,,,,
+5,9440.2L,Habituation,NORT Pod 5,4/6/2026,13:38:33,0 - 300 secs.,,,,300.0,21.714,31.3,220.0,,,,
+5,9440.2L,Habituation,NORT Pod 5,4/6/2026,13:38:33,300 - 600 secs.,,,,300.0,12.124,19.2,258.8,,,,
+6,9445.1N,Habituation,NORT pod 1,4/6/2026,13:59:29,0 - 300 secs.,,,,300.0,13.317,38.7,252.0,,,,
+6,9445.1N,Habituation,NORT pod 1,4/6/2026,13:59:29,300 - 600 secs.,,,,300.0,8.546,35.3,258.1,,,,
+7,9445.2L,Habituation,NORT pod 2,4/6/2026,13:59:29,0 - 300 secs.,,,,300.0,12.151,17.1,272.7,,,,
+7,9445.2L,Habituation,NORT pod 2,4/6/2026,13:59:29,300 - 600 secs.,,,,300.0,9.050,32.0,265.0,,,,
+8,9447.1N,Habituation,NORT pod 3,4/6/2026,13:59:29,0 - 300 secs.,,,,300.0,18.522,44.5,237.9,,,,
+8,9447.1N,Habituation,NORT pod 3,4/6/2026,13:59:29,300 - 600 secs.,,,,300.0,9.128,36.9,258.5,,,,
+9,9447.2L,Habituation,NORT Pod 4,4/6/2026,13:59:29,0 - 300 secs.,,,,300.0,10.067,103.6,188.4,,,,
+9,9447.2L,Habituation,NORT Pod 4,4/6/2026,13:59:29,300 - 600 secs.,,,,300.0,7.375,48.7,249.7,,,,
+10,9431.1N,Familiarization,NORT pod 1,4/7/2026,13:47:19,0 - 300 secs.,Back left,,Front right,300.0,11.403,66.0,230.6,34.6,83.3,,39.1
+10,9431.1N,Familiarization,NORT pod 1,4/7/2026,13:47:19,300 - 600 secs.,Back left,,Front right,300.0,9.689,77.9,218.9,43.6,93.7,,29.6
+11,9431.2L,Familiarization,NORT pod 2,4/7/2026,13:47:19,0 - 300 secs.,Back left,,Front right,300.0,21.915,38.7,247.0,33.0,64.1,,23.1
+11,9431.2L,Familiarization,NORT pod 2,4/7/2026,13:47:19,300 - 600 secs.,Back left,,Front right,300.0,15.830,37.2,255.4,32.9,77.2,,21.0
+12,9431.3R,Familiarization,NORT pod 3,4/7/2026,13:47:19,0 - 300 secs.,Back left,,Front right,300.0,14.142,36.4,243.9,17.9,70.9,,21.7
+12,9431.3R,Familiarization,NORT pod 3,4/7/2026,13:47:19,300 - 600 secs.,Back left,,Front right,300.0,11.687,56.9,230.0,33.4,83.3,,11.8
+13,9440.1N,Familiarization,NORT Pod 4,4/7/2026,13:47:19,0 - 300 secs.,Back left,,Front right,300.0,19.254,40.4,233.2,34.3,84.0,,21.3
+13,9440.1N,Familiarization,NORT Pod 4,4/7/2026,13:47:19,300 - 600 secs.,Back left,,Front right,300.0,13.579,20.6,245.0,13.8,54.1,,11.5
+14,9440.2L,Familiarization,NORT Pod 5,4/7/2026,13:47:19,0 - 300 secs.,Back left,,Front right,300.0,15.755,10.4,270.2,19.2,80.2,,28.7
+14,9440.2L,Familiarization,NORT Pod 5,4/7/2026,13:47:19,300 - 600 secs.,Back left,,Front right,300.0,13.588,30.1,250.3,28.0,73.0,,29.2
+15,9445.1N,Familiarization,NORT pod 1,4/7/2026,14:10:10,0 - 300 secs.,Back left,,Front right,300.0,7.298,33.3,252.1,58.6,135.0,,17.8
+15,9445.1N,Familiarization,NORT pod 1,4/7/2026,14:10:10,300 - 600 secs.,Back left,,Front right,300.0,7.092,107.6,180.9,26.3,92.6,,20.8
+16,9445.2L,Familiarization,NORT pod 2,4/7/2026,14:10:10,0 - 300 secs.,Back left,,Front right,300.0,8.457,4.0,257.6,12.5,91.3,,27.4
+16,9445.2L,Familiarization,NORT pod 2,4/7/2026,14:10:10,300 - 600 secs.,Back left,,Front right,300.0,8.333,18.5,267.2,20.9,76.4,,28.2
+17,9447.2L,Familiarization,NORT Pod 4,4/7/2026,14:10:10,0 - 300 secs.,Back left,,Front right,300.0,9.668,39.5,252.2,31.4,95.6,,26.9
+17,9447.2L,Familiarization,NORT Pod 4,4/7/2026,14:10:10,300 - 600 secs.,Back left,,Front right,300.0,6.568,36.6,257.6,27.6,62.7,,28.9
+18,9447.1N,Familiarization,NORT pod 3,4/7/2026,14:10:19,0 - 300 secs.,Back left,,Front right,300.0,9.125,28.8,264.5,22.4,85.8,,39.4
+18,9447.1N,Familiarization,NORT pod 3,4/7/2026,14:10:19,300 - 600 secs.,Back left,,Front right,300.0,10.499,54.1,235.7,40.3,73.1,,44.2
+19,9431.1N,Recognition,NORT pod 1,4/7/2026,14:58:19,0 - 300 secs.,Back left,Front right,,300.0,9.784,69.5,230.0,21.9,79.0,58.9,
+19,9431.1N,Recognition,NORT pod 1,4/7/2026,14:58:19,300 - 600 secs.,Back left,Front right,,300.0,10.212,64.2,235.0,25.9,58.9,46.4,
+20,9431.2L,Recognition,NORT pod 2,4/7/2026,14:58:19,0 - 300 secs.,Back left,Front right,,300.0,12.795,14.3,280.1,17.0,81.3,36.2,
+20,9431.2L,Recognition,NORT pod 2,4/7/2026,14:58:19,300 - 600 secs.,Back left,Front right,,300.0,13.912,48.4,244.4,28.6,62.5,16.1,
+21,9431.3R,Recognition,NORT pod 3,4/7/2026,14:58:19,0 - 300 secs.,Back left,Front right,,300.0,12.614,30.1,255.8,12.8,81.3,27.5,
+21,9431.3R,Recognition,NORT pod 3,4/7/2026,14:58:19,300 - 600 secs.,Back left,Front right,,300.0,12.437,45.2,236.6,17.3,46.4,27.9,
+22,9440.1N,Recognition,NORT Pod 4,4/7/2026,14:58:19,0 - 300 secs.,Back left,Front right,,300.0,17.344,30.8,237.9,11.9,61.8,24.2,
+22,9440.1N,Recognition,NORT Pod 4,4/7/2026,14:58:19,300 - 600 secs.,Back left,Front right,,300.0,13.949,23.3,250.9,20.8,57.9,22.7,
+23,9440.2L,Recognition,NORT Pod 5,4/7/2026,14:58:19,0 - 300 secs.,Back left,Front right,,300.0,11.245,8.4,263.2,19.1,91.4,28.0,
+23,9440.2L,Recognition,NORT Pod 5,4/7/2026,14:58:19,300 - 600 secs.,Back left,Front right,,300.0,12.357,28.6,248.5,23.3,73.3,37.7,
+24,9445.1N,Recognition,NORT pod 1,4/7/2026,15:22:00,0 - 300 secs.,Back left,Front right,,300.0,9.458,67.3,225.4,24.2,87.6,20.9,
+24,9445.1N,Recognition,NORT pod 1,4/7/2026,15:22:00,300 - 600 secs.,Back left,Front right,,300.0,12.780,117.6,168.7,49.1,75.8,23.6,
+25,9445.2L,Recognition,NORT pod 2,4/7/2026,15:22:00,0 - 300 secs.,Back left,Front right,,300.0,8.902,35.5,257.0,42.0,100.4,13.1,
+25,9445.2L,Recognition,NORT pod 2,4/7/2026,15:22:00,300 - 600 secs.,Back left,Front right,,300.0,5.770,10.7,288.3,30.5,120.5,58.5,
+26,9447.1N,Recognition,NORT pod 3,4/7/2026,15:22:00,0 - 300 secs.,Back left,Front right,,300.0,8.252,49.9,231.6,11.3,68.1,28.6,
+26,9447.1N,Recognition,NORT pod 3,4/7/2026,15:22:00,300 - 600 secs.,Back left,Front right,,300.0,5.858,58.4,231.8,23.8,80.6,39.7,
+27,9447.2L,Recognition,NORT Pod 4,4/7/2026,15:22:00,0 - 300 secs.,Back left,Front right,,300.0,6.765,34.1,260.5,20.9,82.9,39.2,
+27,9447.2L,Recognition,NORT Pod 4,4/7/2026,15:22:00,300 - 600 secs.,Back left,Front right,,300.0,3.479,44.9,249.8,32.3,78.3,40.9,

@@ -6266,23 +6266,86 @@ model_fhcd <- lmer(
 
 anova(model_fhcd)
 
-#Novel object recognition test ----
+#NORT (NOVEL OBJECT RECOGNITION TEST) ----
+
+#Read me: 
+#Data.csv- raw data for cohort 15 (7/15/25)
+#Data-2.csv- Raw data for cohort 16 (11/10/2025) #Zander comment (12/21/25): The Data-2 was cut short. Due to technical issues we had to start late and we had to rush because another lab group was telling us they needed the room. We for sure got the 0-5 minute window for all mice though.
+#Data-3.csv- Raw data for cohort 15 and cohort 16 (10/13/2025) 
+#Data-4.csv- raw data for cohort 16 (1/15/2026) #habituation was not correctly recordered. Zander did not recorded 300 - 600 secs section of the test in the habituation phase. Also he ran the same day habituation, familiarization and recognition phases
+#Data-5.cvs raw data for cohort 18 (4/6/2026)
 
 ####Data import----
 
-data <- read_csv("~/Documents/GitHub/data/data/Data.csv")
+METABPA <- read_csv("~/Documents/GitHub/data/data/METABPA.csv") %>% 
+  rename(Animal = ID) %>% 
+  filter(grepl("-", Animal) | Animal %in% c("9408", "9409"))   #I want to keep just IDs that were measured for NORT for cohort 1, 2 and 3
 
-# exploration of the data about what is happening with the behavior of mice in each stage
+data <- read_csv("~/Documents/GitHub/data/data/Data.csv")%>% 
+  mutate(Animal = gsub("\\.", "-", as.character(Animal))) %>% 
+  mutate(Animal= as.character(Animal),Animal = case_when(
+    Animal == "1"  ~ "9389-1",
+    Animal == "2"  ~ "9389-2",
+    Animal == "3"  ~ "9389-3",
+    Animal == "4"  ~ "9389-4",
+    Animal == "5"  ~ "9380-1",
+    Animal == "6"  ~ "9380-2",
+    Animal == "7"  ~ "9380-3",
+    Animal == "8"  ~ "9391-1",
+    Animal == "9"  ~ "9391-2",
+    Animal == "10" ~ "9392-1",
+    Animal == "11" ~ "9392-2",
+    Animal == "12" ~ "9392-3",
+    Animal == "13" ~ "9385-1",
+    Animal == "14" ~ "9385-2",
+    Animal == "15" ~ "9385-3",
+    Animal == "16" ~ "9385-4",
+    TRUE       ~ Animal))
 
-# hypothesis N1: animals prefers periphery than center ----
-# we can expect the animals will not have a very clear pattern in terms of spend more time in the center or in the periphery
-#however, mice trend to avoid open spaces so naturally we should expect that they will spend more time in the periphery area
+#data2 <- read_csv("~/Documents/GitHub/data/data/Data-2.csv")%>% 
+ # mutate(Animal = gsub("\\.", "-", as.character(Animal))) 
 
-data_raw <- read_csv("~/Documents/GitHub/data/data/Data.csv") %>% 
-  select(Animal, Stage, `Segment of test`,
-         `Center : time (s)`, `Periphery : time (s)`)
+data3 <- read_csv("~/Documents/GitHub/data/data/Data-3.csv")%>% 
+  mutate(Animal = gsub("\\.", "-", as.character(Animal))) 
+data4 <- read_csv("~/Documents/GitHub/data/data/Data-4.csv")%>% 
+  mutate(Animal = gsub("\\.", "-", as.character(Animal))) 
+data5 <- read_csv("~/Documents/GitHub/data/data/Data-5.csv")%>% 
+  mutate(Animal = gsub("\\.", "-", as.character(Animal))) %>% 
+  mutate(
+    Animal = sub("[NLR]$", "", Animal)) 
+
+data_all <- bind_rows(data, data3, data4, data5)%>% 
+  left_join(METABPA, by= "Animal") %>% 
+  mutate(
+    Date = mdy(Date),
+    DOB  = mdy(DOB),
+    age_weeks = as.numeric(difftime(Date, DOB, units = "weeks")))%>%
+  mutate(age_week_round = round(age_weeks),
+         age_week_round = case_when(
+           age_week_round %in% c(13, 14) ~ 13.5,
+           TRUE ~ age_week_round )) %>% 
+  rename(ID = Animal) 
+  
+data_all   %>% 
+  group_by(SEX,BPA_EXPOSURE,age_week_round) %>%
+  summarise(n_ID = n_distinct(ID))
+  
+#####exploration 
+####### hypothesis N1: animals prefers periphery than center ----
+# we can expect the animals will trend to avoid open spaces
+#so they will spend more time in the periphery area
+#this behavior will be independent of the age, BPA exposure, sex and Stage
+
+data_raw <- data_all%>% 
+  select(ID, Stage, `Segment of test`,
+         `Center : time (s)`, `Periphery : time (s)`, BPA_EXPOSURE, age_week_round,SEX,COHORT)
+
+data_raw   %>% 
+  group_by(SEX,BPA_EXPOSURE,Stage) %>%
+  summarise(n_ID = n_distinct(ID))
+
 data_summary <- data_raw %>% 
-  group_by(Stage, `Segment of test`) %>% 
+  group_by(Stage, `Segment of test`,age_week_round,SEX) %>% 
   summarise(
     n = n(),
     mean_time_center = mean(`Center : time (s)`, na.rm = TRUE),
@@ -6291,6 +6354,7 @@ data_summary <- data_raw %>%
     sem_time_periphery  = sd(`Periphery : time (s)`, na.rm = TRUE)/sqrt(n),
     .groups = "drop"
   )
+
 data_raw_long <- data_raw %>% 
   pivot_longer(
     cols = c(`Center : time (s)`, `Periphery : time (s)`),
@@ -6300,19 +6364,19 @@ data_raw_long <- data_raw %>%
 
 data_summary_long <- data_summary %>%
   pivot_longer(
-    cols = -c(Stage, `Segment of test`, n),
+    cols = -c(Stage, `Segment of test`, n, age_week_round,SEX),
     names_to = c(".value", "Location"),
     names_pattern = "(mean_time|sem_time)_(.*)")
-    
-    data_raw_long$Stage <- factor(data_raw_long$Stage,
+
+data_raw_long$Stage <- factor(data_raw_long$Stage,
+                              levels = c("Habituation",
+                                         "Familiarization",
+                                         "Recognition"))
+
+data_summary_long$Stage <- factor(data_summary_long$Stage,
                                   levels = c("Habituation",
                                              "Familiarization",
                                              "Recognition"))
-    
-    data_summary_long$Stage <- factor(data_summary_long$Stage,
-                                      levels = c("Habituation",
-                                                 "Familiarization",
-                                                 "Recognition"))
 ggplot() +
   
   geom_col(data = data_summary_long,
@@ -6341,27 +6405,32 @@ ggplot() +
               alpha = 0.8,
               size = 2,
               show.legend = FALSE) +
-  facet_wrap(~Stage) +
+  facet_wrap(~Stage*age_week_round*SEX) +
   labs(y = "Time (seconds)",
        x = "Segment of the test",
        fill = "Zone") +
   theme_classic()
 
-#conclusion> so great animals spent more time in the periphery than in the center of the arena
-#conclusion 2 > in the recognition stage animals spend more time interacting with the objects that are in the center
+#conclusion> great, most animals spent more time in the periphery than in the center of the arena indepent of the stage
+#conclusion 2 > In the recognition stage for the 27-week-old animals, the 5–10 minute period was not fully recorded, cuek
 
-# hypothesis N2: In the familiarization stage animals will spend the same time with both objects ----
-# we can expect the animals will spend the same amount of time with the two objects IF THOSE ARE THE SAME OBJECTS
+####### hypothesis N2: In the familiarization stage animals will spend the same time with both objects ----
+# we can expect the animals will spend the same amount of time with the two identical objects independent of age, Segment of the test and BPA exposure 
 
-data_fam <- read_csv("~/Documents/GitHub/data/data/Data.csv") %>% 
-  select(Animal, Stage, `Segment of test`,
+data_fam <- data_all %>% 
+  select(ID, Stage, `Segment of test`,
          `Familiar Object 1 : time investigating (s)`,
-         `Familiar Object 2 : time investigating (s)`) %>% 
-  filter(Stage =='Familiarization') %>% 
-  drop_na()
+         `Familiar Object 2 : time investigating (s)`,
+         BPA_EXPOSURE, SEX, COHORT, age_week_round) %>% 
+  filter(Stage =='Familiarization') 
+
+data_fam   %>% 
+  group_by(SEX,BPA_EXPOSURE,Stage) %>%
+  summarise(n_ID = n_distinct(ID))  
+
 
 data_summary_fam <- data_fam %>% 
-  group_by(`Segment of test`) %>% 
+  group_by(`Segment of test`, age_week_round,SEX) %>% 
   summarise(
     n = n(),
     mean_time_fam1 = mean( `Familiar Object 1 : time investigating (s)`, na.rm = TRUE),
@@ -6370,6 +6439,7 @@ data_summary_fam <- data_fam %>%
     sem_time_fam2  = sd( `Familiar Object 2 : time investigating (s)`, na.rm = TRUE)/sqrt(n),
     .groups = "drop"
   )
+
 data_raw_long_fam <- data_fam %>% 
   pivot_longer(
     cols = c(`Familiar Object 1 : time investigating (s)`,  `Familiar Object 2 : time investigating (s)`),
@@ -6384,11 +6454,12 @@ data_raw_long_fam <- data_raw_long_fam %>%
            Object == "Familiar Object 2 : time investigating (s)" ~ "2",
            TRUE ~ Object  # leave any unexpected values as-is
          ),
-         Object = factor(Object, levels = c("1", "2")))
+         Object = factor(Object, levels = c("1", "2"))) %>% 
+  filter(`Segment of test`=="300 - 600 secs." ) 
 
 data_summary_long_fam <- data_summary_fam %>%
   pivot_longer(
-    cols = -`Segment of test`,
+    cols = -c(`Segment of test`, age_week_round,SEX),
     names_to = c(".value", "Object"),
     names_pattern = "(mean_time|sem_time)_fam(\\d)"
   ) %>%
@@ -6397,6 +6468,7 @@ data_summary_long_fam <- data_summary_fam %>%
     Object == "2" ~ "2"
   ),
   Object = factor(Object, levels = c("1", "2"))) %>% 
+  filter(`Segment of test`=="300 - 600 secs." ) %>% 
   drop_na()
 
 
@@ -6408,14 +6480,14 @@ ggplot(data_summary_long_fam, aes(x = Object, y = mean_time, fill = Object)) +
   geom_jitter(data = data_raw_long_fam,
               aes(x = Object, y = time, color = Object),
               width = 0.15, size = 2, alpha = 0.8, show.legend = FALSE) +
-  facet_wrap(~`Segment of test`) +
+  facet_wrap(SEX~age_week_round) +
   labs(x = "Object", y = "Time Investigating (s)", fill = "Object") +
   theme_classic()
 
 ##### STATS----
 # Make sure we are using only Familiarization stage
 data_fam_wide <- data_raw_long_fam %>%
-  select(Animal, `Segment of test`, Object, time) %>%
+  select(ID, Object, time,age_week_round,BPA_EXPOSURE,SEX,COHORT) %>%
   pivot_wider(
     names_from = Object,
     values_from = time,
@@ -6424,7 +6496,7 @@ data_fam_wide <- data_raw_long_fam %>%
 data_fam_wide
 
 t_test_results <- data_fam_wide %>%
-  group_by(`Segment of test`) %>%
+  group_by(SEX,age_week_round) %>%
   summarise(
     t_test = list(t.test(Object_1, Object_2, paired = TRUE)),
     .groups = "drop"
@@ -6433,14 +6505,70 @@ t_test_results <- data_fam_wide %>%
   unnest(t_test)
 t_test_results
 
-#conclusion 1> For both segments, p > 0.05, so mice did not spend significantly different time investigating Object 1 vs Object 2.
-#conclusion 2> The small positive estimate just means Object 1 time was slightly higher on average, but not significant.
-#conclusion 3> animals explore the same amount of time the same object which is what we expected so they are ready for the recognition stage
+#conclusion> males at 13.5 week old were nor prepared to go to recognition test
+#because they showed preference for object 1 
 
+#we need to run this analysis by cohort and just include the ones do not show preference for one object
 
 #projections> to calculate discrimination indexes (DI) defined as (Tn-Tf)/(Tn+Tf) and/or to compare the novel object preference (%) = ((Tn)/(Tn+Tf))*100
 # Tn: time spent with the novel object
 # Tf: time spent with the familiar object
+
+####hypothesis N3: In the familiarization stage animals have a discrimination index (Di) close to zero independent of age, Segment of the test and BPA exposure ----
+
+dat_fam_di <- data_fam %>% 
+  ungroup() %>% 
+  group_by(ID,`Segment of test`,BPA_EXPOSURE,SEX) %>% 
+  mutate(Di =(`Familiar Object 1 : time investigating (s)` - `Familiar Object 2 : time investigating (s)`)/(`Familiar Object 1 : time investigating (s)` + `Familiar Object 2 : time investigating (s)`)) %>% 
+  drop_na(Di)
+
+data_summary_fam_di <- dat_fam_di %>% 
+  ungroup() %>% 
+  group_by(`Segment of test`,age_week_round,SEX) %>% 
+  summarise(
+    n = n(),
+    mean_time_Di = mean(Di),
+    sem_time_Di  = sd(Di)/sqrt(n),
+    .groups = "drop"
+  ) %>% 
+  ungroup()
+
+data_raw_long_fam_di <- dat_fam_di %>% 
+  pivot_longer(
+    cols = c(Di),
+    names_to = "Object",
+    values_to = "Di_value"
+  )
+
+ggplot(data_summary_fam_di, aes(x = `Segment of test`, y = mean_time_Di)) +
+  geom_col(alpha = 0.6, fill = "grey70") +
+  geom_errorbar(aes(ymin = mean_time_Di - sem_time_Di,
+                    ymax = mean_time_Di + sem_time_Di),
+                width = 0.2) +
+  geom_jitter(data = dat_fam_di,
+              aes(x = `Segment of test`, y = Di),
+              width = 0.1, size = 2, alpha = 0.8) +
+  labs(x = "Segment of test",
+       y = "Discrimination index (Di)") +
+  facet_wrap(SEX~age_week_round, ncol = 2, nrow = 3) +
+  theme_classic()
+
+#####STATS----
+
+t_test_di <- dat_fam_di %>%
+  group_by(`Segment of test`, age_week_round,SEX) %>%
+  summarise(
+    t_test = list(t.test(Di, mu = 0)),
+    .groups = "drop"
+  ) %>%
+  mutate(t_test = map(t_test, tidy)) %>%
+  unnest(t_test)
+
+t_test_di
+
+#ke chanfles significa esto? da la misma que el Di sean distintos de 0-300 s y de 300-600 s porque los animales están aprendiendo po
+
+-------------------------------
 
 #hypothesis N3: In the familiarization stage animals have a discrimination index (Di) close to zero ----
 
@@ -6523,7 +6651,6 @@ left_join(METABPA, by= "Animal")
 
 # hypothesis N1: animals prefers periphery than center ----
 # we can expect the animals will trend to avoid open spaces so we expect that they will spend more time in the periphery area
-
 
 data2_summary <- data2 %>% 
   group_by(Stage, `Segment of test`) %>% 
@@ -6658,7 +6785,7 @@ ggplot(data2_summary_long_fam, aes(x = Object, y = mean_time, fill = Object)) +
   labs(x = "Object", y = "Time Investigating (s)", fill = "Object") +
   theme_classic()
 
-##### STATS----
+#####stats----
 
 data2_fam_wide <- data2_raw_long_fam %>%
   select(Animal, BPA_EXPOSURE, `Segment of test`, Object, time) %>%
@@ -6677,7 +6804,6 @@ t2_test_results <- data2_fam_wide %>%
   unnest(t_test)
 
 t2_test_results
-
 
 #conclusion 1> This is not a reliable statistical test with n = 2. The test has almost no power.
 #conclusion 2> Multiple paired t-tests are not ideal, p-values are meaningless with n = 2
@@ -6723,304 +6849,6 @@ ggplot(data2_summary_fam_di, aes(x = `Segment of test`, y = mean_time_Di)) +
   
 ##ALL COHORTS ANALYSIS----
 
-#Read me: 
-#Data.csv- raw data for cohort 15 (7/15/25)
-#Data-2.csv- Raw data for cohort 16 (11/10/2025) #Zander comment (12/21/25): The Data-2 was cut short. Due to technical issues we had to start late and we had to rush because another lab group was telling us they needed the room. We for sure got the 0-5 minute window for all mice though.
-#Data-3.csv- Raw data for cohort 15 and cohort 16 (10/13/2025) 
-#Data-4.csv- raw data for cohort 16 (1/15/2026) #habituation was not correctly recordered. Zander did not recorded 300 - 600 secs section of the test in the habituation phase. Also he ran the same day habituation, familiarization and recognition phases
-
-  
-####Data import----
-  
-METABPA <- read_csv("~/Documents/GitHub/data/data/METABPA.csv") %>% 
-filter(grepl("-", ID) | ID %in% c("9408", "9409"))   #I want to keep just IDs that were measured for NORT for cohort 1, 2 and 3
-
-  
-data<- read_csv("~/Documents/GitHub/data/data/Data.csv") %>% #familiarization data from 9380-3 and 9391-1 was not recorded property 
-  rename(ID = Animal) %>% 
-  mutate(ID= as.character(ID),ID = case_when(
-    ID == "1"  ~ "9389-1",
-    ID == "2"  ~ "9389-2",
-    ID == "3"  ~ "9389-3",
-    ID == "4"  ~ "9389-4",
-    ID == "5"  ~ "9380-1",
-    ID == "6"  ~ "9380-2",
-    ID == "7"  ~ "9380-3",
-    ID == "8"  ~ "9391-1",
-    ID == "9"  ~ "9391-2",
-    ID == "10" ~ "9392-1",
-    ID == "11" ~ "9392-2",
-    ID == "12" ~ "9392-3",
-    ID == "13" ~ "9385-1",
-    ID == "14" ~ "9385-2",
-    ID == "15" ~ "9385-3",
-    ID == "16" ~ "9385-4",
-    TRUE       ~ ID))%>% 
-  left_join(METABPA, by= "ID")
-  
-data2 <- read_csv("~/Documents/GitHub/data/data/Data-2.csv") %>% 
-  rename(ID = Animal) %>% 
-    mutate(ID = gsub("\\.", "-", as.character(ID))) %>% 
-    left_join(METABPA, by= "ID")
-
-data3 <- read_csv("~/Documents/GitHub/data/data/Data-3.csv") %>% 
-  rename(ID = Animal) %>% 
-  mutate(ID = gsub("\\.", "-", as.character(ID))) %>% 
-  left_join(METABPA, by= "ID")
-
-data4 <- read_csv("~/Documents/GitHub/data/data/Data-4.csv") %>% #habituation data was not recorded property 
-  rename(ID = Animal) %>% 
-  mutate(ID = gsub("\\.", "-", as.character(ID))) %>% 
-  left_join(METABPA, by= "ID")
-
-all_data <- bind_rows(data, data2, data3, data4) %>% 
-  mutate(
-    Date = mdy(Date),
-    DOB  = mdy(DOB),
-    age_weeks = as.numeric(difftime(Date, DOB, units = "weeks")))%>%
-  mutate(age_week_round = round(age_weeks),
-         age_week_round = case_when(
-           age_week_round %in% c(13, 14) ~ 11,
-           age_week_round ==17 ~ 14,# this is 17 wks old, 14 wks with chow
-           age_week_round ==27 ~ 24, # this is 27 wks old, 24 wks with cho
-           TRUE ~ age_week_round               # keep other ages as they are
-         )) 
-
-all_data   %>% 
-  group_by(SEX,BPA_EXPOSURE,COHORT) %>%
-  summarise(n_ID = n_distinct(ID))
-
-# hypothesis N1: animals prefers periphery than center ----
-# we can expect the animals will trend to avoid open spaces so they will spend more time in the periphery area
-#this behavior will be independent of the age, BPA exposure, sex and Stage
-  
-data_raw <- all_data %>% 
- select(ID, Stage, `Segment of test`,
-           `Center : time (s)`, `Periphery : time (s)`, BPA_EXPOSURE, age_week_round,SEX,COHORT)
-
-data_raw   %>% 
-  group_by(SEX,BPA_EXPOSURE,COHORT) %>%
-  summarise(n_ID = n_distinct(ID))
-
-  data_summary <- data_raw %>% 
-    group_by(Stage, `Segment of test`,age_week_round) %>% #there is not enough females to split the data by sex
-    summarise(
-      n = n(),
-      mean_time_center = mean(`Center : time (s)`, na.rm = TRUE),
-      sem_time_center  = sd(`Center : time (s)`, na.rm = TRUE)/sqrt(n),
-      mean_time_periphery = mean(`Periphery : time (s)`, na.rm = TRUE),
-      sem_time_periphery  = sd(`Periphery : time (s)`, na.rm = TRUE)/sqrt(n),
-      .groups = "drop"
-    )
-
-  data_raw_long <- data_raw %>% 
-    pivot_longer(
-      cols = c(`Center : time (s)`, `Periphery : time (s)`),
-      names_to = "Location",
-      values_to = "time"
-    )
-  
-  data_summary_long <- data_summary %>%
-    pivot_longer(
-      cols = -c(Stage, `Segment of test`, n, age_week_round),
-      names_to = c(".value", "Location"),
-      names_pattern = "(mean_time|sem_time)_(.*)")
-  
-  data_raw_long$Stage <- factor(data_raw_long$Stage,
-                                levels = c("Habituation",
-                                           "Familiarization",
-                                           "Recognition"))
-  
-  data_summary_long$Stage <- factor(data_summary_long$Stage,
-                                    levels = c("Habituation",
-                                               "Familiarization",
-                                               "Recognition"))
-  ggplot() +
-    
-    geom_col(data = data_summary_long,
-             aes(x = `Segment of test`,
-                 y = mean_time,
-                 fill = Location),
-             position = position_dodge(width = 0.8),
-             alpha = 0.6) +
-    
-    geom_errorbar(data = data_summary_long,
-                  aes(x = `Segment of test`,
-                      ymin = mean_time - sem_time,
-                      ymax = mean_time + sem_time,
-                      group = Location),
-                  position = position_dodge(width = 0.8),
-                  width = 0.2) +
-    
-    geom_jitter(data = data_raw_long,
-                aes(x = `Segment of test`,
-                    y = time,
-                    color = Location),
-                position = position_jitterdodge(
-                  jitter.width = 0.15,
-                  dodge.width = 0.8
-                ),
-                alpha = 0.8,
-                size = 2,
-                show.legend = FALSE) +
-    facet_wrap(~Stage*age_week_round) +
-    labs(y = "Time (seconds)",
-         x = "Segment of the test",
-         fill = "Zone") +
-    theme_classic()
-  
-#conclusion> so great animals spent more time in the periphery than in the center of the arena in all Stages
-#conclusion 2 > In the recognition stage for the 27-week-old animals, the 5–10 minute period was not fully recorded. Zander mentioned that this was because another group was scheduled to use the room
-  
-# hypothesis N2: In the familiarization stage animals will spend the same time with both objects ----
-# we can expect the animals will spend the same amount of time with the two identical objects independent of age, Segment of the test and BPA exposure 
-  
-data_fam <- all_data %>% 
-    select(ID, Stage, `Segment of test`,
-           `Familiar Object 1 : time investigating (s)`,
-           `Familiar Object 2 : time investigating (s)`,
-           BPA_EXPOSURE, SEX, COHORT, age_week_round) %>% 
-    filter(Stage =='Familiarization') %>% 
-    drop_na()
-  
-  data_fam   %>% 
-    group_by(SEX,BPA_EXPOSURE,COHORT) %>%
-    summarise(n_ID = n_distinct(ID))  
-  
-  
-  data_summary_fam <- data_fam %>% 
-    group_by(`Segment of test`, age_week_round) %>% 
-    summarise(
-      n = n(),
-      mean_time_fam1 = mean( `Familiar Object 1 : time investigating (s)`, na.rm = TRUE),
-      sem_time_fam1  = sd( `Familiar Object 1 : time investigating (s)`, na.rm = TRUE)/sqrt(n),
-      mean_time_fam2 = mean( `Familiar Object 2 : time investigating (s)`, na.rm = TRUE),
-      sem_time_fam2  = sd( `Familiar Object 2 : time investigating (s)`, na.rm = TRUE)/sqrt(n),
-      .groups = "drop"
-    )
-  
-  data_raw_long_fam <- data_fam %>% 
-    pivot_longer(
-      cols = c(`Familiar Object 1 : time investigating (s)`,  `Familiar Object 2 : time investigating (s)`),
-      names_to = "Object",
-      values_to = "time"
-    )
-  
-  data_raw_long_fam <- data_raw_long_fam %>%
-    mutate(Object = as.character(Object),
-           Object = case_when(
-             Object == "Familiar Object 1 : time investigating (s)" ~ "1",
-             Object == "Familiar Object 2 : time investigating (s)" ~ "2",
-             TRUE ~ Object  # leave any unexpected values as-is
-           ),
-           Object = factor(Object, levels = c("1", "2")))
-  
-  data_summary_long_fam <- data_summary_fam %>%
-    pivot_longer(
-      cols = -c(`Segment of test`, age_week_round),
-      names_to = c(".value", "Object"),
-      names_pattern = "(mean_time|sem_time)_fam(\\d)"
-    ) %>%
-    mutate(Object = case_when(
-      Object == "1" ~ "1",
-      Object == "2" ~ "2"
-    ),
-    Object = factor(Object, levels = c("1", "2"))) %>% 
-    drop_na()
-  
-  
-  ggplot(data_summary_long_fam, aes(x = Object, y = mean_time, fill = Object)) +
-    geom_col(alpha = 0.6) +
-    geom_errorbar(aes(ymin = mean_time - sem_time,
-                      ymax = mean_time + sem_time),
-                  width = 0.2) +
-    geom_jitter(data = data_raw_long_fam,
-                aes(x = Object, y = time, color = Object),
-                width = 0.15, size = 2, alpha = 0.8, show.legend = FALSE) +
-    facet_wrap(~`Segment of test`*age_week_round) +
-    labs(x = "Object", y = "Time Investigating (s)", fill = "Object") +
-    theme_classic()
-  
-##### STATS----
-# Make sure we are using only Familiarization stage
-  data_fam_wide <- data_raw_long_fam %>%
-    select(ID, `Segment of test`, Object, time,age_week_round) %>%
-    pivot_wider(
-      names_from = Object,
-      values_from = time,
-      names_prefix = "Object_"
-    )
-  data_fam_wide
-  
-  t_test_results <- data_fam_wide %>%
-    group_by(`Segment of test`,age_week_round) %>%
-    summarise(
-      t_test = list(t.test(Object_1, Object_2, paired = TRUE)),
-      .groups = "drop"
-    ) %>%
-    mutate(t_test = map(t_test, broom::tidy)) %>%
-    unnest(t_test)
-  t_test_results
-  
-#conclusion: Across age groups, BPA exposure conditions, and test segments, 
-#animals did not show a significant preference for either familiar object 
-#during the familiarization phase.
-  
-#projections> to calculate discrimination indexes (DI) defined as (Tn-Tf)/(Tn+Tf) and/or to compare the novel object preference (%) = ((Tn)/(Tn+Tf))*100
-# Tn: time spent with the novel object
-# Tf: time spent with the familiar object
-  
-#hypothesis N3: In the familiarization stage animals have a discrimination index (Di) close to zero independent of age, Segment of the test and BPA exposure ----
-  
-dat_fam_di <- data_fam %>% 
-    ungroup() %>% 
-    group_by(ID,`Segment of test`,BPA_EXPOSURE) %>% 
-    mutate(Di =(`Familiar Object 1 : time investigating (s)` - `Familiar Object 2 : time investigating (s)`)/(`Familiar Object 1 : time investigating (s)` + `Familiar Object 2 : time investigating (s)`))
-  
-  data_summary_fam_di <- dat_fam_di %>% 
-    ungroup() %>% 
-    group_by(`Segment of test`,age_week_round,BPA_EXPOSURE) %>% 
-    summarise(
-      n = n(),
-      mean_time_Di = mean(Di),
-      sem_time_Di  = sd(Di)/sqrt(n),
-      .groups = "drop"
-    ) %>% 
-    ungroup()
-  
-  data_raw_long_fam_di <- dat_fam_di %>% 
-    pivot_longer(
-      cols = c(Di),
-      names_to = "Object",
-      values_to = "Di_value"
-    )
-  
-  ggplot(data_summary_fam_di, aes(x = `Segment of test`, y = mean_time_Di)) +
-    geom_col(alpha = 0.6, fill = "grey70") +
-    geom_errorbar(aes(ymin = mean_time_Di - sem_time_Di,
-                      ymax = mean_time_Di + sem_time_Di),
-                  width = 0.2) +
-    geom_jitter(data = dat_fam_di,
-                aes(x = `Segment of test`, y = Di),
-                width = 0.1, size = 2, alpha = 0.8) +
-    labs(x = "Segment of test",
-         y = "Discrimination index (Di)") +
- facet_wrap(~age_week_round*BPA_EXPOSURE, ncol = 2, nrow = 3) +
-    theme_classic()
-  
-  #####STATS----
-  
-  t_test_di <- dat_fam_di %>%
-    group_by(`Segment of test`, age_week_round, BPA_EXPOSURE) %>%
-    summarise(
-      t_test = list(t.test(Di, mu = 0)),
-      .groups = "drop"
-    ) %>%
-    mutate(t_test = map(t_test, tidy)) %>%
-    unnest(t_test)
-  
-  t_test_di
-  
 #hypothesis N4: In the recognition stage animals exposed to BPA will decrease Novel object preference % (NOP %) ----
 #NOP (%) = ((TN)/(TN+TF))*100 where TN = time spent interacting with novel object
 #TF = Time spent interacting with familiar object. 
