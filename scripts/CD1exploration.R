@@ -6425,7 +6425,7 @@ data_fam <- data_all %>%
   filter(Stage =='Familiarization') 
 
 data_fam   %>% 
-  group_by(SEX,BPA_EXPOSURE,Stage) %>%
+  group_by(SEX,Stage) %>%
   summarise(n_ID = n_distinct(ID))  
 
 
@@ -6505,7 +6505,7 @@ t_test_results <- data_fam_wide %>%
   unnest(t_test)
 t_test_results
 
-#conclusion> males at 13.5 week old were nor prepared to go to recognition test
+#conclusion> males at 13.5 week old were not prepared to go to recognition test
 #because they showed preference for object 1 
 
 #we need to run this analysis by cohort and just include the ones do not show preference for one object
@@ -6619,7 +6619,7 @@ ggplot(data_summary_recog, aes(x = BPA_EXPOSURE, y = mean_time_NOP)) +
               width = 0.1, size = 2, alpha = 0.8) +
   labs(x = "BPA perinatal exposure",
        y = "% of novel object preference  (NOP%)") +
-  facet_wrap(~age_week_round) +
+  facet_wrap(SEX~age_week_round) +
   theme_classic()
 
 t_test_NOP <- dat_recog %>%
