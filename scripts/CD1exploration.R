@@ -5871,6 +5871,166 @@ combined_plot_kcal_hr <-
 
 combined_plot_kcal_hr
 
+
+#####alternative analysis tee and BW----
+
+relative_kcal_hr_at_19_diet <- ical_long_allheat %>%
+  filter(hour == 19) %>%
+  group_by(ID) %>%
+  summarise(
+    relative_total_kcal_hr_19 = first(relative_total_kcal_hr),
+    BW = first(BW),                 # <- add this
+    cohort = first(cohort),
+    SEX = first(SEX),
+    BPA_EXPOSURE = first(BPA_EXPOSURE),
+    DIET_FORMULA = first(DIET_FORMULA),
+    .groups = "drop"
+  ) 
+
+relative_kcal_hr_at_19_diet <- relative_kcal_hr_at_19_diet %>%
+  mutate(
+    DIET_FORMULA = case_when(
+      DIET_FORMULA == "D12450Hi" ~ "HCD",
+      DIET_FORMULA == "D12451i"  ~ "HFD",
+      TRUE ~ DIET_FORMULA
+    )
+  )
+
+model_fheat_bw <- lm(
+  relative_total_kcal_hr_19 ~ BW + BPA_EXPOSURE * DIET_FORMULA,
+  data = relative_kcal_hr_at_19_diet %>% filter(SEX == "F")
+)
+
+anova(model_fheat_bw)
+summary(model_fheat_bw)
+
+library(car)
+
+Anova(model_fheat_bw, type = 3)
+
+cor.test(
+  relative_kcal_hr_at_19_diet$BW[relative_kcal_hr_at_19_diet$SEX == "F"],
+  relative_kcal_hr_at_19_diet$relative_total_kcal_hr_19[
+    relative_kcal_hr_at_19_diet$SEX == "F"
+  ]
+)
+
+lm(relative_total_kcal_hr_19 ~ BW,
+   data = relative_kcal_hr_at_19_diet %>% filter(SEX == "F"))
+
+
+#In females, absolute 24-hour energy expenditure was positively correlated
+#with body weight (r = 0.49, P = 0.013). 
+#However, after adjusting for body weight using ANCOVA, 
+#there were no significant effects of BPA exposure, diet, 
+#or their interaction on energy expenditure, 
+#suggesting that the differences observed in the unadjusted 
+#analysis were largely attributable to variation in body size.
+
+
+emm <- emmeans(
+  model_fheat_bw,
+  ~ BPA_EXPOSURE | DIET_FORMULA
+)
+
+emm_df <- as.data.frame(emm)
+
+stats <- relative_kcal_hr_at_19_diet %>%
+  group_by(SEX) %>%
+  summarise(
+    r = cor(BW, relative_total_kcal_hr_19),
+    p = cor.test(BW, relative_total_kcal_hr_19)$p.value,
+    .groups = "drop"
+  ) %>%
+  mutate(
+    label = paste0(
+      "r = ", round(r,2),
+      "\nP = ", signif(p,2)
+    ),
+    x = Inf,
+    y = Inf
+  )
+
+ggplot(relative_kcal_hr_at_19_diet,
+       aes(BW,
+           relative_total_kcal_hr_19,
+           color = BPA_EXPOSURE)) +
+  
+  geom_point(size = 3) +
+  
+  geom_smooth(method = "lm",
+              color = "black",
+              se = TRUE) +
+  
+  facet_wrap(~SEX) +
+  
+  geom_text(data = stats,
+            aes(x = x,
+                y = y,
+                label = label),
+            inherit.aes = FALSE,
+            hjust = 1.1,
+            vjust = 1.2,
+            size = 5) +
+  
+  theme_classic(base_size = 14)
+
+# Females
+emm_f <- emmeans(model_fheat_bw,
+                 ~ BPA_EXPOSURE * DIET_FORMULA)
+
+emm_f <- as.data.frame(emm_f)
+emm_f$SEX <- "Female"
+
+# Males
+
+model_mheat_bw <- lm(
+  relative_total_kcal_hr_19 ~ BW + BPA_EXPOSURE * DIET_FORMULA,
+  data = relative_kcal_hr_at_19_diet %>%
+    filter(SEX == "M")
+)
+
+summary(model_mheat_bw)
+Anova(model_mheat_bw, type = 3)
+emm_m <- emmeans(model_mheat_bw,
+                 ~ BPA_EXPOSURE * DIET_FORMULA)
+
+emm_m <- as.data.frame(emm_m)
+emm_m$SEX <- "Male"
+
+# Combine
+emm_all <- rbind(emm_f, emm_m)
+
+
+ggplot(emm_all,
+       aes(x = BPA_EXPOSURE,
+           y = emmean,
+           fill = BPA_EXPOSURE)) +
+  
+  geom_col(width = 0.6,
+           alpha = 0.8) +
+  
+  geom_errorbar(
+    aes(ymin = lower.CL,
+        ymax = upper.CL),
+    width = 0.15,
+    linewidth = 0.8
+  ) +
+  
+  facet_grid(SEX ~ DIET_FORMULA) +
+  
+  scale_fill_manual(values = c("NO" = "black",
+                               "YES" = "gray70")) +
+  
+  labs(
+    x = "BPA exposure",
+    y = "Body weight-adjusted 24-h TEE (kcal)",
+    fill = "BPA"
+  ) +
+  
+  theme_classic(base_size = 14)
+
+
 ##Respiratory Exchange Ratio analysis####
 ical_data_RER_coh15 <- read_csv("~/Documents/GitHub/data/data/iCal_Kotz_082425_RER.csv") %>% 
   rename(ID = Subject) %>% 
