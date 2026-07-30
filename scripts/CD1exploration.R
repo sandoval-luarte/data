@@ -5020,8 +5020,8 @@ ical_long15 <- ical_long15 %>% select(all_of(common_cols))
 ical_long16 <- ical_long16 %>% select(all_of(common_cols))
 ical_long18 <- ical_long18 %>% select(all_of(common_cols))
 
-ical_long_all <- bind_rows(ical_long15, ical_long16, ical_long18) %>% #this is key, here we combined
-  filter(!ID %in% c(9406, 9443))
+ical_long_all <- bind_rows(ical_long15, ical_long16, ical_long18) #%>% #this is key, here we combined
+ # filter(!ID %in% c(9406, 9443))
  #9406 has a  weird pattern in locomotion
  #9443 had a technical issue in the recording
   
@@ -5050,7 +5050,7 @@ ical_long_all <- ical_long_all %>%
   group_by(ID, exp_day) %>%
   mutate(count_total = cumsum(count)) %>%
   ungroup() %>% 
-  filter(!ID %in% c(9406, 9443)) %>% #9367 has a weird pattern of locomotion
+ filter(!ID %in% c(9406, 9443)) %>% #9367 has a weird pattern of locomotion
 group_by(ID, exp_day) %>%
    mutate(
     relative_total_count = count_total - first(count_total))
