@@ -22,7 +22,6 @@ library(car)
 library(broom) 
 library(rstatix)
 
-
 # BPA effects on dams----
 dams_data <- read_csv("../data/DAMSBPAINFO.csv") %>% 
   mutate(SEX = ifelse(SEX == FALSE, "F",
@@ -295,7 +294,7 @@ BW_data <- read_csv("../data/BW.csv") %>%
   filter(week_rel<=18) 
 
 BW_data  %>% 
-  group_by(SEX,BPA_EXPOSURE,DIET_FORMULA) %>%
+  group_by(SEX) %>%
   summarise(n_ID = n_distinct(ID)) %>% 
  print(n = Inf)
 
@@ -3228,6 +3227,33 @@ combined_plot <- (plot_lean_perc_sex | plot_lean_perc_slopes) /
   (plot_lean_perc_0   | plot_lean_perc_19)
 
 combined_plot
+
+# BODY COMPOSITION ANALYSIS FOR ANIMALS IN CHOW----
+
+METABPA_chow <- read_csv("~/Documents/GitHub/data/data/METABPA.csv")%>% 
+  filter(grepl("-", ID))   #I will keep metadata all animals that were measured in chow
+
+
+echoMRI_data_chow <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
+  filter(COHORT %in% c(15,16,18)) %>% 
+  filter(grepl("-", ID)) 
+
+echoMRI_data_chow <- echoMRI_data_chow %>% 
+  group_by(ID) %>%
+  arrange(Date) %>% 
+  select(ID, Date, Fat, Lean, adiposity_index,Weight) %>% 
+  left_join(METABPA_chow, by= "ID") %>% 
+  ungroup()
+
+
+echoMRI_data_chow <- echoMRI_data_chow %>% 
+  ungroup() %>% 
+  group_by(ID) %>% 
+  mutate(fat_perc = (Fat/Weight)*100,
+         lean_perc = (Lean/Weight)*100)
+
+
+
 
 #LENGTH ANALYSIS----
 
