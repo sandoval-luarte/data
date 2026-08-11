@@ -23,6 +23,8 @@ COHORT 16: CD-1 young - BPA project 2409-42370A
 COHORT 17: OREXIN-Cre young - uncertainty project 2409-42368A 
 COHORT 18: CD-1 young - BPA project 2409-42370A
 COHORT 19: NZO young - Eegap project 2303-40942A (incretin project)
+COHORT 20: C57BL/6 and NZO young - Eegap project VA protocol (Brianna experiment 2022) 
+COHORT 21: C57BL/6 and NZO young - Eegap project VA protocol (Brianna experiment 2022) 
 
 
 
