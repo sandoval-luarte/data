@@ -1,4 +1,4 @@
-# Date of update: 05/20/2025
+# Date of update: 08/11/2026
 # General info about cohorts
 
 A cohort is defined as a group of mice that are tested together during a shared time-frame
@@ -11,7 +11,7 @@ COHORT 4: NZO young - Eegap project 2303-40942A (chronic IP RTIOXA 47 for 5 week
 COHORT 5: NZO young - Eegap project 2303-40942A (chronic IP RTIOXA 47 for 5 weeks in BW regain period)
 COHORT 6: C57BL/6J young - Eegap project (repeated measurement acute IP RTIOXA-43 30 mg/kg for 5 days) 2303-40942A 
 COHORT 7: C57BL/6J old - fisetin project 2411-42540A 
-COHORT 8: C57BL/6 and NZO young - Eegap project VA protocol (Brianna experiment 2022) 
+COHORT 8: C57BL/6 and NZO young - Eegap project VA protocol (Brianna experiment 2022) - DB
 COHORT 9: C57BL/6J young - Eegap project (Pilot White deposit acute IP RTIOXA-43 10 mg/kg for 5 days) 2303-40942A 
 COHORT 10: C57BL/6J - uncertainty project 2409-42368A 
 COHORT 11: C57BL/6 and OREXIN-Cre young - uncertainty project 2409-42368A 
@@ -23,8 +23,9 @@ COHORT 16: CD-1 young - BPA project 2409-42370A
 COHORT 17: OREXIN-Cre young - uncertainty project 2409-42368A 
 COHORT 18: CD-1 young - BPA project 2409-42370A
 COHORT 19: NZO young - Eegap project 2303-40942A (incretin project)
-COHORT 20: C57BL/6 and NZO young - Eegap project VA protocol (Brianna experiment 2022) 
-COHORT 21: C57BL/6 and NZO young - Eegap project VA protocol (Brianna experiment 2022) 
+COHORT 20: C57BL/6 and NZO young - Eegap project VA protocol (Brianna experiment 2022) -DB
+COHORT 21: C57BL/6 and NZO young - Eegap project VA protocol (Brianna experiment 2022) -DB
+
 
 
 
@@ -56,8 +57,14 @@ COHORT 16: CD1 (n= males, n= females), DOB: 7/13/2025, WEEKS_WITH_FAT_DIET:
 COHORT 17:
 COHORT 18:
 COHORT 19: NZO/HlLtJ (n=24 females), DOB: 1/13/2026 (n=5), 1/20/2026 (n=7), 1/27/2026 (n=3), 2/3/2026 (n=4), 2/10/2026 (n=5), WEEKS_WITH_FAT_DIET: 4 weeks until now (4/23/2026) (LFD)
+COHORT 20:
+COHORT 21:
+
+
+
 #Diet formulas
 general information: HFD and LFD are obtained from research diets. Chow is obtained from teklad diets. Pellets are obtained from Bio-serv diets
+
 
 COHORT 0: HFD: D12451i, LFD: D12450Hi
 COHORT 1: HFD: D12451i, LFD: D12450Hi
@@ -79,6 +86,9 @@ COHORT 16: HFD: D12451i, LFD: D12450Hi
 COHORT 17:
 COHORT 18:
 COHORT 19: LFD: D12450Hi
+COHORT 20:
+COHORT 21:
+
 
 #Outcomes
 
@@ -90,3 +100,5 @@ COHORT 8: Changes in: 1. Food intake, 2. Body composition, 3. Metabolic paramete
 COHORT 9,12: White deposit formation
 COHORT 10 and 11: 1. Changes in Food (pellets) intake, 2. Body composition, 3. Metabolic parameters between food certainty and uncertainty environment 
 COHORT 19: Changes in 1. Body weight 2. Food intake 3. Body composition, in response to tirzepatide or survodutide. Changes in 1. Body weight 2. Food intake 3. Physical activity 4. Energy expenditure, in response to icv injections of Orexin A
+COHORT 20:
+COHORT 21:
