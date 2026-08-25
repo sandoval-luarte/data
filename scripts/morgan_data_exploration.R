@@ -1,4 +1,4 @@
-# This script aims to explore Morgan Sumera Liu Lab
+# This script aims to explore Megan Sumera Liu Lab
 #libraries----
 library(dplyr) #to use pipe
 library(ggplot2) #to graph
