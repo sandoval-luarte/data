@@ -26,6 +26,7 @@ library(rstatix)
 
 BW_data <- read_csv("../data/BW.csv") %>% 
   filter(COHORT ==21)  %>% 
+  filter(STRAIN =="C57BL/6J")  %>% 
   mutate(
     DRUG = case_when(
       ID %in% c(50,51,52,53,56,57,61,66,67,68,70) ~ "vehicle", 
@@ -40,7 +41,7 @@ BW_data <- read_csv("../data/BW.csv") %>%
   ) )
 
 BW_data  %>% 
-  group_by(SEX,STRAIN,DRUG) %>%
+  group_by(SEX,STRAIN,DRUG,STATUS) %>%
   summarise(n_ID = n_distinct(ID)) %>% 
   print(n = Inf)
   
@@ -60,14 +61,81 @@ BW_data_2 %>%
 
 
 BW_summary <- BW_data_2 %>%
-  group_by(day_rel,SEX,STRAIN) %>%
+  group_by(day_rel, SEX, STRAIN, DRUG) %>%
   summarise(
     mean_BW = mean(BW, na.rm = TRUE),
-    sem_BW  = sd(BW, na.rm = TRUE) / sqrt(n()),
-    n = n(),
+    sem_BW  = sd(BW, na.rm = TRUE) / sqrt(sum(!is.na(BW))),
+    n = sum(!is.na(BW)),
     .groups = "drop"
+  )
+
+
+BW_data_2 <- BW_data_2 %>%
+  mutate(
+    day_rel_factor = factor(day_rel, levels = sort(unique(day_rel)))
+  )
+
+BW_summary <- BW_data_2 %>%
+  group_by(day_rel, day_rel_factor, SEX, STRAIN, DRUG) %>%
+  summarise(
+    mean_BW = mean(BW, na.rm = TRUE),
+    sem_BW  = sd(BW, na.rm = TRUE) / sqrt(sum(!is.na(BW))),
+    n = sum(!is.na(BW)),
+    .groups = "drop"
+  )
+
+
+plot_BW <- ggplot() +
+  geom_line(data = BW_data_2, #follow the IDs
+            aes(x = day_rel_factor,y = BW,group = ID,color = DRUG),alpha = 0.3,linewidth = 0.5) +
+  geom_point(data = BW_data_2,#Individual IDs
+    aes(x = day_rel_factor,y = BW,group = ID,color = DRUG),alpha = 0.5,size = 1.5) +
+  geom_line(data = BW_summary,  # Group mean
+    aes(x = day_rel_factor,y = mean_BW,group = DRUG,
+      color = DRUG),linewidth = 1.2) +
+  geom_point( # Mean points
+    data = BW_summary,
+    aes(x = day_rel_factor,
+      y = mean_BW,
+      color = DRUG
+    ),
+    size = 3
+  ) +
+  
+  # SEM
+  geom_errorbar(
+    data = BW_summary,
+    aes(
+      x = day_rel_factor,
+      ymin = mean_BW - sem_BW,
+      ymax = mean_BW + sem_BW,
+      color = DRUG
+    ),
+    width = 0.15,
+    linewidth = 0.7
+  ) +
+  
+  facet_wrap(~SEX) +
+  
+  labs(
+    x = "Day",
+    y = "Body weight (g)",
+    color = NULL
+  ) +
+  geom_text(
+    data = BW_data_2,
+    aes(
+      x = day_rel_factor,
+      y = BW,
+      label = ID,
+      color = DRUG
+    ),
+    vjust = -0.7,
+    size = 3,
+    show.legend = FALSE
   ) 
 
+plot_BW
 
 # BODY COMPOSITION ANALYSIS----
 
