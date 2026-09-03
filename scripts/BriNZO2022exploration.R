@@ -24,6 +24,8 @@ library(rstatix)
 #BODY WEIGHT (BW) ANALYSIS----
 ## These NZO mice were on chow ----
 
+BW_problem <- read_csv("../data/COHORT_21.csv") 
+
 BW_data <- read_csv("../data/BW.csv") %>% 
   filter(COHORT ==21)  %>% 
   filter(STRAIN =="C57BL/6J")  %>% 
@@ -136,6 +138,46 @@ plot_BW <- ggplot() +
   ) 
 
 plot_BW
+
+#FOOD INTAKE----
+
+FI_data <- read_csv("../data/FI.csv") %>% 
+  filter(COHORT ==21)  %>% 
+  filter(STRAIN =="C57BL/6J")  %>% 
+  mutate(
+    DRUG = case_when(
+      ID %in% c(50,51,52,53,56,57,61,66,67,68,70) ~ "vehicle", 
+      ID %in% c(49,54,55,58,59,60,62,63,64,65,69,71) ~ "RTI_47")
+  ) %>%
+  mutate(DATE = ymd(DATE)) %>% 
+  arrange(DATE) %>% 
+  group_by(ID) %>% 
+  mutate(
+    day_rel = as.integer(as.Date(DATE) - as.Date(first(DATE)))
+  ) %>% 
+  left_join(METABPA, by= "ID") %>% 
+  select(
+    -SEX.y,
+    -DIET_FORMULA.y,
+    -DIET_FORMULA.x,
+    -COHORT.y
+  ) %>% 
+  rename(
+    SEX = SEX.x,
+    COHORT = COHORT.x
+  ) %>% 
+  mutate(
+    FIcumulative = cumsum(corrected_intake_kcal)) %>% 
+  ungroup() %>% 
+  # filter(!ID ==9406) %>% #9406 has a  weird pattern in locomotion
+  mutate(week_rel = day_rel / 7) %>%  
+  mutate(week_rel = round( week_rel)) %>%  #Mice did not get fed on 2/9, staff misread calendar
+  filter(week_rel<=18) 
+
+FI_data   %>% 
+  group_by(week_rel) %>%
+  summarise(n_ID = n_distinct(ID)) #we have consistently 56 animals across all weeks.
+
 
 # BODY COMPOSITION ANALYSIS----
 
