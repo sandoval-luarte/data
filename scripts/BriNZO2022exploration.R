@@ -1,4 +1,4 @@
-# This script aims to explore changes in body composition and behavior in females NZO after exposure to RTIOXA47 for 4 weeks
+# This script aims to explore changes in body composition and behavior in C57BL6J mice after exposure to RTIOXA47 for 4 weeks
 
 #libraries----
 library(dplyr) #to use pipe
@@ -22,55 +22,66 @@ library(broom)
 library(rstatix)
 
 #BODY WEIGHT (BW) ANALYSIS----
-## These NZO mice were on chow ----
+## These c57bl6j mice were on chow ----
 
-BW_problem <- read_csv("../data/COHORT_21.csv") 
+# asignation to the drugs based on food intake calculation sheet csv from Bri original data
 
 BW_data <- read_csv("../data/BW.csv") %>% 
-  filter(COHORT ==21)  %>% 
-  filter(STRAIN =="C57BL/6J")  %>% 
+  filter(COHORT %in% c(8, 20, 21)) %>%
+  filter(STRAIN == "C57BL/6J") %>% 
   mutate(
     DRUG = case_when(
-      ID %in% c(50,51,52,53,56,57,61,66,67,68,70) ~ "vehicle", 
-      ID %in% c(49,54,55,58,59,60,62,63,64,65,69,71) ~ "RTI_47")
-  ) %>%
-  mutate(DATE = ymd(DATE)) %>% 
+      ID %in% c(
+        1,3,5,7,9,11,13,15,17,19,21,23, # cohort 8
+        25,27,30,31,33,35,37,39,41,43,45,48, # cohort 20
+        49,51,54,55,57,59,61,63,65,67,69 # cohort 21
+      ) ~ "vehicle",
+      
+      ID %in% c(
+        2,4,6,8,10,12,14,16,18,20,22,24, # cohort 8
+        26,28,29,32,34,36,38,40,42,44,46,47, # cohort 20
+        50,52,53,56,58,60,62,64,66,68,70,71 # cohort 21
+      ) ~ "RTI_47"
+    )
+  ) %>%                        
+  mutate(
+    DATE = ymd(DATE)
+  ) %>% 
   arrange(DATE) %>% 
   mutate(
     STATUS = case_when(
-       DATE == as.Date("2022-10-28") ~ "baseline",
-        DATE == as.Date("2022-12-02") ~ "end"
-  ) )
-
+      COHORT == 8 & DATE == as.Date("2022-03-04") ~ "start",
+      COHORT == 8 & DATE == as.Date("2022-04-08") ~ "end",
+      COHORT == 20 & DATE == as.Date("2022-04-22") ~ "start",
+      COHORT == 20 & DATE == as.Date("2022-05-27") ~ "end",
+      COHORT == 21 & DATE == as.Date("2022-10-28") ~ "start",
+      COHORT == 21 & DATE == as.Date("2022-12-02") ~ "end",
+      TRUE ~ NA_character_
+    )
+  ) %>% 
+ungroup()
+   
 BW_data  %>% 
-  group_by(SEX,STRAIN,DRUG,STATUS) %>%
+  group_by(SEX,COHORT,STATUS) %>%
   summarise(n_ID = n_distinct(ID)) %>% 
   print(n = Inf)
   
   
 BW_data_2 <- BW_data %>% 
-  group_by(ID) %>% 
+  group_by(COHORT, ID) %>% 
   mutate(
-    bw_rel = 100 * (BW - first(BW)) / first(BW),
-    body_lag = (lag(BW) - BW),
-    day_rel = as.integer(as.Date(DATE) - as.Date(first(DATE)))
-  ) 
+    start_date = DATE[STATUS %in% "start"][1],
+    day_rel = as.numeric(DATE - start_date),
+    bw_start = BW[STATUS %in% "start"][1],
+    bw_rel = 100 * (BW - bw_start) / bw_start
+  ) %>% 
+  ungroup() %>% 
+  filter(day_rel >= 0, day_rel < 40)
 
 BW_data_2 %>% 
-  group_by(day_rel) %>%
+  group_by(day_rel,COHORT,STATUS) %>%
   summarise(n_ID = n_distinct(ID)) %>% 
-  print(n = Inf) #ok great this is consistent
-
-
-BW_summary <- BW_data_2 %>%
-  group_by(day_rel, SEX, STRAIN, DRUG) %>%
-  summarise(
-    mean_BW = mean(BW, na.rm = TRUE),
-    sem_BW  = sd(BW, na.rm = TRUE) / sqrt(sum(!is.na(BW))),
-    n = sum(!is.na(BW)),
-    .groups = "drop"
-  )
-
+  print(n = Inf) #ok great this is consistent we have 5 weeks of RTIOXA-47 injections
 
 BW_data_2 <- BW_data_2 %>%
   mutate(
@@ -138,6 +149,96 @@ plot_BW <- ggplot() +
   ) 
 
 plot_BW
+
+#stats----
+BW_start_end <- BW_data %>% 
+  filter(STATUS %in% c("start", "end")) %>% 
+  select(ID, COHORT, SEX, DRUG, STATUS, BW)
+
+BW_start_end %>% 
+  group_by(SEX,STATUS) %>%
+  summarise(n_ID = n_distinct(ID)) %>% 
+  print(n = Inf) #ok great this is consistent we have 12 males and 24 females in this study
+
+BW_ttest <- BW_start_end %>% 
+  group_by(SEX, STATUS) %>% 
+  t_test(
+    BW ~ DRUG,
+    paired = FALSE
+  ) %>% 
+  add_significance()
+
+BW_ttest
+
+#Does RTI_47 reduce BW during the 4-week treatment?----
+BW_change <- BW_data %>% 
+  filter(STATUS %in% c("start", "end")) %>% 
+  select(ID, COHORT, SEX, DRUG, STATUS, BW) %>% 
+  pivot_wider(
+    names_from = STATUS,
+    values_from = BW
+  ) %>% 
+  mutate(
+    BW_change = end - start,
+    BW_change_percent = 100 * (end - start) / start
+  )
+
+BW_change_ttest <- BW_change %>% 
+  group_by(SEX) %>% 
+  t_test(
+    BW_change ~ DRUG,
+    paired = FALSE
+  ) %>% 
+  add_significance()
+
+BW_change_ttest #there was a non-significant trend toward reduced BW gain in RTI_47-treated males.
+
+
+BW_ANCOVA <- BW_data %>% 
+  filter(STATUS %in% c("start", "end")) %>% 
+  select(ID, COHORT, SEX, DRUG, STATUS, BW) %>% 
+  pivot_wider(
+    names_from = STATUS,
+    values_from = BW
+  ) %>% 
+  drop_na(start, end)
+
+BW_ANCOVA %>% 
+  group_by(SEX, DRUG) %>% 
+  summarise(
+    mean_start = mean(start),
+    sem_start = sd(start) / sqrt(n()),
+    mean_end = mean(end),
+    sem_end = sd(end) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+ANCOVA_F <- lm(
+  end ~ start + DRUG,
+  data = BW_ANCOVA %>% filter(SEX == "F")
+)
+
+anova(ANCOVA_F)
+summary(ANCOVA_F)
+
+ANCOVA_F_interaction <- lm(
+  end ~ start * DRUG,
+  data = BW_ANCOVA %>% filter(SEX == "F")
+)
+
+anova(ANCOVA_F_interaction)
+
+summary(ANCOVA_F_interaction)
+
+
+ANCOVA_M <- lm(
+  end ~ start + DRUG,
+  data = BW_ANCOVA %>% filter(SEX == "M")
+)
+
+anova(ANCOVA_M)
+summary(ANCOVA_M)
 
 #FOOD INTAKE----
 
