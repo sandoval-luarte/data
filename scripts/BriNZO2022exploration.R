@@ -1,4 +1,4 @@
-# This script aims to explore changes in body composition and behavior in C57BL6J mice after exposure to RTIOXA47 for 4 weeks
+# This script aims to explore changes in body composition and behavior in C57BL6J and NZO mice after exposure to RTIOXA47 for 4 weeks
 
 #libraries----
 library(dplyr) #to use pipe
@@ -22,13 +22,13 @@ library(broom)
 library(rstatix)
 
 #BODY WEIGHT (BW) ANALYSIS----
-## These c57bl6j mice were on chow ----
+## These c57bl6j and nzo mice were on chow ----
 
 # asignation to the drugs based on food intake calculation sheet csv from Bri original data
 
 BW_data <- read_csv("../data/BW.csv") %>% 
   filter(COHORT %in% c(8, 20, 21)) %>%
-  filter(STRAIN == "C57BL/6J") %>% 
+#  filter(STRAIN == "C57BL/6J") %>% 
   mutate(
     DRUG = case_when(
       ID %in% c(
@@ -62,7 +62,7 @@ BW_data <- read_csv("../data/BW.csv") %>%
 ungroup()
    
 BW_data  %>% 
-  group_by(SEX,COHORT,STATUS) %>%
+  group_by(SEX,COHORT,STATUS,STRAIN) %>%
   summarise(n_ID = n_distinct(ID)) %>% 
   print(n = Inf)
   
@@ -79,7 +79,7 @@ BW_data_2 <- BW_data %>%
   filter(day_rel >= 0, day_rel < 40)
 
 BW_data_2 %>% 
-  group_by(day_rel,COHORT,STATUS) %>%
+  group_by(day_rel,COHORT,STATUS,SEX,STRAIN) %>%
   summarise(n_ID = n_distinct(ID)) %>% 
   print(n = Inf) #ok great this is consistent we have 5 weeks of RTIOXA-47 injections
 
