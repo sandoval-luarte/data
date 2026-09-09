@@ -28,7 +28,7 @@ library(rstatix)
 
 BW_data <- read_csv("../data/BW.csv") %>% 
   filter(COHORT %in% c(8, 20, 21)) %>%
-#  filter(STRAIN == "C57BL/6J") %>% 
+ filter(STRAIN == "C57BL/6J") %>% 
   mutate(
     DRUG = case_when(
       ID %in% c(
@@ -62,13 +62,13 @@ BW_data <- read_csv("../data/BW.csv") %>%
 ungroup()
    
 BW_data  %>% 
-  group_by(SEX,COHORT,STATUS,STRAIN) %>%
+  group_by(SEX,COHORT,STATUS,STRAIN) %>% #so cohort 21 are just females from both strains
   summarise(n_ID = n_distinct(ID)) %>% 
   print(n = Inf)
   
   
 BW_data_2 <- BW_data %>% 
-  group_by(COHORT, ID) %>% 
+  group_by(COHORT, ID,STRAIN,SEX) %>% 
   mutate(
     start_date = DATE[STATUS %in% "start"][1],
     day_rel = as.numeric(DATE - start_date),
@@ -89,7 +89,7 @@ BW_data_2 <- BW_data_2 %>%
   )
 
 BW_summary <- BW_data_2 %>%
-  group_by(day_rel, day_rel_factor, SEX, STRAIN, DRUG) %>%
+  group_by(day_rel_factor, SEX, STRAIN, DRUG,STATUS) %>%
   summarise(
     mean_BW = mean(BW, na.rm = TRUE),
     sem_BW  = sd(BW, na.rm = TRUE) / sqrt(sum(!is.na(BW))),
