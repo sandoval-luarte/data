@@ -1,5 +1,4 @@
-# This script aims to explore changes lean mass in middle age C57 after different stages of feeding:
-#from peak of obesity to acute body weight loss
+# This script aims to explore changes lean mass in middle age C57 from peak of obesity to acute body weight loss
 
 #libraries
 library(dplyr) #to use pipe
@@ -43,530 +42,11 @@ echoMRI_data <- echoMRI_data %>%
   mutate(STATUS = factor(STATUS, 
                          levels = c( "peak obesity", "BW loss")))
 
-
-# DATA FOR PLOT
-
-
-plot_data <- echoMRI_data %>%
-  mutate(
-    PlotGroup = case_when(
-      STATUS == "peak obesity" ~ "all",
-      STATUS == "BW loss" ~ GROUP
-    )
-  ) %>%
-  filter(!is.na(PlotGroup))
-
-
-# Make sure the order is:
-# all -> restricted -> ad lib
-plot_data$PlotGroup <- factor(
-  plot_data$PlotGroup,
-  levels = c("all", "restricted", "ad lib")
-)
-
-# SUMMARY DATA
-
-
-summary_data <- plot_data %>%
-  group_by(SEX, STATUS, PlotGroup) %>%
-  summarise(
-    mean = mean(Lean, na.rm = TRUE),
-    SE = sd(Lean, na.rm = TRUE) / sqrt(sum(!is.na(Lean))),
-    .groups = "drop"
-  )
-
-
-bar_data <- summary_data %>%
-  mutate(
-    xmin = case_when(
-      STATUS == "peak obesity" ~ 0.75,
-      STATUS == "BW loss" & PlotGroup == "ad lib" ~ 1.75,
-      STATUS == "BW loss" & PlotGroup == "restricted" ~ 1.75
-    ),
-    
-    xmax = case_when(
-      STATUS == "peak obesity" ~ 1.25,
-      STATUS == "BW loss" ~ 2.25
-    )
-  )
-
-
-# PLOT 1----
-
-plot <- ggplot() +
-# INDIVIDUAL ID TRAJECTORIES
-
-geom_line(
-  data = plot_data,
-  aes(
-    x = ifelse(STATUS == "peak obesity", 1, 2),
-    y = Lean,
-    group = ID
-  ),
-  color = "black",
-  linewidth = 0.7,
-  alpha = 0.9
-) +
-geom_col(
-  data = bar_data %>%
-    filter(STATUS == "peak obesity"),
-  aes(
-    x = 1,
-    y = mean,
-    fill = PlotGroup
-  ),
-  width = 0.55,
-  color = "#8C6F00",
-  linewidth = 0.8
-) +
-  geom_col(
-    data = bar_data %>%
-      filter(
-        STATUS == "BW loss",
-        PlotGroup == "ad lib"
-      ),
-    aes(
-      x = 2,
-      y = mean,
-      fill = PlotGroup
-    ),
-    width = 0.55,
-    color = "#317EC2FF",
-    linewidth = 0.8
-  ) +
-  geom_col(
-    data = bar_data %>%
-      filter(
-        STATUS == "BW loss",
-        PlotGroup == "restricted"
-      ),
-    aes(
-      x = 2,
-      y = mean,
-      fill = PlotGroup
-    ),
-    width = 0.55,
-    color = "#317EC2FF",
-    linewidth = 0.8
-  ) +
-geom_errorbar(
-  data = bar_data %>%
-    filter(STATUS == "peak obesity"),
-  aes(
-    x = 1,
-    ymin = mean - SE,
-    ymax = mean + SE
-  ),
-  width = 0.15,
-  linewidth = 1
-) +
-geom_errorbar(
-  data = bar_data %>%
-    filter(STATUS == "BW loss"),
-  aes(
-    x = 2,
-    ymin = mean - SE,
-    ymax = mean + SE
-  ),
-  width = 0.15,
-  linewidth = 1
-) +
-geom_point(
-  data = plot_data,
-  aes(
-    x = ifelse(STATUS == "peak obesity", 1, 2),
-    y = Lean
-  ),
-  shape = 21,
-  fill = "white",
-  color = "#8AA7D8",
-  size = 2.5,
-  stroke = 0.9,
-  position = position_jitter(
-    width = 0.04,
-    height = 0
-  )
-) +
-scale_x_continuous(
-  breaks = c(1, 2),
-  labels = c(
-    "peak obesity",
-    "BW loss"
-  ),
-  limits = c(0.5, 2.5)
-) +
-scale_fill_manual(
-  values = c(
-    "all" = "#F5F1D5",
-    "restricted" = "#BFE3E0",
-    "ad lib" = "#8B001F"
-  ),
-  labels = c(
-    "all" = "all",
-    "restricted" = "restricted",
-    "ad lib" = "ad libitum"
-  )
-) +
-facet_wrap(~SEX) +
-
-labs(
-  x = "STATUS",
-  y = "Lean mass (g)",
-  fill = "Group"
-) +
-theme_classic() +
-  
-  theme(
-    strip.background = element_blank(),
-    
-    strip.text = element_text(
-      family = "Helvetica",
-      size = 14,
-      face = "plain"
-    ),
-    
-    axis.text = element_text(
-      family = "Helvetica",
-      size = 13,
-      color = "black"
-    ),
-    
-    axis.title = element_text(
-      family = "Helvetica",
-      size = 14,
-      color = "black"
-    ),
-    
-    axis.text.x = element_text(
-      angle = 45,
-      hjust = 1
-    ),
-    
-    legend.title = element_text(
-      family = "Helvetica",
-      size = 13
-    ),
-    
-    legend.text = element_text(
-      family = "Helvetica",
-      size = 12
-    ),
-    
-    panel.grid = element_blank(),
-    
-    panel.border = element_blank(),
-    
-    axis.line = element_line(
-      color = "black",
-      linewidth = 0.6
-    ),
-    
-    panel.spacing = unit(1.2, "lines")
-  )
-
-
-plot
-
-# CALCULATE LEAN MASS AS % OF PEAK OBESITY
-
-
-plot_data <- echoMRI_data %>%
-  group_by(ID) %>%
-  mutate(
-    peak_lean = Lean[STATUS == "peak obesity"][1],
-    Lean_percent_peak = (Lean / peak_lean) * 100
-  ) %>%
-  ungroup()
-
-# DATA FOR PLOT
-
-
-plot_data <- plot_data %>%
-  mutate(
-    PlotGroup = case_when(
-      STATUS == "peak obesity" ~ "all",
-      STATUS == "BW loss" ~ GROUP
-    )
-  ) %>%
-  filter(!is.na(PlotGroup))
-
-
-plot_data$PlotGroup <- factor(
-  plot_data$PlotGroup,
-  levels = c("all", "restricted", "ad lib")
-)
-
-# SUMMARY DATA
-
-
-summary_data <- plot_data %>%
-  group_by(SEX, STATUS, PlotGroup) %>%
-  summarise(
-    mean = mean(Lean_percent_peak, na.rm = TRUE),
-    SE = sd(Lean_percent_peak, na.rm = TRUE) /
-      sqrt(sum(!is.na(Lean_percent_peak))),
-    .groups = "drop"
-  )
-
-# PLOT
-
-
-plot_perc <- ggplot() +
-  
-  # ----------------------------------------------------------
-# INDIVIDUAL ID TRAJECTORIES
-# ----------------------------------------------------------
-
-geom_line(
-  data = plot_data,
-  aes(
-    x = ifelse(STATUS == "peak obesity", 1, 2),
-    y = Lean_percent_peak,
-    group = ID
-  ),
-  color = "black",
-  linewidth = 0.7,
-  alpha = 0.9
-) +
-  
-  # ----------------------------------------------------------
-# PEAK OBESITY — ALL
-# ----------------------------------------------------------
-
-geom_col(
-  data = summary_data %>%
-    filter(
-      STATUS == "peak obesity",
-      PlotGroup == "all"
-    ),
-  aes(
-    x = 1,
-    y = mean,
-    fill = PlotGroup
-  ),
-  width = 0.55,
-  color = "#8C6F00",
-  linewidth = 0.8
-) +
-  
-  # ----------------------------------------------------------
-# BW LOSS — AD LIBITUM
-# ----------------------------------------------------------
-
-geom_col(
-  data = summary_data %>%
-    filter(
-      STATUS == "BW loss",
-      PlotGroup == "ad lib"
-    ),
-  aes(
-    x = 2,
-    y = mean,
-    fill = PlotGroup
-  ),
-  width = 0.55,
-  color = "#317EC2FF",
-  linewidth = 0.8
-) +
-  
-  # ----------------------------------------------------------
-# BW LOSS — RESTRICTED
-# ----------------------------------------------------------
-
-geom_col(
-  data = summary_data %>%
-    filter(
-      STATUS == "BW loss",
-      PlotGroup == "restricted"
-    ),
-  aes(
-    x = 2,
-    y = mean,
-    fill = PlotGroup
-  ),
-  width = 0.55,
-  color = "#317EC2FF",
-  linewidth = 0.8
-) +
-  
-  # ----------------------------------------------------------
-# SEM — PEAK OBESITY
-# ----------------------------------------------------------
-
-geom_errorbar(
-  data = summary_data %>%
-    filter(STATUS == "peak obesity"),
-  aes(
-    x = 1,
-    ymin = mean - SE,
-    ymax = mean + SE
-  ),
-  width = 0.15,
-  linewidth = 1
-) +
-  
-  # ----------------------------------------------------------
-# SEM — BW LOSS
-# ----------------------------------------------------------
-
-geom_errorbar(
-  data = summary_data %>%
-    filter(STATUS == "BW loss"),
-  aes(
-    x = 2,
-    ymin = mean - SE,
-    ymax = mean + SE
-  ),
-  width = 0.15,
-  linewidth = 1
-) +
-  
-  # ----------------------------------------------------------
-# INDIVIDUAL ANIMALS
-# ----------------------------------------------------------
-
-geom_point(
-  data = plot_data,
-  aes(
-    x = ifelse(STATUS == "peak obesity", 1, 2),
-    y = Lean_percent_peak
-  ),
-  shape = 21,
-  fill = "white",
-  color = "#8AA7D8",
-  size = 2.5,
-  stroke = 0.9,
-  position = position_jitter(
-    width = 0.04,
-    height = 0
-  )
-) +
-  
-  # ----------------------------------------------------------
-# X AXIS
-# ----------------------------------------------------------
-
-scale_x_continuous(
-  breaks = c(1, 2),
-  labels = c(
-    "peak obesity",
-    "BW loss"
-  ),
-  limits = c(0.5, 2.5)
-) +
-  
-  # ----------------------------------------------------------
-# Y AXIS
-# ----------------------------------------------------------
-
-scale_y_continuous(
-  limits = c(0, NA),
-  expand = expansion(mult = c(0, 0.05))
-) +
-  
-  # ----------------------------------------------------------
-# COLORS
-# ----------------------------------------------------------
-
-scale_fill_manual(
-  values = c(
-    "all" = "#F5F1D5",
-    "restricted" = "#BFE3E0",
-    "ad lib" = "#8B001F"
-  ),
-  labels = c(
-    "all" = "all",
-    "restricted" = "restricted",
-    "ad lib" = "ad libitum"
-  )
-) +
-  
-  # ----------------------------------------------------------
-# FACETS
-# ----------------------------------------------------------
-
-facet_wrap(~SEX) +
-  
-  # ----------------------------------------------------------
-# LABELS
-# ----------------------------------------------------------
-
-labs(
-  x = "STATUS",
-  y = "Lean mass (% of peak obesity)",
-  fill = "Group"
-) +
-  
-  # ----------------------------------------------------------
-# THEME
-# ----------------------------------------------------------
-
-theme_classic() +
-  
-  theme(
-    strip.background = element_blank(),
-    
-    strip.text = element_text(
-      family = "Arial",
-      size = 14,
-      face = "plain"
-    ),
-    
-    axis.text = element_text(
-      family = "Arial",
-      size = 13,
-      color = "black"
-    ),
-    
-    axis.title = element_text(
-      family = "Arial",
-      size = 14,
-      color = "black"
-    ),
-    
-    axis.text.x = element_text(
-      family = "Arial",
-      size = 13,
-      angle = 45,
-      hjust = 1
-    ),
-    
-    legend.title = element_text(
-      family = "Arial",
-      size = 13
-    ),
-    
-    legend.text = element_text(
-      family = "Arial",
-      size = 12
-    ),
-    
-    panel.grid = element_blank(),
-    
-    panel.border = element_blank(),
-    
-    axis.line = element_line(
-      color = "black",
-      linewidth = 0.6
-    ),
-    
-    panel.spacing = unit(1.2, "lines")
-  )
-
-plot_perc
-
-plot <- plot +
-  labs(tag = "A")
-
-plot_perc <- plot_perc +
-  labs(tag = "B")
-
-combined_plot <- (plot | plot_perc) 
-
-combined_plot
-
-
 stats_data <- echoMRI_data %>%
+  filter(
+    STATUS %in% c("peak obesity", "BW loss"),
+    DIET_FORMULA == "D12451i"
+  ) %>%
   mutate(
     STATUS = factor(
       STATUS,
@@ -579,187 +59,171 @@ stats_data <- echoMRI_data %>%
     SEX = factor(SEX),
     ID = factor(ID)
   )
-model <- lmer(
-  Lean ~ STATUS * GROUP + (1 | ID),
-  data = stats_data
-)
-
-anova(model)
-
-emm <- emmeans(
-  model,
-  ~ STATUS * GROUP
-)
-
-emm
-pairs(
-  emmeans(model, ~ GROUP | STATUS)
-)
-
-pairs(
-  emmeans(model, ~ STATUS | GROUP)
-)
-
-model_sex <- lmer(
-  Lean ~ STATUS * GROUP * SEX + (1 | ID),
-  data = stats_data
-)
-
-anova(model_sex, ddf = "Kenward-Roger")
-
-library(lmerTest)
-class(model_sex)
-anova(model_sex)
-
-library(lme4)
-library(lmerTest)
-
-# Refit AFTER loading lmerTest
-model_sex <- lmer(
-  Lean ~ STATUS * GROUP * SEX + (1 | ID),
-  data = stats_data
-)
-
-# Check
-class(model_sex)
-
-# ANOVA
-anova(model_sex)
-
-
-# ============================================================
-# THIRD PLOT: SEX COLLAPSED
-# ============================================================
-
-plot_sex_collapsed <- plot_data %>%
-  mutate(
-    PlotGroup = case_when(
-      STATUS == "peak obesity" ~ "Peak obesity",
-      STATUS == "BW loss" & GROUP == "restricted" ~ "Restricted",
-      STATUS == "BW loss" & GROUP == "ad lib" ~ "Ad lib"
-    )
-  ) %>%
-  filter(!is.na(PlotGroup)) %>%
-  mutate(
-    PlotGroup = factor(
-      PlotGroup,
-      levels = c("Peak obesity", "Restricted", "Ad lib")
-    )
-  )
-
-# Summary statistics
-summary_sex_collapsed <- plot_sex_collapsed %>%
-  group_by(PlotGroup) %>%
-  summarise(
-    mean_lean = mean(Lean_percent_peak, na.rm = TRUE),
-    sem_lean = sd(Lean_percent_peak, na.rm = TRUE) /
-      sqrt(sum(!is.na(Lean_percent_peak))),
-    .groups = "drop"
-  )
-
-# Plot
-plot_sex_collapsed <- ggplot() +
-  
-  # Bars
-  geom_col(
-    data = summary_sex_collapsed,
-    aes(x = PlotGroup, y = mean_lean),
-    fill = "white",
-    color = "black",
-    width = 0.65
-  ) +
-  
-  # SEM
-  geom_errorbar(
-    data = summary_sex_collapsed,
-    aes(
-      x = PlotGroup,
-      ymin = mean_lean - sem_lean,
-      ymax = mean_lean + sem_lean
-    ),
-    width = 0.15,
-    linewidth = 0.6
-  ) +
-  
-  # Individual points
-  geom_jitter(
-    data = plot_sex_collapsed,
-    aes(x = PlotGroup, y = Lean_percent_peak),
-    width = 0.08,
-    size = 1.5,
-    color = "black",
-    alpha = 0.8
-  ) +
-  
-  # 100% reference line
-  geom_hline(
-    yintercept = 100,
-    linetype = "dashed",
-    linewidth = 0.5
-  ) +
-  
-  labs(
-    x = NULL,
-    y = "Lean mass (% of peak obesity)"
-  ) +
-  
-  theme_classic(base_family = "Arial") +
-  
-  theme(
-    axis.text = element_text(
-      family = "Arial",
-      size = 12,
-      color = "black"
-    ),
-    axis.title = element_text(
-      family = "Arial",
-      size = 13,
-      color = "black"
-    ),
-    axis.line = element_line(color = "black"),
-    axis.ticks = element_line(color = "black"),
-    plot.background = element_blank(),
-    panel.background = element_blank()
-  )
-
-plot_sex_collapsed 
-
-plot <- plot + labs(tag = "A")
-plot_perc <- plot_perc + labs(tag = "B")
-plot_sex_collapsed <- plot_sex_collapsed + labs(tag = "C")
-
-combined_plot <- plot + plot_perc + plot_sex_collapsed
-
-combined_plot
-
-library(dplyr)
 
 lean_change <- stats_data %>%
   group_by(ID) %>%
   mutate(
-    peak_lean = Lean[STATUS == "peak obesity"],
+    peak_lean = Lean[STATUS == "peak obesity"][1],
     Lean_percent_change = ((Lean - peak_lean) / peak_lean) * 100
   ) %>%
   ungroup()
+
 lean_change_bwloss <- lean_change %>%
   filter(STATUS == "BW loss")
+
 model_percent <- lm(
   Lean_percent_change ~ GROUP,
   data = lean_change_bwloss
 )
 
 anova(model_percent)
-summary(model_percent)
-library(emmeans)
 
-emmeans(model_percent, ~ GROUP)
-pairs(emmeans(model_percent, ~ GROUP))
+# Panel C: Lean mass % change from peak obesity, sex collapsed
 
-model_percent_sex <- lm(
-  Lean_percent_change ~ GROUP * SEX,
-  data = lean_change_bwloss
+# Calculate % change relative to each animal's peak-obesity lean mass
+lean_change <- stats_data %>%
+  group_by(ID) %>%
+  mutate(
+    peak_lean = Lean[STATUS == "peak obesity"][1],
+    Lean_percent_change = ((Lean - peak_lean) / peak_lean) * 100
+  ) %>%
+  ungroup()
+
+# Keep only BW loss
+lean_change_bwloss <- lean_change %>%
+  filter(STATUS == "BW loss") %>%
+  mutate(
+    GROUP = factor(
+      GROUP,
+      levels = c("restricted", "ad lib")
+    )
+  )
+
+# Summary statistics
+plot_data_C <- lean_change_bwloss %>%
+  group_by(GROUP) %>%
+  summarise(
+    mean = mean(Lean_percent_change, na.rm = TRUE),
+    SEM = sd(Lean_percent_change, na.rm = TRUE) /
+      sqrt(sum(!is.na(Lean_percent_change))),
+    .groups = "drop"
+  )
+
+# Colors
+group_colors <- c(
+  "ad lib" = "#6BAED6",      
+  "restricted" = "#7FBF7B"  
 )
 
-anova(model_percent_sex)
-emmeans(model_percent_sex, ~ GROUP | SEX)
-pairs(emmeans(model_percent_sex, ~ GROUP | SEX))
+# Panel C
+pC <- ggplot(plot_data_C,
+             aes(x = GROUP, y = mean, fill = GROUP)) +
+  
+  # Bars
+  geom_col(
+    width = 0.65,
+    color = "black"
+  ) +
+  
+  # Error bars
+  geom_errorbar(
+    aes(
+      ymin = mean - SEM,
+      ymax = mean + SEM
+    ),
+    width = 0.15,
+    linewidth = 0.6,
+    color = "black"
+  ) +
+  
+  # Individual animals
+  geom_jitter(
+    data = lean_change_bwloss,
+    aes(
+      x = GROUP,
+      y = Lean_percent_change
+    ),
+    width = 0.08,
+    size = 1.5,
+    color = "black",
+    alpha = 0.8,
+    inherit.aes = FALSE
+  ) +
+  
+  # Peak obesity reference (0%)
+  geom_hline(
+    yintercept = 0,
+    linetype = "dashed",
+    linewidth = 0.5,
+    color = "black"
+  ) +
+  
+  # Significance bar for restricted group
+  annotate(
+    "segment",
+    x = 1, xend = 1,
+    y = 0, yend = -11
+  ) +
+  
+  annotate(
+    "segment",
+    x = 0.92, xend = 1.08,
+    y = 0, yend = 0
+  ) +
+  
+  annotate(
+    "segment",
+    x = 0.92, xend = 1.08,
+    y = -11, yend = -11
+  ) +
+  
+  annotate(
+    "text",
+    x = 1.15,
+    y = -5.5,
+    label = "p < 0.0001",
+    angle = 90,
+    size = 3.5,
+    family = "Arial"
+  ) +
+  
+  labs(
+    x = NULL,
+    y = "Lean mass change from peak obesity (%)"
+  ) +
+  
+  scale_fill_manual(
+    values = group_colors
+  ) +
+  
+  scale_x_discrete(
+    labels = c(
+      "restricted" = "Restricted",
+      "ad lib" = "Ad libitum"
+    )
+  ) +
+  
+  theme_classic() +
+  theme(
+    text = element_text(
+      family = "Arial"
+    ),
+    axis.text = element_text(
+      size = 11,
+      color = "black"
+    ),
+    axis.title = element_text(
+      size = 12,
+      color = "black"
+    ),
+    axis.line = element_line(
+      color = "black"
+    ),
+    axis.ticks = element_line(
+      color = "black"
+    ),
+    legend.position = "none"
+  )
+
+pC
+
