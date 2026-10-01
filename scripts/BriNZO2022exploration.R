@@ -28,7 +28,7 @@ library(rstatix)
 
 BW_data <- read_csv("../data/BW.csv") %>% 
   filter(COHORT %in% c(8, 20, 21)) %>%
- filter(STRAIN == "C57BL/6J") %>% 
+ #filter(STRAIN == "C57BL/6J") %>% 
   mutate(
     DRUG = case_when(
       ID %in% c(
@@ -283,11 +283,21 @@ FI_data   %>%
 # BODY COMPOSITION ANALYSIS----
 
 echoMRI_data <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
-  filter(COHORT ==21)  %>% 
+  filter(COHORT %in% c(8, 20, 21)) %>%
   mutate(
     DRUG = case_when(
-      ID %in% c(50,51,52,53,56,57,61,66,67,68,70) ~ "vehicle", 
-      ID %in% c(49,54,55,58,59,60,62,63,64,65,69,71) ~ "RTI_47")
+      ID %in% c(
+        1,3,5,7,9,11,13,15,17,19,21,23, # cohort 8
+        25,27,30,31,33,35,37,39,41,43,45,48, # cohort 20
+        49,51,54,55,57,59,61,63,65,67,69 # cohort 21
+      ) ~ "vehicle",
+      
+      ID %in% c(
+        2,4,6,8,10,12,14,16,18,20,22,24, # cohort 8
+        26,28,29,32,34,36,38,40,42,44,46,47, # cohort 20
+        50,52,53,56,58,60,62,64,66,68,70,71 # cohort 21
+      ) ~ "RTI_47"
+    )
   )
   
 echoMRI_data <- echoMRI_data %>% 
@@ -340,39 +350,41 @@ delta_bodycomp %>%
 
 
 ### ADIPOSITY INDEX----
-### plot A: Adiposity before and after chronic injections of RTIOXA 47 ----
+### Plot A: Adiposity before and after chronic injections of RTIOXA-47
 
 AI_summary <- echoMRI_data %>%
+  filter(STATUS %in% c("start", "end")) %>%
   group_by(STATUS, STRAIN, SEX, DRUG) %>%
   summarise(
     mean_ai = mean(adiposity_index, na.rm = TRUE),
-    sem_ai  = sd(adiposity_index, na.rm = TRUE) / sqrt(sum(!is.na(adiposity_index))),
+    sem_ai  = sd(adiposity_index, na.rm = TRUE) /
+      sqrt(sum(!is.na(adiposity_index))),
     n = sum(!is.na(adiposity_index)),
     .groups = "drop"
   ) %>%
   mutate(
     STATUS = factor(STATUS, levels = c("start", "end")),
-    DRUG = factor(DRUG, levels = c("vehicle", "RTI_47")),
-    GROUP = paste(DRUG, STATUS, sep = "_")
+    DRUG = factor(DRUG, levels = c("vehicle", "RTI_47"))
   )
+
 
 plot_ai <- ggplot(
   AI_summary,
   aes(
     x = DRUG,
     y = mean_ai,
-    fill = GROUP,
+    fill = STATUS,
     group = STATUS
   )
 ) +
+  
+  # Bars
   geom_col(
     position = position_dodge(width = 0.8),
     width = 0.7,
     color = "black",
     linewidth = 0.8
   ) +
-  
-  # Individual animals
   geom_point(
     data = echoMRI_data %>%
       filter(STATUS %in% c("start", "end")) %>%
@@ -383,7 +395,7 @@ plot_ai <- ggplot(
     aes(
       x = DRUG,
       y = adiposity_index,
-      group = STATUS
+      fill = STATUS
     ),
     position = position_jitterdodge(
       jitter.width = 0.08,
@@ -392,11 +404,11 @@ plot_ai <- ggplot(
     inherit.aes = FALSE,
     size = 2,
     shape = 21,
-    fill = "white",
     color = "black",
     stroke = 0.6
-  ) +
+  )+
   
+  # SEM
   geom_errorbar(
     aes(
       ymin = mean_ai - sem_ai,
@@ -405,35 +417,34 @@ plot_ai <- ggplot(
     position = position_dodge(width = 0.8),
     width = 0.15
   ) +
+  
   scale_fill_manual(
     values = c(
-      "vehicle_start" = "white",
-      "vehicle_end" = "grey85",
-      "RTI_47_start" = "#FDD0A2",
-      "RTI_47_end" = "#E67E22"
+      "start" = "white",
+      "end" = "grey85"
     ),
     labels = c(
-      "vehicle_start" = "Vehicle start",
-      "vehicle_end" = "Vehicle end",
-      "RTI_47_start" = "RTI-47 start",
-      "RTI_47_end" = "RTI-47 end"
+      "start" = "Start",
+      "end" = "End"
     )
   ) +
-  facet_wrap(~ STRAIN*SEX) +
+  
+  facet_wrap(~ STRAIN * SEX) +
+  
   labs(
     x = NULL,
     y = "Adiposity index (fat/lean mass)",
     fill = NULL
   ) +
+  
   theme_classic(base_size = 14)
 
 plot_ai
 
-
 ### plot B: Delta adiposity after chronic injections of RTIOXA 47 ----
 
 AIdelta_summary <- delta_bodycomp %>%
-  group_by(STRAIN, DRUG) %>%
+  group_by(STRAIN, DRUG,SEX) %>%
   summarise(
     mean_aidelta = mean(delta_ai, na.rm = TRUE),
     sem_aidelta  = sd(delta_ai, na.rm = TRUE) / sqrt(sum(!is.na(delta_ai))),
@@ -628,24 +639,47 @@ combined_plot
 
 ##STATS----
 
-AI_delta_models <- delta_bodycomp %>%
-  filter(!is.na(delta_ai)) %>%
-  group_by(STRAIN) %>%
-  nest() %>%
+delta_bodycomp <- echoMRI_data %>%
+  select(
+    ID, COHORT, SEX, STRAIN, DRUG, STATUS,
+    adiposity_index, Fat, Lean, fat_perc, lean_perc
+  ) %>%
+  filter(STATUS %in% c("start", "end")) %>%
+  pivot_wider(
+    names_from = STATUS,
+    values_from = c(
+      adiposity_index,
+      Fat,
+      Lean,
+      fat_perc,
+      lean_perc
+    ),
+    names_glue = "{.value}_{STATUS}"
+  ) %>%
   mutate(
-    model = map(data, ~ lm(delta_ai ~ DRUG, data = .x)),
-    emmeans = map(model, ~ emmeans(.x, ~ DRUG)),
-    contrast = map(emmeans, ~ pairs(.x))
+    delta_ai        = adiposity_index_end - adiposity_index_start,
+    delta_fat       = Fat_end - Fat_start,
+    delta_lean      = Lean_end - Lean_start,
+    delta_fat_perc  = fat_perc_end - fat_perc_start,
+    delta_lean_perc = lean_perc_end - lean_perc_start
   )
 
-AI_delta_contrasts <- AI_delta_models %>%
-  select(STRAIN, contrast) %>%
-  mutate(
-    contrast = map(contrast, ~ as.data.frame(.x))
-  ) %>%
-  unnest(contrast)
+AI_delta_model <- lm(
+  delta_ai ~ DRUG * STRAIN * SEX + COHORT,
+  data = delta_bodycomp %>%
+    filter(!is.na(delta_ai))
+)
 
-AI_delta_contrasts
+anova(AI_delta_model)
+
+AI_delta_emm <- emmeans(
+  AI_delta_model,
+  ~ DRUG | STRAIN * SEX
+)
+
+AI_delta_emm
+
+
 
 ### Baseline comparison: Vehicle start vs RTI-47 start within each strain ----
 
