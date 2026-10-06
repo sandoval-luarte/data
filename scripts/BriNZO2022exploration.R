@@ -92,7 +92,7 @@ BW_data_2 <- BW_data %>%
   mutate(
     week_rel = factor(week_rel, levels = 0:5)
   ) %>% 
-  filter(STRAIN == "NZO/HlLtJ") %>% 
+  filter(STRAIN == "C57BL/6J") %>% 
   filter(SEX=="F") 
 
 BW_data_2 %>% 
@@ -217,103 +217,10 @@ plot_BW <- ggplot() +
 
 plot_BW
 
-# Create combined x-axis variable
-BW_start_end <- BW_start_end %>%
-  mutate(
-    GROUP = factor(
-      paste(DRUG, STATUS, sep = "_"),
-      levels = c(
-        "vehicle_Start",
-        "vehicle_End",
-        "RTI_47_Start",
-        "RTI_47_End"
-      ),
-      labels = c(
-        "Vehicle\nStart",
-        "Vehicle\nEnd",
-        "RTI-47\nStart",
-        "RTI-47\nEnd"
-      )
-    )
-  )
-
-# Summary
-BW_start_end_summary <- BW_start_end %>%
-  group_by(DRUG, STATUS, GROUP) %>%
-  summarise(
-    mean_BW = mean(BW, na.rm = TRUE),
-    sem_BW = sd(BW, na.rm = TRUE) / sqrt(sum(!is.na(BW))),
-    n = sum(!is.na(BW)),
-    .groups = "drop"
-  )
-
-# Plot
-plot_BW_start_end <- ggplot(
-  BW_start_end_summary,
-  aes(x = GROUP, y = mean_BW, fill = DRUG)
-) +
-  
-  geom_col(
-    width = 0.65,
-    color = "black"
-  ) +
-  
-  geom_errorbar(
-    aes(
-      ymin = mean_BW - sem_BW,
-      ymax = mean_BW + sem_BW
-    ),
-    width = 0.2,
-    linewidth = 0.7,
-    color = "black"
-  ) +
-  
-  geom_point(
-    data = BW_start_end,
-    aes(
-      x = GROUP,
-      y = BW,
-      fill = DRUG
-    ),
-    position = position_jitter(width = 0.10),
-    shape = 21,
-    size = 2.5,
-    alpha = 0.8,
-    color = "black"
-  ) +
-  
-  scale_fill_manual(
-    values = drug_colors,
-    labels = drug_labels,
-    breaks = c("vehicle", "RTI_47")
-  ) +
-  
-  scale_y_continuous(
-    breaks = seq(0, 70, 10)
-  ) +
-  
-  coord_cartesian(ylim = c(0, 70)) +
-  
-  labs(
-    x = NULL,
-    y = "Body weight (g)",
-    fill = NULL
-  ) +
-  
-  theme_classic(base_size = 14) +
-  theme(
-    legend.position = "top",
-    axis.text.x = element_text(
-      face = "bold",
-      size = 11
-    )
-  )
-
-plot_BW_start_end
 
 #stats----
 BW_start_end <- BW_data %>% 
-  filter(STRAIN == "NZO/HlLtJ") %>% 
+  filter(STRAIN == "C57BL/6J") %>% 
   filter(SEX=="F") %>% 
   filter(STATUS %in% c("start", "end")) %>% 
   select(ID, COHORT, DRUG, STATUS, BW,STRAIN)
@@ -332,6 +239,141 @@ BW_ttest <- BW_start_end %>%
   add_significance()
 
 BW_ttest
+
+
+# Prepare summary data
+BW_plot_summary <- BW_start_end %>%
+  group_by(DRUG, STATUS) %>%
+  summarise(
+    mean_BW = mean(BW, na.rm = TRUE),
+    sem_BW = sd(BW, na.rm = TRUE) / sqrt(sum(!is.na(BW))),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    DRUG = factor(DRUG, levels = c("vehicle", "RTI_47")),
+    STATUS = factor(STATUS, levels = c("start", "end")),
+    DRUG_STATUS = factor(
+      paste(DRUG, STATUS, sep = "_"),
+      levels = c(
+        "vehicle_start",
+        "vehicle_end",
+        "RTI_47_start",
+        "RTI_47_end"
+      )
+    )
+  )
+
+
+# Prepare individual mouse data
+BW_points <- BW_start_end %>%
+  mutate(
+    DRUG = factor(DRUG, levels = c("vehicle", "RTI_47")),
+    STATUS = factor(STATUS, levels = c("start", "end")),
+    DRUG_STATUS = factor(
+      paste(DRUG, STATUS, sep = "_"),
+      levels = c(
+        "vehicle_start",
+        "vehicle_end",
+        "RTI_47_start",
+        "RTI_47_end"
+      )
+    )
+  )
+
+
+# Plot
+plot_BW_start_end <- ggplot(
+  BW_plot_summary,
+  aes(
+    x = DRUG_STATUS,
+    y = mean_BW,
+    fill = DRUG
+  )
+) +
+  
+  # Mean bars
+  geom_col(
+    width = 0.7
+  ) +
+  
+  # SEM
+  geom_errorbar(
+    aes(
+      ymin = mean_BW - sem_BW,
+      ymax = mean_BW + sem_BW
+    ),
+    width = 0.2,
+    linewidth = 0.7
+  ) +
+  
+  # Paired individual mice
+  geom_line(
+    data = BW_points,
+    aes(
+      x = DRUG_STATUS,
+      y = BW,
+      group = ID
+    ),
+    color = "black",
+    alpha = 0.35,
+    linewidth = 0.6
+  ) +
+  
+  # Individual mouse points
+  geom_point(
+    data = BW_points,
+    aes(
+      x = DRUG_STATUS,
+      y = BW
+    ),
+    color = "black",
+    size = 2.2
+  ) +
+  
+  # Mouse IDs
+  #geom_text(
+   # data = BW_points,
+    #aes(
+     # x = DRUG_STATUS,
+      #y = BW,
+      #label = ID
+  #  ),
+   # vjust = -0.7,
+  #  size = 3,
+   # color = "black"
+#  ) +
+  
+  # Drug colors
+  scale_fill_manual(
+    values = drug_colors,
+    labels = drug_labels
+  ) +
+  
+  # X-axis
+  scale_x_discrete(
+    labels = c(
+      "vehicle_start" = "Start",
+      "vehicle_end" = "End",
+      "RTI_47_start" = "Start",
+      "RTI_47_end" = "End"
+    )
+  ) +
+  
+  labs(
+    x = NULL,
+    y = "Body weight (g)",
+    fill = NULL
+  ) +
+  
+  theme_classic(base_size = 14) +
+  
+  theme(
+    legend.position = "top"
+  )#+
+#  facet_wrap(~COHORT)
+
+plot_BW_start_end
+
 
 #Does RTI_47 reduce BW during the 5-week treatment?----
 
@@ -469,7 +511,7 @@ echoMRI_data <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
       ) ~ "RTI_47"
     )
   )    %>% 
-  filter(STRAIN == "NZO/HlLtJ") %>% 
+#  filter(STRAIN == "NZO/HlLtJ") %>% 
   filter(SEX=="F")        
   
 echoMRI_data <- echoMRI_data %>% 
@@ -484,14 +526,14 @@ echoMRI_data <- echoMRI_data %>%
     ) )
 
 echoMRI_data %>% 
-  group_by(SEX,DRUG,n_measurement) %>%
+  group_by(SEX,DRUG,n_measurement,STRAIN) %>%
   summarise(n_ID = n_distinct(ID)) %>% 
   print(n = Inf) 
 
 delta_bodycomp <- echoMRI_data %>%
   select(
     ID, SEX, STRAIN, DRUG, STATUS,
-    adiposity_index, Fat, Lean, fat_perc, lean_perc
+    adiposity_index, Fat, Lean, fat_perc, lean_perc,COHORT
   ) %>%
   filter(STATUS %in% c("start", "end")) %>%
   pivot_wider(
@@ -520,94 +562,207 @@ delta_bodycomp %>%
   summarise(n_ID = n_distinct(ID)) %>% 
   print(n = Inf) 
 
-### ADIPOSITY INDEX----
-### Plot A: Adiposity before and after chronic injections of RTIOXA-47
+### fat mass CHANGE----
 
-AI_summary <- echoMRI_data %>%
-  filter(STATUS %in% c("start", "end")) %>%
-  group_by(STATUS, STRAIN, SEX, DRUG) %>%
+fatdelta_summary <- delta_bodycomp %>%
+  filter(SEX == "F") %>%
+  group_by(DRUG, STRAIN, SEX,COHORT) %>%
   summarise(
-    mean_ai = mean(adiposity_index, na.rm = TRUE),
-    sem_ai  = sd(adiposity_index, na.rm = TRUE) /
-      sqrt(sum(!is.na(adiposity_index))),
-    n = sum(!is.na(adiposity_index)),
+    mean_fatdelta = mean(delta_fat, na.rm = TRUE),
+    sem_fatdelta  = sd(delta_fat, na.rm = TRUE) /
+      sqrt(sum(!is.na(delta_fat))),
+    n = sum(!is.na(delta_fat)),
     .groups = "drop"
   ) %>%
   mutate(
-    STATUS = factor(STATUS, levels = c("start", "end")),
-    DRUG = factor(DRUG, levels = c("vehicle", "RTI_47"))
+    DRUG = factor(DRUG, levels = c("vehicle", "RTI_47")),
+    STRAIN = factor(
+      STRAIN,
+      levels = c("C57BL/6J", "NZO/HlLtJ")
+    )
   )
-
-plot_ai <- ggplot(
-  AI_summary,
+plot_fatdelta <- ggplot(
+  fatdelta_summary,
   aes(
     x = DRUG,
-    y = mean_ai,
-    fill = STATUS,
-    group = STATUS
+    y = mean_fatdelta,
+    fill = STRAIN
   )
 ) +
   
-  # Bars
+  # Mean bars
   geom_col(
-    position = position_dodge(width = 0.8),
-    width = 0.7,
+    position = position_dodge(width = 0.7),
+    width = 0.6,
     color = "black",
     linewidth = 0.8
   ) +
-  geom_point(
-    data = echoMRI_data %>%
-      filter(STATUS %in% c("start", "end")) %>%
-      mutate(
-        STATUS = factor(STATUS, levels = c("start", "end")),
-        DRUG = factor(DRUG, levels = c("vehicle", "RTI_47"))
-      ),
+  
+  # Individual animals
+  geom_jitter(
+    data = delta_bodycomp %>%
+      filter(SEX == "F"),
     aes(
       x = DRUG,
-      y = adiposity_index,
-      fill = STATUS
+      y = delta_fat,
+      fill = STRAIN
     ),
     position = position_jitterdodge(
       jitter.width = 0.08,
-      dodge.width = 0.8
+      dodge.width = 0.7
     ),
-    inherit.aes = FALSE,
     size = 2,
     shape = 21,
     color = "black",
-    stroke = 0.6
-  )+
+    stroke = 0.6,
+    inherit.aes = FALSE
+  ) +
   
   # SEM
   geom_errorbar(
     aes(
-      ymin = mean_ai - sem_ai,
-      ymax = mean_ai + sem_ai
+      ymin = mean_fatdelta - sem_fatdelta,
+      ymax = mean_fatdelta + sem_fatdelta
     ),
-    position = position_dodge(width = 0.8),
+    position = position_dodge(width = 0.7),
     width = 0.15
   ) +
   
   scale_fill_manual(
     values = c(
-      "start" = "white",
-      "end" = "grey85"
+      "C57BL/6J" = "gray60",
+      "NZO/HlLtJ" = "pink"
     ),
     labels = c(
-      "start" = "Start",
-      "end" = "End"
+      "C57BL/6J" = "C57BL/6J",
+      "NZO/HlLtJ" = "NZO/HlLtJ"
     )
   ) +
   
-  facet_wrap(~ STRAIN * SEX) +
+  scale_x_discrete(
+    labels = c(
+      "vehicle" = "Vehicle",
+      "RTI_47" = "RTI-47"
+    )
+  ) +
+  
+  scale_y_continuous(
+    limits = c(0, 15),
+    breaks = seq(0, 15, by = 5)
+  ) +
   
   labs(
     x = NULL,
-    y = "Adiposity index (fat/lean mass)",
+    y = "Change in fat mass (g)\n(end - start)",
     fill = NULL
   ) +
   
-  theme_classic(base_size = 14)+
+  theme_classic(base_size = 14) +
+  theme(
+    legend.position = "top"
+  )+
+  facet_wrap(~COHORT)
+
+plot_fatdelta  
+
+
+fatdelta_ttest <- delta_bodycomp %>% 
+  filter(SEX == "F") %>%
+  group_by(DRUG,COHORT) %>% 
+  t_test(delta_fat ~ STRAIN) %>% 
+  add_significance()
+
+fatdelta_ttest 
+
+### fat mass at baseline and end ----
+
+fat_start_end <- echoMRI_data %>%
+  filter(
+    STRAIN == "NZO/HlLtJ",
+    SEX == "F",
+    STATUS %in% c("start", "end")
+  ) %>%
+  mutate(
+    x_position = case_when(
+      DRUG == "vehicle" & STATUS == "start" ~ 1,
+      DRUG == "vehicle" & STATUS == "end"   ~ 2,
+      DRUG == "RTI_47"  & STATUS == "start" ~ 3,
+      DRUG == "RTI_47"  & STATUS == "end"   ~ 4
+    )
+  )
+fat_start_end_summary <- fat_start_end %>%
+  group_by(DRUG, STATUS, x_position,COHORT) %>%
+  summarise(
+    mean_fat = mean(Fat, na.rm = TRUE),
+    sem_fat = sd(Fat, na.rm = TRUE) /
+      sqrt(sum(!is.na(Fat))),
+    n = sum(!is.na(Fat)),
+    .groups = "drop"
+  )
+
+
+plot_fat_start_end <- ggplot(
+  fat_start_end_summary,
+  aes(
+    x = x_position,
+    y = mean_fat,
+    fill = DRUG
+  )
+) +
+  
+  # Mean bars
+  geom_col(
+    width = 0.7,
+    color = "black",
+    linewidth = 0.8
+  ) +
+  
+  # Connect the same mouse from Start to End
+  geom_line(
+    data = fat_start_end,
+    aes(
+      x = x_position,
+      y = Fat,
+      group = ID
+    ),
+    color = "black",
+    alpha = 0.35,
+    linewidth = 0.6
+  ) +
+  
+  # Individual mice
+  geom_point(
+    data = fat_start_end,
+    aes(
+      x = x_position,
+      y = Fat
+    ),
+    position = position_jitter(
+      width = 0.08,
+      height = 0
+    ),
+    shape = 21,
+    size = 2.5,
+    fill = "white",
+    color = "black",
+    stroke = 0.6
+  ) +
+  
+  # SEM
+  geom_errorbar(
+    aes(
+      ymin = mean_fat - sem_fat,
+      ymax = mean_fat + sem_fat
+    ),
+    width = 0.15
+  ) +
+  
+  # X-axis
+  scale_x_continuous(
+    breaks = c(1, 2, 3, 4),
+    labels = c("Start", "End", "Start", "End"),
+    limits = c(0.5, 4.5)
+  ) +
   
   scale_fill_manual(
     values = c(
@@ -618,64 +773,266 @@ plot_ai <- ggplot(
       "vehicle" = "Vehicle",
       "RTI_47" = "RTI-47"
     )
-  ) 
+  ) +
+  
+  labs(
+    x = NULL,
+    y = "Fat mass (g)",
+    fill = NULL
+  ) +
+  
+  # Drug labels
+  annotate(
+    "text",
+    x = 1.5,
+    y = Inf,
+    label = "Vehicle",
+    vjust = 2,
+    size = 5
+  ) +
+  
+  annotate(
+    "text",
+    x = 3.5,
+    y = Inf,
+    label = "RTI-47",
+    vjust = 2,
+    size = 5
+  ) +
+  
+  theme_classic(base_size = 14) +
+  
+  theme(
+    legend.position = "none",
+    plot.margin = margin(
+      t = 35,
+      r = 10,
+      b = 10,
+      l = 10
+    )
+  )+
+  facet_wrap(~COHORT)
 
-plot_ai
+plot_fat_start_end
 
-### plot B: Delta adiposity after chronic injections of RTIOXA 47 ----
+### Statistics: Start vs End within each treatment group ----
 
-AIdelta_summary <- delta_bodycomp %>%
-  group_by(STRAIN, DRUG,SEX) %>%
+fat_start_end_ttest <- fat_start_end %>%
+  group_by(DRUG,COHORT) %>%
+  t_test(
+    Fat ~ STATUS,
+    paired = TRUE
+  ) %>%
+  add_significance()
+
+fat_start_end_ttest
+
+
+### lean mass CHANGE----
+
+leandelta_summary <- delta_bodycomp %>%
+  filter(SEX == "F") %>%
+  group_by(DRUG, STRAIN, SEX) %>%
   summarise(
-    mean_aidelta = mean(delta_ai, na.rm = TRUE),
-    sem_aidelta  = sd(delta_ai, na.rm = TRUE) / sqrt(sum(!is.na(delta_ai))),
-    n = sum(!is.na(delta_ai)),
+    mean_leandelta = mean(delta_lean, na.rm = TRUE),
+    sem_leandelta  = sd(delta_lean, na.rm = TRUE) /
+      sqrt(sum(!is.na(delta_lean))),
+    n = sum(!is.na(delta_lean)),
     .groups = "drop"
   ) %>%
   mutate(
-    DRUG = factor(DRUG, levels = c("vehicle", "RTI_47"))
+    DRUG = factor(DRUG, levels = c("vehicle", "RTI_47")),
+    STRAIN = factor(
+      STRAIN,
+      levels = c("C57BL/6J", "NZO/HlLtJ")
+    )
   )
-
-plot_aidelta <- ggplot(
-  AIdelta_summary,
+plot_leandelta <- ggplot(
+  leandelta_summary,
   aes(
     x = DRUG,
-    y = mean_aidelta,
-    fill = DRUG
+    y = mean_leandelta,
+    fill = STRAIN
   )
 ) +
+  
+  # Mean bars
   geom_col(
-    width = 0.7,
+    position = position_dodge(width = 0.7),
+    width = 0.6,
     color = "black",
     linewidth = 0.8
   ) +
   
   # Individual animals
   geom_jitter(
-    data = delta_bodycomp,
+    data = delta_bodycomp %>%
+      filter(SEX == "F"),
     aes(
       x = DRUG,
-      y = delta_ai
+      y = delta_lean,
+      fill = STRAIN
     ),
-    inherit.aes = FALSE,
-    width = 0.08,
+    position = position_jitterdodge(
+      jitter.width = 0.08,
+      dodge.width = 0.7
+    ),
     size = 2,
     shape = 21,
+    color = "black",
+    stroke = 0.6,
+    inherit.aes = FALSE
+  ) +
+  
+  # SEM
+  geom_errorbar(
+    aes(
+      ymin = mean_leandelta - sem_leandelta,
+      ymax = mean_leandelta + sem_leandelta
+    ),
+    position = position_dodge(width = 0.7),
+    width = 0.15
+  ) +
+  
+  scale_fill_manual(
+    values = c(
+      "C57BL/6J" = "gray60",
+      "NZO/HlLtJ" = "pink"
+    ),
+    labels = c(
+      "C57BL/6J" = "C57BL/6J",
+      "NZO/HlLtJ" = "NZO/HlLtJ"
+    )
+  ) +
+  
+  scale_x_discrete(
+    labels = c(
+      "vehicle" = "Vehicle",
+      "RTI_47" = "RTI-47"
+    )
+  ) +
+  
+ # scale_y_continuous(
+  #  limits = c(0, 15),
+   # breaks = seq(0, 15, by = 5)
+  #) +
+  
+  labs(
+    x = NULL,
+    y = "Change in lean mass (g)\n(end - start)",
+    fill = NULL
+  ) +
+  
+  theme_classic(base_size = 14) +
+  theme(
+    legend.position = "top"
+  ) #+
+  #facet_wrap(~COHORT)
+
+plot_leandelta  
+
+
+leandelta_ttest <- delta_bodycomp %>% 
+  filter(SEX == "F") %>%
+  group_by(DRUG) %>% 
+  t_test(delta_lean ~ STRAIN) %>% 
+  add_significance()
+
+leandelta_ttest 
+
+### lean mass at baseline and end ----
+
+lean_start_end <- echoMRI_data %>%
+  filter(
+    STRAIN == "NZO/HlLtJ",
+    SEX == "F",
+    STATUS %in% c("start", "end")
+  ) %>%
+  mutate(
+    x_position = case_when(
+      DRUG == "vehicle" & STATUS == "start" ~ 1,
+      DRUG == "vehicle" & STATUS == "end"   ~ 2,
+      DRUG == "RTI_47"  & STATUS == "start" ~ 3,
+      DRUG == "RTI_47"  & STATUS == "end"   ~ 4
+    )
+  )
+lean_start_end_summary <- lean_start_end %>%
+  group_by(DRUG, STATUS, x_position) %>%
+  summarise(
+    mean_lean = mean(Lean, na.rm = TRUE),
+    sem_lean = sd(Lean, na.rm = TRUE) /
+      sqrt(sum(!is.na(Lean))),
+    n = sum(!is.na(Lean)),
+    .groups = "drop"
+  )
+
+
+plot_lean_start_end <- ggplot(
+  lean_start_end_summary,
+  aes(
+    x = x_position,
+    y = mean_lean,
+    fill = DRUG
+  )
+) +
+  
+  # Mean bars
+  geom_col(
+    width = 0.7,
+    color = "black",
+    linewidth = 0.8
+  ) +
+  
+  # Connect the same mouse from Start to End
+  geom_line(
+    data = lean_start_end,
+    aes(
+      x = x_position,
+      y = Lean,
+      group = ID
+    ),
+    color = "black",
+    alpha = 0.35,
+    linewidth = 0.6
+  ) +
+  
+  # Individual mice
+  geom_point(
+    data = lean_start_end,
+    aes(
+      x = x_position,
+      y = Lean
+    ),
+    position = position_jitter(
+      width = 0.08,
+      height = 0
+    ),
+    shape = 21,
+    size = 2.5,
     fill = "white",
     color = "black",
     stroke = 0.6
   ) +
   
+  # SEM
   geom_errorbar(
     aes(
-      ymin = mean_aidelta - sem_aidelta,
-      ymax = mean_aidelta + sem_aidelta
+      ymin = mean_lean - sem_lean,
+      ymax = mean_lean + sem_lean
     ),
     width = 0.15
   ) +
+  
+  # X-axis
+  scale_x_continuous(
+    breaks = c(1, 2, 3, 4),
+    labels = c("Start", "End", "Start", "End"),
+    limits = c(0.5, 4.5)
+  ) +
+  
   scale_fill_manual(
     values = c(
-      "vehicle" = "white",
+      "vehicle" = "gray60",
       "RTI_47" = "#E67E22"
     ),
     labels = c(
@@ -683,138 +1040,57 @@ plot_aidelta <- ggplot(
       "RTI_47" = "RTI-47"
     )
   ) +
-  facet_wrap(~ STRAIN*SEX) +
+  
   labs(
     x = NULL,
-    y = "Change in adiposity index (end - start)",
+    y = "Lean mass (g)",
     fill = NULL
   ) +
+  
+  # Drug labels
+  annotate(
+    "text",
+    x = 1.5,
+    y = Inf,
+    label = "Vehicle",
+    vjust = 2,
+    size = 5
+  ) +
+  
+  annotate(
+    "text",
+    x = 3.5,
+    y = Inf,
+    label = "RTI-47",
+    vjust = 2,
+    size = 5
+  ) +
+  
   theme_classic(base_size = 14) +
+  
   theme(
-    legend.position = "none"
-  )
-
-plot_aidelta
-
-### plot C: Adiposity at baseline within each strain ----
-
-
-AI_summary_bs <- echoMRI_data %>%
-  filter(STATUS == "start") %>%
-  group_by(STRAIN, SEX, DRUG) %>%
-  summarise(
-    mean_ai = mean(adiposity_index, na.rm = TRUE),
-    sem_ai  = sd(adiposity_index, na.rm = TRUE) / 
-      sqrt(sum(!is.na(adiposity_index))),
-    n = sum(!is.na(adiposity_index)),
-    .groups = "drop"
-  ) %>%
-  mutate(
-    DRUG = factor(DRUG, levels = c("vehicle", "RTI_47"))
-  )
-
-
-plot_bs <- ggplot(
-  AI_summary_bs,
-  aes(
-    x = DRUG,
-    y = mean_ai,
-    fill = DRUG
-  )
-) +
-  geom_col(
-    width = 0.7,
-    color = "black",
-    linewidth = 0.8
-  ) +
-  
-  # Individual animals at baseline only
-  geom_point(
-    data = echoMRI_data %>%
-      filter(
-        STATUS == "start",
-        !is.na(adiposity_index)
-      ) %>%
-      mutate(
-        DRUG = factor(DRUG, levels = c("vehicle", "RTI_47"))
-      ),
-    aes(
-      x = DRUG,
-      y = adiposity_index
-    ),
-    position = position_jitter(
-      width = 0.08
-    ),
-    inherit.aes = FALSE,
-    size = 2,
-    shape = 21,
-    fill = "white",
-    color = "black",
-    stroke = 0.6
-  ) +
-  
-  geom_errorbar(
-    aes(
-      ymin = mean_ai - sem_ai,
-      ymax = mean_ai + sem_ai
-    ),
-    width = 0.15
-  ) +
-  
-  scale_fill_manual(
-    values = c(
-      "vehicle" = "white",
-      "RTI_47" = "#FDD0A2"
-    ),
-    labels = c(
-      "vehicle" = "Vehicle",
-      "RTI_47" = "RTI-47"
+    legend.position = "none",
+    plot.margin = margin(
+      t = 35,
+      r = 10,
+      b = 10,
+      l = 10
     )
-  ) +
-  
-  facet_wrap(~ STRAIN * SEX) +
-  
-  labs(
-    x = NULL,
-    y = "Adiposity index at start",
-    fill = NULL
-  ) +
-  
-  theme_classic(base_size = 14)
+  )#+
+  #facet_wrap(~COHORT)
 
-plot_bs
+plot_lean_start_end
 
-# Final figure adiposity index ----
-# Find common y-axis limits across both plots
-y_min <- min(
-  AI_summary$mean_ai - AI_summary$sem_ai,
-  AIdelta_summary$mean_aidelta - AIdelta_summary$sem_aidelta,
-  AI_summary_bs$mean_ai - AI_summary_bs$sem_ai,
-  na.rm = TRUE
-)
+### Statistics: Start vs End within each treatment group ----
 
-y_max <- max(
-  AI_summary$mean_ai + AI_summary$sem_ai,
-  AIdelta_summary$mean_aidelta + AIdelta_summary$sem_aidelta,
-  AI_summary_bs$mean_ai + AI_summary_bs$sem_ai,
-  na.rm = TRUE
-)
+lean_start_end_ttest <- lean_start_end %>%
+  group_by(DRUG) %>%
+  t_test(
+    Lean ~ STATUS,
+    paired = TRUE
+  ) %>%
+  add_significance()
 
-# Apply the same y-axis limits
-plot_ai <- plot_ai +
-  coord_cartesian(ylim = c(y_min, y_max)) +
-  labs(tag = "A")
+lean_start_end_ttest
 
-plot_aidelta <- plot_aidelta +
-  coord_cartesian(ylim = c(y_min, y_max)) +
-  labs(tag = "B")
-
-plot_bs <- plot_bs +
-  coord_cartesian(ylim = c(y_min, y_max)) +
-  labs(tag = "C")
-
-
-combined_plot <- plot_ai | plot_aidelta
-
-combined_plot
 
