@@ -1,4 +1,5 @@
-# This script aims to explore changes in body composition and behavior in C57BL6J and NZO mice after exposure to RTIOXA47 for 4 weeks
+# This script aims to explore changes in body composition and behavior in C57BL6J 
+#and NZO mice after exposure to RTIOXA47 40 mg-kg for 4 weeks
 
 #libraries----
 library(dplyr) #to use pipe
@@ -70,10 +71,11 @@ BW_data <- read_csv("../data/BW.csv") %>%
     )
   ) %>% 
 ungroup() %>% 
-  filter(DATE >= as.Date("2022-03-04")) #cohort 8 has acclimation, it seems like cohort 20 an 21 did not
+  filter(DATE >= as.Date("2022-03-04")) %>% #cohort 8 has acclimation, it seems like cohort 20 an 21 did not
+  filter(COHORT %in% c(8, 21)) #seems like cohort 20 has issues with solubility of the drug
    
 BW_data  %>% 
-  group_by(SEX,STRAIN,DRUG,COHORT) %>% #so cohort 21 are just females from both strains
+  group_by(SEX,STRAIN,DRUG) %>% #so cohort 21 are just females from both strains
   summarise(n_ID = n_distinct(ID)) %>% 
   print(n = Inf)
   
@@ -91,12 +93,12 @@ BW_data_2 <- BW_data %>%
   filter(day_rel >= 0, day_rel < 40) %>%
   mutate(
     week_rel = factor(week_rel, levels = 0:5)
-  ) %>% 
-  filter(STRAIN == "C57BL/6J") %>% 
-  filter(SEX=="F") 
+  ) #%>% 
+  #filter(STRAIN == "C57BL/6J") %>% 
+  #filter(SEX=="F") 
 
 BW_data_2 %>% 
-  group_by(DRUG) %>%
+  group_by(DRUG,STRAIN,SEX) %>%
   summarise(
     n_ID = n_distinct(ID),
     .groups = "drop"
@@ -105,7 +107,7 @@ BW_data_2 %>%
 
 
 BW_summary <- BW_data_2 %>%
-  group_by(week_rel,DRUG) %>%
+  group_by(week_rel,DRUG,STRAIN) %>%
   summarise(
     mean_BW = mean(BW, na.rm = TRUE),
     sem_BW = sd(BW, na.rm = TRUE) / sqrt(sum(!is.na(BW))),
@@ -177,7 +179,7 @@ plot_BW <- ggplot() +
     linewidth = 0.7
   ) +
   
-  #facet_wrap(~ COHORT) +
+  facet_wrap(~ STRAIN) +
   
   scale_color_manual(
     values = c(
@@ -220,18 +222,18 @@ plot_BW
 
 #stats----
 BW_start_end <- BW_data %>% 
-  filter(STRAIN == "C57BL/6J") %>% 
+  #filter(STRAIN == "C57BL/6J") %>% 
   filter(SEX=="F") %>% 
   filter(STATUS %in% c("start", "end")) %>% 
   select(ID, COHORT, DRUG, STATUS, BW,STRAIN)
 
 BW_start_end %>% 
-  group_by(STATUS,DRUG) %>%
+  group_by(STATUS,DRUG,STRAIN) %>%
   summarise(n_ID = n_distinct(ID)) %>% 
   print(n = Inf) 
 
 BW_ttest <- BW_start_end %>% 
-  group_by(DRUG) %>% 
+  group_by(DRUG,STRAIN) %>% 
   t_test(
     BW ~ STATUS,
     paired = TRUE
@@ -240,10 +242,9 @@ BW_ttest <- BW_start_end %>%
 
 BW_ttest
 
-
 # Prepare summary data
 BW_plot_summary <- BW_start_end %>%
-  group_by(DRUG, STATUS) %>%
+  group_by(DRUG, STATUS,STRAIN) %>%
   summarise(
     mean_BW = mean(BW, na.rm = TRUE),
     sem_BW = sd(BW, na.rm = TRUE) / sqrt(sum(!is.na(BW))),
@@ -369,8 +370,8 @@ plot_BW_start_end <- ggplot(
   
   theme(
     legend.position = "top"
-  )#+
-#  facet_wrap(~COHORT)
+  )+
+  facet_wrap(~STRAIN)
 
 plot_BW_start_end
 
@@ -393,10 +394,10 @@ BW_change <- BW_data %>%
 # Summary
 BW_change_summary <- BW_change %>%
   filter(
-    STRAIN == "NZO/HlLtJ",
-    SEX == "F"
+ #   STRAIN == "NZO/HlLtJ",
+    SEX == "M"
   ) %>%
-  group_by(DRUG,COHORT) %>%
+  group_by(DRUG) %>%
   summarise(
     mean_change = mean(BW_change, na.rm = TRUE),
     sem_change = sd(BW_change, na.rm = TRUE) /
@@ -430,7 +431,9 @@ plot_BW_change <- ggplot(
   
   geom_jitter(
     data = BW_change %>% 
-      filter(STRAIN == "NZO/HlLtJ", SEX == "F"),
+      filter(
+        #STRAIN == "NZO/HlLtJ", 
+        SEX == "M"),
     aes(x = DRUG, y = BW_change),
     width = 0.10,
     size = 2.5,
@@ -475,14 +478,14 @@ plot_BW_change <- ggplot(
   theme(
     legend.position = "none"
   )+
-  facet_wrap(~COHORT)
+  facet_wrap(~STRAIN)
 
 plot_BW_change
 
 BW_change_ttest <- BW_change %>% 
-  filter(STRAIN == "NZO/HlLtJ") %>% 
-  filter(SEX=="F") %>% 
-  group_by(COHORT) %>% 
+#  filter(STRAIN == "NZO/HlLtJ") %>% 
+  filter(SEX=="M") %>% 
+  group_by(STRAIN) %>% 
   t_test(
     BW_change ~ DRUG,
     paired = FALSE
@@ -512,7 +515,7 @@ echoMRI_data <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
     )
   )    %>% 
 #  filter(STRAIN == "NZO/HlLtJ") %>% 
-  filter(SEX=="F")        
+  filter(SEX=="M")        
   
 echoMRI_data <- echoMRI_data %>% 
   ungroup() %>% 
@@ -565,7 +568,7 @@ delta_bodycomp %>%
 ### fat mass CHANGE----
 
 fatdelta_summary <- delta_bodycomp %>%
-  filter(SEX == "F") %>%
+  filter(SEX == "M") %>%
   group_by(DRUG, STRAIN, SEX,COHORT) %>%
   summarise(
     mean_fatdelta = mean(delta_fat, na.rm = TRUE),
@@ -601,7 +604,7 @@ plot_fatdelta <- ggplot(
   # Individual animals
   geom_jitter(
     data = delta_bodycomp %>%
-      filter(SEX == "F"),
+      filter(SEX == "M"),
     aes(
       x = DRUG,
       y = delta_fat,
@@ -631,7 +634,7 @@ plot_fatdelta <- ggplot(
   scale_fill_manual(
     values = c(
       "C57BL/6J" = "gray60",
-      "NZO/HlLtJ" = "pink"
+      "NZO/HlLtJ" = "blue"
     ),
     labels = c(
       "C57BL/6J" = "C57BL/6J",
@@ -646,10 +649,10 @@ plot_fatdelta <- ggplot(
     )
   ) +
   
-  scale_y_continuous(
-    limits = c(0, 15),
-    breaks = seq(0, 15, by = 5)
-  ) +
+#  scale_y_continuous(
+ #   limits = c(0, 15),
+  #  breaks = seq(0, 15, by = 5)
+  #) +
   
   labs(
     x = NULL,
@@ -661,15 +664,15 @@ plot_fatdelta <- ggplot(
   theme(
     legend.position = "top"
   )+
-  facet_wrap(~COHORT)
+  facet_wrap(~STRAIN*COHORT)
 
 plot_fatdelta  
 
 
 fatdelta_ttest <- delta_bodycomp %>% 
-  filter(SEX == "F") %>%
-  group_by(DRUG,COHORT) %>% 
-  t_test(delta_fat ~ STRAIN) %>% 
+  filter(SEX == "M") %>%
+  group_by(STRAIN,COHORT) %>% 
+  t_test(delta_fat ~ DRUG) %>% 
   add_significance()
 
 fatdelta_ttest 
@@ -831,7 +834,7 @@ fat_start_end_ttest
 ### lean mass CHANGE----
 
 leandelta_summary <- delta_bodycomp %>%
-  filter(SEX == "F") %>%
+  filter(SEX == "M") %>%
   group_by(DRUG, STRAIN, SEX) %>%
   summarise(
     mean_leandelta = mean(delta_lean, na.rm = TRUE),
@@ -867,7 +870,7 @@ plot_leandelta <- ggplot(
   # Individual animals
   geom_jitter(
     data = delta_bodycomp %>%
-      filter(SEX == "F"),
+      filter(SEX == "M"),
     aes(
       x = DRUG,
       y = delta_lean,
@@ -897,7 +900,7 @@ plot_leandelta <- ggplot(
   scale_fill_manual(
     values = c(
       "C57BL/6J" = "gray60",
-      "NZO/HlLtJ" = "pink"
+      "NZO/HlLtJ" = "blue"
     ),
     labels = c(
       "C57BL/6J" = "C57BL/6J",
@@ -926,16 +929,16 @@ plot_leandelta <- ggplot(
   theme_classic(base_size = 14) +
   theme(
     legend.position = "top"
-  ) #+
-  #facet_wrap(~COHORT)
+  ) +
+  facet_wrap(~STRAIN)
 
 plot_leandelta  
 
 
 leandelta_ttest <- delta_bodycomp %>% 
-  filter(SEX == "F") %>%
-  group_by(DRUG) %>% 
-  t_test(delta_lean ~ STRAIN) %>% 
+  filter(SEX == "M") %>%
+  group_by(STRAIN) %>% 
+  t_test(delta_lean ~ DRUG) %>% 
   add_significance()
 
 leandelta_ttest 
