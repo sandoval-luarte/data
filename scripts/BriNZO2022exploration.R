@@ -72,10 +72,10 @@ BW_data <- read_csv("../data/BW.csv") %>%
   ) %>% 
 ungroup() %>% 
   filter(DATE >= as.Date("2022-03-04")) %>% #cohort 8 has acclimation, it seems like cohort 20 an 21 did not
-  filter(COHORT %in% c(8, 21)) #seems like cohort 20 has issues with solubility of the drug
+  filter(COHORT %in% c(8, 21)) #seems like cohort 20 has issues with solubility of the drug but in Bri's notes nothing is noticed
    
 BW_data  %>% 
-  group_by(SEX,STRAIN,DRUG) %>% #so cohort 21 are just females from both strains
+  group_by(SEX,STRAIN,DRUG,COHORT) %>% #so cohort 21 are just females from both strains
   summarise(n_ID = n_distinct(ID)) %>% 
   print(n = Inf)
   
@@ -107,7 +107,7 @@ BW_data_2 %>%
 
 
 BW_summary <- BW_data_2 %>%
-  group_by(week_rel,DRUG,STRAIN) %>%
+  group_by(week_rel,DRUG,STRAIN,SEX) %>%
   summarise(
     mean_BW = mean(BW, na.rm = TRUE),
     sem_BW = sd(BW, na.rm = TRUE) / sqrt(sum(!is.na(BW))),
@@ -179,7 +179,7 @@ plot_BW <- ggplot() +
     linewidth = 0.7
   ) +
   
-  facet_wrap(~ STRAIN) +
+  facet_wrap(~ STRAIN*SEX) +
   
   scale_color_manual(
     values = c(
@@ -223,17 +223,17 @@ plot_BW
 #stats----
 BW_start_end <- BW_data %>% 
   #filter(STRAIN == "C57BL/6J") %>% 
-  filter(SEX=="F") %>% 
+ # filter(SEX=="F") %>% 
   filter(STATUS %in% c("start", "end")) %>% 
-  select(ID, COHORT, DRUG, STATUS, BW,STRAIN)
+  select(ID, COHORT, DRUG, STATUS, BW,STRAIN,SEX)
 
 BW_start_end %>% 
-  group_by(STATUS,DRUG,STRAIN) %>%
+  group_by(DRUG,STRAIN,SEX) %>%
   summarise(n_ID = n_distinct(ID)) %>% 
   print(n = Inf) 
 
 BW_ttest <- BW_start_end %>% 
-  group_by(DRUG,STRAIN) %>% 
+  group_by(DRUG,STRAIN,SEX) %>% 
   t_test(
     BW ~ STATUS,
     paired = TRUE
@@ -244,7 +244,7 @@ BW_ttest
 
 # Prepare summary data
 BW_plot_summary <- BW_start_end %>%
-  group_by(DRUG, STATUS,STRAIN) %>%
+  group_by(DRUG, STATUS,STRAIN,SEX) %>%
   summarise(
     mean_BW = mean(BW, na.rm = TRUE),
     sem_BW = sd(BW, na.rm = TRUE) / sqrt(sum(!is.na(BW))),
@@ -371,7 +371,7 @@ plot_BW_start_end <- ggplot(
   theme(
     legend.position = "top"
   )+
-  facet_wrap(~STRAIN)
+  facet_wrap(~STRAIN*SEX)
 
 plot_BW_start_end
 
@@ -380,7 +380,7 @@ plot_BW_start_end
 
 BW_change <- BW_data %>% 
   filter(STATUS %in% c("start", "end")) %>% 
-  select(ID, COHORT, SEX, DRUG, STATUS, BW,STRAIN,STATUS) %>% 
+  select(ID, COHORT, SEX, DRUG, STATUS, BW,STRAIN) %>% 
   pivot_wider(
     names_from = STATUS,
     values_from = BW
@@ -393,11 +393,7 @@ BW_change <- BW_data %>%
 
 # Summary
 BW_change_summary <- BW_change %>%
-  filter(
- #   STRAIN == "NZO/HlLtJ",
-    SEX == "M"
-  ) %>%
-  group_by(DRUG) %>%
+  group_by(DRUG,STRAIN,SEX) %>%
   summarise(
     mean_change = mean(BW_change, na.rm = TRUE),
     sem_change = sd(BW_change, na.rm = TRUE) /
@@ -428,18 +424,16 @@ plot_BW_change <- ggplot(
     width = 0.2,
     linewidth = 0.7
   ) +
+geom_jitter(
+  data = BW_change,
+  aes(x = DRUG, y = BW_change),
+  width = 0.10,
+  size = 2.5,
+  alpha = 0.7,
+  color = "black",
+  inherit.aes = FALSE
+) +
   
-  geom_jitter(
-    data = BW_change %>% 
-      filter(
-        #STRAIN == "NZO/HlLtJ", 
-        SEX == "M"),
-    aes(x = DRUG, y = BW_change),
-    width = 0.10,
-    size = 2.5,
-    alpha = 0.7,
-    color = "black"
-  ) +
   
   #geom_text(
   #  data = BW_change %>% 
@@ -464,28 +458,23 @@ plot_BW_change <- ggplot(
       "RTI_47" = "RTI-47"
     )
   ) +
-  
-  coord_cartesian(ylim = c(-5, 15)) +
-  scale_y_continuous(breaks = seq(-5, 15, 5)) +
-  
+#  coord_cartesian(ylim = c(-5, 15)) +
+ # scale_y_continuous(breaks = seq(-5, 15, 5)) +
   labs(
     x = NULL,
     y = "Change in body weight (g)",
     fill = NULL
   ) +
-  
   theme_classic(base_size = 14) +
-  theme(
-    legend.position = "none"
-  )+
-  facet_wrap(~STRAIN)
+  theme(legend.position = "none") +
+  facet_wrap(~ STRAIN * SEX)
 
 plot_BW_change
 
 BW_change_ttest <- BW_change %>% 
 #  filter(STRAIN == "NZO/HlLtJ") %>% 
-  filter(SEX=="M") %>% 
-  group_by(STRAIN) %>% 
+#  filter(SEX=="M") %>% 
+  group_by(STRAIN,SEX) %>% 
   t_test(
     BW_change ~ DRUG,
     paired = FALSE
@@ -514,8 +503,8 @@ echoMRI_data <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
       ) ~ "RTI_47"
     )
   )    %>% 
-#  filter(STRAIN == "NZO/HlLtJ") %>% 
-  filter(SEX=="M")        
+  filter(COHORT %in% c(8, 21)) #seems like cohort 20 has issues with solubility of the drug but in Bri's notes nothing is noticed
+
   
 echoMRI_data <- echoMRI_data %>% 
   ungroup() %>% 
@@ -529,7 +518,7 @@ echoMRI_data <- echoMRI_data %>%
     ) )
 
 echoMRI_data %>% 
-  group_by(SEX,DRUG,n_measurement,STRAIN) %>%
+  group_by(SEX,DRUG,STRAIN) %>%
   summarise(n_ID = n_distinct(ID)) %>% 
   print(n = Inf) 
 
