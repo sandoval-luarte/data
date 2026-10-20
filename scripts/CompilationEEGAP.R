@@ -1302,7 +1302,7 @@ leandelta_absolute_zero_ttest <- delta_bodycomp %>%
 
 leandelta_absolute_zero_ttest
 
-## GLUCOSE MANAGMENT----
+##4.  GLUCOSE MANAGMENT----
 
 glu_data <- read_csv("../data/Bri_glucose_2022.csv") %>% 
   mutate(
@@ -1417,6 +1417,100 @@ glu_ttest <- glu_data %>%
 
 glu_ttest 
 
+
+##5. PREDICTIONS ----
+####Does a higher initial body weight or initial fat mass predict a greater reduction in body weight or fat mass following RTIOXA-47?----
+
+##### 5.1 Baseline phenotype as predictor of RTIOXA-47 response ----
+
+baseline_predictors <- echoMRI_data %>%
+  filter(STATUS %in% c("start", "end")) %>%
+  select(
+    ID, COHORT, SEX, STRAIN, DRUG,
+    STATUS, Weight, Fat, adiposity_index
+  ) %>%
+  pivot_wider(
+    names_from = STATUS,
+    values_from = c(Weight, Fat,adiposity_index),
+    names_glue = "{.value}_{STATUS}"
+  ) %>%
+  mutate(
+    BW_change = Weight_end - Weight_start,
+    fat_change = Fat_end - Fat_start,
+    adiposity_index_change = adiposity_index_end - adiposity_index_start
+  )
+
+baseline_predictors <- baseline_predictors %>%
+  mutate(
+    STRAIN = factor(
+      STRAIN,
+      levels = c("C57BL/6J", "NZO/HlLtJ")
+    )
+  ). #ok so the strain of reference is C57
+
+##### 5.2 Does baseline body weight predict the magnitude of the RTIOXA-47 effect on body weight change?----
+
+BW_response_model <- lm(
+  BW_change ~ DRUG * Weight_start + SEX + STRAIN,
+  data = baseline_predictors
+)
+
+anova(BW_response_model)
+summary(BW_response_model) #No evidence that starting weight modifies RTIOXA47 effect on BW change
+
+
+### BODY WEIGHT: DRUG × STRAIN x SEX ----
+
+BW_model_strain <- lm(
+  BW_change ~ Weight_start + DRUG * STRAIN * SEX,
+  data = baseline_predictors
+)
+
+anova(BW_model_strain)
+summary(BW_model_strain) #No evidence that RTIOXA47 efficacy differs by strain
+
+
+BW_treatment_by_group <- emmeans(
+  BW_model_strain,
+  pairwise ~ DRUG | STRAIN * SEX,
+  at = list(
+    Weight_start = mean(
+      baseline_predictors$Weight_start,
+      na.rm = TRUE
+    )
+  )
+)
+
+BW_treatment_by_group #the effect of RTI-47 on body-weight change differs between female and male NZO mice
+
+#RTI-47-treated mice had an estimated 4.00 g lower body-weight change than vehicle-treated mice (p=0.0051)
+#RTI-47-treated mice had an estimated 5.50 g higher body-weight change than vehicle-treated mice (p=0.0178)
+
+##### 5.3 Does baseline fat mass predict the magnitude of the RTIOXA-47 effect on fat mass change?----
+
+fat_response_model <- lm(
+  fat_change ~ DRUG * Fat_start + SEX + STRAIN,
+  data = baseline_predictors
+)
+
+anova(fat_response_model)
+summary(fat_response_model)
+
+#There is no statistically significant evidence that RTI-47's effect on fat-mass change varies according to baseline fat mass. 
+#For example, our analysis does not demonstrate that mice starting with more fat lose more fat in response to RTI-47 than mice starting with less fat
+
+##### 5.4 Does baseline adiposity index predict the magnitude of the RTIOXA-47 effect on adiposity index change?----
+
+adiposity_index_response_model <- lm(
+  adiposity_index_change ~ DRUG * adiposity_index_start + SEX + STRAIN,
+  data = baseline_predictors
+)
+
+anova(adiposity_index_response_model)
+summary(adiposity_index_response_model)
+
+#we id not find statistically significant evidence that RTI-47 changes adiposity index overall or that its effect depends on baseline adiposity index
+#we  did find a significant association between sex and adiposity index change (such as for fat mass)
 
 #RTIOXA 43 for 5 days 10 mg/kg ----
 ##### group assignation ---------
