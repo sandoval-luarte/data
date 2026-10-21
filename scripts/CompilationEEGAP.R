@@ -1512,6 +1512,105 @@ summary(adiposity_index_response_model)
 #we id not find statistically significant evidence that RTI-47 changes adiposity index overall or that its effect depends on baseline adiposity index
 #we  did find a significant association between sex and adiposity index change (such as for fat mass)
 
+##6. INDIRECT CALORIMETRY----
+#I will assume like as always in the columbus room was # 20:00–05:59 DARK and # 06:00–19:59 LIGHT
+
+##counts /locomotion ----
+ical_data_counts_coh8 <- read_csv("~/Documents/GitHub/data/data/Coh 1 final calorimetry analysis 04082022_V2_counts.csv")%>% 
+  rename(ID = Subject) %>% 
+  select(-`4/5/22 10:00`, #we want to keep just 24 hours
+         -`4/5/22 11:00`,
+         -`4/5/22 12:00`,
+         -`4/5/22 13:00`,
+         -`4/5/22 14:00`,
+         -`4/5/22 15:00`,
+         -`4/5/22 16:00`,
+         -`4/5/22 17:00`,
+         -`4/5/22 18:00`,
+         -`4/5/22 19:00`,
+         -`4/5/22 20:00`,
+         -`4/5/22 21:00`,
+         -`4/5/22 22:00`,
+         -`4/5/22 23:00`,
+         -`4/6/22 0:00`,
+         -`4/6/22 1:00`,
+         -`4/6/22 2:00`,
+         -`4/6/22 3:00`,
+         -`4/6/22 4:00`,
+         -`4/6/22 5:00`,
+         -`4/6/22 6:00`,
+         -`4/6/22 7:00`,
+         -`4/6/22 8:00`,
+         -`4/6/22 9:00`,
+         -`4/6/22 10:00`,
+         -`4/6/22 11:00`,
+         -`4/6/22 12:00`,
+         -`4/6/22 13:00`,
+         -`4/6/22 14:00`,
+         -`4/6/22 15:00`,
+         -`4/6/22 16:00`,
+         -`4/6/22 17:00`,
+         -`4/6/22 18:00`,
+         -`4/6/22 19:00`,
+         -`4/6/22 20:00`)
+
+ical_data_counts_coh16 <- read_csv("~/Documents/GitHub/data/data/ical analysis 11262025_counts.csv") %>% 
+  rename(ID = Subject) %>% 
+  mutate(ID = as.numeric(paste0("9", ID))) %>% 
+  select(-`11/24/25 9:00`, #we want to keep just 24 hours
+         -`11/24/25 10:00`,
+         -`11/24/25 11:00`,
+         -`11/24/25 12:00`,
+         -`11/24/25 13:00`,
+         -`11/24/25 14:00`,
+         -`11/24/25 15:00`,
+         -`11/24/25 16:00`,
+         -`11/24/25 17:00`,
+         -`11/24/25 18:00`,
+         -`11/24/25 19:00`,
+         -`11/25/25 20:00`,
+         -`11/25/25 21:00`,
+         -`11/25/25 22:00`,
+         -`11/25/25 23:00`,
+         -`11/26/25 0:00`,
+         -`11/26/25 1:00`,
+         -`11/26/25 2:00`,
+         -`11/26/25 3:00`,
+         -`11/26/25 4:00`,
+         -`11/26/25 5:00`,
+         -`11/26/25 6:00`,
+         -`11/26/25 7:00`,
+         -`11/26/25 8:00`,
+         -`11/26/25 9:00`)
+
+ical_data_counts_coh18 <- read_csv("~/Documents/GitHub/data/data/iCal_Kotz_051826_counts.csv") %>% 
+  rename(ID = Subject) %>% 
+  select(-`5/18/26 11:00`, #we want to keep just 24 hours
+         -`5/18/26 12:00`,
+         -`5/18/26 13:00`,
+         -`5/18/26 14:00`,
+         -`5/18/26 15:00`,
+         -`5/18/26 16:00`,
+         -`5/18/26 17:00`,
+         -`5/18/26 18:00`,
+         -`5/18/26 19:00`,
+         -`5/19/26 20:00`,
+         -`5/19/26 21:00`,
+         -`5/19/26 22:00`,
+         -`5/19/26 23:00`,
+         -`5/20/26 0:00`,
+         -`5/20/26 1:00`,
+         -`5/20/26 2:00`,
+         -`5/20/26 3:00`,
+         -`5/20/26 4:00`,
+         -`5/20/26 5:00`,
+         -`5/20/26 6:00`,
+         -`5/20/26 7:00`,
+         -`5/20/26 8:00`,
+         -`5/20/26 9:00`,
+         -`5/20/26 10:00`,
+         -`5/20/26 11:00`)
+
 #RTIOXA 43 for 5 days 10 mg/kg ----
 ##### group assignation ---------
 # first we used the adiposity index as a criteria to assign the injection groups

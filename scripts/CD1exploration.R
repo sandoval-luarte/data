@@ -1549,14 +1549,14 @@ delta_leanplot <- ggplot(echoMRI_data_comparisons_collapsed_delta,
 
 delta_leanplot
 
-### FAT MASS----
-## plot A: fat mass separated by diet over time----
+### FAT MASS %----
+## plot A: fat mass % separated by diet over time----
 
 fat_summary <- echoMRI_data_comparisons_collapsed %>%
   group_by(n_measurement, BPA_EXPOSURE, SEX, DIET_FORMULA) %>%
   summarise(
-    mean_fat = mean(Fat, na.rm = TRUE),
-    sem_fat  = sd(Fat, na.rm = TRUE) / sqrt(n()),
+    mean_fat_perc = mean(fat_perc, na.rm = TRUE),
+    sem_fat_perc  = sd(fat_perc, na.rm = TRUE) / sqrt(n()),
     n = n(),
     .groups = "drop"
   )
@@ -1565,7 +1565,7 @@ plot_fat_sex <- ggplot(
   fat_summary,
   aes(
     x = n_measurement,
-    y = mean_fat,
+    y = mean_fat_perc,
     color = BPA_EXPOSURE,
     fill  = BPA_EXPOSURE,
     group = BPA_EXPOSURE
@@ -1575,8 +1575,8 @@ plot_fat_sex <- ggplot(
   #geom_point(size = 2) +
   geom_ribbon(
     aes(
-      ymin = mean_fat - sem_fat,
-      ymax = mean_fat + sem_fat
+      ymin = mean_fat_perc - sem_fat_perc,
+      ymax = mean_fat_perc + sem_fat_perc
     ),
     alpha = 0.15,
     color = NA
@@ -1592,7 +1592,7 @@ plot_fat_sex <- ggplot(
   ) +
   labs(
     x = "Weeks",
-    y = "Fat mass (g)",
+    y = "Fat mass % [(fat mass/BW)*100]",
     color = "BPA exposure",
     fill  = "BPA exposure"
   ) +
@@ -1604,13 +1604,13 @@ plot_fat_sex
 
 ## STATS with baseline as a covariate (adjusts for fat mass starting differences)----
 
-baseline_fat <- echoMRI_data_comparisons_collapsed %>%
+baseline_fat_perc <- echoMRI_data_comparisons_collapsed %>%
   filter(n_measurement ==0) %>%   # baseline timepoint
-  select(ID, baseline_fat = Fat)
+  select(ID, baseline_fat_perc = fat_perc)
 fat_data2 <- echoMRI_data_comparisons_collapsed %>%
-  left_join(baseline_fat, by = "ID")
+  left_join(baseline_fat_perc, by = "ID")
 fat_data2 <- fat_data2 %>%
-  select(ID, n_measurement, Fat, baseline_fat,SEX,BPA_EXPOSURE,DIET_FORMULA) 
+  select(ID, n_measurement,fat_perc, baseline_fat_perc,SEX,BPA_EXPOSURE,DIET_FORMULA) 
 
 #Do BPA animals change fat mass differently over time, after accounting for where they started, within each sex and diet?
 fat_data2_no0 <- fat_data2 %>%
@@ -1618,8 +1618,8 @@ fat_data2_no0 <- fat_data2 %>%
 
 #“Do BPA animals gain fat mass differently over time, controlling for baseline?
 model <- lmer(
-  Fat ~ n_measurement * BPA_EXPOSURE * SEX * DIET_FORMULA +
-    baseline_fat +
+  fat_perc ~ n_measurement * BPA_EXPOSURE * SEX * DIET_FORMULA +
+    baseline_fat_perc +
     (1 | ID),
   data = fat_data2_no0
 )
@@ -1769,8 +1769,8 @@ fat_week19 %>%
 fat_week19_sum <- fat_week19  %>% 
   group_by(BPA_EXPOSURE, SEX,DIET_FORMULA) %>% 
   summarise(
-    mean_fat_19 = mean(Fat, na.rm = TRUE),
-    sem_fat_19  = sd(Fat, na.rm = TRUE) / sqrt(n()),
+    mean_fat_19_perc = mean(fat_perc, na.rm = TRUE),
+    sem_fat_19_perc  = sd(fat_perc, na.rm = TRUE) / sqrt(n()),
     n = n(),
     .groups = "drop"
   )
@@ -1782,20 +1782,20 @@ fat_week19HFD <-  fat_week19 %>%
   filter(DIET_FORMULA=="D12451i")
 # Females in HCD
 t_femaleHCD <- t.test(
-  Fat ~ BPA_EXPOSURE,
+  fat_perc ~ BPA_EXPOSURE,
   data = fat_week19HCF  %>% filter(SEX == "F"))
 # Females in HFD
 t_femaleHFD <- t.test(
-  Fat  ~ BPA_EXPOSURE,
+  fat_perc  ~ BPA_EXPOSURE,
   data = fat_week19HFD  %>% filter(SEX == "F")
 )
 # Males in HCD
 t_maleHCD <- t.test(
-  Fat  ~ BPA_EXPOSURE,
+  fat_perc  ~ BPA_EXPOSURE,
   data = fat_week19HCF  %>% filter(SEX == "M"))
 # Males in HFD
 t_maleHFD <- t.test(
-  Fat  ~ BPA_EXPOSURE,
+  fat_perc  ~ BPA_EXPOSURE,
   data = fat_week19HFD  %>% filter(SEX == "M")
 )
 t_femaleHCD 
@@ -1805,17 +1805,17 @@ t_maleHFD
 
 ### plot D: fat mass at week 19----
 plot_fat_19 <- ggplot(fat_week19_sum ,
-                     aes(x = BPA_EXPOSURE, y = mean_fat_19, fill = BPA_EXPOSURE)) +
+                     aes(x = BPA_EXPOSURE, y = mean_fat_19_perc, fill = BPA_EXPOSURE)) +
   geom_col(width = 0.6, color = "black") +
   geom_errorbar(
-    aes(ymin = mean_fat_19 - sem_fat_19,
-        ymax = mean_fat_19 + sem_fat_19),
+    aes(ymin = mean_fat_19_perc - sem_fat_19_perc,
+        ymax = mean_fat_19_perc + sem_fat_19_perc),
     width = 0.2,
     linewidth = 0.8
   ) +
   geom_jitter(
     data = fat_week19,
-    aes(x = BPA_EXPOSURE, y = Fat),
+    aes(x = BPA_EXPOSURE, y = fat_perc),
     width = 0.15,
     size = 2,
     shape = 21,
@@ -1834,7 +1834,7 @@ plot_fat_19 <- ggplot(fat_week19_sum ,
   ) +
   
   labs(
-    y = "Fat mass (g) at week 19",
+    y = "Fat mass (%) at week 19 [(fat mass/BW)*100]",
     x = "BPA exposure"
   ) +
   
@@ -1850,8 +1850,8 @@ bpa_colors <- c("NO" = "gray70", "YES" = "#0072B2")
 bpa_fills  <- c("NO" = "gray80", "YES" = "#0072B2")
 
 # Common y-axis for baseline and week 19 plots
-y_min <- min(c(fat_week0$Fat, fat_week19$Fat), na.rm = TRUE)
-y_max <- max(c(fat_week0$Fat, fat_week19$Fat), na.rm = TRUE)
+y_min <- min(c(fat_week0$fat_perc, fat_week19$fat_perc), na.rm = TRUE)
+y_max <- max(c(fat_week0$fat_perc, fat_week19$fat_perc), na.rm = TRUE)
 
 ## Figure fat mass ----
 
