@@ -37,7 +37,7 @@ dams_data <- dams_data %>%
 ####histogram check data distribution for litter size-----
 
 dams_data  %>% 
-  group_by(BPA_EXPOSURE,Liter_size,COHORT) %>%
+  group_by(BPA_EXPOSURE) %>%
   summarise(n_ID = n_distinct(ID)) 
 
 ggplot(dams_data , aes(x = Liter_size)) +
@@ -267,7 +267,7 @@ filter(!grepl("-", ID)) %>%  #I eliminate from metadata all animals that were me
 
 BW_data <- read_csv("../data/BW.csv") %>% 
   filter(COHORT %in% c(15, 16, 18)) %>% 
- #filter(!ID ==9406) %>%  #9406 has a  weird pattern in locomotion
+ filter(!ID ==9406) %>%  #9406 has a  weird pattern in locomotion
   mutate(DATE = ymd(DATE)) %>% 
   arrange(DATE) %>% 
   group_by(ID) %>% 
@@ -294,7 +294,7 @@ BW_data <- read_csv("../data/BW.csv") %>%
   filter(week_rel<=18) 
 
 BW_data  %>% 
-  group_by(SEX) %>%
+  group_by(SEX,BPA_EXPOSURE) %>%
   summarise(n_ID = n_distinct(ID)) %>% 
  print(n = Inf)
 
@@ -421,7 +421,7 @@ week_contrasts_male_hcd <- contrast(
 
 week_stats_male_hcd <- as.data.frame(week_contrasts_male_hcd) 
 week_stats_male_hcd
-#so for there is no weeks in which BPA in HCD males are heavier than controls
+#so for males in HCD there is no weeks in which BPA in HCD males are heavier than controls
 
 ### STATS males in HFD----
 
@@ -816,7 +816,7 @@ echoMRI_data <- read_csv("~/Documents/GitHub/data/data/echomri.csv") %>%
 
 echoMRI_data <- echoMRI_data %>% 
   mutate(ID = as.numeric(ID)) %>% 
-#  filter(!ID %in% c(9406,9354)) %>%  #9406 has a  weird pattern in locomotion so we exclude this animal from all the analyses
+  filter(!ID ==9406) %>%  #9406 has a  weird pattern in locomotion %>%  #9406 has a  weird pattern in locomotion so we exclude this animal from all the analyses
   #9354 last measurement were done after 26 wks with the OD 
 group_by(ID) %>%
   arrange(Date) %>% 
@@ -871,9 +871,9 @@ echoMRI_data_comparisons_collapsed <- echoMRI_data %>%
       n_measurement,
       levels = c("0", "4", "10", "13", "19", "23")
     )
-  ) #%>% 
-  #filter(!n_measurement ==23) %>%   # for being consistent with BW data we will consider end of the study as week 19
- # ungroup()
+  ) %>% 
+  filter(!n_measurement ==23) %>%   # for being consistent with BW data we will consider end of the study as week 19
+ ungroup()
 
 echoMRI_data_comparisons_collapsed %>% 
   group_by(n_measurement) %>%
@@ -969,7 +969,7 @@ n_measurement_contrasts_fem_hcd <- contrast(
 
 n_measurement_stats_fem_hcd <- as.data.frame(n_measurement_contrasts_fem_hcd) 
 n_measurement_stats_fem_hcd
-#so for females in HCD after week 10 BPA females has more ai than controls
+#so for females in HCD after week 13 BPA females has more ai than controls
 #this difference in ai is extended until the end of the study (week 19)
 
 
@@ -1549,14 +1549,14 @@ delta_leanplot <- ggplot(echoMRI_data_comparisons_collapsed_delta,
 
 delta_leanplot
 
-### FAT MASS %----
-## plot A: fat mass % separated by diet over time----
+### FAT MASS ---
+## plot A: fat mass  separated by diet over time----
 
 fat_summary <- echoMRI_data_comparisons_collapsed %>%
   group_by(n_measurement, BPA_EXPOSURE, SEX, DIET_FORMULA) %>%
   summarise(
-    mean_fat_perc = mean(fat_perc, na.rm = TRUE),
-    sem_fat_perc  = sd(fat_perc, na.rm = TRUE) / sqrt(n()),
+    mean_fat = mean(Fat, na.rm = TRUE),
+    sem_fat  = sd(Fat, na.rm = TRUE) / sqrt(n()),
     n = n(),
     .groups = "drop"
   )
@@ -1565,7 +1565,7 @@ plot_fat_sex <- ggplot(
   fat_summary,
   aes(
     x = n_measurement,
-    y = mean_fat_perc,
+    y = mean_fat,
     color = BPA_EXPOSURE,
     fill  = BPA_EXPOSURE,
     group = BPA_EXPOSURE
@@ -1575,8 +1575,8 @@ plot_fat_sex <- ggplot(
   #geom_point(size = 2) +
   geom_ribbon(
     aes(
-      ymin = mean_fat_perc - sem_fat_perc,
-      ymax = mean_fat_perc + sem_fat_perc
+      ymin = mean_fat - sem_fat,
+      ymax = mean_fat + sem_fat
     ),
     alpha = 0.15,
     color = NA
@@ -1592,7 +1592,7 @@ plot_fat_sex <- ggplot(
   ) +
   labs(
     x = "Weeks",
-    y = "Fat mass % [(fat mass/BW)*100]",
+    y = "Fat mass in g",
     color = "BPA exposure",
     fill  = "BPA exposure"
   ) +
@@ -1604,13 +1604,13 @@ plot_fat_sex
 
 ## STATS with baseline as a covariate (adjusts for fat mass starting differences)----
 
-baseline_fat_perc <- echoMRI_data_comparisons_collapsed %>%
+baseline_fat <- echoMRI_data_comparisons_collapsed %>%
   filter(n_measurement ==0) %>%   # baseline timepoint
-  select(ID, baseline_fat_perc = fat_perc)
+  select(ID, baseline_fat = Fat)
 fat_data2 <- echoMRI_data_comparisons_collapsed %>%
-  left_join(baseline_fat_perc, by = "ID")
+  left_join(baseline_fat, by = "ID")
 fat_data2 <- fat_data2 %>%
-  select(ID, n_measurement,fat_perc, baseline_fat_perc,SEX,BPA_EXPOSURE,DIET_FORMULA) 
+  select(ID, n_measurement,Fat, baseline_fat,SEX,BPA_EXPOSURE,DIET_FORMULA) 
 
 #Do BPA animals change fat mass differently over time, after accounting for where they started, within each sex and diet?
 fat_data2_no0 <- fat_data2 %>%
@@ -1618,8 +1618,8 @@ fat_data2_no0 <- fat_data2 %>%
 
 #“Do BPA animals gain fat mass differently over time, controlling for baseline?
 model <- lmer(
-  fat_perc ~ n_measurement * BPA_EXPOSURE * SEX * DIET_FORMULA +
-    baseline_fat_perc +
+  Fat ~ n_measurement * BPA_EXPOSURE * SEX * DIET_FORMULA +
+    baseline_fat +
     (1 | ID),
   data = fat_data2_no0
 )
@@ -2351,8 +2351,8 @@ n_measurement_contrasts_fem_hfd <- contrast(
 
 n_measurement_stats_fem_hfd <- as.data.frame(n_measurement_contrasts_fem_hfd) 
 n_measurement_stats_fem_hfd
-#so for females in HFD after week 4 and before 10 BPA females has more fat percentage than controls
-#this difference in ai is extended until the end of the study (week 19)
+#so for females in HFD after week 10 BPA females has more fat percentage than controls
+#this difference in fat % is extended until the end of the study (week 19)
 
 #### males in HCD----
 
@@ -2820,7 +2820,7 @@ n_measurement_contrasts_fem_hcd <- contrast(
 
 n_measurement_stats_fem_hcd <- as.data.frame(n_measurement_contrasts_fem_hcd) 
 n_measurement_stats_fem_hcd
-#so for females in HCD after week 4 and before 10 BPA females has less lean mass percentage than controls
+#so for females in HCD after week 10 BPA females has less lean mass percentage than controls
 #this difference in % lean mass is extended until the end of the study (week 19)
 
 #### females in HFD----
@@ -2856,9 +2856,7 @@ n_measurement_contrasts_fem_hfd <- contrast(
 
 n_measurement_stats_fem_hfd <- as.data.frame(n_measurement_contrasts_fem_hfd) 
 n_measurement_stats_fem_hfd
-#So for females in HFD after week 10 and before 13 BPA
-#has less lean mass percentage than controls 
-#this difference is extended until the end of the study (week 19)
+#So for females in HFD, BPA females has more fat percentage than controls this difference is extended until the end of the study (week 19)
 
 #### males in HCD----
 
@@ -3230,6 +3228,11 @@ combined_plot
 
 # BODY COMPOSITION ANALYSIS FOR ANIMALS IN CHOW----
 
+# Color palettes
+bpa_colors <- c("NO" = "gray70", "YES" = "#0072B2")
+bpa_fills  <- c("NO" = "gray80", "YES" = "#0072B2")
+
+
 METABPA_chow <- read_csv("~/Documents/GitHub/data/data/METABPA.csv")%>% 
   filter(grepl("-", ID))   #I will keep metadata all animals that were measured in chow
 
@@ -3253,7 +3256,350 @@ echoMRI_data_chow <- echoMRI_data_chow %>%
          lean_perc = (Lean/Weight)*100)
 
 
+echoMRI_data_chow_summary <- echoMRI_data_chow  %>%
+  group_by(BPA_EXPOSURE) %>%
+  summarise(
+    mean_BW = mean(Weight, na.rm = TRUE),
+    sem_BW  = sd(Weight, na.rm = TRUE) / sqrt(n()),
+    mean_fat = mean(Fat, na.rm = TRUE),
+    sem_fat  = sd(Fat, na.rm = TRUE) / sqrt(n()),
+    mean_fat_perc = mean(fat_perc, na.rm = TRUE),
+    sem_fat_perc  = sd(fat_perc, na.rm = TRUE) / sqrt(n()),
+    mean_lean = mean(Lean, na.rm = TRUE),
+    sem_lean  = sd(Lean, na.rm = TRUE) / sqrt(n()),
+    mean_lean_perc = mean(lean_perc, na.rm = TRUE),
+    sem_lean_perc  = sd(lean_perc, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
 
+echoMRI_data_chow %>% 
+  group_by(BPA_EXPOSURE) %>%
+  summarise(n_ID = n_distinct(ID)) %>% 
+  print(n = Inf) 
+
+bpa_colors <- c("NO" = "gray70", "YES" = "#0072B2")
+bpa_fills  <- c("NO" = "gray80", "YES" = "#0072B2")
+
+
+##### BW----
+
+echoMRI_data_chow_plot_BW <- ggplot(
+  echoMRI_data_chow,
+  aes(
+    x = BPA_EXPOSURE,
+    y = Weight,
+    fill = BPA_EXPOSURE
+  )
+) +
+  # Mean columns
+  stat_summary(
+    fun = mean,
+    geom = "col",
+    width = 0.6,
+    alpha = 0.7
+  ) +
+  
+  # SEM
+  stat_summary(
+    fun.data = mean_se,
+    geom = "errorbar",
+    width = 0.15,
+    linewidth = 0.9,
+    color = "black"
+  ) +
+  
+  # Individual animals
+  geom_jitter(
+    aes(color = BPA_EXPOSURE),
+    width = 0.12,
+    size = 2.5,
+    alpha = 0.8
+  ) +
+  
+  labs(
+    x = "BPA exposure",
+    y = "BW (g)"
+  ) +
+  
+  scale_fill_manual(
+    values = bpa_fills
+  ) +
+  scale_color_manual(
+    values = bpa_colors
+  ) +
+  
+  theme_classic(base_size = 14) +
+  theme(
+    legend.position = "none"
+  )
+
+echoMRI_data_chow_plot_BW
+
+
+##### fat----
+
+echoMRI_data_chow_plot_fat <- ggplot(
+  echoMRI_data_chow,
+  aes(
+    x = BPA_EXPOSURE,
+    y = Fat,
+    fill = BPA_EXPOSURE
+  )
+) +
+  # Mean columns
+  stat_summary(
+    fun = mean,
+    geom = "col",
+    width = 0.6,
+    alpha = 0.7
+  ) +
+  
+  # SEM
+  stat_summary(
+    fun.data = mean_se,
+    geom = "errorbar",
+    width = 0.15,
+    linewidth = 0.9,
+    color = "black"
+  ) +
+  
+  # Individual animals
+  geom_jitter(
+    aes(color = BPA_EXPOSURE),
+    width = 0.12,
+    size = 2.5,
+    alpha = 0.8
+  ) +
+  
+  labs(
+    x = "BPA exposure",
+    y = "Fat mass (g)"
+  ) +
+  
+  scale_fill_manual(
+    values = bpa_fills
+  ) +
+  scale_color_manual(
+    values = bpa_colors
+  ) +
+  
+  theme_classic(base_size = 14) +
+  theme(
+    legend.position = "none"
+  )
+
+echoMRI_data_chow_plot_fat
+
+##### fat %----
+
+echoMRI_data_chow_plot_fat_perc <- ggplot(
+  echoMRI_data_chow,
+  aes(
+    x = BPA_EXPOSURE,
+    y = fat_perc,
+    fill = BPA_EXPOSURE
+  )
+) +
+  # Mean columns
+  stat_summary(
+    fun = mean,
+    geom = "col",
+    width = 0.6,
+    alpha = 0.7
+  ) +
+  
+  # SEM
+  stat_summary(
+    fun.data = mean_se,
+    geom = "errorbar",
+    width = 0.15,
+    linewidth = 0.9,
+    color = "black"
+  ) +
+  
+  # Individual animals
+  geom_jitter(
+    aes(color = BPA_EXPOSURE),
+    width = 0.12,
+    size = 2.5,
+    alpha = 0.8
+  ) +
+  
+  labs(
+    x = "BPA exposure",
+    y = "Fat % (fat mass/BW)"
+  ) +
+  
+  scale_fill_manual(
+    values = bpa_fills
+  ) +
+  scale_color_manual(
+    values = bpa_colors
+  ) +
+  
+  theme_classic(base_size = 14) +
+  theme(
+    legend.position = "none"
+  )
+
+echoMRI_data_chow_plot_fat_perc
+
+
+#### lean----
+
+
+echoMRI_data_chow_plot_lean <- ggplot(
+  echoMRI_data_chow,
+  aes(
+    x = BPA_EXPOSURE,
+    y = Lean,
+    fill = BPA_EXPOSURE
+  )
+) +
+  # Mean columns
+  stat_summary(
+    fun = mean,
+    geom = "col",
+    width = 0.6,
+    alpha = 0.7
+  ) +
+  
+  # SEM
+  stat_summary(
+    fun.data = mean_se,
+    geom = "errorbar",
+    width = 0.15,
+    linewidth = 0.9,
+    color = "black"
+  ) +
+  
+  # Individual animals
+  geom_jitter(
+    aes(color = BPA_EXPOSURE),
+    width = 0.12,
+    size = 2.5,
+    alpha = 0.8
+  ) +
+  
+  labs(
+    x = "BPA exposure",
+    y = "Lean mass (g)"
+  ) +
+  
+  scale_fill_manual(
+    values = bpa_fills
+  ) +
+  scale_color_manual(
+    values = bpa_colors
+  ) +
+  
+  theme_classic(base_size = 14) +
+  theme(
+    legend.position = "none"
+  )
+
+echoMRI_data_chow_plot_lean
+
+#### lean % ----
+
+
+echoMRI_data_chow_plot_lean_perc <- ggplot(
+  echoMRI_data_chow,
+  aes(
+    x = BPA_EXPOSURE,
+    y = lean_perc,
+    fill = BPA_EXPOSURE
+  )
+) +
+  # Mean columns
+  stat_summary(
+    fun = mean,
+    geom = "col",
+    width = 0.6,
+    alpha = 0.7
+  ) +
+  
+  # SEM
+  stat_summary(
+    fun.data = mean_se,
+    geom = "errorbar",
+    width = 0.15,
+    linewidth = 0.9,
+    color = "black"
+  ) +
+  
+  # Individual animals
+  geom_jitter(
+    aes(color = BPA_EXPOSURE),
+    width = 0.12,
+    size = 2.5,
+    alpha = 0.8
+  ) +
+  
+  labs(
+    x = "BPA exposure",
+    y = "% lean mass (lean mass/BW)"
+  ) +
+  
+  scale_fill_manual(
+    values = bpa_fills
+  ) +
+  scale_color_manual(
+    values = bpa_colors
+  ) +
+  
+  theme_classic(base_size = 14) +
+  theme(
+    legend.position = "none"
+  )
+
+echoMRI_data_chow_plot_lean_perc
+
+
+#####stats----
+
+# Body weight
+t.test(Weight ~ BPA_EXPOSURE, data = echoMRI_data_chow)
+
+# Fat mass
+t.test(Fat ~ BPA_EXPOSURE, data = echoMRI_data_chow)
+
+# Fat percentage
+t.test(fat_perc ~ BPA_EXPOSURE, data = echoMRI_data_chow)
+
+# Lean mass
+t.test(Lean ~ BPA_EXPOSURE, data = echoMRI_data_chow)
+
+# Lean percentage
+t.test(lean_perc ~ BPA_EXPOSURE, data = echoMRI_data_chow)
+
+####combined plot----
+
+echoMRI_data_chow_plot_BW <- echoMRI_data_chow_plot_BW +
+  labs(tag = "A") +
+  scale_color_manual(values = bpa_colors)
+
+echoMRI_data_chow_plot_fat <- echoMRI_data_chow_plot_fat +
+  labs(tag = "B") +
+  scale_color_manual(values = bpa_colors)
+
+echoMRI_data_chow_plot_fat_perc <- echoMRI_data_chow_plot_fat_perc +
+  labs(tag = "C") +
+  scale_color_manual(values = bpa_colors)
+
+echoMRI_data_chow_plot_lean <- echoMRI_data_chow_plot_lean +
+  labs(tag = "D") +
+  scale_color_manual(values = bpa_colors)
+
+echoMRI_data_chow_plot_lean_perc <- echoMRI_data_chow_plot_lean_perc +
+  labs(tag = "E") +
+  scale_color_manual(values = bpa_colors)
+
+combined_plot <- echoMRI_data_chow_plot_BW /(echoMRI_data_chow_plot_fat  | echoMRI_data_chow_plot_fat_perc) /
+  (echoMRI_data_chow_plot_lean   |echoMRI_data_chow_plot_lean_perc)
+
+combined_plot
 
 #LENGTH ANALYSIS----
 
@@ -3269,7 +3615,7 @@ length_data <- read_csv("../data/METABPA_LENGTH.csv") %>%
     DOB  = mdy(DOB),
     age_weeks = as.numeric(difftime(DATE, DOB, units = "weeks")))%>%
   mutate(age_week_round = round(age_weeks)) %>% 
-  ungroup()
+  ungroup() 
 
 length_data <- length_data %>%
   mutate(
@@ -3277,18 +3623,18 @@ length_data <- length_data %>%
   ) %>% ungroup()
 
 length_data %>% 
-  group_by(age_week_round) %>%
+  group_by(age_week_round,SEX,DIET_FORMULA,BPA_EXPOSURE) %>%
   summarise(n_ID = n_distinct(ID)) %>% 
   print(n = Inf)
 
 length_data_summary <- length_data %>% 
-  group_by(age_week_round,SEX,BPA_EXPOSURE) %>% #we collapsed for diet to increase stat power and because in F there is a consistent effect in fat mass with HFD AND HCD
+  group_by(age_week_round,SEX,BPA_EXPOSURE,DIET_FORMULA) %>% #we collapsed for diet to increase stat power and because in F there is a consistent effect in fat mass with HFD AND HCD
   summarise(
     mean_length = mean(LENGTH_CM, na.rm = TRUE),
     sem_length  = sd(LENGTH_CM, na.rm = TRUE) / sqrt(n()),
     n = n(),
     .groups = "drop"
-  )
+  ) 
 
 ggplot(
   length_data_summary,
@@ -3312,13 +3658,13 @@ ggplot(
     width = 0.2
   ) +
   facet_wrap(
-    ~ SEX #* DIET_FORMULA,
-   # labeller = labeller(
-    #  DIET_FORMULA = c(
-     #   "D12450Hi" = "HCD",
-      #  "D12451i"  = "HFD"
-      #)
-   # )
+   SEX ~  DIET_FORMULA,
+    labeller = labeller(
+      DIET_FORMULA = c(
+        "D12450Hi" = "HCD",
+        "D12451i"  = "HFD"
+      )
+    )
   ) +
   scale_fill_manual(
     values = c(
@@ -3351,7 +3697,7 @@ ggplot(
 ##### stats----
 
 length_ttests <- length_data %>%
-  group_by(SEX, age_week_round) %>%
+  group_by(age_week_round,DIET_FORMULA) %>% #keep an eye here because is collapsing by sex
   t_test(
     LENGTH_CM ~ BPA_EXPOSURE,
     var.equal = FALSE   # Welch t-test
@@ -3431,7 +3777,7 @@ ggplot(
   theme_classic(base_size = 14) +
   labs(
     x = "BPA exposure",
-    y = expression(Delta*" body length (cm, week 17 - week 8)")
+    y = expression(Delta*" body length (cm, week 27 - week 8)")
   ) +
   theme(legend.position = "none")+
   facet_wrap(~SEX)
@@ -3441,7 +3787,22 @@ ggplot(
   group_by(SEX,BPA_EXPOSURE,age_week_round) %>%
   summarise(n_ID = n_distinct(ID)) 
   
-####Lee index----
+  ##### delta lengh stats----
+  
+  # Females
+  t.test(
+    delta_length ~ BPA_EXPOSURE,
+    data = delta_length %>% filter(SEX == "F")
+  )
+  
+  # Males
+  t.test(
+    delta_length ~ BPA_EXPOSURE,
+    data = delta_length %>% filter(SEX == "M")
+  )
+  
+  
+  ####Lee index----
 
   BW_len <- echoMRI_data %>%
     filter(COHORT == 18) %>%
@@ -4014,10 +4375,11 @@ gridtest2  %>%
   summarise(n_ID = n_distinct(ID)) 
 
 gridtest3 <- gridtest2 %>%
-  select(ID,DATE,BW, BPA_EXPOSURE,SEX,DIET_FORMULA,DOB,COHORT,ID_DAM_ORIGEN,`Fatigue Score`, `% Fatigue`, mean_latency_stand,max_latency_stand )
+  select(ID,DATE,BW, BPA_EXPOSURE,SEX,DIET_FORMULA,DOB,COHORT,ID_DAM_ORIGEN,`Fatigue Score`, `% Fatigue`, mean_latency_stand,max_latency_stand ) %>% 
+  filter(SEX=="M")
 
 summary_grid <- gridtest3 %>%
-  group_by(SEX,BPA_EXPOSURE,DATE) %>%
+  group_by(BPA_EXPOSURE,DATE,DIET_FORMULA) %>%
   summarise(
     group_mean_latency_stand = mean(mean_latency_stand, na.rm = TRUE),
     sem_latency_stand = sd(mean_latency_stand, na.rm = TRUE) / sqrt(sum(!is.na(mean_latency_stand))),
@@ -4054,7 +4416,7 @@ plot_latency <- ggplot(summary_grid, aes(x = BPA_EXPOSURE, y = group_mean_latenc
     color = "black"
   ) +
   facet_wrap(
-    ~ SEX * DATE,
+    ~  DATE*DIET_FORMULA,
         labeller = labeller(
           DATE = c(
             "4/28/26" = "13 weeks",
@@ -4081,7 +4443,7 @@ plot_latency
 ## STATS----
 # collapsing for diet formula because we dont have enough stat power
 ttest_results <- gridtest3 %>%
-  group_by(SEX,DATE) %>%
+  group_by(DATE,DIET_FORMULA) %>%
   do(
     tidy(t.test(mean_latency_stand ~ BPA_EXPOSURE, data = .))
   )
@@ -4098,13 +4460,14 @@ gridtest4 <- gridtest3 %>%
   select(ID,DATE,BW,BPA_EXPOSURE,SEX,DIET_FORMULA,DOB,COHORT,ID_DAM_ORIGEN,`Fatigue Score`, `% Fatigue` )
 
 summary_grid_fatigue <- gridtest4 %>%
-  group_by(SEX,BPA_EXPOSURE,DATE) %>%
+  group_by(SEX,BPA_EXPOSURE,DATE,DIET_FORMULA) %>%
   summarise(
     mean_fatigue = mean(`Fatigue Score`, na.rm = TRUE),
     sem_fatigue = sd(`Fatigue Score`, na.rm = TRUE) / sqrt(sum(!is.na(`Fatigue Score`))),
     n = sum(!is.na(`Fatigue Score`)),
     .groups = "drop"
-  ) 
+  ) %>% 
+  filter(SEX=="M")
 
 #### plot fatigue----
 
@@ -4135,7 +4498,7 @@ plot_fatigue <- ggplot(summary_grid_fatigue, aes(x = BPA_EXPOSURE, y = mean_fati
     color = "black"
   ) +
   facet_wrap(
-    ~ SEX * DATE,
+   ~   DIET_FORMULA*DATE,
     labeller = labeller(
       DATE = c(
         "4/28/26" = "13 weeks",
@@ -4162,7 +4525,7 @@ plot_fatigue
 ## STATS----
 # collapsing for diet formula because we dont have enough stat power
 ttest_results <- gridtest4 %>%
-  group_by(SEX,DATE) %>%
+  group_by(DATE,DIET_FORMULA) %>%
   do(
     tidy(t.test(`Fatigue Score` ~ BPA_EXPOSURE, data = .))
   )
@@ -7255,6 +7618,13 @@ anova(model_fhcd)
 
 ####Data import----
 
+# Color palettes
+bpa_colors <- c("NO" = "gray70", "YES" = "#0072B2")
+bpa_fills  <- c("NO" = "gray80", "YES" = "#0072B2")
+
+sex_colors <- c("F" = "#CC79A7", "M" = "#009E73")  # optional if plotting sex directly
+
+
 METABPA <- read_csv("~/Documents/GitHub/data/data/METABPA.csv") %>% 
   rename(Animal = ID) %>% 
   filter(grepl("-", Animal) | Animal %in% c("9408", "9409"))   #I want to keep just IDs that were measured for NORT for cohort 1, 2 and 3
@@ -7433,8 +7803,12 @@ data_raw_long_fam <- data_raw_long_fam %>%
            TRUE ~ Object  # leave any unexpected values as-is
          ),
          Object = factor(Object, levels = c("1", "2"))) %>% 
-  filter(`Segment of test`=="300 - 600 secs." ) 
-
+  filter(`Segment of test`=="300 - 600 secs." ) %>%  
+  #	9380-3 and 9391-1 does not have fam data so we should eliminate them
+  #from the analysis
+  drop_na()
+  
+  
 data_summary_long_fam <- data_summary_fam %>%
   pivot_longer(
     cols = -c(`Segment of test`, age_week_round,SEX),
@@ -7470,7 +7844,8 @@ data_fam_wide <- data_raw_long_fam %>%
     names_from = Object,
     values_from = time,
     names_prefix = "Object_"
-  )
+  ) %>% 
+  drop_na()
 data_fam_wide
 
 t_test_results <- data_fam_wide %>%
@@ -7556,7 +7931,6 @@ t_test_di %>%
 #TF = Time spent interacting with familiar object. 
 #Reductions in preference is indicative of impaired learning and memory.
 
-
 dat_recog <- data_all%>% 
     ungroup() %>% 
     group_by(`Segment of test`) %>% 
@@ -7566,12 +7940,14 @@ dat_recog <- data_all%>%
                        `Novel Object : time investigating (s)`)) * 100) %>% 
     select(ID, `Segment of test`, BPA_EXPOSURE, SEX, COHORT, 
            age_week_round, NOP) %>% 
-  filter(`Segment of test` == "0 - 300 secs.") %>%  #because this person recorded just the first part of the test and not the entire test =/
-filter(SEX=="M")
-  
+  filter(`Segment of test` == "0 - 300 secs.") %>%   #because this person recorded just the first part of the test and not the entire test =/
+  filter(!ID %in% c("9380-3", "9391-1")) %>% 
+  filter(SEX=="M")
+
+
 data_summary_recog <- dat_recog %>% 
     ungroup() %>% 
-    group_by(`Segment of test`,age_week_round,BPA_EXPOSURE) %>% 
+    group_by(`Segment of test`,age_week_round,BPA_EXPOSURE,SEX) %>% 
     summarise(
       n = n(),
       mean_time_NOP = mean(NOP),
@@ -7580,6 +7956,7 @@ data_summary_recog <- dat_recog %>%
     ) %>% 
     ungroup() 
 
+
 data_raw_long_recog <- dat_recog %>% 
   pivot_longer(
     cols = c(NOP),
@@ -7587,21 +7964,29 @@ data_raw_long_recog <- dat_recog %>%
     values_to = "NOP_value"
   ) 
 
-ggplot(data_summary_recog, aes(x = BPA_EXPOSURE, y = mean_time_NOP)) +
-  geom_col(alpha = 0.6, fill = "grey70") +
+ggplot(data_summary_recog,
+       aes(x = BPA_EXPOSURE, y = mean_time_NOP, fill = BPA_EXPOSURE)) +
+  geom_col(alpha = 0.6) +
   geom_errorbar(aes(ymin = mean_time_NOP - sem_time_NOP,
                     ymax = mean_time_NOP + sem_time_NOP),
                 width = 0.2) +
   geom_jitter(data = dat_recog,
-              aes(x = BPA_EXPOSURE, y = NOP),
+              aes(x = BPA_EXPOSURE, y = NOP,
+                  color = BPA_EXPOSURE),
               width = 0.1, size = 2, alpha = 0.8) +
+  scale_fill_manual(values = bpa_fills,
+                    labels = c("NO" = "Control", "YES" = "BPA")) +
+  scale_color_manual(values = bpa_colors,
+                     labels = c("NO" = "Control", "YES" = "BPA")) +
   labs(x = "BPA perinatal exposure",
-       y = "% of novel object preference  (NOP%)") +
-  facet_wrap(SEX~age_week_round) +
+       y = "% of novel object preference (NOP%)",
+       fill = "BPA exposure",
+       color = "BPA exposure") +
+  facet_wrap(~age_week_round) +
   theme_classic()
 
 t_test_NOP <- dat_recog %>%
-  group_by(age_week_round,SEX) %>%
+  group_by(age_week_round) %>%
   summarise(t_test = list(t.test(NOP ~ BPA_EXPOSURE)),
             .groups = "drop") %>%
   mutate(t_test = map(t_test, broom::tidy)) %>%

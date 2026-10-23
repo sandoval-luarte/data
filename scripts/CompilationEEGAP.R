@@ -1302,7 +1302,7 @@ leandelta_absolute_zero_ttest <- delta_bodycomp %>%
 
 leandelta_absolute_zero_ttest
 
-##4.  GLUCOSE MANAGMENT----
+ ##4.  GLUCOSE MANAGMENT----
 
 glu_data <- read_csv("../data/Bri_glucose_2022.csv") %>% 
   mutate(
@@ -1335,8 +1335,78 @@ glu_datasummary<- glu_data %>%
     .groups = "drop"
   )
 
-### plot glucose ----
+### plot glucose  ----
 plot_glu <- ggplot(
+  glu_datasummary,
+  aes(
+    x = DRUG,
+    y = mean_glu,
+    fill = DRUG
+  )
+) +
+  
+  # Mean bars
+  geom_col(
+    width = 0.7
+  ) +
+  
+  # SEM
+  geom_errorbar(
+    aes(
+      ymin = mean_glu - sem_glu,
+      ymax = mean_glu + sem_glu
+    ),
+    width = 0.2,
+    linewidth = 0.7
+  )  +
+  
+  # Individual mouse points
+  geom_point(
+    data = glu_data,
+    aes(
+      x = DRUG,
+      y = GLUCOSE_MG_DL
+    ),
+    color = "black",
+    size = 2.2
+  ) +
+  
+  # Mouse IDs
+  #geom_text(
+  # data = BW_points,
+  #aes(
+  # x = DRUG_STATUS,
+  #y = BW,
+  #label = ID
+  #  ),
+  # vjust = -0.7,
+  #  size = 3,
+  # color = "black"
+  #  ) +
+  
+  # Drug colors
+  scale_fill_manual(
+    values = drug_colors,
+    labels = drug_labels
+  ) +
+  
+  labs(
+    x = NULL,
+    y = "Glucose (mg/dL)",
+    fill = NULL
+  ) +
+  
+  theme_classic(base_size = 14) +
+  
+  theme(
+    legend.position = "top"
+  )+
+  facet_wrap(~SEX*STRAIN)
+
+plot_glu
+
+### plot glucose standardized ----
+plot_glu_st <- ggplot(
   glu_datasummary,
   aes(
     x = DRUG,
@@ -1392,7 +1462,7 @@ plot_glu <- ggplot(
   
   labs(
     x = NULL,
-    y = "Glucose standardized (glu in mg/dL/BW in g)",
+    y = "Glucose standardized (glu/BW)",
     fill = NULL
   ) +
   
@@ -1403,20 +1473,28 @@ plot_glu <- ggplot(
   )+
 facet_wrap(~SEX*STRAIN)
 
-plot_glu 
+plot_glu_st 
 
 ###stats----
 
 glu_ttest <- glu_data %>%
-  group_by(SEX,STRAIN) %>%
+  group_by(SEX, STRAIN) %>%
   t_test(
     glu_standar ~ DRUG,
     paired = FALSE
   ) %>%
   add_significance()
 
-glu_ttest 
+glucose_ttest <- glu_data %>%
+  group_by(SEX, STRAIN) %>%
+  t_test(
+    GLUCOSE_MG_DL ~ DRUG,
+    paired = FALSE
+  ) %>%
+  add_significance()
 
+glu_ttest 
+glucose_ttest
 
 ##5. PREDICTIONS ----
 ####Does a higher initial body weight or initial fat mass predict a greater reduction in body weight or fat mass following RTIOXA-47?----
@@ -1446,7 +1524,23 @@ baseline_predictors <- baseline_predictors %>%
       STRAIN,
       levels = c("C57BL/6J", "NZO/HlLtJ")
     )
-  ). #ok so the strain of reference is C57
+  ) 
+baseline_predictors 
+
+
+baseline_predictors <- baseline_predictors %>%
+  mutate(
+    SEX = factor(SEX, levels = c("F", "M")),
+    STRAIN = factor(
+      STRAIN,
+      levels = c("C57BL/6J", "NZO/HlLtJ")
+    ),
+    DRUG = factor(
+      DRUG,
+      levels = c("vehicle", "RTI_47")
+    )
+  )
+
 
 ##### 5.2 Does baseline body weight predict the magnitude of the RTIOXA-47 effect on body weight change?----
 
@@ -1458,7 +1552,11 @@ BW_response_model <- lm(
 anova(BW_response_model)
 summary(BW_response_model) #No evidence that starting weight modifies RTIOXA47 effect on BW change
 
-
+#There was no statistically significant evidence that baseline body weight modified 
+#the association between RTIOXA-47 treatment and body-weight change (p = 0.540). 
+#Sex was associated with body-weight change, while no significant strain difference was detected. 
+#The relationship between baseline body weight and body-weight change should be 
+#interpreted after centering baseline weight and clarifying the main-effect test.
 ### BODY WEIGHT: DRUG × STRAIN x SEX ----
 
 BW_model_strain <- lm(
@@ -1515,101 +1613,262 @@ summary(adiposity_index_response_model)
 ##6. INDIRECT CALORIMETRY----
 #I will assume like as always in the columbus room was # 20:00–05:59 DARK and # 06:00–19:59 LIGHT
 
-##counts /locomotion ----
-ical_data_counts_coh8 <- read_csv("~/Documents/GitHub/data/data/Coh 1 final calorimetry analysis 04082022_V2_counts.csv")%>% 
-  rename(ID = Subject) %>% 
-  select(-`4/5/22 10:00`, #we want to keep just 24 hours
-         -`4/5/22 11:00`,
-         -`4/5/22 12:00`,
-         -`4/5/22 13:00`,
-         -`4/5/22 14:00`,
-         -`4/5/22 15:00`,
-         -`4/5/22 16:00`,
-         -`4/5/22 17:00`,
-         -`4/5/22 18:00`,
-         -`4/5/22 19:00`,
-         -`4/5/22 20:00`,
-         -`4/5/22 21:00`,
-         -`4/5/22 22:00`,
-         -`4/5/22 23:00`,
-         -`4/6/22 0:00`,
-         -`4/6/22 1:00`,
-         -`4/6/22 2:00`,
-         -`4/6/22 3:00`,
-         -`4/6/22 4:00`,
-         -`4/6/22 5:00`,
-         -`4/6/22 6:00`,
-         -`4/6/22 7:00`,
-         -`4/6/22 8:00`,
-         -`4/6/22 9:00`,
-         -`4/6/22 10:00`,
-         -`4/6/22 11:00`,
-         -`4/6/22 12:00`,
-         -`4/6/22 13:00`,
-         -`4/6/22 14:00`,
-         -`4/6/22 15:00`,
-         -`4/6/22 16:00`,
-         -`4/6/22 17:00`,
-         -`4/6/22 18:00`,
-         -`4/6/22 19:00`,
-         -`4/6/22 20:00`)
+####counts /locomotion ----
+#####start-----
 
-ical_data_counts_coh16 <- read_csv("~/Documents/GitHub/data/data/ical analysis 11262025_counts.csv") %>% 
+ical_data_counts_coh8 <- read_csv("~/Documents/GitHub/data/data/Coh 1 basal calorimetry analysis 03042022_counts.csv")%>% 
   rename(ID = Subject) %>% 
-  mutate(ID = as.numeric(paste0("9", ID))) %>% 
-  select(-`11/24/25 9:00`, #we want to keep just 24 hours
-         -`11/24/25 10:00`,
-         -`11/24/25 11:00`,
-         -`11/24/25 12:00`,
-         -`11/24/25 13:00`,
-         -`11/24/25 14:00`,
-         -`11/24/25 15:00`,
-         -`11/24/25 16:00`,
-         -`11/24/25 17:00`,
-         -`11/24/25 18:00`,
-         -`11/24/25 19:00`,
-         -`11/25/25 20:00`,
-         -`11/25/25 21:00`,
-         -`11/25/25 22:00`,
-         -`11/25/25 23:00`,
-         -`11/26/25 0:00`,
-         -`11/26/25 1:00`,
-         -`11/26/25 2:00`,
-         -`11/26/25 3:00`,
-         -`11/26/25 4:00`,
-         -`11/26/25 5:00`,
-         -`11/26/25 6:00`,
-         -`11/26/25 7:00`,
-         -`11/26/25 8:00`,
-         -`11/26/25 9:00`)
+  mutate(
+    DRUG = case_when(
+      ID %in% c(
+        1,3,5,7,9,11,13,15,17,19,21,23, # cohort 8
+        25,27,30,31,33,35,37,39,41,43,45,48, # cohort 20
+        50,51,52,53,56,57,61,66,67,68,70 # cohort 21
+      ) ~ "vehicle",
+      
+      ID %in% c(
+        2,4,6,8,10,12,14,16,18,20,22,24, # cohort 8
+        26,28,29,32,34,36,38,40,42,44,46,47, # cohort 20
+        49,54,55,58,59,60,62,63,64,65,69,71 # cohort 21
+      ) ~ "RTI_47"
+    )
+  )     
 
-ical_data_counts_coh18 <- read_csv("~/Documents/GitHub/data/data/iCal_Kotz_051826_counts.csv") %>% 
+cal_counts_long <- ical_data_counts_coh8 %>%
+  pivot_longer(
+    cols = -c(ID, BW,DRUG),
+    names_to = "DateTime",
+    values_to = "Count"
+  ) %>%
+  mutate(
+    DateTime = as.POSIXct(DateTime, format = "%m/%d/%y %H:%M")
+  )
+
+light_periods <- cal_counts_long %>%
+  mutate(
+    date = as.Date(DateTime)
+  ) %>%
+  distinct(date) %>%
+  mutate(
+    light_off_start = as.POSIXct(
+      paste(date, "20:00:00")
+    ),
+    light_off_end = as.POSIXct(
+      paste(date + 1, "06:00:00")
+    )
+  )
+
+count_summary <- cal_counts_long %>%
+  group_by(DateTime,DRUG) %>%
+  summarise(
+    mean_count = mean(Count, na.rm = TRUE),
+    sem_count = sd(Count, na.rm = TRUE) /
+      sqrt(sum(!is.na(Count))),
+    .groups = "drop"
+  )
+
+ggplot() +
+  
+  # Light-off background
+  geom_rect(
+    data = light_periods,
+    aes(
+      xmin = light_off_start,
+      xmax = light_off_end,
+      ymin = -Inf,
+      ymax = Inf
+    ),
+    fill = "grey85",
+    inherit.aes = FALSE
+  ) +
+  
+  # Individual animals
+  geom_line(
+    data = cal_counts_long,
+    aes(
+      x = DateTime,
+      y = Count,
+      group = ID
+    ),
+    alpha = 0.15,
+    linewidth = 0.5
+  ) +
+  
+  geom_point(
+    data = cal_counts_long,
+    aes(
+      x = DateTime,
+      y = Count,
+      group = ID
+    ),
+    alpha = 0.15,
+    size = 1
+  ) +
+  
+  # SEM
+  geom_ribbon(
+    data = count_summary,
+    aes(
+      x = DateTime,
+      ymin = mean_count - sem_count,
+      ymax = mean_count + sem_count
+    ),
+    alpha = 0.25
+  ) +
+  
+  # Mean
+  geom_line(
+    data = count_summary,
+    aes(
+      x = DateTime,
+      y = mean_count
+    ),
+    linewidth = 1.2
+  ) +
+  
+  labs(
+    x = "Date and time",
+    y = "Count"
+  ) +
+  
+  theme_classic() +
+  theme(
+    text = element_text(family = "Arial"),
+    axis.text.x = element_text(
+      angle = 45,
+      hjust = 1
+    )
+  )+
+  facet_wrap(~DRUG)
+
+##### end-----
+
+ical_data_counts_coh8_end <- read_csv("~/Documents/GitHub/data/data/Coh 1 final calorimetry analysis 04082022_counts.csv")%>% 
   rename(ID = Subject) %>% 
-  select(-`5/18/26 11:00`, #we want to keep just 24 hours
-         -`5/18/26 12:00`,
-         -`5/18/26 13:00`,
-         -`5/18/26 14:00`,
-         -`5/18/26 15:00`,
-         -`5/18/26 16:00`,
-         -`5/18/26 17:00`,
-         -`5/18/26 18:00`,
-         -`5/18/26 19:00`,
-         -`5/19/26 20:00`,
-         -`5/19/26 21:00`,
-         -`5/19/26 22:00`,
-         -`5/19/26 23:00`,
-         -`5/20/26 0:00`,
-         -`5/20/26 1:00`,
-         -`5/20/26 2:00`,
-         -`5/20/26 3:00`,
-         -`5/20/26 4:00`,
-         -`5/20/26 5:00`,
-         -`5/20/26 6:00`,
-         -`5/20/26 7:00`,
-         -`5/20/26 8:00`,
-         -`5/20/26 9:00`,
-         -`5/20/26 10:00`,
-         -`5/20/26 11:00`)
+  mutate(
+    DRUG = case_when(
+      ID %in% c(
+        1,3,5,7,9,11,13,15,17,19,21,23, # cohort 8
+        25,27,30,31,33,35,37,39,41,43,45,48, # cohort 20
+        50,51,52,53,56,57,61,66,67,68,70 # cohort 21
+      ) ~ "vehicle",
+      
+      ID %in% c(
+        2,4,6,8,10,12,14,16,18,20,22,24, # cohort 8
+        26,28,29,32,34,36,38,40,42,44,46,47, # cohort 20
+        49,54,55,58,59,60,62,63,64,65,69,71 # cohort 21
+      ) ~ "RTI_47"
+    )
+  )     
+
+cal_counts_long_end <- ical_data_counts_coh8_end %>%
+  pivot_longer(
+    cols = -c(ID, BW,DRUG),
+    names_to = "DateTime",
+    values_to = "Count"
+  ) %>%
+  mutate(
+    DateTime = as.POSIXct(DateTime, format = "%m/%d/%y %H:%M")
+  )
+
+light_periods_end <- cal_counts_long_end %>%
+  mutate(
+    date = as.Date(DateTime)
+  ) %>%
+  distinct(date) %>%
+  mutate(
+    light_off_start = as.POSIXct(
+      paste(date, "20:00:00")
+    ),
+    light_off_end = as.POSIXct(
+      paste(date + 1, "06:00:00")
+    )
+  )
+
+count_summary_end <- cal_counts_long_end %>%
+  group_by(DateTime,DRUG) %>%
+  summarise(
+    mean_count = mean(Count, na.rm = TRUE),
+    sem_count = sd(Count, na.rm = TRUE) /
+      sqrt(sum(!is.na(Count))),
+    .groups = "drop"
+  )
+
+ggplot() +
+  
+  # Light-off background
+  geom_rect(
+    data = light_periods_end,
+    aes(
+      xmin = light_off_start,
+      xmax = light_off_end,
+      ymin = -Inf,
+      ymax = Inf
+    ),
+    fill = "grey85",
+    inherit.aes = FALSE
+  ) +
+  
+  # Individual animals
+  geom_line(
+    data = cal_counts_long_end,
+    aes(
+      x = DateTime,
+      y = Count,
+      group = ID
+    ),
+    alpha = 0.15,
+    linewidth = 0.5
+  ) +
+  
+  geom_point(
+    data = cal_counts_long_end,
+    aes(
+      x = DateTime,
+      y = Count,
+      group = ID
+    ),
+    alpha = 0.15,
+    size = 1
+  ) +
+  
+  # SEM
+  geom_ribbon(
+    data = count_summary_end,
+    aes(
+      x = DateTime,
+      ymin = mean_count - sem_count,
+      ymax = mean_count + sem_count
+    ),
+    alpha = 0.25
+  ) +
+  
+  # Mean
+  geom_line(
+    data = count_summary_end,
+    aes(
+      x = DateTime,
+      y = mean_count
+    ),
+    linewidth = 1.2
+  ) +
+  
+  labs(
+    x = "Date and time",
+    y = "Count at end"
+  ) +
+  
+  theme_classic() +
+  theme(
+    text = element_text(family = "Arial"),
+    axis.text.x = element_text(
+      angle = 45,
+      hjust = 1
+    )
+  )+
+  facet_wrap(~DRUG)
+
+
 
 #RTIOXA 43 for 5 days 10 mg/kg ----
 ##### group assignation ---------

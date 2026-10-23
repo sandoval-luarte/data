@@ -1,0 +1,21 @@
+{
+  "": {
+    "tmp": {
+      "file_cache": {
+        "analysis": {
+          "human-precovid-sed-adu": {
+            "c2.0": {
+              "transcriptomics": {
+                "metadata": {
+                  "contents": [
+                    "human-precovid-sed-adu_t11-adipose_transcript-rna-seq_metadata_features_v2.0.txt"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
