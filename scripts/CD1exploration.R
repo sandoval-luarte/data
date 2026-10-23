@@ -294,7 +294,7 @@ BW_data <- read_csv("../data/BW.csv") %>%
   filter(week_rel<=18) 
 
 BW_data  %>% 
-  group_by(SEX,BPA_EXPOSURE) %>%
+  group_by(SEX) %>%
   summarise(n_ID = n_distinct(ID)) %>% 
  print(n = Inf)
 
