@@ -1632,11 +1632,22 @@ ical_data_counts_coh8 <- read_csv("~/Documents/GitHub/data/data/Coh 1 basal calo
         49,54,55,58,59,60,62,63,64,65,69,71 # cohort 21
       ) ~ "RTI_47"
     )
-  )     
+  )     %>% 
+  mutate(
+    STRAIN = case_when(
+      ID %in% c(13,14,15,16,17,18,19,20,
+                21,22,23,24) ~ "NZO/HlLtJ",
+      ID %in% c(1,2,3,4,5,6,7,8,9,10,
+                11,12) ~ "C57BL6/J")) %>% 
+  mutate(
+    SEX = case_when(
+      ID %in% c(1,2,3,4,5,6,13,14,15,16,17,18) ~ "M",
+      ID %in% c(7,8,9,10,11,12,19,20,21,22,23,24) ~ "F"))
+  
 
 cal_counts_long <- ical_data_counts_coh8 %>%
   pivot_longer(
-    cols = -c(ID, BW,DRUG),
+    cols = -c(ID, BW,DRUG,STRAIN,SEX),
     names_to = "DateTime",
     values_to = "Count"
   ) %>%
@@ -1659,7 +1670,7 @@ light_periods <- cal_counts_long %>%
   )
 
 count_summary <- cal_counts_long %>%
-  group_by(DateTime,DRUG) %>%
+  group_by(DateTime,DRUG,SEX,STRAIN) %>%
   summarise(
     mean_count = mean(Count, na.rm = TRUE),
     sem_count = sd(Count, na.rm = TRUE) /
@@ -1739,7 +1750,7 @@ ggplot() +
       hjust = 1
     )
   )+
-  facet_wrap(~DRUG)
+  facet_wrap(~DRUG*SEX*STRAIN)
 
 ##### end-----
 
@@ -1759,11 +1770,21 @@ ical_data_counts_coh8_end <- read_csv("~/Documents/GitHub/data/data/Coh 1 final 
         49,54,55,58,59,60,62,63,64,65,69,71 # cohort 21
       ) ~ "RTI_47"
     )
-  )     
+  )     %>% 
+  mutate(
+    STRAIN = case_when(
+      ID %in% c(13,14,15,16,17,18,19,20,
+                21,22,23,24) ~ "NZO/HlLtJ",
+      ID %in% c(1,2,3,4,5,6,7,8,9,10,
+                11,12) ~ "C57BL6/J")) %>% 
+  mutate(
+    SEX = case_when(
+      ID %in% c(1,2,3,4,5,6,13,14,15,16,17,18) ~ "M",
+      ID %in% c(7,8,9,10,11,12,19,20,21,22,23,24) ~ "F"))
 
 cal_counts_long_end <- ical_data_counts_coh8_end %>%
   pivot_longer(
-    cols = -c(ID, BW,DRUG),
+    cols = -c(ID, BW,DRUG,SEX,STRAIN),
     names_to = "DateTime",
     values_to = "Count"
   ) %>%
@@ -1786,7 +1807,7 @@ light_periods_end <- cal_counts_long_end %>%
   )
 
 count_summary_end <- cal_counts_long_end %>%
-  group_by(DateTime,DRUG) %>%
+  group_by(DateTime,DRUG,SEX,STRAIN) %>%
   summarise(
     mean_count = mean(Count, na.rm = TRUE),
     sem_count = sd(Count, na.rm = TRUE) /
@@ -1866,11 +1887,1157 @@ ggplot() +
       hjust = 1
     )
   )+
-  facet_wrap(~DRUG)
+  facet_wrap(~DRUG*SEX*STRAIN)
+
+#start----
+
+cal_counts_long <- ical_data_counts_coh8 %>%
+  pivot_longer(
+    cols = -c(ID, BW, DRUG,SEX,STRAIN),
+    names_to = "DateTime",
+    values_to = "Count"
+  ) %>%
+  mutate(
+    DateTime = as.POSIXct(
+      DateTime,
+      format = "%m/%d/%y %H:%M"
+    ),
+    
+    # Experimental start
+    experiment_start = as.POSIXct(
+      "2022-02-28 20:00:00"
+    ),
+    
+    # Assign experimental day
+    day = if_else(
+      DateTime < experiment_start,
+      NA_integer_,
+      floor(
+        as.numeric(
+          difftime(
+            DateTime,
+            experiment_start,
+            units = "hours"
+          )
+        ) / 24
+      ) + 1
+    )
+  )
+
+cal_counts_long_complete <- cal_counts_long %>%
+  filter(
+    !is.na(day),
+    day != 4
+  )
+cal_counts_long_complete <- cal_counts_long_complete %>%
+  mutate(
+    DATE = as.Date(DateTime),
+    TIME = format(DateTime, "%H:%M:%S")
+  )
+cal_counts_long_complete <- cal_counts_long_complete %>%
+  mutate(
+    lights = case_when(
+      TIME >= "20:00:00" | TIME < "06:00:00" ~ "OFF",
+      TIME >= "06:00:00" & TIME < "20:00:00" ~ "ON",
+      TRUE ~ NA_character_
+    )
+  )
+
+#### Mean and SD per ID, day, and hour ####
+
+count_hour_summary <- cal_counts_long_complete %>%
+  mutate(
+    HOUR = as.integer(format(DateTime, "%H"))
+  ) %>%
+  group_by(ID, DRUG, HOUR, lights,SEX,STRAIN) %>%
+  summarise(
+    mean_count = mean(Count, na.rm = TRUE),
+    sd_count = sd(Count, na.rm = TRUE),
+    n = sum(!is.na(Count)),
+    .groups = "drop"
+  )
+
+#### Plot hourly locomotor activity averaged across 3 days ####
+
+#### Reorder hours: 20:00 to 19:00 ####
+
+count_hour_summary <- count_hour_summary %>%
+  mutate(
+    HOUR_ORDER = if_else(HOUR >= 20, HOUR - 20, HOUR + 4)
+  )
+
+count_group_summary <- count_hour_summary %>%
+  group_by(DRUG, HOUR_ORDER, lights,SEX,STRAIN) %>%
+  summarise(
+    mean_count = mean(mean_count, na.rm = TRUE),
+    sem_count = sd(mean_count, na.rm = TRUE) /
+      sqrt(sum(!is.na(mean_count))),
+    .groups = "drop"
+  )
+
+ggplot() +
+  
+  # Individual mice
+  geom_line(
+    data = count_hour_summary,
+    aes(
+      x = HOUR_ORDER,
+      y = mean_count,
+      group = ID
+    ),
+    alpha = 0.5,
+    linewidth = 0.6,
+    color = "grey50"
+  ) +
+  
+  # Mean ± SEM
+  geom_ribbon(
+    data = count_group_summary,
+    aes(
+      x = HOUR_ORDER,
+      ymin = mean_count - sem_count,
+      ymax = mean_count + sem_count,
+      group = DRUG
+    ),
+    alpha = 0.2
+  ) +
+  
+  # Group mean
+  geom_line(
+    data = count_group_summary,
+    aes(
+      x = HOUR_ORDER,
+      y = mean_count,
+      color = DRUG,
+      group = DRUG
+    ),
+    linewidth = 1.5
+  ) +
+  
+  scale_x_continuous(
+    breaks = 0:23,
+    labels = c(20:23, 0:19)
+  ) +
+  
+  scale_color_manual(
+    values = c(
+      "vehicle" = "grey40",
+      "RTI_47" = "#E67E22"
+    )
+  ) +
+  
+  labs(
+    x = "Hour of experimental day",
+    y = "Locomotor counts",
+    color = "Treatment"
+  ) +
+  
+  theme_classic() +
+  
+  theme(
+    text = element_text(family = "Arial"),
+    axis.text.x = element_text(
+      angle = 45,
+      hjust = 1
+    )
+  ) +
+  
+  facet_wrap(~DRUG*SEX*STRAIN)
+
+#### Cumulative locomotor counts per ID, day, and lights ####
+
+count_cumulative_lights <- cal_counts_long_complete %>%
+  group_by(ID, DRUG, day, lights,SEX,STRAIN) %>%
+  summarise(
+    cumulative_count = sum(Count, na.rm = TRUE),
+    n_measurements = sum(!is.na(Count)),
+    .groups = "drop"
+  ) %>%
+  arrange(ID, day, lights)
+
+#### Mean ± SEM of cumulative counts per day and light period ####
+
+count_cumulative_summary <- count_cumulative_lights %>%
+  group_by(DRUG, day, lights,SEX,STRAIN) %>%
+  summarise(
+    mean_count = mean(cumulative_count, na.rm = TRUE),
+    sem_count = sd(cumulative_count, na.rm = TRUE) /
+      sqrt(sum(!is.na(cumulative_count))),
+    n = sum(!is.na(cumulative_count)),
+    .groups = "drop"
+  )
+
+#### Bar plot: cumulative counts per light period ####
+
+ggplot(
+  count_cumulative_summary,
+  aes(x = lights, y = mean_count, fill = DRUG)
+) +
+  geom_col(
+    position = position_dodge(width = 0.8),
+    width = 0.7,
+    alpha = 0.8
+  ) +
+  
+  # SEM error bars
+  geom_errorbar(
+    aes(
+      ymin = mean_count - sem_count,
+      ymax = mean_count + sem_count
+    ),
+    position = position_dodge(width = 0.8),
+    width = 0.2,
+    linewidth = 0.6
+  ) +
+  
+  scale_fill_manual(
+    values = c(
+      "vehicle" = "grey60",
+      "RTI_47" = "#E67E22"
+    )
+  ) +
+  
+  labs(
+    x = "Light period",
+    y = "Cumulative locomotor counts (mean ± SEM)",
+    fill = "Treatment"
+  ) +
+  
+  facet_wrap(~day*SEX*STRAIN, nrow = 1) +
+  
+  theme_classic() +
+  theme(
+    text = element_text(family = "Arial"),
+    axis.text.x = element_text(size = 11),
+    axis.text.y = element_text(size = 10),
+    strip.background = element_blank(),
+    strip.text = element_text(size = 12)
+  )
+
+ggplot(
+  count_cumulative_summary,
+  aes(x = lights, y = mean_count, fill = DRUG)
+) +
+  geom_col(
+    position = position_dodge(width = 0.8),
+    width = 0.7,
+    alpha = 0.8
+  ) +
+  
+  # Individual mice
+  geom_point(
+    data = count_cumulative_lights,
+    aes(x = lights, y = cumulative_count, color = DRUG),
+    position = position_jitterdodge(
+      jitter.width = 0.08,
+      dodge.width = 0.8
+    ),
+    size = 2,
+    alpha = 0.7,
+    inherit.aes = FALSE
+  ) +
+  
+  # SEM error bars
+  geom_errorbar(
+    aes(
+      ymin = mean_count - sem_count,
+      ymax = mean_count + sem_count
+    ),
+    position = position_dodge(width = 0.8),
+    width = 0.2,
+    color = "black",
+    linewidth = 0.6
+  ) +
+  
+  scale_fill_manual(
+    values = c(
+      "vehicle" = "grey60",
+      "RTI_47" = "#E67E22"
+    )
+  ) +
+  
+  scale_color_manual(
+    values = c(
+      "vehicle" = "grey20",
+      "RTI_47" = "#A84F00"
+    ),
+    guide = "none"
+  ) +
+  
+  labs(
+    x = "Light period",
+    y = "Cumulative locomotor counts (mean ± SEM)",
+    fill = "Treatment"
+  ) +
+  
+  facet_wrap(~day*SEX*STRAIN, nrow = 1) +
+  
+  theme_classic() +
+  theme(
+    text = element_text(family = "Arial"),
+    axis.text.x = element_text(size = 11, color = "black"),
+    axis.text.y = element_text(size = 10, color = "black"),
+    strip.background = element_blank(),
+    strip.text = element_text(size = 12)
+  )
+
+ggplot(
+  count_cumulative_summary,
+  aes(x = lights, y = mean_count, fill = DRUG)
+) +
+  geom_col(
+    position = position_dodge(width = 0.8),
+    width = 0.7,
+    alpha = 0.8
+  ) +
+  
+  # Individual mice
+  geom_point(
+    data = count_cumulative_lights,
+    aes(x = lights, y = cumulative_count, color = DRUG),
+    position = position_jitterdodge(
+      jitter.width = 0.08,
+      dodge.width = 0.8
+    ),
+    size = 2,
+    alpha = 0.7,
+    inherit.aes = FALSE
+  ) +
+  
+  # Mouse IDs
+  geom_text(
+    data = count_cumulative_lights,
+    aes(
+      x = lights,
+      y = cumulative_count,
+      label = ID,
+      color = DRUG
+    ),
+    position = position_jitterdodge(
+      jitter.width = 0.08,
+      dodge.width = 0.8
+    ),
+    size = 2.5,
+    vjust = -0.8,
+    show.legend = FALSE,
+    inherit.aes = FALSE
+  ) +
+  
+  # SEM error bars
+  geom_errorbar(
+    aes(
+      ymin = mean_count - sem_count,
+      ymax = mean_count + sem_count
+    ),
+    position = position_dodge(width = 0.8),
+    width = 0.2,
+    color = "black",
+    linewidth = 0.6
+  ) +
+  
+  scale_fill_manual(
+    values = c("vehicle" = "grey60", "RTI_47" = "#E67E22")
+  ) +
+  
+  scale_color_manual(
+    values = c("vehicle" = "grey20", "RTI_47" = "#A84F00"),
+    guide = "none"
+  ) +
+  
+  labs(
+    x = "Light period",
+    y = "Cumulative locomotor counts (mean ± SEM)",
+    fill = "Treatment"
+  ) +
+  
+  facet_wrap(~day*SEX*STRAIN, nrow = 1) +
+  
+  theme_classic() +
+  theme(
+    text = element_text(family = "Arial"),
+    axis.text = element_text(size = 11, color = "black"),
+    strip.background = element_blank(),
+    strip.text = element_text(size = 12)
+  )
 
 
 
-#RTIOXA 43 for 5 days 10 mg/kg ----
+# Unpaired Welch's t-test: vehicle vs RTI-47
+t_test_counts <- count_cumulative_lights %>%
+  group_by(STRAIN, SEX, day, lights) %>%
+  t_test(
+    cumulative_count ~ DRUG,
+    paired = FALSE,
+    var.equal = FALSE
+  ) %>%
+  adjust_pvalue(method = "holm") %>%
+  add_significance("p.adj") %>%
+  ungroup()
+
+# View results
+t_test_counts %>%
+  select(STRAIN, SEX, day, lights, group1, group2,
+         n1, n2, statistic, df, p, p.adj, p.adj.signif) 
+
+  print(t_test_counts, n = Inf)
+
+
+  
+  # Prepare the data
+  cal_model_data <- count_cumulative_lights %>%
+    mutate(
+      ID = factor(ID),
+      DRUG = factor(DRUG, levels = c("vehicle", "RTI_47")),
+      STRAIN = factor(STRAIN),
+      SEX = factor(SEX),
+      lights = factor(lights, levels = c("OFF", "ON")),
+      day = factor(day),
+      log_count = log1p(cumulative_count)
+    )
+  
+  # Check that each mouse has one observation per day and light period
+  cal_model_data %>%
+    count(ID, day, lights) %>%
+    filter(n > 1)
+  
+  # Fit the mixed-effects model
+  model_counts <- lmer(
+    log_count ~ DRUG * (STRAIN + SEX + lights) +
+      day + (1 | ID),
+    data = cal_model_data,
+    REML = TRUE
+  )
+  
+  # View the model results
+  summary(model_counts)
+  
+  # Test the fixed effects
+  anova(model_counts, type = 3)
+  
+
+  # Average over strain, sex, light period, and day
+  drug_emm <- emmeans(
+    model_counts,
+    ~ DRUG,
+    weights = "equal"
+  )
+  
+  # Compare RTI-47 with vehicle
+  pairs(drug_emm, adjust = "none")
+  
+  # Display estimated means and confidence intervals
+  summary(drug_emm, infer = TRUE)
+  
+#Drug effect: No statistically significant overall difference was detected.
+#Strain: Locomotor activity differed significantly between C57BL/6J and NZO/HlLtJ mice.
+#Sex: Locomotor activity differed significantly between females and males.
+#Light period: Activity differed significantly between ON and OFF periods.
+#Drug interactions: No significant interactions with strain, sex, or light period were detected.
+
+  
+#end----
+
+  
+  # Start with the final calorimetry dataset
+  cal_counts_long_end <- ical_data_counts_coh8_end %>%
+    pivot_longer(
+      cols = -c(ID, BW, DRUG, SEX, STRAIN),
+      names_to = "DateTime",
+      values_to = "Count"
+    ) %>%
+    mutate(
+      DateTime = as.POSIXct(
+        DateTime,
+        format = "%m/%d/%y %H:%M"
+      ),
+      experiment_start = as.POSIXct("2022-04-05 10:00:00"),
+      day = floor(
+        as.numeric(
+          difftime(DateTime, experiment_start, units = "hours")
+        ) / 24
+      ) + 1
+    )
+  
+  # Check the time range and groups
+  range(cal_counts_long_end$DateTime, na.rm = TRUE)
+  
+  ical_data_counts_coh8_end %>%
+    count(DRUG, STRAIN, SEX)
+  
+  cal_counts_long_end <- cal_counts_long_end %>%
+    mutate(
+      TIME = format(DateTime, "%H:%M:%S"),
+      lights = case_when(
+        TIME >= "20:00:00" | TIME < "06:00:00" ~ "OFF",
+        TIME >= "06:00:00" & TIME < "20:00:00" ~ "ON",
+        TRUE ~ NA_character_
+      )
+    )
+  
+  # Keep only complete 24-hour experimental days
+  count_cumulative_lights_end <- cal_counts_long_end %>%
+    filter(day %in% 1:3, !is.na(lights)) %>%
+    group_by(ID, DRUG, STRAIN, SEX, day, lights) %>%
+    summarise(
+      cumulative_count = sum(Count, na.rm = TRUE),
+      n_measurements = sum(!is.na(Count)),
+      .groups = "drop"
+    )
+  
+  # Check observations per mouse, day, and light period
+  count_cumulative_lights_end %>%
+    count(ID, day, lights) %>%
+    filter(n != 1)
+  
+  # Check recording completeness
+  count_cumulative_lights_end %>%
+    group_by(day, lights) %>%
+    summarise(
+      min_measurements = min(n_measurements),
+      max_measurements = max(n_measurements),
+      .groups = "drop"
+    )
+  
+  cal_counts_long_end %>%
+    distinct(ID, DRUG, STRAIN, SEX) %>%
+    arrange(STRAIN, SEX, DRUG)
+  
+  cal_model_data_end <- count_cumulative_lights_end %>%
+    mutate(
+      ID = factor(ID),
+      DRUG = factor(DRUG, levels = c("vehicle", "RTI_47")),
+      SEX = factor(SEX),
+      lights = factor(lights, levels = c("OFF", "ON")),
+      day = factor(day),
+      log_count = log1p(cumulative_count)
+    )
+  
+  model_counts_end <- lmer(
+    log_count ~ DRUG * (SEX + lights) +
+      day + (1 | ID),
+    data = cal_model_data_end,
+    REML = TRUE
+  )
+  
+  summary(model_counts_end)
+  
+  anova(model_counts_end, type = 3)
+  
+  # Estimated treatment difference averaged across sex,
+  # light period, and day
+  drug_emm_end <- emmeans(
+    model_counts_end,
+    ~ DRUG,
+    weights = "equal"
+  )
+  
+  pairs(drug_emm_end, adjust = "none")
+  summary(drug_emm_end, infer = TRUE)
+
+
+   ggplot(
+    count_cumulative_lights_end,
+    aes(x = DRUG, y = cumulative_count, fill = DRUG)
+  ) +
+    geom_boxplot(
+      alpha = 0.25,
+      width = 0.55,
+      outlier.shape = NA
+    ) +
+    geom_point(
+      aes(color = DRUG),
+      position = position_jitter(width = 0.08),
+      size = 2.5,
+      alpha = 0.8
+    ) +
+    stat_summary(
+      fun = mean,
+      geom = "point",
+      shape = 18,
+      size = 3.5,
+      color = "black"
+    ) 
+   
+   
+   ggplot(
+     count_cumulative_lights_end,
+     aes(x = DRUG, y = cumulative_count, fill = DRUG)
+   ) +
+     geom_boxplot(
+       alpha = 0.20,
+       width = 0.5,
+       outlier.shape = NA
+     ) +
+     geom_point(
+       aes(color = DRUG),
+       position = position_jitter(width = 0.08, height = 0),
+       size = 2.5,
+       alpha = 0.8
+     ) +
+     geom_text_repel(
+       aes(label = ID),
+       size = 3,
+       max.overlaps = Inf,
+       show.legend = FALSE
+     ) +
+     stat_summary(
+       fun = mean,
+       geom = "point",
+       shape = 18,
+       size = 3.5,
+       color = "black"
+     ) +
+     stat_summary(
+       fun.data = mean_se,
+       geom = "errorbar",
+       width = 0.15,
+       color = "black"
+     ) +
+     facet_grid(SEX ~ lights + day) +
+     scale_fill_manual(
+       values = c("vehicle" = "gray60", "RTI_47" = "#E67E22")
+     ) +
+     scale_color_manual(
+       values = c("vehicle" = "gray40", "RTI_47" = "#E67E22")
+     ) +
+     labs(
+       x = "Treatment",
+       y = "Cumulative locomotor counts",
+       title = "End calorimetry: individual locomotor activity",
+       subtitle = "Individual mice labeled by ID; mean ± SEM"
+     ) +
+     theme_classic(base_family = "Arial") +
+     theme(legend.position = "none")
+
+   t_test_counts_end <- count_cumulative_lights_end %>%
+     group_by(SEX, lights, day) %>%
+     t_test(
+       cumulative_count ~ DRUG,
+       paired = FALSE,
+       var.equal = FALSE
+     ) %>%
+     adjust_pvalue(method = "holm") %>%
+     add_significance("p.adj") %>%
+     ungroup()
+   
+   t_test_counts_end
+   
+   #These analyses did not detect a significant difference
+   #in cumulative locomotor counts between vehicle- and RTI-47-treated 
+   #NZO/HlLtJ mice in any sex, light period, or recording day.
+   
+   
+# 4hours after injections----
+   
+   counts_11am_2pm_end <- cal_counts_long_end %>%
+     filter(
+       day %in% 1:3,
+       format(DateTime, "%H:%M:%S") >= "11:00:00",
+       format(DateTime, "%H:%M:%S") <= "14:00:00"
+     ) %>%
+     group_by(ID, DRUG, STRAIN, SEX, day) %>%
+     summarise(
+       count_11am_2pm = sum(Count, na.rm = TRUE),
+       n_measurements = sum(!is.na(Count)),
+       .groups = "drop"
+     ) %>%
+     arrange(ID, day)
+   
+   counts_11am_2pm_end
+   
+   
+   ggplot(
+     counts_11am_2pm_end,
+     aes(x = DRUG, y = count_11am_2pm, fill = DRUG)
+   ) +
+     geom_boxplot(
+       alpha = 0.20,
+       width = 0.5,
+       outlier.shape = NA
+     ) +
+     geom_point(
+       aes(color = DRUG),
+       position = position_jitter(width = 0.08, height = 0),
+       size = 2.5,
+       alpha = 0.8
+     ) +
+     geom_text_repel(
+       aes(label = ID),
+       size = 3,
+       max.overlaps = Inf,
+       show.legend = FALSE
+     ) +
+     stat_summary(
+       fun = mean,
+       geom = "point",
+       shape = 18,
+       size = 3.5,
+       color = "black"
+     ) +
+     stat_summary(
+       fun.data = mean_se,
+       geom = "errorbar",
+       width = 0.15,
+       color = "black"
+     ) +
+     facet_grid(SEX ~ day) +
+     scale_fill_manual(
+       values = c("vehicle" = "gray60", "RTI_47" = "#E67E22")
+     ) +
+     scale_color_manual(
+       values = c("vehicle" = "gray40", "RTI_47" = "#E67E22")
+     ) +
+     labs(
+       x = "Treatment",
+       y = "Cumulative locomotor counts (11 AM–2 PM)",
+       title = "End calorimetry: locomotor activity",
+       subtitle = "Individual mice; mean ± SEM"
+     ) +
+     theme_classic(base_family = "Arial") +
+     theme(legend.position = "none")
+
+   # Unpaired t-tests: 11 AM–2 PM
+   t_test_11am_2pm_end <- counts_11am_2pm_end %>%
+     group_by(SEX, day) %>%
+     t_test(
+       count_11am_2pm ~ DRUG,
+       paired = FALSE,
+       var.equal = FALSE
+     ) %>%
+     adjust_pvalue(method = "holm") %>%
+     add_significance("p.adj") %>%
+     ungroup()
+   
+   # Display results
+   t_test_11am_2pm_end %>%
+     select(
+       SEX, day, group1, group2,
+       n1, n2, statistic, df, p, p.adj, p.adj.signif
+     )
+  
+  #heat also called tee----
+   
+   # End calorimetry: heat ----
+   ical_data_heat_coh8_end <- read_csv(
+     "~/Documents/GitHub/data/data/Coh 1 final calorimetry analysis 04082022_heat.csv"
+   ) %>%
+     rename(ID = Subject) %>%
+     mutate(
+       DRUG = case_when(
+         ID %in% c(13, 15, 17, 19, 21, 23) ~ "vehicle",
+         ID %in% c(14, 16, 18, 20, 22, 24) ~ "RTI_47",
+         TRUE ~ NA_character_
+       ),
+       STRAIN = case_when(
+         ID %in% 13:24 ~ "NZO/HlLtJ",
+         TRUE ~ NA_character_
+       ),
+       SEX = case_when(
+         ID %in% 13:18 ~ "M",
+         ID %in% 19:24 ~ "F",
+         TRUE ~ NA_character_
+       )
+     ) %>%
+     mutate(
+       DRUG = factor(DRUG, levels = c("vehicle", "RTI_47")),
+       STRAIN = factor(STRAIN),
+       SEX = factor(SEX, levels = c("F", "M"))
+     )
+   
+   # Verify animal assignments
+   ical_data_heat_coh8_end %>%
+     distinct(ID, DRUG, STRAIN, SEX) %>%
+     arrange(SEX, DRUG, ID)
+   
+   ical_data_heat_coh8_end %>%
+     count(DRUG, STRAIN, SEX)
+   
+   cal_heat_long_end <- ical_data_heat_coh8_end %>%
+     pivot_longer(
+       cols = -c(ID, BW, DRUG, STRAIN, SEX),
+       names_to = "DateTime",
+       values_to = "Heat"
+     ) %>%
+     mutate(
+       DateTime = as.POSIXct(
+         DateTime,
+         format = "%m/%d/%y %H:%M"
+       ),
+       experiment_start = as.POSIXct("2022-04-05 10:00:00"),
+       day = floor(
+         as.numeric(
+           difftime(DateTime, experiment_start, units = "hours")
+         ) / 24
+       ) + 1,
+       TIME = format(DateTime, "%H:%M:%S"),
+       lights = case_when(
+         TIME >= "21:00:00" | TIME < "06:00:00" ~ "OFF",
+         TIME >= "07:00:00" & TIME < "19:00:00" ~ "ON",
+         TRUE ~ NA_character_
+       )
+     )
+   
+   # Check the recording
+   range(cal_heat_long_end$DateTime, na.rm = TRUE)
+   
+   cal_heat_long_end %>%
+     count(ID, day) %>%
+     filter(day %in% 1:3)
+   
+   heat_cumulative_lights_end <- cal_heat_long_end %>%
+     filter(day %in% 1:3, !is.na(lights)) %>%
+     group_by(ID, DRUG, STRAIN, SEX, day, lights) %>%
+     summarise(
+       cumulative_heat = sum(Heat, na.rm = TRUE),
+       n_measurements = sum(!is.na(Heat)),
+       .groups = "drop"
+     ) %>%
+     arrange(ID, day, lights)
+   
+   # Check recording completeness
+   heat_cumulative_lights_end %>%
+     group_by(day, lights) %>%
+     summarise(
+       min_measurements = min(n_measurements),
+       max_measurements = max(n_measurements),
+       .groups = "drop"
+     )
+   
+   ggplot(
+     heat_cumulative_lights_end,
+     aes(x = DRUG, y = cumulative_heat, fill = DRUG)
+   ) +
+     geom_boxplot(
+       alpha = 0.20,
+       width = 0.5,
+       outlier.shape = NA
+     ) +
+     geom_point(
+       aes(color = DRUG),
+       position = position_jitter(width = 0.08, height = 0),
+       size = 2.5,
+       alpha = 0.8
+     ) +
+     geom_text_repel(
+       aes(label = ID),
+       size = 3,
+       max.overlaps = Inf,
+       show.legend = FALSE
+     ) +
+     stat_summary(
+       fun = mean,
+       geom = "point",
+       shape = 18,
+       size = 3.5,
+       color = "black"
+     ) +
+     stat_summary(
+       fun.data = mean_se,
+       geom = "errorbar",
+       width = 0.15,
+       color = "black"
+     ) +
+     facet_grid(SEX ~ lights + day) +
+     scale_fill_manual(
+       values = c("vehicle" = "gray60", "RTI_47" = "#E67E22")
+     ) +
+     scale_color_manual(
+       values = c("vehicle" = "gray40", "RTI_47" = "#E67E22")
+     ) +
+     labs(
+       x = "Treatment",
+       y = "Cumulative heat (sum of hourly values)",
+       title = "End calorimetry: heat production",
+       subtitle = "Individual mice; mean ± SEM"
+     ) +
+     theme_classic(base_family = "Arial") +
+     theme(legend.position = "none")
+   
+   t_test_heat_lights_end <- heat_cumulative_lights_end %>%
+     group_by(SEX, lights, day) %>%
+     t_test(
+       cumulative_heat ~ DRUG,
+       paired = FALSE,
+       var.equal = FALSE
+     ) %>%
+     adjust_pvalue(method = "holm") %>%
+     add_significance("p.adj") %>%
+     ungroup()
+   
+   t_test_heat_lights_end %>%
+     select(
+       SEX, lights, day,
+       group1, group2, n1, n2,
+       statistic, df, p, p.adj, p.adj.signif
+     )
+   
+   heat_model_data_end <- heat_cumulative_lights_end %>%
+     mutate(
+       ID = factor(ID),
+       DRUG = factor(DRUG, levels = c("vehicle", "RTI_47")),
+       SEX = factor(SEX),
+       lights = factor(lights, levels = c("OFF", "ON")),
+       day = factor(day),
+       log_heat = log1p(cumulative_heat)
+     )
+   
+   model_heat_end <- lmer(
+     log_heat ~ DRUG * (SEX + lights) +
+       day + (1 | ID),
+     data = heat_model_data_end,
+     REML = TRUE
+   )
+   
+   summary(model_heat_end)
+   anova(model_heat_end, type = 3)
+   
+   # Overall treatment comparison, averaged across sex, light period, and day
+   heat_emm_end <- emmeans(
+     model_heat_end,
+     ~ DRUG,
+     weights = "equal"
+   )
+   
+   pairs(heat_emm_end, adjust = "none")
+   summary(heat_emm_end, infer = TRUE)
+   
+#4 hours after injection heat----
+   
+   heat_11am_2pm_end <- cal_heat_long_end %>%
+     filter(
+       day %in% 1:3,
+       format(DateTime, "%H:%M:%S") >= "11:00:00",
+       format(DateTime, "%H:%M:%S") <= "14:00:00"
+     ) %>%
+     group_by(ID, DRUG, STRAIN, SEX, day) %>%
+     summarise(
+       heat_11am_2pm = sum(Heat, na.rm = TRUE),
+       n_measurements = sum(!is.na(Heat)),
+       .groups = "drop"
+     ) %>%
+     arrange(ID, day)
+   
+   # Check that four hourly values are included
+   heat_11am_2pm_end %>%
+     filter(n_measurements != 4)
+   
+   ggplot(
+     heat_11am_2pm_end,
+     aes(x = DRUG, y = heat_11am_2pm, fill = DRUG)
+   ) +
+     geom_boxplot(
+       alpha = 0.20,
+       width = 0.5,
+       outlier.shape = NA
+     ) +
+     geom_point(
+       aes(color = DRUG),
+       position = position_jitter(width = 0.08, height = 0),
+       size = 2.5,
+       alpha = 0.8
+     ) +
+     geom_text_repel(
+       aes(label = ID),
+       size = 3,
+       max.overlaps = Inf,
+       show.legend = FALSE
+     ) +
+     stat_summary(
+       fun = mean,
+       geom = "point",
+       shape = 18,
+       size = 3.5,
+       color = "black"
+     ) +
+     stat_summary(
+       fun.data = mean_se,
+       geom = "errorbar",
+       width = 0.15,
+       color = "black"
+     ) +
+     facet_grid(SEX ~ day) +
+     scale_fill_manual(
+       values = c("vehicle" = "gray60", "RTI_47" = "#E67E22")
+     ) +
+     scale_color_manual(
+       values = c("vehicle" = "gray40", "RTI_47" = "#E67E22")
+     ) +
+     labs(
+       x = "Treatment",
+       y = "Heat (sum of hourly values, 11 AM–2 PM)",
+       title = "End calorimetry: heat during the post-injection window",
+       subtitle = "Individual mice; mean ± SEM"
+     ) +
+     theme_classic(base_family = "Arial") +
+     theme(legend.position = "none")
+   
+   t_test_heat_11am_2pm_end <- heat_11am_2pm_end %>%
+     group_by(SEX, day) %>%
+     t_test(
+       heat_11am_2pm ~ DRUG,
+       paired = FALSE,
+       var.equal = FALSE
+     ) %>%
+     adjust_pvalue(method = "holm") %>%
+     add_significance("p.adj") %>%
+     ungroup()
+   
+   t_test_heat_11am_2pm_end %>%
+     select(
+       SEX, day, group1, group2,
+       n1, n2, statistic, df, p, p.adj, p.adj.signif
+     )
+   
+#heat adjusted by BW----
+   # Add body weight to the model dataset
+   heat_model_data_end <- heat_cumulative_lights_end %>%
+     left_join(
+       ical_data_heat_coh8_end %>%
+         select(ID, BW) %>%
+         distinct(),
+       by = "ID"
+     ) %>%
+     mutate(
+       ID = factor(ID),
+       DRUG = factor(DRUG, levels = c("vehicle", "RTI_47")),
+       SEX = factor(SEX),
+       lights = factor(lights, levels = c("OFF", "ON")),
+       day = factor(day),
+       log_heat = log1p(cumulative_heat)
+     )
+   
+   # Check that BW was added correctly
+   heat_model_data_end %>%
+     select(ID, BW, DRUG, SEX, day, lights, cumulative_heat) %>%
+     head(12)
+   
+   # Check for missing body weights
+   sum(is.na(heat_model_data_end$BW))
+
+   model_heat_BW_end <- lmer(
+     log_heat ~ DRUG * (SEX + lights) +
+       day + BW + (1 | ID),
+     data = heat_model_data_end,
+     REML = TRUE
+   )
+   
+   summary(model_heat_BW_end)
+   anova(model_heat_BW_end, type = 3)
+   
+ ##In NZO/HlLtJ mice, absolute heat values were significantly higher during the light phase than the dark phase. 
+#This effect remained significant after accounting for body weight. 
+#No significant effect of RTI-47 treatment or treatment interactions with sex or light period was detected.
+ 
+   # Center body weight around the overall mean
+   heat_model_data_end <- heat_model_data_end %>%
+     mutate(
+       BW_centered = BW - mean(BW, na.rm = TRUE)
+     )
+   
+   # Refit the model with centered BW
+   model_heat_BW_end <- lmer(
+     log_heat ~ DRUG * (SEX + lights) +
+       day + BW_centered + (1 | ID),
+     data = heat_model_data_end,
+     REML = TRUE
+   )
+   
+   # Adjust each observation to the mean BW using the estimated BW coefficient
+   beta_BW <- fixef(model_heat_BW_end)["BW_centered"]
+   
+   heat_BW_adjusted <- heat_model_data_end %>%
+     mutate(
+       log_heat_adjusted = log_heat - beta_BW * BW_centered,
+       heat_adjusted = expm1(log_heat_adjusted)
+     ) %>%
+     group_by(ID, DRUG, SEX, lights, day) %>%
+     summarise(
+       heat_adjusted = mean(heat_adjusted, na.rm = TRUE),
+       .groups = "drop"
+     ) %>%
+     group_by(ID, DRUG, SEX, lights) %>%
+     summarise(
+       heat_adjusted = mean(heat_adjusted, na.rm = TRUE),
+       .groups = "drop"
+     )
+   
+   # Summary: mean and SEM across individual mice
+   heat_BW_summary <- heat_BW_adjusted %>%
+     group_by(DRUG, SEX, lights) %>%
+     summarise(
+       mean_heat = mean(heat_adjusted, na.rm = TRUE),
+       SEM = sd(heat_adjusted, na.rm = TRUE) / sqrt(n()),
+       n = n(),
+       .groups = "drop"
+     )
+   
+   # Plot
+   ggplot(
+     heat_BW_adjusted,
+     aes(x = DRUG, y = heat_adjusted, color = DRUG)
+   ) +
+     geom_boxplot(
+       aes(fill = DRUG),
+       alpha = 0.15,
+       width = 0.55,
+       outlier.shape = NA
+     ) +
+     geom_point(
+       position = position_jitter(width = 0.07, height = 0),
+       size = 2.5
+     ) +
+     geom_text_repel(
+       aes(label = ID),
+       size = 3,
+       show.legend = FALSE,
+       max.overlaps = Inf
+     ) +
+     geom_errorbar(
+       data = heat_BW_summary,
+       aes(
+         x = DRUG,
+         y = mean_heat,
+         ymin = mean_heat - SEM,
+         ymax = mean_heat + SEM
+       ),
+       inherit.aes = FALSE,
+       color = "black",
+       width = 0.15,
+       linewidth = 0.7
+     ) +
+     geom_point(
+       data = heat_BW_summary,
+       aes(x = DRUG, y = mean_heat),
+       inherit.aes = FALSE,
+       color = "black",
+       shape = 18,
+       size = 3.5
+     ) +
+     facet_grid(SEX ~ lights) +
+     scale_color_manual(
+       values = c("vehicle" = "gray60", "RTI_47" = "#E67E22")
+     ) +
+     scale_fill_manual(
+       values = c("vehicle" = "gray60", "RTI_47" = "#E67E22")
+     ) +
+     labs(
+       x = NULL,
+       y = "BW-adjusted cumulative heat",
+       color = "Treatment",
+       fill = "Treatment"
+     ) +
+     theme_classic(base_family = "Arial") +
+     theme(
+       strip.background = element_blank(),
+       strip.text = element_text(size = 12),
+       axis.text = element_text(size = 11),
+       axis.title.y = element_text(size = 12),
+       legend.position = "top"
+     )
+   
+   
+   
+   #RTIOXA 43 for 5 days 10 mg/kg ----
 ##### group assignation ---------
 # first we used the adiposity index as a criteria to assign the injection groups
 
