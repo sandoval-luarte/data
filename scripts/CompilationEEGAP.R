@@ -3469,12 +3469,16 @@ BW_data <- read_csv("../data/BW.csv") %>%
   #    ID == 7864 & DATE == as.Date ("2025-04-23") ~ "peak obesity", #day before animals start acclimation in ical sable cages
   #    ID == 7864 & DATE > as.Date("2025-04-23") & DATE <= as.Date("2025-07-16") ~ "BW maintenance", #day before acclimation in ical sable cages
    #   ID == 7864 & DATE >= as.Date("2025-08-03") & DATE <= as.Date("2025-08-15") ~ "BW regain/injections", #from day 1 injections to sac
-      
+       ID == 7863 & DATE == as.Date("2024-9-11") ~ "baseline", #second day of HFD
+       ID == 7863 & DATE > as.Date("2024-9-11") & DATE <=as.Date ("2025-02-19") ~ "obesity development", #from baseline to two days before acclimation in ical sable cages
+       ID == 7863 & DATE == as.Date ("2025-02-26") ~ "peak obesity", # one day before acclimation in ical sable cages
+       ID == 7863 & DATE >= as.Date("2025-03-12") & DATE <= as.Date("2025-07-14") ~ "BW loss development", #from restricted day 1 to 2 days before acclimation in ical sable cages
+       ID == 7863 & DATE == as.Date ("2025-07-16") ~ "peak BW loss", #one day before acclimation in ical sable cages
+       ID == 7863 & DATE >= as.Date("2025-08-02") & DATE <= as.Date("2025-08-18") ~ "BW regain/injections", #from day 1 injections to to day 1 before acclimation in ical sable
       TRUE ~ NA_character_
     )
-  )#%>%
-#  filter(ID == 7861 & !is.na(STATUS))
-  
+  )%>%
+  filter(ID %in% c(7861, 7863))
 
 BW_data %>% 
   group_by(STRAIN,SEX,DRUG) %>%
