@@ -3484,10 +3484,39 @@ BW_data <- read_csv("../data/BW.csv") %>%
        ID == 7866 & DATE == as.Date ("2025-05-02") ~ "peak BW loss", #one day before acclimation in ical sable cages
        ID == 7866 & DATE >= as.Date ("2025-05-16") & DATE <= as.Date("2025-07-25")  ~ "BW maintenance", #one day after glucose measurement to one day before acclimation in ical sable cages
        ID == 7866 & DATE >= as.Date("2025-08-11") & DATE <= as.Date("2025-08-27") ~ "BW regain/injections", #from day 1 injections to to day 1 before acclimation in ical sable
-  TRUE ~ NA_character_
+       ID == 7872 & DATE == as.Date("2024-9-11") ~ "baseline", #second day of HFD
+       ID == 7872 & DATE > as.Date("2024-9-11") & DATE <=as.Date ("2025-02-05") ~ "obesity development", #from baseline to two days before acclimation in ical sable cages
+       ID == 7872 & DATE == as.Date ("2025-02-12") ~ "peak obesity", # one day before acclimation in ical sable cages
+       ID == 7872 & DATE >= as.Date("2025-03-12") & DATE <= as.Date("2025-04-28") ~ "BW loss development", #from restricted day 1 to 2 days before acclimation in ical sable cages
+       ID == 7872 & DATE == as.Date ("2025-04-30") ~ "peak BW loss", #one day before acclimation in ical sable cages
+       ID == 7872 & DATE >= as.Date ("2025-05-13") & DATE <= as.Date("2025-07-21")  ~ "BW maintenance", #one day after glucose measurement to one day before acclimation in ical sable cages
+       ID == 7872 & DATE >= as.Date("2025-08-07") & DATE <= as.Date("2025-08-22") ~ "BW regain/injections", #from day 1 injections to to day 1 before acclimation in ical sable
+       ID == 7874 & DATE == as.Date("2024-9-11") ~ "baseline", #second day of HFD
+       ID == 7874 & DATE > as.Date("2024-9-11") & DATE <=as.Date ("2025-02-05") ~ "obesity development", #from baseline to two days before acclimation in ical sable cages
+       ID == 7874 & DATE == as.Date ("2025-02-12") ~ "peak obesity", # one day before acclimation in ical sable cages
+       ID == 7874 & DATE >= as.Date("2025-03-12") & DATE <= as.Date("2025-04-28") ~ "BW loss development", #from restricted day 1 to 2 days before acclimation in ical sable cages
+       ID == 7874 & DATE == as.Date ("2025-04-30") ~ "peak BW loss", #one day before acclimation in ical sable cages
+       ID == 7874 & DATE >= as.Date ("2025-05-13") & DATE <= as.Date("2025-07-21")  ~ "BW maintenance", #one day after glucose measurement to one day before acclimation in ical sable cages
+       ID == 7874 & DATE >= as.Date("2025-08-07") & DATE <= as.Date("2025-08-22") ~ "BW regain/injections", #from day 1 injections to to day 1 before acclimation in ical sable
+       ID == 7877 & DATE == as.Date("2024-9-11") ~ "baseline", #second day of HFD
+       ID == 7877 & DATE > as.Date("2024-9-11") & DATE <=as.Date ("2025-02-05") ~ "obesity development", #from baseline to two days before acclimation in ical sable cages
+       ID == 7877 & DATE == as.Date ("2025-02-12") ~ "peak obesity", # one day before acclimation in ical sable cages
+       ID == 7877 & DATE >= as.Date("2025-03-12") & DATE <= as.Date("2025-04-30") ~ "BW loss development", #from restricted day 1 to 2 days before acclimation in ical sable cages
+       ID == 7877 & DATE == as.Date ("2025-05-02") ~ "peak BW loss", #one day before acclimation in ical sable cages
+       ID == 7877 & DATE >= as.Date ("2025-05-16") & DATE <= as.Date("2025-07-25")  ~ "BW maintenance", #one day after glucose measurement to one day before acclimation in ical sable cages
+       ID == 7877 & DATE >= as.Date("2025-08-11") & DATE <= as.Date("2025-08-27") ~ "BW regain/injections", #from day 1 injections to to day 1 before acclimation in ical sable
+       ID == 7878 & DATE == as.Date("2024-9-11") ~ "baseline", #second day of HFD
+       ID == 7878 & DATE > as.Date("2024-9-11") & DATE <=as.Date ("2025-02-05") ~ "obesity development", #from baseline to two days before acclimation in ical sable cages
+       ID == 7878 & DATE == as.Date ("2025-02-12") ~ "peak obesity", # one day before acclimation in ical sable cages
+       ID == 7878 & DATE >= as.Date("2025-03-12") & DATE <= as.Date("2025-04-21") ~ "BW loss development", #from restricted day 1 to 2 days before acclimation in ical sable cages
+       ID == 7878 & DATE == as.Date ("2025-04-23") ~ "peak BW loss", #one day before acclimation in ical sable cages
+       ID == 7878 & DATE >= as.Date ("2025-05-07") & DATE <= as.Date("2025-07-16")  ~ "BW maintenance", #one day after glucose measurement to one day before acclimation in ical sable cages
+       ID == 7878 & DATE >= as.Date("2025-08-03") & DATE <= as.Date("2025-08-18") ~ "BW regain/injections", #from day 1 injections to to day 1 before acclimation in ical sable
+ TRUE ~ NA_character_
     )
   )%>%
-  filter(ID %in% c(7861, 7863,7865,7866))
+  filter(ID %in% c(7861, 7863,7865,7866,7872,7874,7877,7878)) #%>% 
+ # filter(ID==7861)
 
 BW_data %>% 
   group_by(STRAIN,SEX,DRUG) %>%
@@ -3556,3 +3585,230 @@ plot <- BW_data %>%
 
 plot
 
+# select first and last value per status----
+BW_selected <- BW_data %>%
+  filter(!is.na(STATUS)) %>%
+  group_by(ID, STATUS) %>%
+  arrange(DATE, .by_group = TRUE) %>%
+  mutate(
+    row_number = row_number(),
+    total_rows = n()
+  ) %>%
+  filter(
+    # Single measurements
+    (STATUS %in% c("baseline", "peak obesity", "peak BW loss") &
+       row_number == 1) |
+      
+      # First and last measurements
+      (STATUS %in% c("obesity development",
+                     "BW loss development",
+                     "BW maintenance",
+                     "BW regain/injections") &
+         row_number %in% c(1, total_rows))
+  ) %>%
+  mutate(
+    MEASUREMENT = case_when(
+      STATUS %in% c("baseline", "peak obesity", "peak BW loss") ~ STATUS,
+      row_number == 1 ~ paste(STATUS, "(first)"),
+      row_number == total_rows ~ paste(STATUS, "(last)")
+    )
+  ) %>%
+  ungroup() %>%
+  select(ID, GROUP, DRUG, DATE, STATUS, MEASUREMENT, BW,SEX)
+
+BW_summary <- BW_selected %>%
+  group_by(MEASUREMENT, DRUG, GROUP, SEX) %>%
+  summarise(
+    n = sum(!is.na(BW)),
+    Mean_BW = mean(BW, na.rm = TRUE),
+    SD = sd(BW, na.rm = TRUE),
+    SEM = SD / sqrt(n),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    MEASUREMENT = factor(
+      MEASUREMENT,
+      levels = c(
+        "baseline",
+        "obesity development (first)",
+        "obesity development (last)",
+        "peak obesity",
+        "BW loss development (first)",
+        "BW loss development (last)",
+        "peak BW loss",
+        "BW maintenance (first)",
+        "BW maintenance (last)",
+        "BW regain/injections (first)",
+        "BW regain/injections (last)"
+      )
+    )
+  ) %>%
+  arrange(SEX, GROUP, DRUG, MEASUREMENT) %>% 
+  mutate(
+    DRUG = factor(DRUG, levels = c("vehicle", "RTIOXA_47"))
+  )
+
+# Calculate BW as percentage of baseline ----
+BW_selected <- BW_selected %>%
+  group_by(ID) %>%
+  mutate(
+    Baseline_BW = BW[STATUS == "baseline"][1],
+    BW_percent = (BW / Baseline_BW) * 100
+  ) %>%
+  ungroup() %>% 
+  mutate(
+    MEASUREMENT = factor(
+      MEASUREMENT,
+      levels = c(
+        "baseline",
+        "obesity development (first)",
+        "obesity development (last)",
+        "peak obesity",
+        "BW loss development (first)",
+        "BW loss development (last)",
+        "peak BW loss",
+        "BW maintenance (first)",
+        "BW maintenance (last)",
+        "BW regain/injections (first)",
+        "BW regain/injections (last)"
+      )
+    )
+  ) 
+
+  BW_selected <- BW_selected %>%
+  group_by(ID) %>%
+  arrange(DATE, .by_group = TRUE) %>%
+  mutate(
+    BW_lag_percent = BW_percent - lag(BW_percent)
+  ) %>%
+  ungroup()
+  
+  # Calculate delta BW percentage per STATUS and ID ----
+  BW_delta_percent <- BW_selected %>%
+    filter(
+      STATUS %in% c(
+        "obesity development",
+        "BW loss development",
+        "BW maintenance",
+        "BW regain/injections"
+      )
+    ) %>%
+    group_by(ID, GROUP, DRUG, SEX, STATUS) %>%
+    arrange(DATE, .by_group = TRUE) %>%
+    summarise(
+      BW_percent_first = first(BW_percent),
+      BW_percent_last = last(BW_percent),
+      Delta_BW_percent = BW_percent_last - BW_percent_first,
+      .groups = "drop"
+    )
+  
+  # Add baseline and peak measurements to delta BW percentage ----
+  
+  BW_absolute_percent <- BW_selected %>%
+    filter(STATUS %in% c(
+      "baseline",
+      "peak obesity",
+      "peak BW loss"
+    )) %>%
+    select(ID, GROUP, DRUG, SEX, STATUS, BW_lag_percent) %>%
+    mutate(
+      Delta_BW_percent = if_else(
+        STATUS == "baseline",
+        100,
+        BW_lag_percent
+      )
+    ) %>%
+    select(-BW_lag_percent)
+  
+  # Combine absolute and delta measurements ----
+  
+  BW_percent_summary_data <- bind_rows(
+    BW_absolute_percent,
+    BW_delta_percent %>%
+      select(ID, GROUP, DRUG, SEX, STATUS, Delta_BW_percent)
+  ) %>%
+    mutate(
+      STATUS = factor(
+        STATUS,
+        levels = c(
+          "baseline",
+          "obesity development",
+          "peak obesity",
+          "BW loss development",
+          "peak BW loss",
+          "BW maintenance",
+          "BW regain/injections"
+        )
+      )
+    ) %>%
+    arrange(ID, STATUS)
+  
+  BW_percent_summary <- BW_percent_summary_data %>%
+    group_by(STATUS, SEX, GROUP, DRUG) %>%
+    summarise(
+      n = sum(!is.na(Delta_BW_percent)),
+      Mean = mean(Delta_BW_percent, na.rm = TRUE),
+      SD = sd(Delta_BW_percent, na.rm = TRUE),
+      SEM = SD / sqrt(n),
+      .groups = "drop"
+    ) %>%
+    mutate(
+      STATUS = factor(
+        STATUS,
+        levels = c(
+          "baseline",
+          "obesity development",
+          "peak obesity",
+          "BW loss development",
+          "peak BW loss",
+          "BW maintenance",
+          "BW regain/injections"
+        )
+      ),
+      DRUG = factor(DRUG, levels = c("vehicle", "RTIOXA_47"))
+    ) %>%
+    arrange(SEX, GROUP, DRUG, STATUS)
+  ggplot(
+    BW_percent_summary,
+    aes(x = STATUS, y = Mean, fill = DRUG)
+  ) +
+    geom_col(
+      position = position_dodge(0.8),
+      width = 0.7
+    ) +
+    geom_errorbar(
+      aes(
+        ymin = Mean - SEM,
+        ymax = Mean + SEM
+      ),
+      position = position_dodge(0.8),
+      width = 0.2
+    ) +
+    geom_hline(
+      yintercept = 0,
+      linetype = "dashed",
+      color = "black",
+      alpha = 0.5
+    ) +
+    facet_grid(SEX ~ GROUP) +
+    scale_fill_manual(
+      values = c(
+        "vehicle" = "gray60",
+        "RTIOXA_47" = "#E67E22"
+      )
+    ) +
+    labs(
+      x = NULL,
+      y = "Change in body weight (% of baseline)",
+      fill = "Treatment"
+    ) +
+    theme_classic() +
+    theme(
+      axis.text.x = element_text(
+        angle = 45,
+        hjust = 1,
+        vjust = 1,
+        size = 10
+      )
+    )  
+  
