@@ -266,7 +266,7 @@ filter(!grepl("-", ID)) %>%  #I eliminate from metadata all animals that were me
   mutate(ID = as.numeric(ID)) 
 
 BW_data <- read_csv("../data/BW.csv") %>% 
-  filter(COHORT %in% c(15, 16, 18)) %>% 
+  filter(COHORT %in% c(16, 18)) %>% 
  filter(!ID ==9406) %>%  #9406 has a  weird pattern in locomotion
   mutate(DATE = ymd(DATE)) %>% 
   arrange(DATE) %>% 
@@ -294,7 +294,7 @@ BW_data <- read_csv("../data/BW.csv") %>%
   filter(week_rel<=18) 
 
 BW_data  %>% 
-  group_by(SEX) %>%
+  group_by(ID,BPA_EXPOSURE,DIET_FORMULA) %>%
   summarise(n_ID = n_distinct(ID)) %>% 
  print(n = Inf)
 
