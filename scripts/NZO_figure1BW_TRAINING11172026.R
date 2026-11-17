@@ -37,15 +37,14 @@ BW_data <- read_csv("../data/BW.csv") %>%
   mutate(
     STATUS = case_when(
       day_rel == 0 ~ "baseline", 
+      DATE == as.Date("2025-02-24") ~ "peak obesity",
+      day_rel == 161 ~ "BW loss",
       COMMENTS == "DAY_1_INJECTIONS" ~ "BW maintenance", 
       COMMENTS == "DAY_4_SABLE_AND_SAC" ~ "BW regain",
-      day_rel == 161 ~ "BW loss",
-      DATE == as.Date("2025-02-24") ~ "peak obesity",
       TRUE ~ NA_character_
     )
   ) %>%
-  filter(!is.na(STATUS)) %>% 
-  filter(!(ID == 3726 & DATE == as.Date("2025-04-28")))  #repeated
+  filter(!is.na(STATUS)) 
 
 
 # Make STATUS an ordered factor
@@ -191,8 +190,6 @@ summary(model)
 #R uses one category from each categorical variable as the reference against which the other categories are compared.
 #Based on your output, your reference categories appear to be: STATUS: Baseline (the omitted category),  GROUP: Unrestricted (the omitted category) and DRUG: RTI-47 (the omitted category).
 #This is important because all the coefficients in your output are interpreted relative to this reference condition, unless they represent interactions.
-
-
 
 # Save emmeans results
 emmeans_results <- emmeans(model, pairwise ~ STATUS * GROUP, adjust = "tukey")
