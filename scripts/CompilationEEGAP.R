@@ -3441,82 +3441,50 @@ BW_data <- read_csv("../data/BW.csv") %>%
   )%>%
   mutate(
     STATUS = case_when(
-     # ID == 7860 & DATE == as.Date("2024-9-11") ~ "baseline", #second day of HFD
-     # ID == 7860 & DATE > as.Date("2024-9-11") & DATE <=as.Date ("2025-02-24") ~ "obesity development",
-     # ID == 7860 & DATE == as.Date ("2025-02-26") ~ "peak obesity", #day before animals start acclimation in ical sable cages
-    #  ID == 7860 & DATE > as.Date("2025-02-26") & DATE <= as.Date("2025-07-30") ~ "BW maintenance", #day before acclimation in ical sable cages
-     # ID == 7860 & DATE >= as.Date("2025-08-16") & DATE <= as.Date("2025-09-10") ~ "BW regain/injections", #from day 1 injections to sac
       ID == 7861 & DATE == as.Date("2024-9-11") ~ "baseline", #second day of HFD
-      ID == 7861 & DATE > as.Date("2024-9-11") & DATE <=as.Date ("2025-02-19") ~ "obesity development", #from baseline to two days before acclimation in ical sable cages
-      ID == 7861 & DATE == as.Date ("2025-02-26") ~ "peak obesity", # one day before acclimation in ical sable cages
-      ID == 7861 & DATE >= as.Date("2025-03-12") & DATE <= as.Date("2025-04-21") ~ "BW loss development", #from restricted day 1 to 2 days before acclimation in ical sable cages
-      ID == 7861 & DATE == as.Date ("2025-04-23") ~ "peak BW loss", #one day before acclimation in ical sable cages
+      ID == 7861 & DATE > as.Date("2024-9-11") & DATE <=as.Date ("2025-02-26") ~ "obesity development", #from baseline to one day before acclimation in ical sable cages
+      ID == 7861 & DATE >= as.Date("2025-03-12") & DATE <= as.Date("2025-04-23") ~ "BW loss", #from restricted day 1 to one day before acclimation in ical sable cages
       ID == 7861 & DATE >= as.Date ("2025-05-07") & DATE <= as.Date("2025-07-16")  ~ "BW maintenance", #one day after glucose measurement to one day before acclimation in ical sable cages
       ID == 7861 & DATE >= as.Date("2025-08-02") & DATE <= as.Date("2025-08-15") ~ "BW regain/injections", #from day 1 injections to to day 1 before acclimation in ical sable
-    #  ID == 7862 & DATE == as.Date("2024-9-11") ~ "baseline", #second day of HFD
-     # ID == 7862 & DATE > as.Date("2024-9-11") & DATE <=as.Date ("2025-02-19") ~ "obesity development",
-    #  ID == 7862 & DATE == as.Date ("2025-02-26") ~ "peak obesity", #day before animals start acclimation in ical sable cages
-    #  ID == 7862 & DATE > as.Date("2025-02-26") & DATE <= as.Date("2025-07-16") ~ "BW maintenance", #day before acclimation in ical sable cages
-     # ID == 7862 & DATE >= as.Date("2025-08-02") & DATE <= as.Date("2025-08-27") ~ "BW regain/injections", #from day 1 injections to sac
       ID == 7863 & DATE == as.Date("2024-9-11") ~ "baseline", #second day of HFD
-      ID == 7863 & DATE > as.Date("2024-9-11") & DATE <=as.Date ("2025-02-19") ~ "obesity development", #from baseline to two days before acclimation in ical sable cages
-      ID == 7863 & DATE == as.Date ("2025-02-26") ~ "peak obesity", # one day before acclimation in ical sable cages
-      ID == 7863 & DATE >= as.Date("2025-03-12") & DATE <= as.Date("2025-04-21") ~ "BW loss development", #from restricted day 1 to 2 days before acclimation in ical sable cages
-      ID == 7863 & DATE == as.Date ("2025-04-23") ~ "peak BW loss", #one day before acclimation in ical sable cages
+      ID == 7863 & DATE > as.Date("2024-9-11") & DATE <=as.Date ("2025-02-26") ~ "obesity development", #from baseline to one day before acclimation in ical sable cages
+      ID == 7863 & DATE >= as.Date("2025-03-12") & DATE <= as.Date("2025-04-23") ~ "BW loss", #from restricted day 1 to one day before acclimation in ical sable cages
       ID == 7863 & DATE >= as.Date ("2025-05-07") & DATE <= as.Date("2025-07-16")  ~ "BW maintenance", #one day after glucose measurement to one day before acclimation in ical sable cages
       ID == 7863 & DATE >= as.Date("2025-08-02") & DATE <= as.Date("2025-08-18") ~ "BW regain/injections", #from day 1 injections to to day 1 before acclimation in ical sable
- #     ID == 7864 & DATE == as.Date("2024-9-11") ~ "baseline", #second day of HFD
-  #    ID == 7864 & DATE > as.Date("2024-9-11") & DATE <=as.Date ("2025-04-16") ~ "obesity development",
-  #    ID == 7864 & DATE == as.Date ("2025-04-23") ~ "peak obesity", #day before animals start acclimation in ical sable cages
-  #    ID == 7864 & DATE > as.Date("2025-04-23") & DATE <= as.Date("2025-07-16") ~ "BW maintenance", #day before acclimation in ical sable cages
-   #   ID == 7864 & DATE >= as.Date("2025-08-03") & DATE <= as.Date("2025-08-15") ~ "BW regain/injections", #from day 1 injections to sac
-       ID == 7865 & DATE == as.Date("2024-9-11") ~ "baseline", #second day of HFD
-       ID == 7865 & DATE > as.Date("2024-9-11") & DATE <=as.Date ("2025-02-19") ~ "obesity development", #from baseline to two days before acclimation in ical sable cages
-       ID == 7865 & DATE == as.Date ("2025-02-26") ~ "peak obesity", # one day before acclimation in ical sable cages
-       ID == 7865 & DATE >= as.Date("2025-03-12") & DATE <= as.Date("2025-04-21") ~ "BW loss development", #from restricted day 1 to 2 days before acclimation in ical sable cages
-       ID == 7865 & DATE == as.Date ("2025-04-23") ~ "peak BW loss", #one day before acclimation in ical sable cages
-       ID == 7865 & DATE >= as.Date ("2025-05-07") & DATE <= as.Date("2025-07-16")  ~ "BW maintenance", #one day after glucose measurement to one day before acclimation in ical sable cages
-       ID == 7865 & DATE >= as.Date("2025-08-03") & DATE <= as.Date("2025-08-18") ~ "BW regain/injections", #from day 1 injections to to day 1 before acclimation in ical sable
-       ID == 7866 & DATE == as.Date("2024-9-11") ~ "baseline", #second day of HFD
-       ID == 7866 & DATE > as.Date("2024-9-11") & DATE <=as.Date ("2025-02-19") ~ "obesity development", #from baseline to two days before acclimation in ical sable cages
-       ID == 7866 & DATE == as.Date ("2025-02-26") ~ "peak obesity", # one day before acclimation in ical sable cages
-       ID == 7866 & DATE >= as.Date("2025-03-12") & DATE <= as.Date("2025-04-30") ~ "BW loss development", #from restricted day 1 to 2 days before acclimation in ical sable cages
-       ID == 7866 & DATE == as.Date ("2025-05-02") ~ "peak BW loss", #one day before acclimation in ical sable cages
-       ID == 7866 & DATE >= as.Date ("2025-05-16") & DATE <= as.Date("2025-07-25")  ~ "BW maintenance", #one day after glucose measurement to one day before acclimation in ical sable cages
-       ID == 7866 & DATE >= as.Date("2025-08-11") & DATE <= as.Date("2025-08-27") ~ "BW regain/injections", #from day 1 injections to to day 1 before acclimation in ical sable
-       ID == 7872 & DATE == as.Date("2024-9-11") ~ "baseline", #second day of HFD
-       ID == 7872 & DATE > as.Date("2024-9-11") & DATE <=as.Date ("2025-02-05") ~ "obesity development", #from baseline to two days before acclimation in ical sable cages
-       ID == 7872 & DATE == as.Date ("2025-02-12") ~ "peak obesity", # one day before acclimation in ical sable cages
-       ID == 7872 & DATE >= as.Date("2025-03-12") & DATE <= as.Date("2025-04-28") ~ "BW loss development", #from restricted day 1 to 2 days before acclimation in ical sable cages
-       ID == 7872 & DATE == as.Date ("2025-04-30") ~ "peak BW loss", #one day before acclimation in ical sable cages
-       ID == 7872 & DATE >= as.Date ("2025-05-13") & DATE <= as.Date("2025-07-21")  ~ "BW maintenance", #one day after glucose measurement to one day before acclimation in ical sable cages
-       ID == 7872 & DATE >= as.Date("2025-08-07") & DATE <= as.Date("2025-08-22") ~ "BW regain/injections", #from day 1 injections to to day 1 before acclimation in ical sable
-       ID == 7874 & DATE == as.Date("2024-9-11") ~ "baseline", #second day of HFD
-       ID == 7874 & DATE > as.Date("2024-9-11") & DATE <=as.Date ("2025-02-05") ~ "obesity development", #from baseline to two days before acclimation in ical sable cages
-       ID == 7874 & DATE == as.Date ("2025-02-12") ~ "peak obesity", # one day before acclimation in ical sable cages
-       ID == 7874 & DATE >= as.Date("2025-03-12") & DATE <= as.Date("2025-04-28") ~ "BW loss development", #from restricted day 1 to 2 days before acclimation in ical sable cages
-       ID == 7874 & DATE == as.Date ("2025-04-30") ~ "peak BW loss", #one day before acclimation in ical sable cages
-       ID == 7874 & DATE >= as.Date ("2025-05-13") & DATE <= as.Date("2025-07-21")  ~ "BW maintenance", #one day after glucose measurement to one day before acclimation in ical sable cages
-       ID == 7874 & DATE >= as.Date("2025-08-07") & DATE <= as.Date("2025-08-22") ~ "BW regain/injections", #from day 1 injections to to day 1 before acclimation in ical sable
-       ID == 7877 & DATE == as.Date("2024-9-11") ~ "baseline", #second day of HFD
-       ID == 7877 & DATE > as.Date("2024-9-11") & DATE <=as.Date ("2025-02-05") ~ "obesity development", #from baseline to two days before acclimation in ical sable cages
-       ID == 7877 & DATE == as.Date ("2025-02-12") ~ "peak obesity", # one day before acclimation in ical sable cages
-       ID == 7877 & DATE >= as.Date("2025-03-12") & DATE <= as.Date("2025-04-30") ~ "BW loss development", #from restricted day 1 to 2 days before acclimation in ical sable cages
-       ID == 7877 & DATE == as.Date ("2025-05-02") ~ "peak BW loss", #one day before acclimation in ical sable cages
-       ID == 7877 & DATE >= as.Date ("2025-05-16") & DATE <= as.Date("2025-07-25")  ~ "BW maintenance", #one day after glucose measurement to one day before acclimation in ical sable cages
-       ID == 7877 & DATE >= as.Date("2025-08-11") & DATE <= as.Date("2025-08-27") ~ "BW regain/injections", #from day 1 injections to to day 1 before acclimation in ical sable
-       ID == 7878 & DATE == as.Date("2024-9-11") ~ "baseline", #second day of HFD
-       ID == 7878 & DATE > as.Date("2024-9-11") & DATE <=as.Date ("2025-02-05") ~ "obesity development", #from baseline to two days before acclimation in ical sable cages
-       ID == 7878 & DATE == as.Date ("2025-02-12") ~ "peak obesity", # one day before acclimation in ical sable cages
-       ID == 7878 & DATE >= as.Date("2025-03-12") & DATE <= as.Date("2025-04-21") ~ "BW loss development", #from restricted day 1 to 2 days before acclimation in ical sable cages
-       ID == 7878 & DATE == as.Date ("2025-04-23") ~ "peak BW loss", #one day before acclimation in ical sable cages
-       ID == 7878 & DATE >= as.Date ("2025-05-07") & DATE <= as.Date("2025-07-16")  ~ "BW maintenance", #one day after glucose measurement to one day before acclimation in ical sable cages
-       ID == 7878 & DATE >= as.Date("2025-08-03") & DATE <= as.Date("2025-08-18") ~ "BW regain/injections", #from day 1 injections to to day 1 before acclimation in ical sable
+      ID == 7865 & DATE == as.Date("2024-9-11") ~ "baseline", #second day of HFD
+      ID == 7865 & DATE > as.Date("2024-9-11") & DATE <=as.Date ("2025-02-26") ~ "obesity development", #from baseline to one day before acclimation in ical sable cages
+      ID == 7865 & DATE >= as.Date("2025-03-12") & DATE <= as.Date("2025-04-23") ~ "BW loss", #from restricted day 1 to one day before acclimation in ical sable cages
+      ID == 7865 & DATE >= as.Date ("2025-05-07") & DATE <= as.Date("2025-07-16")  ~ "BW maintenance", #one day after glucose measurement to one day before acclimation in ical sable cages
+      ID == 7865 & DATE >= as.Date("2025-08-03") & DATE <= as.Date("2025-08-18") ~ "BW regain/injections", #from day 1 injections to to day 1 before acclimation in ical sable
+      ID == 7866 & DATE == as.Date("2024-9-11") ~ "baseline", #second day of HFD
+      ID == 7866 & DATE > as.Date("2024-9-11") & DATE <=as.Date ("2025-02-26") ~ "obesity development", #from baseline to one day before acclimation in ical sable cages
+      ID == 7866 & DATE >= as.Date("2025-03-12") & DATE <= as.Date("2025-05-02") ~ "BW loss", #from restricted day 1 to one day before acclimation in ical sable cages
+      ID == 7866 & DATE >= as.Date ("2025-05-16") & DATE <= as.Date("2025-07-25")  ~ "BW maintenance", #one day after glucose measurement to one day before acclimation in ical sable cages
+      ID == 7866 & DATE >= as.Date("2025-08-11") & DATE <= as.Date("2025-08-27") ~ "BW regain/injections", #from day 1 injections to to day 1 before acclimation in ical sable
+      ID == 7872 & DATE == as.Date("2024-9-11") ~ "baseline", #second day of HFD
+      ID == 7872 & DATE > as.Date("2024-9-11") & DATE <=as.Date ("2025-02-12") ~ "obesity development", #from baseline to one day before acclimation in ical sable cages
+      ID == 7872 & DATE >= as.Date("2025-03-12") & DATE <= as.Date("2025-04-30") ~ "BW loss", #from restricted day 1 to one day before acclimation in ical sable cages
+      ID == 7872 & DATE >= as.Date ("2025-05-13") & DATE <= as.Date("2025-07-21")  ~ "BW maintenance", #one day after glucose measurement to one day before acclimation in ical sable cages
+      ID == 7872 & DATE >= as.Date("2025-08-07") & DATE <= as.Date("2025-08-22") ~ "BW regain/injections", #from day 1 injections to to day 1 before acclimation in ical sable
+      ID == 7874 & DATE == as.Date("2024-9-11") ~ "baseline", #second day of HFD
+      ID == 7874 & DATE > as.Date("2024-9-11") & DATE <=as.Date ("2025-02-12") ~ "obesity development", #from baseline to one day before acclimation in ical sable cages
+      ID == 7874 & DATE >= as.Date("2025-03-12") & DATE <= as.Date("2025-04-30") ~ "BW loss", #from restricted day 1 to one day before acclimation in ical sable cages
+      ID == 7874 & DATE >= as.Date ("2025-05-13") & DATE <= as.Date("2025-07-21")  ~ "BW maintenance", #one day after glucose measurement to one day before acclimation in ical sable cages
+      ID == 7874 & DATE >= as.Date("2025-08-07") & DATE <= as.Date("2025-08-22") ~ "BW regain/injections", #from day 1 injections to to day 1 before acclimation in ical sable
+      ID == 7877 & DATE == as.Date("2024-9-11") ~ "baseline", #second day of HFD
+      ID == 7877 & DATE > as.Date("2024-9-11") & DATE <=as.Date ("2025-02-12") ~ "obesity development", #from baseline to one day before acclimation in ical sable cages
+      ID == 7877 & DATE >= as.Date("2025-03-12") & DATE <= as.Date("2025-05-02") ~ "BW loss", #from restricted day 1 to one day before acclimation in ical sable cages
+      ID == 7877 & DATE >= as.Date ("2025-05-16") & DATE <= as.Date("2025-07-25")  ~ "BW maintenance", #one day after glucose measurement to one day before acclimation in ical sable cages
+      ID == 7877 & DATE >= as.Date("2025-08-11") & DATE <= as.Date("2025-08-27") ~ "BW regain/injections", #from day 1 injections to to day 1 before acclimation in ical sable
+      ID == 7878 & DATE == as.Date("2024-9-11") ~ "baseline", #second day of HFD
+      ID == 7878 & DATE > as.Date("2024-9-11") & DATE <=as.Date ("2025-02-12") ~ "obesity development", #from baseline to one day before acclimation in ical sable cages
+      ID == 7878 & DATE >= as.Date("2025-03-12") & DATE <= as.Date("2025-04-23") ~ "BW loss", #from restricted day 1 to one day before acclimation in ical sable cages
+      ID == 7878 & DATE >= as.Date ("2025-05-07") & DATE <= as.Date("2025-07-16")  ~ "BW maintenance", #one day after glucose measurement to one day before acclimation in ical sable cages
+      ID == 7878 & DATE >= as.Date("2025-08-03") & DATE <= as.Date("2025-08-18") ~ "BW regain/injections", #from day 1 injections to to day 1 before acclimation in ical sable
  TRUE ~ NA_character_
     )
   )%>%
-  filter(ID %in% c(7861, 7863,7865,7866,7872,7874,7877,7878)) #%>% 
- # filter(ID==7861)
+  filter(ID %in% c(7861, 7863,7865,7866,7872,7874,7877,7878)) 
 
 BW_data %>% 
   group_by(STRAIN,SEX,DRUG) %>%
@@ -3526,22 +3494,16 @@ highlight_data <- BW_data %>%
   filter(STATUS == "baseline") #blue
 
 highlight_data_1 <- BW_data %>%
-  filter(STATUS == "obesity development") #orange
+  filter(STATUS == "obesity development") #red
 
 highlight_data_2 <- BW_data %>%
-  filter(STATUS == "peak obesity") #red
+  filter(STATUS == "BW loss") #green
 
 highlight_data_3 <- BW_data %>%
-  filter(STATUS == "BW maintenance") #salmon
+  filter(STATUS == "BW maintenance") #orange
 
 highlight_data_4 <- BW_data %>%
-  filter(STATUS == "BW regain/injections") #green
-
-highlight_data_5 <- BW_data %>%
-  filter(STATUS == "BW loss development") #skyblue
-
-highlight_data_6 <- BW_data %>%
-  filter(STATUS == "peak BW loss") #navyblue
+  filter(STATUS == "BW regain/injections") #purple
 
 #format plot
 
@@ -3570,23 +3532,20 @@ plot <- BW_data %>%
   geom_vline(data = highlight_data, aes(xintercept = DATE),
              linetype = "dashed", color = "blue", alpha = 0.7) + #baseline
   geom_vline(data = highlight_data_1, aes(xintercept = DATE),
-             linetype = "dashed", color = "orange", alpha = 0.7) +# obesity development
+             linetype = "dashed", color = "red", alpha = 0.7) + #peak obesity
   geom_vline(data = highlight_data_2, aes(xintercept = DATE),
-             linetype = "dashed", color = "purple", alpha = 0.7) + #peak obesity
+             linetype = "dashed", color = "green", alpha = 0.7) + #peak bw loss
   geom_vline(data = highlight_data_3, aes(xintercept = DATE),
-             linetype = "dashed", color = "brown", alpha = 0.7) +#bw maintenance
+             linetype = "dashed", color = "orange", alpha = 0.7) +#bw maintenance
   geom_vline(data = highlight_data_4, aes(xintercept = DATE),
-             linetype = "dashed", color = "green", alpha = 0.7) + #BW regain/injections
-  geom_vline(data = highlight_data_5, aes(xintercept = DATE),
-             linetype = "dashed", color = "red", alpha = 0.7) + #BW loss development
- geom_vline(data = highlight_data_6, aes(xintercept = DATE),
-             linetype = "dashed", color = "black", alpha = 0.7)+
+             linetype = "dashed", color = "purple", alpha = 0.7) + #BW regain/injections
   format.plot
 
 plot
 
 # select first and last value per status----
 BW_selected <- BW_data %>%
+  ungroup() %>% 
   filter(!is.na(STATUS)) %>%
   group_by(ID, STATUS) %>%
   arrange(DATE, .by_group = TRUE) %>%
@@ -3596,25 +3555,29 @@ BW_selected <- BW_data %>%
   ) %>%
   filter(
     # Single measurements
-    (STATUS %in% c("baseline", "peak obesity", "peak BW loss") &
+    (STATUS == "baseline") &
        row_number == 1) |
       
       # First and last measurements
       (STATUS %in% c("obesity development",
-                     "BW loss development",
+                     "BW loss",
                      "BW maintenance",
                      "BW regain/injections") &
-         row_number %in% c(1, total_rows))
-  ) %>%
+         row_number %in% c(1, total_rows))) %>%
   mutate(
     MEASUREMENT = case_when(
-      STATUS %in% c("baseline", "peak obesity", "peak BW loss") ~ STATUS,
+      STATUS =="baseline") ~ STATUS,
       row_number == 1 ~ paste(STATUS, "(first)"),
       row_number == total_rows ~ paste(STATUS, "(last)")
     )
-  ) %>%
+  ) 
+
+%>%
   ungroup() %>%
   select(ID, GROUP, DRUG, DATE, STATUS, MEASUREMENT, BW,SEX)
+
+
+
 
 BW_summary <- BW_selected %>%
   group_by(MEASUREMENT, DRUG, GROUP, SEX) %>%
@@ -3630,11 +3593,7 @@ BW_summary <- BW_selected %>%
       MEASUREMENT,
       levels = c(
         "baseline",
-        "obesity development (first)",
-        "obesity development (last)",
         "peak obesity",
-        "BW loss development (first)",
-        "BW loss development (last)",
         "peak BW loss",
         "BW maintenance (first)",
         "BW maintenance (last)",
@@ -3661,11 +3620,7 @@ BW_selected <- BW_selected %>%
       MEASUREMENT,
       levels = c(
         "baseline",
-        "obesity development (first)",
-        "obesity development (last)",
         "peak obesity",
-        "BW loss development (first)",
-        "BW loss development (last)",
         "peak BW loss",
         "BW maintenance (first)",
         "BW maintenance (last)",
@@ -3687,8 +3642,6 @@ BW_selected <- BW_selected %>%
   BW_delta_percent <- BW_selected %>%
     filter(
       STATUS %in% c(
-        "obesity development",
-        "BW loss development",
         "BW maintenance",
         "BW regain/injections"
       )
@@ -3732,9 +3685,7 @@ BW_selected <- BW_selected %>%
         STATUS,
         levels = c(
           "baseline",
-          "obesity development",
           "peak obesity",
-          "BW loss development",
           "peak BW loss",
           "BW maintenance",
           "BW regain/injections"
@@ -3757,9 +3708,7 @@ BW_selected <- BW_selected %>%
         STATUS,
         levels = c(
           "baseline",
-          "obesity development",
           "peak obesity",
-          "BW loss development",
           "peak BW loss",
           "BW maintenance",
           "BW regain/injections"
