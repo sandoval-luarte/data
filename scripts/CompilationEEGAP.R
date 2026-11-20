@@ -3414,7 +3414,7 @@ plot_47_foodintake
 
 #clearly both groups ate the same, cuek
 
-#  RTIOXA-47 × 5 weeks -----
+#  RTIOXA-47 × 5 weeks in OD -----
 
 ##BW longitudinal----
 
@@ -3543,9 +3543,10 @@ plot <- BW_data %>%
 
 plot
 
-# select first and last value per status----
+  # Select first and last values per status ----
+
 BW_selected <- BW_data %>%
-  ungroup() %>% 
+  ungroup() %>%
   filter(!is.na(STATUS)) %>%
   group_by(ID, STATUS) %>%
   arrange(DATE, .by_group = TRUE) %>%
@@ -3554,210 +3555,366 @@ BW_selected <- BW_data %>%
     total_rows = n()
   ) %>%
   filter(
-    # Single measurements
-    (STATUS == "baseline") &
-       row_number == 1) |
+    # Keep one measurement for baseline
+    (STATUS == "baseline" & row_number == 1) |
       
-      # First and last measurements
-      (STATUS %in% c("obesity development",
-                     "BW loss",
-                     "BW maintenance",
-                     "BW regain/injections") &
-         row_number %in% c(1, total_rows))) %>%
-  mutate(
-    MEASUREMENT = case_when(
-      STATUS =="baseline") ~ STATUS,
-      row_number == 1 ~ paste(STATUS, "(first)"),
-      row_number == total_rows ~ paste(STATUS, "(last)")
-    )
-  ) 
-
-%>%
-  ungroup() %>%
-  select(ID, GROUP, DRUG, DATE, STATUS, MEASUREMENT, BW,SEX)
-
-
-
-
-BW_summary <- BW_selected %>%
-  group_by(MEASUREMENT, DRUG, GROUP, SEX) %>%
-  summarise(
-    n = sum(!is.na(BW)),
-    Mean_BW = mean(BW, na.rm = TRUE),
-    SD = sd(BW, na.rm = TRUE),
-    SEM = SD / sqrt(n),
-    .groups = "drop"
-  ) %>%
-  mutate(
-    MEASUREMENT = factor(
-      MEASUREMENT,
-      levels = c(
-        "baseline",
-        "peak obesity",
-        "peak BW loss",
-        "BW maintenance (first)",
-        "BW maintenance (last)",
-        "BW regain/injections (first)",
-        "BW regain/injections (last)"
-      )
-    )
-  ) %>%
-  arrange(SEX, GROUP, DRUG, MEASUREMENT) %>% 
-  mutate(
-    DRUG = factor(DRUG, levels = c("vehicle", "RTIOXA_47"))
-  )
-
-# Calculate BW as percentage of baseline ----
-BW_selected <- BW_selected %>%
-  group_by(ID) %>%
-  mutate(
-    Baseline_BW = BW[STATUS == "baseline"][1],
-    BW_percent = (BW / Baseline_BW) * 100
-  ) %>%
-  ungroup() %>% 
-  mutate(
-    MEASUREMENT = factor(
-      MEASUREMENT,
-      levels = c(
-        "baseline",
-        "peak obesity",
-        "peak BW loss",
-        "BW maintenance (first)",
-        "BW maintenance (last)",
-        "BW regain/injections (first)",
-        "BW regain/injections (last)"
-      )
-    )
-  ) 
-
-  BW_selected <- BW_selected %>%
-  group_by(ID) %>%
-  arrange(DATE, .by_group = TRUE) %>%
-  mutate(
-    BW_lag_percent = BW_percent - lag(BW_percent)
-  ) %>%
-  ungroup()
-  
-  # Calculate delta BW percentage per STATUS and ID ----
-  BW_delta_percent <- BW_selected %>%
-    filter(
-      STATUS %in% c(
+      # Keep first and last measurements for all other statuses
+      (STATUS %in% c(
+        "obesity development",
+        "BW loss",
         "BW maintenance",
         "BW regain/injections"
-      )
-    ) %>%
-    group_by(ID, GROUP, DRUG, SEX, STATUS) %>%
-    arrange(DATE, .by_group = TRUE) %>%
-    summarise(
-      BW_percent_first = first(BW_percent),
-      BW_percent_last = last(BW_percent),
-      Delta_BW_percent = BW_percent_last - BW_percent_first,
-      .groups = "drop"
+      ) & row_number %in% c(1, total_rows))
+  ) %>%
+  mutate(
+    MEASUREMENT = case_when(
+      STATUS == "baseline" ~ "baseline",
+      row_number == 1 ~ "first",
+      row_number == total_rows ~ "last"
     )
+  ) %>%
+  ungroup() %>%
+  select(ID, GROUP, DRUG, DATE, STATUS, MEASUREMENT, BW, SEX)
+
+# Extract baseline BW per animal
+BW_baseline <- BW_selected %>%
+  filter(STATUS == "baseline") %>%
+  select(ID, BW_baseline = BW)
+
+# Keep only last measurements and calculate percentage change
+BW_pct <- BW_selected %>%
+  filter(
+    STATUS == "baseline" |
+      MEASUREMENT == "last"
+  ) %>%
+  left_join(BW_baseline, by = "ID") %>%
+  mutate(
+    BW_pct = ((BW - BW_baseline) / BW_baseline) * 100,
+    STATUS = factor(
+      STATUS,
+      levels = c(
+        "baseline",
+        "obesity development",
+        "BW loss",
+        "BW maintenance",
+        "BW regain/injections"
+      ),
+      labels = c(
+        "baseline",
+        "peak obesity",
+        "BW loss",
+        "BW maintenance",
+        "BW regain"
+      )
+    )
+  )
+
+BW_pct_summary <- BW_pct %>%
+  group_by(DRUG, STATUS,SEX) %>%
+  summarise(
+    n = n(),
+    mean = mean(BW_pct, na.rm = TRUE),
+    SEM = sd(BW_pct, na.rm = TRUE) / sqrt(n),
+    .groups = "drop"
+  )
+
+plot_BW_pct <- ggplot(
+  BW_pct_summary,
+  aes(x = STATUS, y = mean, color = DRUG)
+) +
+  geom_hline(
+    yintercept = 0,
+    linetype = "dashed",
+    color = "gray60"
+  ) +
+  geom_point(
+    position = position_dodge(width = 0.4),
+    size = 3
+  ) +
+  geom_errorbar(
+    aes(ymin = mean - SEM, ymax = mean + SEM),
+    position = position_dodge(width = 0.4),
+    width = 0.2
+  ) +
+  scale_color_manual(
+    values = c(
+      "vehicle" = "gray60",
+      "RTIOXA_47" = "#E67E22"
+    )
+  ) +
+  labs(
+    x = NULL,
+    y = "BW change from baseline (%)",
+    color = "Drug"
+  ) +
+  theme_classic() +
+  theme(
+    axis.text = element_text(family = "Arial", size = 11),
+    axis.title = element_text(family = "Arial", size = 13),
+    axis.text.x = element_text(angle = 30, hjust = 1)
+  )+
+  facet_wrap(~SEX)
+
+plot_BW_pct
+
+BW_ttest <- BW_pct %>%
+  group_by(STATUS,SEX) %>%
+  t_test(
+    BW_pct ~ DRUG,
+    var.equal = TRUE
+  ) %>%
+  adjust_pvalue(method = "BH") %>%
+  add_significance("p.adj")
+
+BW_ttest
+
+BW_pct <- BW_pct %>%
+  mutate(
+    DRUG_analysis = case_when(
+      STATUS == "BW regain" ~ as.character(DRUG),
+      TRUE ~ "All animals"
+    ),
+    DRUG_analysis = factor(
+      DRUG_analysis,
+      levels = c("All animals", "vehicle", "RTIOXA_47")
+    )
+  )
+
+BW_pct_summary <- BW_pct %>%
+  group_by(STATUS, DRUG_analysis,SEX) %>%
+  summarise(
+    n = n(),
+    mean = mean(BW_pct, na.rm = TRUE),
+    SEM = sd(BW_pct, na.rm = TRUE) / sqrt(n),
+    .groups = "drop"
+  )
+
+#Statistical analysis: 
+#I would separate the analyses into two questions.
+#A. Before drug injections
+#For baseline, peak obesity, BW loss, and BW maintenance:
+# I did not compare vehicle versus RTIOXA_47.
+# All animals belong to one experimental population.
+# Because the same animals were measured across periods, use a repeated-measures approach, such as a linear mixed-effects model.
+
+BW_pre <- BW_pct %>%
+  filter(STATUS != "BW regain")
+
+model_pre <- lmer(
+  BW_pct ~ STATUS * SEX + (1 | ID),
+  data = BW_pre
+)
+
+anova(model_pre)
+
+#STATUS***, BW changes across periods
+
+#This means that percentage change in BW from baseline differs 
+#across the experimental periods.
+#Biologically, this is consistent with animals gaining weight 
+#during obesity development, losing weight during the restriction period, 
+#and potentially changing again during maintenance.
+
+#SEX *, Overall difference between sexes
+# There is a significant overall difference between males and females
+#in BW percentage change.
+#However, because the STATUS × SEX interaction is significant,
+#we need to be careful interpreting this main effect. 
+#The average difference between sexes depends on the experimental period.
+
+#STATUS:SEX**, BW trajectory differs by sex
+#It indicates that the trajectory of BW percentage change across
+#experimental periods differs between males and females.
+#For example, males and females might differ in:
+#The magnitude of BW gain during obesity development.
+#The magnitude of BW loss.
+#Their ability to maintain the reduced BW.
+
+#We need post hoc comparisons to identify exactly where these 
+# differences occur:
+
+#1. Compare males versus females within each STATUS:
+
+emm_sex <- emmeans(
+  model_pre,
+  ~ SEX | STATUS
+)
+
+pairs(emm_sex, adjust = "tukey")
+
+#Your contrast is F − M (female minus male). Therefore:
+#A negative estimate means females had a lower percentage BW change than males.
+#A positive estimate means females had a higher percentage BW change than males.
+
+#Baseline	No difference
+#Peak obesity:	Females had a significantly lower BW change
+#BW loss: Females had a significantly lower BW change
+#BW maintenance: Females had a significantly lower BW change
+
+#Our results suggest that sex differences in percentage BW change emerged after baseline.
+
+#2. Compare STATUS within males versus females:
+#This will tell us, for example, whether BW loss differs 
+#significantly from peak obesity in males, females, or both.
+
+emm_status <- emmeans(
+  model_pre,
+  ~ STATUS | SEX
+)
+
+pairs(emm_status, adjust = "tukey")
+
+BW_regain_ttest <- BW_pct %>%
+  filter(SEX=="M") %>% 
+  filter(STATUS == "BW regain") %>%
+  t_test(
+    BW_pct ~ DRUG,
+    var.equal = FALSE
+  )
+
+BW_regain_ttest
+
+BW_pct_summary <- BW_pct %>%
+  mutate(
+    GROUP_PLOT = case_when(
+      STATUS == "BW regain" ~ paste(SEX, DRUG, sep = "_"),
+      TRUE ~ as.character(SEX)
+    ),
+    DRUG_PLOT = ifelse(
+      STATUS == "BW regain",
+      as.character(DRUG),
+      "vehicle"
+    )
+  ) %>%
+  group_by(STATUS, GROUP_PLOT, SEX, DRUG_PLOT) %>%
+  summarise(
+    n = n(),
+    mean = mean(BW_pct, na.rm = TRUE),
+    SEM = sd(BW_pct, na.rm = TRUE) / sqrt(n),
+    .groups = "drop"
+  ) %>%
+  rename(DRUG = DRUG_PLOT)
+
+ggplot() +
   
-  # Add baseline and peak measurements to delta BW percentage ----
+  # Individual animal trajectories
+  geom_line(
+    data = BW_pct,
+    aes(
+      x = STATUS,
+      y = BW_pct,
+      group = ID,
+      color = SEX
+    ),
+    alpha = 0.25,
+    linewidth = 0.6
+  ) +
   
-  BW_absolute_percent <- BW_selected %>%
-    filter(STATUS %in% c(
+  # Individual observations
+  geom_point(
+    data = BW_pct,
+    aes(
+      x = STATUS,
+      y = BW_pct,
+      color = SEX,
+      shape = DRUG
+    ),
+    size = 2.8,
+    alpha = 0.75
+  ) +
+  
+  # Mean ± SEM
+  geom_errorbar(
+    data = BW_pct_summary,
+    aes(
+      x = STATUS,
+      ymin = mean - SEM,
+      ymax = mean + SEM,
+      color = SEX,
+      group = GROUP_PLOT
+    ),
+    width = 0.15,
+    linewidth = 0.8,
+    position = position_dodge(width = 0.5)
+  ) +
+  
+  geom_point(
+    data = BW_pct_summary,
+    aes(
+      x = STATUS,
+      y = mean,
+      color = SEX,
+      shape = DRUG,
+      group = GROUP_PLOT
+    ),
+    size = 4,
+    position = position_dodge(width = 0.5)
+  ) +
+  
+  # Division between maintenance and injection phase
+  geom_vline(
+    xintercept = 4.5,
+    linetype = "dashed",
+    color = "black",
+    linewidth = 0.7
+  ) +
+  
+  scale_color_manual(
+    values = c(
+      "F" = "#E67E22",
+      "M" = "gray40"
+    ),
+    labels = c(
+      "F" = "Females",
+      "M" = "Males"
+    )
+  ) +
+  
+  scale_shape_manual(
+    values = c(
+      "vehicle" = 16,
+      "RTIOXA_47" = 17
+    ),
+    labels = c(
+      "vehicle" = "Vehicle",
+      "RTIOXA_47" = "RTIOXA-47"
+    )
+  ) +
+  
+  scale_x_discrete(
+    limits = c(
       "baseline",
       "peak obesity",
-      "peak BW loss"
-    )) %>%
-    select(ID, GROUP, DRUG, SEX, STATUS, BW_lag_percent) %>%
-    mutate(
-      Delta_BW_percent = if_else(
-        STATUS == "baseline",
-        100,
-        BW_lag_percent
-      )
-    ) %>%
-    select(-BW_lag_percent)
-  
-  # Combine absolute and delta measurements ----
-  
-  BW_percent_summary_data <- bind_rows(
-    BW_absolute_percent,
-    BW_delta_percent %>%
-      select(ID, GROUP, DRUG, SEX, STATUS, Delta_BW_percent)
-  ) %>%
-    mutate(
-      STATUS = factor(
-        STATUS,
-        levels = c(
-          "baseline",
-          "peak obesity",
-          "peak BW loss",
-          "BW maintenance",
-          "BW regain/injections"
-        )
-      )
-    ) %>%
-    arrange(ID, STATUS)
-  
-  BW_percent_summary <- BW_percent_summary_data %>%
-    group_by(STATUS, SEX, GROUP, DRUG) %>%
-    summarise(
-      n = sum(!is.na(Delta_BW_percent)),
-      Mean = mean(Delta_BW_percent, na.rm = TRUE),
-      SD = sd(Delta_BW_percent, na.rm = TRUE),
-      SEM = SD / sqrt(n),
-      .groups = "drop"
-    ) %>%
-    mutate(
-      STATUS = factor(
-        STATUS,
-        levels = c(
-          "baseline",
-          "peak obesity",
-          "peak BW loss",
-          "BW maintenance",
-          "BW regain/injections"
-        )
-      ),
-      DRUG = factor(DRUG, levels = c("vehicle", "RTIOXA_47"))
-    ) %>%
-    arrange(SEX, GROUP, DRUG, STATUS)
-  ggplot(
-    BW_percent_summary,
-    aes(x = STATUS, y = Mean, fill = DRUG)
+      "BW loss",
+      "BW maintenance",
+      "BW regain"
+    ),
+    labels = c(
+      "Baseline",
+      "Peak obesity",
+      "BW loss",
+      "BW maintenance",
+      "BW regain /\ninjections"
+    )
   ) +
-    geom_col(
-      position = position_dodge(0.8),
-      width = 0.7
-    ) +
-    geom_errorbar(
-      aes(
-        ymin = Mean - SEM,
-        ymax = Mean + SEM
-      ),
-      position = position_dodge(0.8),
-      width = 0.2
-    ) +
-    geom_hline(
-      yintercept = 0,
-      linetype = "dashed",
-      color = "black",
-      alpha = 0.5
-    ) +
-    facet_grid(SEX ~ GROUP) +
-    scale_fill_manual(
-      values = c(
-        "vehicle" = "gray60",
-        "RTIOXA_47" = "#E67E22"
-      )
-    ) +
-    labs(
-      x = NULL,
-      y = "Change in body weight (% of baseline)",
-      fill = "Treatment"
-    ) +
-    theme_classic() +
-    theme(
-      axis.text.x = element_text(
-        angle = 45,
-        hjust = 1,
-        vjust = 1,
-        size = 10
-      )
-    )  
   
+  labs(
+    x = "Experimental phase",
+    y = "Body weight change from baseline (%)",
+    color = "Sex",
+    shape = "Treatment",
+    title = "Body weight change across experimental phases"
+  ) +
+  
+  theme_classic() +
+  theme(
+    text = element_text(family = "Arial", size = 12),
+    axis.text.x = element_text(
+      angle = 25,
+      hjust = 1,
+      color = "black"
+    ),
+    axis.text.y = element_text(color = "black"),
+    legend.position = "top"
+  )+
+  facet_wrap(~SEX)
