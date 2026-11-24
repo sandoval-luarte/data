@@ -3481,7 +3481,12 @@ BW_data <- read_csv("../data/BW.csv") %>%
       ID == 7878 & DATE >= as.Date("2025-03-12") & DATE <= as.Date("2025-04-23") ~ "BW loss", #from restricted day 1 to one day before acclimation in ical sable cages
       ID == 7878 & DATE >= as.Date ("2025-05-07") & DATE <= as.Date("2025-07-16")  ~ "BW maintenance", #one day after glucose measurement to one day before acclimation in ical sable cages
       ID == 7878 & DATE >= as.Date("2025-08-03") & DATE <= as.Date("2025-08-18") ~ "BW regain/injections", #from day 1 injections to to day 1 before acclimation in ical sable
- TRUE ~ NA_character_
+      ID == 3708 & DATE == as.Date("2024-9-11") ~ "baseline", #second day of HFD
+      ID == 3708 & DATE > as.Date("2024-9-11") & DATE <=as.Date ("2025-02-26") ~ "obesity development", #from baseline to one day before acclimation in ical sable cages
+      ID == 3708 & DATE >= as.Date("2025-03-12") & DATE <= as.Date("2025-04-23") ~ "BW loss", #from restricted day 1 to one day before acclimation in ical sable cages
+      ID == 3708 & DATE >= as.Date ("2025-05-07") & DATE <= as.Date("2025-07-16")  ~ "BW maintenance", #one day after glucose measurement to one day before acclimation in ical sable cages
+      
+      TRUE ~ NA_character_
     )
   )%>%
   filter(ID %in% c(7861, 7863,7865,7866,7872,7874,7877,7878)) 
@@ -3820,7 +3825,7 @@ ggplot() +
       shape = DRUG
     ),
     size = 2.8,
-    alpha = 0.75
+    alpha = 0.1
   ) +
   
   # Mean ± SEM
@@ -3918,3 +3923,528 @@ ggplot() +
     legend.position = "top"
   )+
   facet_wrap(~SEX)
+
+# Prepare data for individual slope analysis ----
+
+slope_data <- BW_data %>%
+  filter(
+    STATUS %in% c(
+      "baseline",
+      "obesity development",
+      "BW loss",
+      "BW regain/injections"
+    )
+  ) %>%
+  mutate(
+    PHASE = case_when(
+      STATUS %in% c("baseline", "obesity development") ~
+        "Obesity development",
+      STATUS == "BW loss" ~ "BW loss",
+      STATUS == "BW regain/injections" ~
+        "BW regain/injections"
+    )
+  ) %>%
+  group_by(ID, PHASE) %>%
+  arrange(DATE, .by_group = TRUE) %>%
+  mutate(
+    TIME_days = as.numeric(DATE - first(DATE))
+  ) %>%
+  ungroup() %>%
+  mutate(
+    PHASE = factor(
+      PHASE,
+      levels = c(
+        "Obesity development",
+        "BW loss",
+        "BW regain/injections"
+      )
+    ),
+    DRUG = factor(
+      DRUG,
+      levels = c("vehicle", "RTIOXA_47")
+    )
+  )
+
+slope_data %>%
+  group_by(ID, DRUG, SEX, PHASE) %>%
+  summarise(
+    first_date = min(DATE),
+    last_date = max(DATE),
+    n_measurements = n(),
+    duration_days = as.numeric(max(DATE) - min(DATE)),
+    .groups = "drop"
+  ) %>% 
+  print(n = Inf)
+
+# Calculate individual BW slopes ----
+
+animal_slopes <- slope_data %>%
+  group_by(ID, DRUG, SEX, PHASE) %>%
+  group_modify(~ {
+    
+    model <- lm(
+      BW ~ TIME_days,
+      data = .x
+    )
+    
+    tibble(
+      SLOPE_g_day = coef(model)[["TIME_days"]],
+      INTERCEPT = coef(model)[["(Intercept)"]],
+      R2 = summary(model)$r.squared,
+      n_measurements = nrow(.x)
+    )
+    
+  }) %>%
+  ungroup()
+
+
+# 1. Obesity development: effect of SEX
+
+model_obesity <- lm(
+  SLOPE_g_day ~ SEX,
+  data = animal_slopes %>%
+    filter(PHASE == "Obesity development")
+)
+
+anova(model_obesity)
+
+emmeans(model_obesity, pairwise ~ SEX)
+
+#Males exhibited a substantially faster rate of body weight gain than females
+#during obesity development. This difference was statistically significant, 
+#suggesting that sex influenced the progression of obesity in this cohort.
+
+#BW loss: effect of SEX
+
+model_loss <- lm(
+  SLOPE_g_day ~ SEX,
+  data = animal_slopes %>%
+    filter(PHASE == "BW loss")
+)
+
+anova(model_loss)
+
+emmeans(model_loss, pairwise ~ SEX)
+
+#Males exhibited a substantially faster rate of BW loss than females during
+#the BW loss phase. This indicates that sex strongly influenced the weight-loss 
+#trajectory in this cohort.
+
+#Interestingly, this is consistent with the obesity-development phase, in which
+#males also gained weight faster than females. However, during BW loss, 
+#the difference between sexes was particularly pronounced.
+
+
+#3. test whether RTIOXA-47 had different effects in males versus females.
+
+model_regain_sex <- lm(
+  SLOPE_g_day ~ DRUG * SEX,
+  data = animal_slopes %>%
+    filter(PHASE == "BW regain/injections")
+)
+
+anova(model_regain_sex)
+
+emmeans(model_regain_sex, pairwise ~ DRUG | SEX)
+
+#During the BW regain/injection phase, the rate of body weight gain did 
+#not differ significantly between RTIOXA-47- and vehicle-treated animals 
+#(0.270 ± 0.0701 vs. 0.241 ± 0.0701 g/day, respectively; p = 0.7863). 
+#This comparison was adjusted for SEX, indicating no detectable treatment 
+#effect after accounting for sex-related differences in BW regain.
+
+emmeans(model_regain, pairwise ~ SEX) 
+#This analysis tells us whether males and females differed in their
+#rate of body weight regain, averaging across the two treatment groups 
+#(vehicle and RTIOXA-47).
+
+#This means males regained approximately 0.244 g/day faster than females, after accounting for DRUG.
+#The difference did not reach statistical significance (p = 0.0575), 
+#although it approached the conventional threshold of 0.05.
+
+regain_plot_data <- animal_slopes %>%
+  filter(PHASE == "BW regain/injections") %>%
+  mutate(
+    DRUG = factor(DRUG, levels = c("vehicle", "RTIOXA_47")),
+    SEX = factor(SEX, levels = c("F", "M"))
+  )
+
+ggplot(regain_plot_data,
+       aes(x = DRUG, y = SLOPE_g_day, color = DRUG)) +
+  geom_jitter(width = 0.06, size = 3, alpha = 0.85) +
+  stat_summary(
+    fun = mean,
+    geom = "point",
+    shape = 18,
+    size = 4,
+    color = "black"
+  ) +
+  stat_summary(
+    fun.data = mean_se,
+    geom = "errorbar",
+    width = 0.12,
+    linewidth = 0.8,
+    color = "black"
+  ) +
+  facet_wrap(~ SEX, labeller = as_labeller(c(
+    "F" = "Females",
+    "M" = "Males"
+  ))) +
+  scale_color_manual(
+    values = c(
+      "vehicle" = "gray60",
+      "RTIOXA_47" = "#E67E22"
+    ),
+    labels = c(
+      "vehicle" = "Vehicle",
+      "RTIOXA_47" = "RTIOXA-47"
+    )
+  ) +
+  labs(
+    x = "",
+    y = "BW regain rate (g/day)",
+    color = "Treatment"
+  ) +
+  theme_classic(base_size = 14) +
+  theme(
+    text = element_text(family = "Arial"),
+    legend.position = "top",
+    axis.text = element_text(color = "black"),
+    axis.title = element_text(color = "black"),
+    strip.background = element_blank(),
+    strip.text = element_text(face = "bold")
+  )
+
+
+#collapsing by sex----
+
+# BW regain/injections: overall effect of DRUG
+
+model_regain_drug <- lm(
+  SLOPE_g_day ~ DRUG,
+  data = animal_slopes %>%
+    filter(PHASE == "BW regain/injections")
+)
+
+anova(model_regain_drug)
+
+emmeans(model_regain_drug, pairwise ~ DRUG)
+
+regain_plot_data <- animal_slopes %>%
+  filter(PHASE == "BW regain/injections") %>%
+  mutate(
+    DRUG = factor(
+      DRUG,
+      levels = c("vehicle", "RTIOXA_47")
+    )
+  )
+
+ggplot(regain_plot_data,
+       aes(x = DRUG, y = SLOPE_g_day, color = DRUG)) +
+  
+  geom_jitter(
+    width = 0.06,
+    size = 3,
+    alpha = 0.85
+  ) +
+  
+  stat_summary(
+    fun = mean,
+    geom = "point",
+    shape = 18,
+    size = 4,
+    color = "black"
+  ) +
+  
+  stat_summary(
+    fun.data = mean_se,
+    geom = "errorbar",
+    width = 0.12,
+    linewidth = 0.8,
+    color = "black"
+  ) +
+  
+  scale_color_manual(
+    values = c(
+      "vehicle" = "gray60",
+      "RTIOXA_47" = "#E67E22"
+    ),
+    labels = c(
+      "vehicle" = "Vehicle",
+      "RTIOXA_47" = "RTIOXA-47"
+    )
+  ) +
+  
+  labs(
+    x = "",
+    y = "BW regain rate (g/day)",
+    color = "Treatment"
+  ) +
+  
+  theme_classic(base_size = 14) +
+  
+  theme(
+    text = element_text(family = "Arial"),
+    legend.position = "none",
+    axis.text = element_text(color = "black"),
+    axis.title = element_text(color = "black")
+  )
+
+
+#BW regained relative to BW at the end of maintenance----
+#How much weight was gained during the injection period
+#relative to the maintained reduced BW? we used the three last
+#measurement of BW maintenance and the three last measurements of
+#the BW regain
+
+# Mean of the last 3 measurements during maintenance
+maintenance_mean <- BW_data %>%
+  filter(STATUS == "BW maintenance") %>%
+  group_by(ID, DRUG, SEX) %>%
+  arrange(DATE, .by_group = TRUE) %>%
+  slice_tail(n = 3) %>%
+  summarise(
+    BW_maintenance_mean = mean(BW, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Mean of the last 3 measurements during injections
+injection_mean <- BW_data %>%
+  filter(STATUS == "BW regain/injections") %>%
+  group_by(ID, DRUG, SEX) %>%
+  arrange(DATE, .by_group = TRUE) %>%
+  slice_tail(n = 3) %>%
+  summarise(
+    BW_injection_mean = mean(BW, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Calculate BW change
+BW_regain_3mean <- maintenance_mean %>%
+  inner_join(injection_mean, by = c("ID", "DRUG", "SEX")) %>%
+  mutate(
+    BW_change_g = BW_injection_mean - BW_maintenance_mean
+  )
+
+BW_regain_3mean
+
+model_BW_regain <- lm(
+  BW_change_g ~ DRUG + SEX,
+  data = BW_regain_3mean
+)
+
+anova(model_BW_regain)
+
+emmeans(model_BW_regain, pairwise ~ DRUG)
+
+#how much of the body weight that animals lost after reaching peak obesity
+#was recovered during the RTIOXA-47 or vehicle injection period ----
+
+peak_summary <- BW_data %>%
+filter(STATUS == "obesity development") %>%
+  group_by(ID, DRUG, SEX) %>%
+  arrange(DATE, .by_group = TRUE) %>%
+  summarise(
+    BW_peak_obesity = mean(tail(BW, 3), na.rm = TRUE),
+    .groups = "drop"
+  )
+
+loss_summary <- BW_data %>%
+  filter(STATUS == "BW loss") %>%
+  group_by(ID, DRUG, SEX) %>%
+  arrange(DATE, .by_group = TRUE) %>%
+  summarise(
+    BW_end_loss = mean(tail(BW, 3), na.rm = TRUE),
+    .groups = "drop"
+  )
+
+BW_lost_summary <- peak_summary %>%
+  inner_join(
+    loss_summary,
+    by = c("ID", "DRUG", "SEX")
+  ) %>%
+  mutate(
+    BW_lost_g = BW_peak_obesity - BW_end_loss
+  )
+
+BW_lost_summary
+
+maintenance_summary <- BW_data %>%
+  filter(STATUS == "BW maintenance") %>%
+  group_by(ID, DRUG, SEX) %>%
+  arrange(DATE, .by_group = TRUE) %>%
+  summarise(
+    BW_maintenance = mean(tail(BW, 3), na.rm = TRUE),
+    .groups = "drop"
+  )
+
+injection_summary <- BW_data %>%
+  filter(STATUS == "BW regain/injections") %>%
+  group_by(ID, DRUG, SEX) %>%
+  arrange(DATE, .by_group = TRUE) %>%
+  summarise(
+    BW_end_injections = mean(tail(BW, 3), na.rm = TRUE),
+    .groups = "drop"
+  )
+
+BW_regain_percentage <- BW_lost_summary %>%
+  inner_join(maintenance_summary,
+             by = c("ID", "DRUG", "SEX")) %>%
+  inner_join(injection_summary,
+             by = c("ID", "DRUG", "SEX")) %>%
+  mutate(
+    BW_regained_g = BW_end_injections - BW_maintenance,
+    PCT_BW_REGAINED = (BW_regained_g / BW_lost_g) * 100
+  )
+
+BW_regain_percentage %>%
+  select(
+    ID, DRUG, SEX,
+    BW_peak_obesity,
+    BW_end_loss,
+    BW_lost_g,
+    BW_maintenance,
+    BW_end_injections,
+    BW_regained_g,
+    PCT_BW_REGAINED
+  ) %>%
+  arrange(DRUG, SEX)
+
+
+ggplot(
+  BW_regain_percentage,
+  aes(x = DRUG, y = PCT_BW_REGAINED, color = DRUG)
+) +
+  geom_jitter(width = 0.06, size = 3, alpha = 0.9) +
+  stat_summary(
+    fun = mean,
+    geom = "point",
+    shape = 18,
+    size = 4,
+    color = "black"
+  ) +
+  stat_summary(
+    fun.data = mean_se,
+    geom = "errorbar",
+    width = 0.12,
+    color = "black",
+    linewidth = 0.8
+  ) +
+ # facet_wrap(~ SEX, labeller = as_labeller(c(
+ #   F = "Females",
+  #  M = "Males"
+ # ))) +
+  scale_color_manual(
+    values = c(
+      "vehicle" = "gray60",
+      "RTIOXA_47" = "#E67E22"
+    ),
+    labels = c(
+      "vehicle" = "Vehicle",
+      "RTIOXA_47" = "RTIOXA-47"
+    )
+  ) +
+  geom_hline(yintercept = 100, linetype = "dashed",
+             color = "gray40") +
+  labs(
+    x = "",
+    y = "Previously lost BW regained (%)",
+    color = "Treatment"
+  ) +
+  theme_classic(base_size = 14) +
+  theme(
+    text = element_text(family = "Arial"),
+    legend.position = "top",
+    axis.text = element_text(color = "black"),
+    axis.title = element_text(color = "black"),
+    strip.background = element_blank(),
+    strip.text = element_text(face = "bold")
+  )
+
+
+model_regain_percentage <- lm(
+  PCT_BW_REGAINED ~ DRUG + SEX,
+  data = BW_regain_percentage
+)
+
+anova(model_regain_percentage)
+
+emmeans(model_regain_percentage, pairwise ~ DRUG)
+
+emmeans(model_regain_percentage, pairwise ~ SEX)
+
+# During the BW regain/injection phase, RTIOXA-47-treated animals exhibited 
+#a numerically lower percentage of previously lost BW regained compared with
+#vehicle-treated animals (67.9 ± 17.8% vs. 103.0 ± 17.8%, respectively). 
+#However, this difference did not reach statistical significance (p = 0.2222). 
+#No significant overall effect of sex was observed (p = 0.8651).
+
+#the last idea means 
+#It means that, when combining the two treatment groups (RTIOXA-47 and vehicle)
+#we did not find evidence that males and females differed in the percentage of 
+#previously lost body weight they regained.
+
+ggplot(
+  BW_regain_percentage,
+  aes(x = DRUG, y = PCT_BW_REGAINED, color = DRUG)
+) +
+  geom_jitter(width = 0.06, size = 3, alpha = 0.9) +
+  stat_summary(
+    fun = mean,
+    geom = "point",
+    shape = 18,
+    size = 4,
+    color = "black"
+  ) +
+  stat_summary(
+    fun.data = mean_se,
+    geom = "errorbar",
+    width = 0.12,
+    color = "black",
+    linewidth = 0.8
+  ) +
+  facet_wrap(~ SEX, labeller = as_labeller(c(
+    F = "Females",
+    M = "Males"
+  ))) +
+  scale_color_manual(
+    values = c(
+      "vehicle" = "gray60",
+      "RTIOXA_47" = "#E67E22"
+    ),
+    labels = c(
+      "vehicle" = "Vehicle",
+      "RTIOXA_47" = "RTIOXA-47"
+    )
+  ) +
+  geom_hline(
+    yintercept = 100,
+    linetype = "dashed",
+    color = "gray40"
+  ) +
+  labs(
+    x = "",
+    y = "Previously lost BW regained (%)",
+    color = "Treatment"
+  ) +
+  theme_classic(base_size = 14) +
+  theme(
+    text = element_text(family = "Arial"),
+    legend.position = "top",
+    axis.text = element_text(color = "black"),
+    axis.title = element_text(color = "black"),
+    strip.background = element_blank(),
+    strip.text = element_text(face = "bold")
+  )
+
+model_regain_percentage_sex <- lm(
+  PCT_BW_REGAINED ~ DRUG * SEX,
+  data = BW_regain_percentage
+)
+
+anova(model_regain_percentage_sex)
+
+emmeans(
+  model_regain_percentage_sex,
+  pairwise ~ DRUG | SEX
+)
